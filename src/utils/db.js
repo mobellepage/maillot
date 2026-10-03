@@ -121,11 +121,11 @@ export async function markInReview(id) {
   if (error) throw error;
 }
 
+// Admin-only RPC: resolves the review AND stamps the owner's custom item
+// server-side (owners can't grant themselves expert verification — a DB
+// trigger rejects any verification state not backed by a real decision).
 export async function resolveReview(id, approved, reason) {
-  const { error } = await supabase
-    .from('review_queue')
-    .update({ status: approved ? 'approved' : 'rejected', reason: reason || '', reviewed_at: new Date().toISOString() })
-    .eq('id', id);
+  const { error } = await supabase.rpc('resolve_review', { p_id: id, p_approved: approved, p_reason: reason || null });
   if (error) throw error;
 }
 
@@ -158,8 +158,35 @@ export async function placeBid(userId, shirtId, size, amount, expiresAt) {
   return data;
 }
 
-export async function placeAsk(userId, { shirtId, customItemId, size, amount }) {
-  const { data, error } = await supabase.from('asks').insert({ user_id: userId, shirt_id: shirtId || null, custom_item_id: customItemId || null, size, amount }).select().single();
+export async function placeAsk(userId, { shirtId, customItemId, size, amount, condition, edition, playerPrint }) {
+  const { data, error } = await supabase
+    .from('asks')
+    .insert({
+      user_id: userId,
+      shirt_id: shirtId || null,
+      custom_item_id: customItemId || null,
+      size,
+      amount,
+      condition: condition || null,
+      edition: edition || null,
+      player_print: playerPrint || null
+    })
+    .select()
+    .single();
+  if (error) throw error;
+  return data;
+}
+
+export async function findOrderForAsk(askId) {
+  const { data, error } = await supabase.from('orders').select('id,amount,status').eq('ask_id', askId).maybeSingle();
+  if (error) throw error;
+  return data;
+}
+
+// The matching engine runs synchronously in the insert trigger, so by the
+// time placeBid() resolves we can tell whether it filled immediately.
+export async function findOrderForBid(bidId) {
+  const { data, error } = await supabase.from('orders').select('id,amount,status').eq('bid_id', bidId).maybeSingle();
   if (error) throw error;
   return data;
 }
@@ -183,10 +210,16 @@ export async function loadMyOrders(userId) {
   return data || [];
 }
 
-export async function updateOrderStatus(orderId, status, extra) {
-  const { error } = await supabase.from('orders').update({ status, updated_at: new Date().toISOString(), ...(extra || {}) }).eq('id', orderId);
+// Escrow state machine. Clients cannot write `orders` directly (no RLS
+// insert/update policy); every transition is a SECURITY DEFINER RPC that
+// checks the caller's role (buyer/seller) and the current status.
+async function orderRpc(fn, args) {
+  const { error } = await supabase.rpc(fn, args);
   if (error) throw error;
 }
+export const markOrderShipped = (orderId, tracking) => orderRpc('order_mark_shipped', { p_order_id: orderId, p_tracking: tracking || null });
+export const confirmOrderReceipt = (orderId) => orderRpc('order_confirm_receipt', { p_order_id: orderId });
+export const cancelOrder = (orderId) => orderRpc('order_cancel', { p_order_id: orderId });
 
 // Starts a Stripe Checkout Session (card + TWINT) for a pending_payment order
 // via the "checkout" Edge Function. Returns { configured: false, message } if
@@ -201,8 +234,9 @@ export async function createCheckoutSession(orderId) {
 // ---------------------------------------------------------------------------
 // Disputes
 // ---------------------------------------------------------------------------
-export async function openDispute(orderId, userId, reason) {
-  const { data, error } = await supabase.from('disputes').insert({ order_id: orderId, opened_by: userId, reason }).select().single();
+// Atomically flips the order to 'disputed' and records who opened it.
+export async function openDispute(orderId, reason) {
+  const { data, error } = await supabase.rpc('order_open_dispute', { p_order_id: orderId, p_reason: reason });
   if (error) throw error;
   return data;
 }

@@ -295,7 +295,7 @@ export default function Detail({ v }) {
           <div style={{ marginTop: 30 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 10 }}>
               <span style={{ fontSize: 13, fontWeight: 600 }}>Size</span>
-              {v.multiSize && <span style={{ fontSize: 12.5, color: '#8C958F' }}>Prices vary by size</span>}
+              {v.multiSize && <span style={{ fontSize: 12.5, color: '#8C958F' }}>Market value by size</span>}
               {v.isOneSize && <span style={{ fontSize: 12.5, color: '#E8B04B' }}>Unique player-issue item</span>}
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(78px,1fr))', gap: 8 }}>
@@ -322,56 +322,62 @@ export default function Detail({ v }) {
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,minmax(0,1fr))', gap: 8, marginTop: 20 }}>
-            <div style={{ padding: 14, borderRadius: 14, background: 'rgba(75,255,139,0.06)', border: '1px solid rgba(75,255,139,0.3)' }}>
-              <div style={{ fontSize: 11.5, color: '#C9D0CB' }}>Lowest ask</div>
-              <div style={{ fontFamily: MONO, fontSize: 'clamp(16px,1.8vw,21px)', fontWeight: 700, marginTop: 4 }}>{v.askFmt}</div>
+            <div
+              style={{
+                padding: 14,
+                borderRadius: 14,
+                background: v.hasLiveAsk ? 'rgba(75,255,139,0.06)' : '#121514',
+                border: v.hasLiveAsk ? '1px solid rgba(75,255,139,0.3)' : '1px solid rgba(255,255,255,0.07)'
+              }}
+            >
+              <div style={{ fontSize: 11.5, color: '#C9D0CB', display: 'flex', alignItems: 'center', gap: 6 }}>
+                Lowest ask
+                {v.hasLiveAsk && <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#4BFF8B', animation: 'kvPulse 1.8s ease-in-out infinite' }} />}
+              </div>
+              <div style={{ fontFamily: MONO, fontSize: 'clamp(16px,1.8vw,21px)', fontWeight: 700, marginTop: 4 }}>{v.liveAskFmt}</div>
+              <div style={{ fontSize: 11, color: '#8C958F', marginTop: 2 }}>{v.liveAskSub}</div>
             </div>
             <div style={{ padding: 14, borderRadius: 14, background: '#121514', border: '1px solid rgba(255,255,255,0.07)' }}>
               <div style={{ fontSize: 11.5, color: '#C9D0CB' }}>Highest bid</div>
-              <div style={{ fontFamily: MONO, fontSize: 'clamp(16px,1.8vw,21px)', fontWeight: 700, marginTop: 4 }}>{v.bidFmtTop}</div>
+              <div style={{ fontFamily: MONO, fontSize: 'clamp(16px,1.8vw,21px)', fontWeight: 700, marginTop: 4 }}>{v.liveBidFmt}</div>
+              <div style={{ fontSize: 11, color: '#8C958F', marginTop: 2 }}>{v.liveBidSub}</div>
             </div>
             <div style={{ padding: 14, borderRadius: 14, background: '#121514', border: '1px solid rgba(255,255,255,0.07)' }}>
-              <div style={{ fontSize: 11.5, color: '#C9D0CB' }}>Last sale</div>
-              <div style={{ fontFamily: MONO, fontSize: 'clamp(16px,1.8vw,21px)', fontWeight: 700, marginTop: 4 }}>{v.lastFmt}</div>
+              <div style={{ fontSize: 11.5, color: '#C9D0CB' }}>Market value</div>
+              <div style={{ fontFamily: MONO, fontSize: 'clamp(16px,1.8vw,21px)', fontWeight: 700, marginTop: 4 }}>{v.marketFmt}</div>
+              <div style={{ fontSize: 11, color: '#8C958F', marginTop: 2 }}>Index estimate</div>
             </div>
           </div>
+          {v.hasMyAsk && (
+            <div style={{ marginTop: 10, fontSize: 13, color: '#C9D0CB' }}>
+              Your ask in this size: <span style={{ fontFamily: MONO, color: '#F2F4F1' }}>{v.myAskFmt}</span>
+            </div>
+          )}
 
           <div style={{ display: 'flex', gap: 10, marginTop: 16 }}>
+            {v.hasLiveAsk ? (
+              <button
+                onClick={v.openBuy}
+                className="hov-primary"
+                style={{ flex: 1.3, height: 58, borderRadius: 14, border: 0, background: '#4BFF8B', color: '#06110A', fontWeight: 700, fontSize: 16, cursor: 'pointer', transition: 'box-shadow .2s,transform .15s' }}
+              >
+                Buy now · {v.liveAskFmt}
+              </button>
+            ) : (
+              <button
+                onClick={v.openBid}
+                className="hov-primary"
+                style={{ flex: 1.3, height: 58, borderRadius: 14, border: 0, background: '#4BFF8B', color: '#06110A', fontWeight: 700, fontSize: 16, cursor: 'pointer', transition: 'box-shadow .2s,transform .15s' }}
+              >
+                Place bid
+              </button>
+            )}
             <button
-              onClick={v.openBuy}
-              className="hov-primary"
-              style={{
-                flex: 1.3,
-                height: 58,
-                borderRadius: 14,
-                border: 0,
-                background: '#4BFF8B',
-                color: '#06110A',
-                fontWeight: 700,
-                fontSize: 16,
-                cursor: 'pointer',
-                transition: 'box-shadow .2s,transform .15s'
-              }}
-            >
-              Buy now · {v.askFmt}
-            </button>
-            <button
-              onClick={v.openBid}
+              onClick={v.hasLiveAsk ? v.openBid : v.sellThis}
               className="hov-outline"
-              style={{
-                flex: 1,
-                height: 58,
-                borderRadius: 14,
-                border: '1.5px solid rgba(255,255,255,0.22)',
-                background: 'none',
-                color: '#F2F4F1',
-                fontWeight: 700,
-                fontSize: 16,
-                cursor: 'pointer',
-                transition: 'border-color .2s,background .2s'
-              }}
+              style={{ flex: 1, height: 58, borderRadius: 14, border: '1.5px solid rgba(255,255,255,0.22)', background: 'none', color: '#F2F4F1', fontWeight: 700, fontSize: 16, cursor: 'pointer', transition: 'border-color .2s,background .2s' }}
             >
-              Place bid
+              {v.hasLiveAsk ? 'Place bid' : 'Sell yours'}
             </button>
             <button
               onClick={v.watchToggle}

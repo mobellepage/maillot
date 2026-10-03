@@ -115,40 +115,9 @@ export default function Modal({ v }) {
                     <span style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 22, fontWeight: 700 }}>{v.buyTotal}</span>
                   </div>
                 </div>
-                <div
-                  style={{
-                    fontSize: 12,
-                    color: '#8C958F',
-                    margin: '22px 0 10px',
-                    fontFamily: "'JetBrains Mono',monospace",
-                    letterSpacing: '0.1em',
-                    textTransform: 'uppercase'
-                  }}
-                >
-                  Pay with
-                </div>
-                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                  {v.payOpts.map((p, i) => (
-                    <button
-                      key={i}
-                      onClick={p.pick}
-                      style={{
-                        flex: 1,
-                        minWidth: 90,
-                        height: 46,
-                        borderRadius: 12,
-                        cursor: 'pointer',
-                        fontWeight: 600,
-                        fontSize: 14,
-                        background: p.bg,
-                        border: `1.5px solid ${p.border}`,
-                        color: '#F2F4F1',
-                        transition: 'border-color .2s'
-                      }}
-                    >
-                      {p.label}
-                    </button>
-                  ))}
+                <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start', marginTop: 20, padding: 14, borderRadius: 14, background: '#0D100F', border: '1px solid rgba(255,255,255,0.07)', fontSize: 13, lineHeight: 1.5, color: '#C9D0CB' }}>
+                  <span style={{ color: '#4BFF8B', fontWeight: 700 }}>✓</span>
+                  <span>Pay securely with TWINT, card or Apple Pay on the next step. Your money is held in escrow and only released once the shirt has passed authentication and you confirm delivery.</span>
                 </div>
                 <button
                   onClick={v.confirmModal}
@@ -167,7 +136,7 @@ export default function Modal({ v }) {
                     transition: 'transform .15s,box-shadow .2s'
                   }}
                 >
-                  Confirm purchase · {v.buyTotal}
+                  {v.modalBusy ? 'Matching…' : 'Confirm purchase · ' + v.buyTotal}
                 </button>
               </>
             )}
@@ -290,7 +259,7 @@ export default function Modal({ v }) {
                     transition: 'box-shadow .2s,transform .15s'
                   }}
                 >
-                  Place bid · {v.bidFmt}
+                  {v.modalBusy ? 'Placing bid…' : 'Place bid · ' + v.bidFmt}
                 </button>
               </>
             )}
@@ -323,6 +292,15 @@ export default function Modal({ v }) {
             </div>
             <div style={{ fontSize: 26, fontWeight: 800, fontStretch: '82%', textTransform: 'uppercase' }}>{v.doneTitle}</div>
             <p style={{ color: '#C9D0CB', fontSize: 14.5, lineHeight: 1.55, margin: '10px 0 24px', textWrap: 'pretty' }}>{v.doneText}</p>
+            {v.doneMatched && (
+              <button
+                onClick={v.donePay}
+                className="hov-primary"
+                style={{ width: '100%', height: 56, marginBottom: 10, borderRadius: 14, border: 0, background: '#4BFF8B', color: '#06110A', fontWeight: 700, fontSize: 16, cursor: 'pointer' }}
+              >
+                Pay now
+              </button>
+            )}
             <button
               onClick={v.closeModal}
               style={{
@@ -337,7 +315,7 @@ export default function Modal({ v }) {
                 cursor: 'pointer'
               }}
             >
-              Done
+              {v.doneMatched ? 'Pay later from Orders' : 'Done'}
             </button>
           </div>
         )}

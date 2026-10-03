@@ -49,6 +49,11 @@ const DICT = {
   'order.action.markShipped': { en: 'Mark as shipped', de: 'Als versendet markieren' },
   'order.action.confirmRelease': { en: 'Confirm receipt & release escrow', de: 'Erhalt best\u00e4tigen & Treuhand freigeben' },
   'order.action.dispute': { en: 'Open a dispute', de: 'Reklamation einreichen' },
+  'order.trackingPrompt': { en: 'Tracking number (optional):', de: 'Sendungsnummer (optional):' },
+  'order.confirmReleasePrompt': {
+    en: 'Only confirm once the shirt has arrived and matches the listing. This releases the payment to the seller and cannot be undone.',
+    de: 'Erst bestätigen, wenn das Trikot angekommen ist und der Beschreibung entspricht. Die Zahlung geht dann an den Verkäufer — das kann nicht rückgängig gemacht werden.'
+  },
 
   'toast.signedOut': { en: 'Signed out', de: 'Abgemeldet' },
   'toast.signedIn': { en: 'Signed in', de: 'Angemeldet' },

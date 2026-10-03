@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import { ACC, NEG, BY, SHIRTS, OWNED, PORT, EMPTY, RANGES, SIZES, MULT, CONDS, pct, hexA, down, linePath, uniq, TODAY } from './data.js';
 import { loadJSON, saveJSON } from './utils/storage.js';
-import { estimateValue } from './addShirtData.js';
+import { estimateValue, matchCatalogFromOcrText } from './addShirtData.js';
+import { readLabelText } from './utils/ocr.js';
+import { analyzeAndCompress } from './utils/image.js';
 import { encodeShareData, parseShareHash } from './utils/share.js';
 import { buyerCheckoutFees, sellerPayout } from './fees.js';
 import { useAuth } from './utils/useAuth.js';
@@ -9,6 +11,7 @@ import { supabase } from './utils/supabase.js';
 import * as db from './utils/db.js';
 import { CURRENCIES, loadCachedRates, fetchLiveRates, formatMoney } from './utils/currency.js';
 import { LANGS, translate } from './utils/i18n.js';
+import { pathFor, stateFromPath, titleFor, descriptionFor, PRIVATE_VIEWS } from './utils/router.js';
 
 const MS = 864e5;
 
@@ -42,10 +45,11 @@ const ORDER_STATUS = {
 
 function initialState() {
   const shared = typeof window !== 'undefined' ? parseShareHash(window.location.hash) : undefined;
+  const routed = shared === undefined && typeof window !== 'undefined' ? stateFromPath(window.location.pathname) : {};
   return {
     view: shared !== undefined ? 'publicvault' : 'home', id: 'ger-26', q: '', heroQ: '', filters: EMPTY, minPrice: 0, maxPrice: 600, sort: 'trending', size: 'M', range: '1Y', hover: null, imgView: 0,
-    watch: DEMO_WATCH, modal: null, modalDone: false, bidAmt: '', exp: '30 days', pay: 'TWINT', toast: null, w: typeof window !== 'undefined' ? window.innerWidth : 1280, showFilters: false, moreClubs: false, movers: 'up',
-    sStep: 0, sScan: 'idle', sProg: 0, sImg: null, sSize: 'L', sCond: 'Very good', sEd: 'Replica', sPlayer: 'Del Piero 10', sAsk: '235', sPub: false, pTab: 'collection', pRange: '1Y',
+    watch: DEMO_WATCH, modal: null, modalDone: false, bidAmt: '', exp: '30 days', modalBusy: false, modalResult: null, toast: null, w: typeof window !== 'undefined' ? window.innerWidth : 1280, showFilters: false, moreClubs: false, movers: 'up',
+    sStep: 0, sShirt: null, sQuery: '', sScan: 'idle', sScanMsg: '', sScanMatch: null, sScanConf: 0, sImg: null, sSize: 'M', sCond: 'Very good', sEd: 'Replica', sPlayer: '', sAsk: '', sPub: false, sPubResult: null, sBusy: false, pTab: 'collection', pRange: '1Y',
     customItems: [], vaultItemId: null, publicData: shared,
     // Auth / account (Phase 6: real Supabase Auth, replaces the old anonymous,
     // single-device localStorage model).
@@ -53,7 +57,9 @@ function initialState() {
     authMode: 'signin', authEmail: '', authPassword: '', authError: '', authBusy: false, authNotice: '',
     // Display-only device preferences (not account data, so localStorage is
     // the right home for these — see utils/currency.js and utils/i18n.js).
-    currency: loadJSON('kv_currency', 'CHF'), lang: loadJSON('kv_lang', 'en')
+    currency: loadJSON('kv_currency', 'CHF'), lang: loadJSON('kv_lang', 'en'),
+    authReturn: null,
+    ...routed
     // `orders` itself is NOT seeded here — it's loaded/polled lazily by
     // useOrders() only while the Profile "Orders" tab is actually open.
   };
@@ -62,7 +68,7 @@ function initialState() {
 export function useMaillot() {
   const [state, setRaw] = useState(initialState);
   const toastTimer = useRef(null);
-  const scanTimer = useRef(null);
+  const sellScanToken = useRef(0);
   const { user, authLoading, signUp, signIn, signOut } = useAuth();
   const [reviewQueueNow, setReviewQueueNow] = useAdminQueue(state.isAdmin, state.view);
   const [apiKeysNow, setApiKeysNow] = useApiKeys(state.isAdmin, state.view);
@@ -73,6 +79,15 @@ export function useMaillot() {
   const [ordersNow, setOrdersNow] = useOrders(user ? user.id : null, state.view, state.pTab);
   const [notifsNow, setNotifsNow] = useNotifications(user ? user.id : null);
   const trendScores = useTrendingScores(state.view);
+  // Live order book for the shirt/size currently open on the detail page.
+  const detailShirt = BY[state.id] || BY['ger-26'];
+  const detailSize = resolveSize(detailShirt, state.size);
+  const sellingShirt = state.view === 'sell' && state.sShirt ? BY[state.sShirt] : null;
+  const [book, reloadBook] = useOrderBook(
+    sellingShirt ? sellingShirt.id : detailShirt.id,
+    sellingShirt ? state.sSize : detailSize,
+    state.view === 'detail' || !!sellingShirt
+  );
   const personalEvents = usePersonalEvents(user ? user.id : null, state.view);
   // Live FX rates (see utils/currency.js) — fetched once per session and
   // reused by every price formatted below; starts from the cached/fallback
@@ -104,7 +119,6 @@ export function useMaillot() {
     onR();
     return () => {
       window.removeEventListener('resize', onR);
-      clearInterval(scanTimer.current);
       clearTimeout(toastTimer.current);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -213,23 +227,46 @@ export function useMaillot() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.view, state.isAdmin]);
 
-  // Stripe Checkout redirects back here via success_url/cancel_url hash
-  // fragments (see db.createCheckoutSession / the "checkout" edge function) \u2014
-  // detect those once on mount, clean the URL, and land the buyer on their
-  // Orders tab with a toast reflecting the outcome.
+  // Stripe Checkout returns to /orders?checkout=success|cancel (see the
+  // "checkout" edge function). Toast the outcome once and drop the query so
+  // a reload doesn't repeat it. Legacy #order-success hashes still work.
   useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
     const h = window.location.hash;
-    if (h.startsWith('#order-success')) {
-      window.history.replaceState(null, '', window.location.pathname + window.location.search);
-      setState({ view: 'profile', pTab: 'orders' });
-      toast('Zahlung erfolgreich \u2014 Betrag wird bis zur Lieferbestätigung treuhänderisch verwahrt.');
-    } else if (h.startsWith('#order-cancel')) {
-      window.history.replaceState(null, '', window.location.pathname + window.location.search);
-      setState({ view: 'profile', pTab: 'orders' });
-      toast('Zahlung abgebrochen.');
-    }
+    const outcome = params.get('checkout') || (h.startsWith('#order-success') ? 'success' : h.startsWith('#order-cancel') ? 'cancel' : null);
+    if (!outcome) return;
+    window.history.replaceState(null, '', '/orders');
+    setState({ view: 'profile', pTab: 'orders' });
+    toast(outcome === 'success' ? 'Zahlung erfolgreich \u2014 Betrag wird bis zur Lieferbestätigung treuhänderisch verwahrt.' : 'Zahlung abgebrochen.');
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // URL <-> state. Every navigation that changes the page pushes a history
+  // entry (so Back works); popstate restores the page from the URL.
+  useEffect(() => {
+    if (state.view === 'publicvault') return;
+    const path = pathFor(state);
+    if (path && path !== window.location.pathname) window.history.pushState(null, '', path);
+    document.title = titleFor(state);
+    const meta = document.querySelector('meta[name="description"]');
+    if (meta) meta.setAttribute('content', descriptionFor(state));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.view, state.id, state.pTab, state.vaultItemId]);
+  useEffect(() => {
+    const onPop = () => {
+      if (parseShareHash(window.location.hash) !== undefined) return;
+      setRaw((s) => ({ ...s, ...stateFromPath(window.location.pathname), modal: null, notifOpen: false }));
+    };
+    window.addEventListener('popstate', onPop);
+    return () => window.removeEventListener('popstate', onPop);
+  }, []);
+
+  // Deep link to a private page while signed out: send to sign-in and come
+  // back to the requested page afterwards.
+  useEffect(() => {
+    if (authLoading || user || !PRIVATE_VIEWS.has(state.view)) return;
+    setRaw((s) => ({ ...s, view: 'auth', authNotice: 'Bitte zuerst anmelden.', authReturn: { view: s.view, pTab: s.pTab, vaultItemId: s.vaultItemId } }));
+  }, [authLoading, user, state.view]);
 
   const top = () => {
     try {
@@ -242,12 +279,14 @@ export function useMaillot() {
     setState({ view, modal: null, hover: null, ...(extra || {}) });
     top();
   };
+  // "Sell yours" from a product page: skip identification, the shirt is known.
+  const goSellShirt = (id, size) => go('sell', { sShirt: id, sSize: size, sStep: 1, sPub: false, sPubResult: null, sAsk: '' });
   const requireAuth = (view, extra) => {
     if (user) {
       go(view, extra);
       return true;
     }
-    go('auth', { authNotice: 'Bitte zuerst anmelden.' });
+    go('auth', { authNotice: 'Bitte zuerst anmelden.', authReturn: { view, ...(extra || {}) } });
     return false;
   };
   const open = (id) => {
@@ -288,20 +327,6 @@ export function useMaillot() {
     const f = Object.assign({}, state.filters);
     f[k] = f[k].includes(val) ? f[k].filter((x) => x !== val) : [...f[k], val];
     setState({ filters: f });
-  };
-  const startScan = (img) => {
-    clearInterval(scanTimer.current);
-    setState({ sScan: 'scanning', sProg: 0, sImg: img || null });
-    scanTimer.current = setInterval(() => {
-      setRaw((s) => {
-        const p = s.sProg + 1.5;
-        if (p >= 100) {
-          clearInterval(scanTimer.current);
-          return { ...s, sProg: 100, sScan: 'done' };
-        }
-        return { ...s, sProg: p };
-      });
-    }, 45);
   };
   const VERIFY_BADGE = {
     self: { label: 'Selbst erfasst', color: '#C9D0CB', bg: 'rgba(255,255,255,0.08)', desc: 'Angaben stammen allein vom Einreicher \u2014 bisher ungeprüft.' },
@@ -427,20 +452,26 @@ export function useMaillot() {
       toast(t('toast.paymentStartFailed'));
     }
   };
+  // Every escrow transition is a server-side RPC that validates role +
+  // current status (see db.js); the local patch just avoids waiting for the
+  // next poll to reflect what the server already accepted.
+  const patchOrder = (orderId, status) => setOrdersNow((prev) => prev.map((o) => (o.id === orderId ? { ...o, status } : o)));
   const shipOrder = async (orderId) => {
+    const tracking = window.prompt(t('order.trackingPrompt'));
+    if (tracking === null) return;
     try {
-      await db.updateOrderStatus(orderId, 'shipped', { shipped_at: new Date().toISOString() });
-      setOrdersNow((prev) => prev.map((o) => (o.id === orderId ? { ...o, status: 'shipped' } : o)));
+      await db.markOrderShipped(orderId, tracking);
+      patchOrder(orderId, 'shipped');
       toast(t('toast.markedShipped'));
     } catch (e) {
       toast(t('toast.actionFailed'));
     }
   };
   const releaseOrder = async (orderId) => {
+    if (!window.confirm(t('order.confirmReleasePrompt'))) return;
     try {
-      const now = new Date().toISOString();
-      await db.updateOrderStatus(orderId, 'released', { delivered_at: now, released_at: now });
-      setOrdersNow((prev) => prev.map((o) => (o.id === orderId ? { ...o, status: 'released' } : o)));
+      await db.confirmOrderReceipt(orderId);
+      patchOrder(orderId, 'released');
       toast(t('toast.releaseConfirmed'));
     } catch (e) {
       toast(t('toast.actionFailed'));
@@ -449,11 +480,10 @@ export function useMaillot() {
   const disputeOrder = async (orderId) => {
     if (!user) return;
     const reason = window.prompt(t('toast.disputePrompt'));
-    if (!reason) return;
+    if (!reason || !reason.trim()) return;
     try {
-      await db.openDispute(orderId, user.id, reason);
-      await db.updateOrderStatus(orderId, 'disputed');
-      setOrdersNow((prev) => prev.map((o) => (o.id === orderId ? { ...o, status: 'disputed' } : o)));
+      await db.openDispute(orderId, reason.trim());
+      patchOrder(orderId, 'disputed');
       toast(t('toast.disputeFiled'));
     } catch (e) {
       toast(t('toast.disputeFailed'));
@@ -461,8 +491,8 @@ export function useMaillot() {
   };
   const cancelOrder = async (orderId) => {
     try {
-      await db.updateOrderStatus(orderId, 'cancelled');
-      setOrdersNow((prev) => prev.map((o) => (o.id === orderId ? { ...o, status: 'cancelled' } : o)));
+      await db.cancelOrder(orderId);
+      patchOrder(orderId, 'cancelled');
       toast(t('toast.orderCancelled'));
     } catch (e) {
       toast(t('toast.cancelFailed'));
@@ -581,7 +611,9 @@ export function useMaillot() {
         setState({ authMode: 'signin' });
       } else {
         toast(t('toast.signedIn'));
-        go('profile', { pTab: 'collection' });
+        const back = st.authReturn;
+        if (back && back.view) go(back.view, { ...back, authReturn: null });
+        else go('profile', { pTab: 'collection' });
       }
     }
   };
@@ -698,14 +730,31 @@ export function useMaillot() {
   v.filterBtnLabel = (st.showFilters ? 'Hide filters' : 'Filters') + (chips.length ? ' (' + chips.length + ')' : '');
 
   // DETAIL
-  const s = BY[st.id] || BY['ger-26'];
+  // Two kinds of numbers live on this page and are kept visibly apart:
+  //  * index data (market value, chart, recent sales) — catalogue estimates
+  //  * the live order book (lowest ask / highest bid) — real rows in
+  //    asks/bids. "Buy now" only exists when a real seller is listed.
+  const s = detailShirt;
   const d = deco(s);
   v.d = d;
-  const size = s.sizes.includes(st.size) && s.avail[st.size] ? st.size : s.sizes.find((z) => s.avail[z]);
+  const size = detailSize;
   const askOf = (z) => Math.round(s.price * (s.type === 'Match-worn' ? 1 : MULT[z]));
   const ask = askOf(size),
     bid = Math.round(ask * 0.88),
     last = Math.round(s.sales[0].p * (s.type === 'Match-worn' ? 1 : MULT[size]));
+  const liveAsk = book.asks.find((a) => !user || a.user_id !== user.id) || null;
+  const liveBid = book.bids[0] || null;
+  const myAsk = user ? book.asks.find((a) => a.user_id === user.id) : null;
+  v.hasLiveAsk = !!liveAsk;
+  v.noLiveAsk = !liveAsk;
+  v.liveAskFmt = liveAsk ? chf(Number(liveAsk.amount)) : '—';
+  v.liveBidFmt = liveBid ? chf(Number(liveBid.amount)) : '—';
+  v.liveAskSub = liveAsk ? book.asks.length + (book.asks.length === 1 ? ' listing' : ' listings') : 'No sellers yet';
+  v.liveBidSub = liveBid ? book.bids.length + (book.bids.length === 1 ? ' bid' : ' bids') : 'No bids yet';
+  v.myAskFmt = myAsk ? chf(Number(myAsk.amount)) : '';
+  v.hasMyAsk = !!myAsk;
+  v.marketFmt = chf(ask);
+  v.sellThis = () => goSellShirt(s.id, size);
   v.sizeSel = size;
   v.isOneSize = s.type === 'Match-worn';
   v.multiSize = !v.isOneSize;
@@ -785,8 +834,8 @@ export function useMaillot() {
   v.sales = s.sales.map((x) => ({ date: new Date(TODAY - x.o * MS).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }), size: x.size, price: chf(x.p * (s.type === 'Match-worn' ? 1 : MULT[x.size] || 1)), cond: s.cond }));
   v.comments = s.cm.map((c) => ({ u: '@' + c.u, t: c.t, d: c.d, ini: c.u.slice(0, 2).toUpperCase() }));
   v.related = SHIRTS.filter((x) => x.id !== s.id && (x.league === s.league || x.type === s.type)).sort((a, b) => b.trend - a.trend).slice(0, 4).map((x) => deco(x));
-  v.openBuy = () => setState({ modal: 'buy', modalDone: false });
-  v.openBid = () => setState({ modal: 'bid', modalDone: false, bidAmt: String(bid + 5) });
+  v.openBuy = () => liveAsk && setState({ modal: 'buy', modalDone: false, modalResult: null });
+  v.openBid = () => setState({ modal: 'bid', modalDone: false, modalResult: null, bidAmt: String(liveBid ? Number(liveBid.amount) + 5 : bid) });
   v.toBrowse = () => browseWith({});
   v.toLeague = () => browseWith({ f: { league: [s.league] } });
 
@@ -800,110 +849,212 @@ export function useMaillot() {
   v.modalAlign = mob ? 'flex-end' : 'center';
   v.modalPad = mob ? '0' : '24px';
   v.modalRadius = mob ? '24px 24px 0 0' : '24px';
-  v.closeModal = () => setState({ modal: null, modalDone: false });
-  const bf = buyerCheckoutFees(ask);
-  v.buyRows = [{ k: 'Lowest ask \u00b7 size ' + size, v: chf(ask) }, { k: 'Authentication (Z\u00fcrich)', v: chf(bf.authFee) }, { k: 'Insured shipping', v: chf(bf.shipping) }];
+  v.closeModal = () => setState({ modal: null, modalDone: false, modalResult: null });
+  const buyPrice = liveAsk ? Number(liveAsk.amount) : ask;
+  const bf = buyerCheckoutFees(buyPrice);
+  v.buyRows = [{ k: 'Lowest ask · size ' + size, v: chf(buyPrice) }, { k: 'Authentication (Zürich)', v: chf(bf.authFee) }, { k: 'Insured shipping', v: chf(bf.shipping) }];
   v.buyTotal = chf(bf.total);
-  v.payOpts = ['TWINT', 'Card', 'Apple Pay'].map((p) => ({ label: p, bg: st.pay === p ? 'rgba(75,255,139,0.08)' : '#161A18', border: st.pay === p ? ACC : 'rgba(255,255,255,0.08)', pick: () => setState({ pay: p }) }));
   const ba = parseInt(st.bidAmt, 10) || 0;
+  const topBid = liveBid ? Number(liveBid.amount) : 0;
   v.bidAmt = st.bidAmt;
   v.onBidAmt = (e) => setState({ bidAmt: e.target.value.replace(/[^0-9]/g, '') });
   v.bidFmt = chf(ba);
-  v.bidQuick = [['Beat highest bid', bid + 1], ['Strong bid', Math.round((bid + ask) / 2)], ['Buy at ask', ask]].map(([k, n]) => ({ k, v: chf(n), pick: () => setState({ bidAmt: String(n) }) }));
+  v.bidQuick = [
+    topBid ? ['Beat highest bid', topBid + 1] : ['Market value', ask],
+    ['Strong bid', Math.round(((topBid || bid) + buyPrice) / 2)],
+    liveAsk ? ['Buy at lowest ask', buyPrice] : ['Opening bid', bid]
+  ].map(([k, n]) => ({ k, v: chf(n), pick: () => setState({ bidAmt: String(n) }) }));
   v.expOpts = ['7 days', '14 days', '30 days', '60 days'].map((x) => ({ label: x, bg: st.exp === x ? 'rgba(75,255,139,0.08)' : '#161A18', border: st.exp === x ? ACC : 'rgba(255,255,255,0.08)', pick: () => setState({ exp: x }) }));
-  v.bidHint = ba >= ask ? 'Your bid matches the lowest ask \u2014 this will execute as an instant purchase.' : ba > bid ? 'You\u2019ll be the highest bidder. Sellers are notified instantly.' : 'Below the current highest bid (' + chf(bid) + '). Sellers rarely accept bids this low.';
-  v.bidHintColor = ba > bid ? ACC : '#E8B04B';
-  // Real checkout + order-book path: a logged-in buyer's "Buy"/"Bid" writes a
-  // genuine row to orders/bids (see utils/db.js + the match_order_book() DB
-  // trigger) instead of just flipping a local `modalDone` flag. Payment capture
-  // itself is still a placeholder (see utils/payments.js) until Stripe/TWINT
-  // keys are configured — see AUDIT NOTE there.
-  v.confirmModal = () => {
-    if (st.modal === 'bid' && !ba) return;
+  v.bidHint = liveAsk && ba >= buyPrice
+    ? 'Your bid meets the lowest ask — it will execute instantly at ' + chf(buyPrice) + '.'
+    : ba > topBid
+      ? (topBid ? 'You’ll be the highest bidder.' : 'You’ll be the first bidder in this size.') + ' Sellers see your bid immediately.'
+      : 'Below the current highest bid (' + chf(topBid) + ').';
+  v.bidHintColor = ba > topBid ? ACC : '#E8B04B';
+  v.modalBusy = !!st.modalBusy;
+  // Buy and Bid both go through the real order book: a buy is simply a bid
+  // at the lowest ask, so the server-side matcher (which forbids self-trades
+  // and locks both rows) decides what actually happened. The confirmation
+  // screen reports that outcome — never an optimistic "order confirmed".
+  v.confirmModal = async () => {
+    const amount = st.modal === 'buy' ? buyPrice : ba;
+    if (!amount || st.modalBusy) return;
     if (!user) {
       setState({ modal: null });
       go('auth', { authNotice: 'Bitte zuerst anmelden, um zu kaufen oder zu bieten.' });
       return;
     }
-    setState({ modalDone: true });
-    if (st.modal === 'buy') {
-      db.logEvent(user.id, s.id, 'buy').catch(() => {});
-      db.placeAsk(user.id, { shirtId: s.id, size, amount: ask }).catch(() => {});
-      db.placeBid(user.id, s.id, size, ask).catch(() => {});
-    } else {
-      db.logEvent(user.id, s.id, 'bid').catch(() => {});
-      db.placeBid(user.id, s.id, size, ba).catch(() => {});
+    setState({ modalBusy: true });
+    try {
+      const days = parseInt(st.exp, 10) || 30;
+      const placed = await db.placeBid(user.id, s.id, size, amount, new Date(Date.now() + days * MS).toISOString());
+      db.logEvent(user.id, s.id, st.modal === 'buy' ? 'buy' : 'bid').catch(() => {});
+      const order = await db.findOrderForBid(placed.id);
+      setState({ modalBusy: false, modalDone: true, modalResult: order ? { kind: 'matched', orderId: order.id, amount: Number(order.amount) } : { kind: 'live', amount } });
+      reloadBook();
+    } catch (e) {
+      setState({ modalBusy: false });
+      toast(t('toast.actionFailed'));
     }
   };
-  v.doneTitle = st.modal === 'buy' ? 'Order confirmed' : 'Bid placed';
-  v.doneText = st.modal === 'buy' ? 'Your ' + s.name + ' (size ' + size + ') is on its way to the Maillot authentication centre in Z\u00fcrich. Verified items ship within 2\u20134 days.' : 'Your bid of ' + chf(ba) + ' is live for ' + st.exp + '. We\u2019ll ping you the moment a seller accepts.';
+  const mr = st.modalResult;
+  v.doneMatched = !!mr && mr.kind === 'matched';
+  v.doneTitle = v.doneMatched ? 'It’s a match' : 'Bid placed';
+  v.doneText = v.doneMatched
+    ? 'A seller accepted at ' + chf(mr.amount) + '. Pay now to lock it in — your money is held in escrow until the shirt has passed authentication and you confirm delivery.'
+    : mr
+      ? 'Your bid of ' + chf(mr.amount) + ' for ' + s.name + ' (size ' + size + ') is live for ' + st.exp + '. If a seller meets it, we’ll notify you to complete payment.'
+      : '';
+  v.donePay = () => {
+    if (!mr || !mr.orderId) return;
+    setState({ modal: null, modalDone: false, modalResult: null });
+    payOrder(mr.orderId);
+  };
 
   // SELL
-  const sj = deco(BY['juv-9697']);
-  v.sj = sj;
-  v.sellSteps = ['AI Scan', 'Details', 'Price', 'Review'].map((l, i) => ({ n: String(i + 1), label: l, bg: i < st.sStep ? ACC : i === st.sStep ? '#F2F4F1' : '#1A1F1C', color: i <= st.sStep ? '#0A0C0B' : '#8C958F', lc: i <= st.sStep ? '#F2F4F1' : '#8C958F', bar: i < st.sStep ? ACC : 'rgba(255,255,255,0.1)', notLast: i < 3 }));
+  // 1 Identify (catalogue search, or a real OCR read of the label photo)
+  // 2 Details  3 Price (live order book + index value)  4 Review → real ask.
+  const sellShirt = st.sShirt ? BY[st.sShirt] : null;
+  const sellDeco = sellShirt ? deco(sellShirt) : null;
+  v.sShirt = sellDeco;
+  v.hasSellShirt = !!sellShirt;
+  v.sellSteps = ['Identify', 'Details', 'Price', 'Review'].map((l, i) => ({ n: String(i + 1), label: l, bg: i < st.sStep ? ACC : i === st.sStep ? '#F2F4F1' : '#1A1F1C', color: i <= st.sStep ? '#0A0C0B' : '#8C958F', lc: i <= st.sStep ? '#F2F4F1' : '#8C958F', bar: i < st.sStep ? ACC : 'rgba(255,255,255,0.1)', notLast: i < 3 }));
   v.s0 = st.sStep === 0 && !st.sPub;
-  v.s1 = st.sStep === 1 && !st.sPub;
-  v.s2 = st.sStep === 2 && !st.sPub;
-  v.s3 = st.sStep === 3 && !st.sPub;
+  v.s1 = st.sStep === 1 && !st.sPub && !!sellShirt;
+  v.s2 = st.sStep === 2 && !st.sPub && !!sellShirt;
+  v.s3 = st.sStep === 3 && !st.sPub && !!sellShirt;
   v.sPub = st.sPub;
   v.sFlow = !st.sPub;
-  v.scanIdle = st.sScan === 'idle';
-  v.scanActive = st.sScan !== 'idle';
-  v.scanning = st.sScan === 'scanning';
-  v.scanDone = st.sScan === 'done';
-  v.hasUpload = !!st.sImg;
-  v.noUpload = !st.sImg;
+  const pickSellShirt = (id) => {
+    const sh = BY[id];
+    setState({ sShirt: id, sSize: sh.sizes.includes(st.sSize) ? st.sSize : sh.sizes[0], sStep: 1, sAsk: '' });
+    top();
+  };
+  v.sQuery = st.sQuery;
+  v.onSellQuery = (e) => setState({ sQuery: e.target.value });
+  const sq = st.sQuery.trim().toLowerCase().split(/\s+/).filter(Boolean);
+  const sellHits = sq.length ? SHIRTS.filter((x) => sq.every((w) => x.hay.includes(w))).slice(0, 8) : [];
+  v.sellResults = sellHits.map((x) => ({ ...deco(x), pick: () => pickSellShirt(x.id) }));
+  v.sellNoResults = sq.length > 0 && !sellHits.length;
+  v.sellPopular = [...SHIRTS].sort((a, b) => b.trend - a.trend).slice(0, 6).map((x) => ({ ...deco(x), pick: () => pickSellShirt(x.id) }));
+  v.showSellPopular = !sq.length && st.sScan !== 'done';
+  // Real label scan: Tesseract OCR in the browser + catalogue word-overlap match.
+  v.sScanBusy = st.sScan === 'reading';
+  v.sScanMsg = st.sScanMsg;
   v.sImgBg = st.sImg ? 'url("' + st.sImg + '")' : 'none';
-  v.onFile = (e) => { const fl = e.target.files && e.target.files[0]; if (fl) startScan(URL.createObjectURL(fl)); };
-  v.sampleScan = () => startScan(null);
-  v.rescan = () => { clearInterval(scanTimer.current); setState({ sScan: 'idle', sProg: 0, sImg: null }); };
-  const pr = st.sProg;
-  v.scanTop = pr + '%';
-  v.scanPct = Math.round(pr) + '%';
-  v.scanW = pr + '%';
-  v.lineOp = st.sScan === 'scanning' ? 1 : 0;
-  v.box1 = pr > 28 ? 1 : 0;
-  v.box2 = pr > 52 ? 1 : 0;
-  v.box3 = pr > 72 ? 1 : 0;
-  v.scanMsg = pr < 30 ? 'Detecting crest & badge\u2026' : pr < 55 ? 'Reading collar, cuffs & brand marks\u2026' : pr < 80 ? 'Matching against 48\u2019210 catalogue entries\u2026' : pr < 100 ? 'Pricing from 41 recent sales\u2026' : 'Identified with 96% confidence';
-  v.scanChecks = [['Crest & badge', 28], ['Brand & collar pattern', 52], ['Season match', 72], ['Market pricing', 99]].map(([l, t]) => ({ label: l, done: pr > t, ic: pr > t ? ACC : 'rgba(255,255,255,0.15)', c: pr > t ? '#F2F4F1' : '#8C958F' }));
-  v.aiFields = [['Club', 'Juventus', '98%'], ['Season', '1996/97 Home', '94%'], ['Brand', 'Kappa', '99%'], ['Edition', 'Replica \u00b7 short sleeve', '91%']].map(([k, val, c]) => ({ k, v: val, c }));
-  v.sNext = () => { setState({ sStep: Math.min(3, st.sStep + 1) }); top(); };
+  v.hasSellImg = !!st.sImg;
+  const scanMatch = st.sScanMatch ? BY[st.sScanMatch] : null;
+  v.sScanMatch = scanMatch ? { ...deco(scanMatch), pick: () => pickSellShirt(scanMatch.id), confidence: Math.round(st.sScanConf * 100) + '%' } : null;
+  v.onSellFile = async (e) => {
+    const file = e.target.files && e.target.files[0];
+    e.target.value = '';
+    if (!file) return;
+    const token = ++sellScanToken.current;
+    setState({ sScan: 'reading', sScanMsg: 'Reading the label…', sScanMatch: null, sImg: null });
+    try {
+      const photo = await analyzeAndCompress(file, { maxDim: 1400 });
+      if (sellScanToken.current !== token) return;
+      setState({ sImg: photo.dataUrl });
+      const text = await readLabelText(photo.dataUrl);
+      if (sellScanToken.current !== token) return;
+      const { item, confidence } = matchCatalogFromOcrText(text);
+      if (item && confidence >= 0.34) {
+        setState({ sScan: 'done', sScanMatch: item.id, sScanConf: confidence, sScanMsg: '', sQuery: item.name });
+      } else {
+        setState({ sScan: 'done', sScanMatch: null, sScanMsg: text ? 'We couldn’t match that label confidently — search for the shirt instead.' : 'No readable text on that photo — try the inner wash/product label, or search below.' });
+      }
+    } catch (err) {
+      if (sellScanToken.current === token) setState({ sScan: 'idle', sScanMsg: 'Scanning failed — please search for the shirt instead.' });
+    }
+  };
+  v.sChange = () => { setState({ sStep: 0 }); top(); };
+  v.sNext = () => { if (!v.nextDisabled) { setState({ sStep: Math.min(3, st.sStep + 1) }); top(); } };
   v.sBack = () => { setState({ sStep: Math.max(0, st.sStep - 1) }); top(); };
   v.canBack = st.sStep > 0;
+  const sa = parseInt(st.sAsk, 10) || 0;
   v.nextLabel = st.sStep === 2 ? 'Review listing' : 'Continue';
-  v.showNext = st.sStep > 0 && st.sStep < 3;
-  v.sSizes = SIZES.map((z) => ({ label: z, bg: st.sSize === z ? 'rgba(75,255,139,0.1)' : '#121514', border: st.sSize === z ? ACC : 'rgba(255,255,255,0.08)', pick: () => setState({ sSize: z }) }));
+  v.showNext = st.sStep > 0 && st.sStep < 3 && !!sellShirt;
+  v.nextDisabled = st.sStep === 2 && sa <= 0;
+  const sellSizes = sellShirt ? sellShirt.sizes : SIZES;
+  v.sSizes = sellSizes.map((z) => ({ label: z, bg: st.sSize === z ? 'rgba(75,255,139,0.1)' : '#121514', border: st.sSize === z ? ACC : 'rgba(255,255,255,0.08)', pick: () => setState({ sSize: z }) }));
   v.sConds = [['New with tags', 'Never worn, original tags attached'], ['Excellent', 'Worn lightly, no visible flaws'], ['Very good', 'Minor signs of wear, print intact'], ['Good', 'Visible wear, fading or small marks']].map(([l, dsc]) => ({ label: l, desc: dsc, bg: st.sCond === l ? 'rgba(75,255,139,0.07)' : '#121514', border: st.sCond === l ? ACC : 'rgba(255,255,255,0.08)', pick: () => setState({ sCond: l }) }));
   v.sEds = ['Replica', 'Authentic', 'Player issue', 'Match-worn'].map((x) => ({ label: x, bg: st.sEd === x ? '#F2F4F1' : 'transparent', color: st.sEd === x ? '#0A0C0B' : '#C9D0CB', pick: () => setState({ sEd: x }) }));
   v.sPlayer = st.sPlayer;
-  v.onPlayer = (e) => setState({ sPlayer: e.target.value });
-  const sa = parseInt(st.sAsk, 10) || 0;
+  v.onPlayer = (e) => setState({ sPlayer: e.target.value.slice(0, 60) });
   v.sAsk = st.sAsk;
-  v.onAsk = (e) => setState({ sAsk: e.target.value.replace(/[^0-9]/g, '') });
-  const posOf = (n) => Math.max(0, Math.min(100, ((n - 180) / (280 - 180)) * 100)) + '%';
-  v.mkMarks = [['Highest bid', 210, '#C9D0CB'], ['Lowest ask', 235, ACC], ['Last sale', 238, '#E8B04B']].map(([l, n, c]) => ({ l, v: chf(n), left: posOf(n), c }));
+  v.onAsk = (e) => setState({ sAsk: e.target.value.replace(/[^0-9]/g, '').slice(0, 6) });
+  // Price guidance: the live book for this shirt/size, plus the index value.
+  const sellMarket = sellShirt ? Math.round(sellShirt.price * (sellShirt.type === 'Match-worn' ? 1 : MULT[st.sSize] || 1)) : 0;
+  const sellLowAsk = sellShirt && book.asks.length ? Number(book.asks[0].amount) : null;
+  const sellTopBid = sellShirt && book.bids.length ? Number(book.bids[0].amount) : null;
+  const marks = [['Market value', sellMarket, '#E8B04B']];
+  if (sellTopBid) marks.push(['Highest bid', sellTopBid, '#C9D0CB']);
+  if (sellLowAsk) marks.push(['Lowest ask', sellLowAsk, ACC]);
+  const markVals = marks.map((m) => m[1]).concat(sa > 0 ? [sa] : []);
+  const lo = Math.min(...markVals) * 0.85,
+    hi = Math.max(...markVals) * 1.15 || 1;
+  const posOf = (n) => Math.max(0, Math.min(100, ((n - lo) / (hi - lo || 1)) * 100)) + '%';
+  v.mkMarks = marks.map(([l, n, c]) => ({ l, v: chf(n), left: posOf(n), c }));
   v.yourLeft = posOf(sa);
   v.askFmtS = chf(sa);
-  v.sQuick = [['Match lowest ask', 235], ['Undercut by 5', 230], ['Sell faster', 220]].map(([l, n]) => ({ label: l, v: chf(n), pick: () => setState({ sAsk: String(n) }) }));
+  v.sellSizeLabel = st.sSize;
+  v.sQuick = [
+    sellTopBid ? ['Sell now to top bid', sellTopBid] : null,
+    sellLowAsk ? ['Undercut lowest ask', Math.max(1, sellLowAsk - 1)] : null,
+    ['Market value', sellMarket]
+  ]
+    .filter(Boolean)
+    .map(([l, n]) => ({ label: l, v: chf(n), pick: () => setState({ sAsk: String(n) }) }));
   const sp = sellerPayout(sa);
-  v.payRows = [{ k: 'Your ask', v: chf(sa) }, { k: 'Seller fee (8%)', v: '\u2212' + chf(sp.commission) }, { k: 'Authentication', v: 'Free' }, { k: 'Shipping to vault', v: 'Prepaid label' }];
+  v.payRows = [{ k: 'Your ask', v: chf(sa) }, { k: 'Seller fee (8%)', v: '−' + chf(sp.commission) }, { k: 'Authentication', v: 'Free' }, { k: 'Shipping to vault', v: 'Prepaid label' }];
   v.payout = chf(sp.payout);
-  v.askHint = sa <= 0 ? 'Enter an asking price.' : sa <= 235 ? 'Your ask will be the lowest on the market \u2014 similar listings sold within 3 days.' : chf(sa - 235) + ' above the lowest ask. Expect a slower sale.';
-  v.askHintC = sa > 0 && sa <= 235 ? ACC : '#E8B04B';
-  v.review = [['Shirt', 'Juventus 1996/97 Home'], ['Size', st.sSize], ['Condition', st.sCond], ['Edition', st.sEd], ['Player print', st.sPlayer || 'None'], ['Asking price', chf(sa)], ['You earn', chf(sp.payout)]].map(([k, val]) => ({ k, v: val }));
-  v.publish = () => {
+  v.askHint =
+    sa <= 0
+      ? 'Enter an asking price.'
+      : sellTopBid && sa <= sellTopBid
+        ? 'At or below the highest bid — this sells instantly at ' + chf(sa) + '.'
+        : sellLowAsk && sa < sellLowAsk
+          ? 'Yours will be the lowest ask on the market.'
+          : sellLowAsk
+            ? chf(sa - sellLowAsk) + ' above the lowest ask — expect a slower sale.'
+            : 'You’ll be the only seller in size ' + st.sSize + '.';
+  v.askHintC = sa > 0 && (!sellLowAsk || sa <= sellLowAsk) ? ACC : '#E8B04B';
+  v.review = sellShirt
+    ? [['Shirt', sellShirt.name], ['Size', st.sSize], ['Condition', st.sCond], ['Edition', st.sEd], ['Player print', st.sPlayer || 'None'], ['Asking price', chf(sa)], ['You earn', chf(sp.payout)]].map(([k, val]) => ({ k, v: val }))
+    : [];
+  v.sBusy = !!st.sBusy;
+  v.publish = async () => {
     if (!user) {
       go('auth', { authNotice: 'Bitte zuerst anmelden, um ein Trikot zu verkaufen.' });
       return;
     }
-    setState({ sPub: true });
-    top();
-    db.placeAsk(user.id, { shirtId: 'juv-9697', size: st.sSize, amount: sa }).catch(() => {});
+    if (!sellShirt || sa <= 0 || st.sBusy) return;
+    setState({ sBusy: true });
+    try {
+      const placed = await db.placeAsk(user.id, { shirtId: sellShirt.id, size: st.sSize, amount: sa, condition: st.sCond, edition: st.sEd, playerPrint: st.sPlayer.trim() });
+      const order = await db.findOrderForAsk(placed.id);
+      setState({ sBusy: false, sPub: true, sPubResult: order ? { sold: true, amount: Number(order.amount) } : { sold: false, amount: sa } });
+      reloadBook();
+      top();
+    } catch (e) {
+      setState({ sBusy: false });
+      toast(t('toast.actionFailed'));
+    }
   };
-  v.viewListing = () => open('juv-9697');
-  v.listAnother = () => { clearInterval(scanTimer.current); setState({ sPub: false, sStep: 0, sScan: 'idle', sProg: 0, sImg: null }); top(); };
+  const pubRes = st.sPubResult;
+  v.pubSold = !!pubRes && pubRes.sold;
+  v.pubTitle = v.pubSold ? 'Sold' : 'You’re live';
+  v.pubText = !pubRes || !sellShirt
+    ? ''
+    : pubRes.sold
+      ? 'Your ' + sellShirt.name + ' (size ' + st.sSize + ') matched a waiting buyer at ' + chf(pubRes.amount) + '. Once they pay, you’ll get a prepaid label to ship it to our Zürich vault.'
+      : 'Your ' + sellShirt.name + ' (size ' + st.sSize + ') is listed at ' + chf(pubRes.amount) + '. Buyers watching this shirt see it now — we’ll notify you the moment it sells.';
+  v.viewListing = () => sellShirt && open(sellShirt.id);
+  v.listAnother = () => {
+    sellScanToken.current++;
+    setState({ sPub: false, sPubResult: null, sStep: 0, sShirt: null, sQuery: '', sScan: 'idle', sScanMsg: '', sScanMatch: null, sImg: null, sAsk: '', sPlayer: '' });
+    top();
+  };
 
   // PROFILE
   const owned = OWNED.map((o) => {
@@ -1004,12 +1155,20 @@ export function useMaillot() {
         statusLabel: q.status === 'pending' ? 'Neu' : 'In Prüfung',
         submittedLabel: new Date(q.submittedAt).toLocaleString('de-CH'),
         approve: async () => {
-          await db.resolveReview(q.id, true).catch(() => {});
-          setReviewQueueNow((prev) => prev.map((x) => (x.id === q.id ? { ...x, status: 'approved' } : x)));
+          try {
+            await db.resolveReview(q.id, true);
+            setReviewQueueNow((prev) => prev.map((x) => (x.id === q.id ? { ...x, status: 'approved', reviewedAt: Date.now() } : x)));
+          } catch (e) {
+            toast('Fehler: ' + (e.message || e));
+          }
         },
         reject: async (reason) => {
-          await db.resolveReview(q.id, false, reason).catch(() => {});
-          setReviewQueueNow((prev) => prev.map((x) => (x.id === q.id ? { ...x, status: 'rejected', reason } : x)));
+          try {
+            await db.resolveReview(q.id, false, reason);
+            setReviewQueueNow((prev) => prev.map((x) => (x.id === q.id ? { ...x, status: 'rejected', reason, reviewedAt: Date.now() } : x)));
+          } catch (e) {
+            toast('Fehler: ' + (e.message || e));
+          }
         }
       };
     };
@@ -1148,6 +1307,40 @@ export function useMaillot() {
 
   return { state: st, v };
 }
+
+// Size the detail page actually shows: the requested one if it exists and is
+// available, otherwise the first available size.
+function resolveSize(shirt, wanted) {
+  return shirt.sizes.includes(wanted) && shirt.avail[wanted] ? wanted : shirt.sizes.find((z) => shirt.avail[z]);
+}
+
+// Live order book (open asks/bids) for one shirt/size, polled only while the
+// detail page is open. Returns [book, reload] so a just-placed bid shows up
+// without waiting for the next tick.
+function useOrderBook(shirtId, size, active) {
+  const [book, setBook] = useState({ key: '', bids: [], asks: [] });
+  const [nonce, setNonce] = useState(0);
+  const key = shirtId + '|' + size;
+  useEffect(() => {
+    if (!active || !shirtId || !size) return;
+    let cancelled = false;
+    const sync = () => {
+      db.loadOrderBook(shirtId, size)
+        .then((b) => !cancelled && setBook({ key: shirtId + '|' + size, ...b }))
+        .catch(() => {});
+    };
+    sync();
+    const interval = setInterval(sync, 5000);
+    return () => {
+      cancelled = true;
+      clearInterval(interval);
+    };
+  }, [shirtId, size, active, nonce]);
+  // Never show the previous shirt/size's book while the new one loads.
+  const current = book.key === key ? book : EMPTY_BOOK;
+  return [current, () => setNonce((n) => n + 1)];
+}
+const EMPTY_BOOK = { key: '', bids: [], asks: [] };
 
 // Small helper hook: loads the full review queue for the admin screen and
 // keeps it client-cached across the two "approve/reject" handlers above

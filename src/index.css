@@ -13,6 +13,7 @@ input::placeholder, textarea::placeholder { color: #6F7872; }
 ::-webkit-scrollbar-thumb { background: #2A302D; border-radius: 9px; }
 
 @keyframes kvIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+@keyframes kvSlide { 0% { transform: translateX(-100%); } 100% { transform: translateX(250%); } }
 @keyframes kvPulse { 0%, 100% { opacity: 1; } 50% { opacity: .3; } }
 
 /* Hover / active utility classes (replace the prototype's style-hover / style-active props) */
