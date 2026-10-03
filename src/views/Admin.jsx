@@ -3,6 +3,79 @@ import { useState } from 'react';
 const MONO = "'JetBrains Mono',monospace";
 const ACC = '#4BFF8B';
 
+function ApiKeysPanel({ v }) {
+  const [label, setLabel] = useState('');
+  const [busy, setBusy] = useState(false);
+
+  const create = async () => {
+    setBusy(true);
+    await v.apiKeyCreate(label.trim());
+    setBusy(false);
+    setLabel('');
+  };
+
+  return (
+    <div style={{ marginTop: 40 }}>
+      <div style={{ fontFamily: MONO, fontSize: 11.5, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#4BFF8B' }}>Daten-Produkt</div>
+      <h2 style={{ margin: '6px 0 0', fontSize: 'clamp(20px,2.6vw,26px)', fontWeight: 800, fontStretch: '76%', textTransform: 'uppercase' }}>Price-Index API-Schlüssel</h2>
+      <div style={{ fontSize: 13, color: '#8C958F', marginTop: 8, lineHeight: 1.5, maxWidth: 560 }}>
+        Lizenzierbarer Preisindex (GET price-index?shirt_id=... mit x-api-key Header). Schlüssel werden nur als Hash gespeichert — der Klartext wird genau einmal nach dem Erstellen angezeigt.
+      </div>
+
+      {v.newApiKey && (
+        <div style={{ marginTop: 16, padding: 16, borderRadius: 14, background: 'rgba(75,255,139,0.08)', border: '1px solid rgba(75,255,139,0.3)' }}>
+          <div style={{ fontSize: 12.5, color: '#C9D0CB' }}>Neuer Schlüssel — jetzt kopieren, wird nicht wieder angezeigt:</div>
+          <div style={{ fontFamily: MONO, fontSize: 13, marginTop: 8, wordBreak: 'break-all', color: ACC }}>{v.newApiKey.plaintext}</div>
+          <button
+            onClick={v.newApiKey.dismiss}
+            style={{ marginTop: 10, height: 34, padding: '0 14px', borderRadius: 8, border: '1px solid rgba(255,255,255,0.14)', background: 'none', color: '#F2F4F1', fontSize: 12.5, cursor: 'pointer' }}
+          >
+            Verstanden, ausblenden
+          </button>
+        </div>
+      )}
+
+      <div style={{ display: 'flex', gap: 8, marginTop: 16, flexWrap: 'wrap' }}>
+        <input
+          value={label}
+          onChange={(e) => setLabel(e.target.value)}
+          placeholder="Bezeichnung (z.B. „Partner X“)"
+          style={{ flex: '1 1 220px', height: 42, padding: '0 14px', borderRadius: 10, background: '#121514', border: '1px solid rgba(255,255,255,0.1)', outline: 'none', fontSize: 13, color: '#F2F4F1' }}
+        />
+        <button
+          onClick={create}
+          disabled={busy}
+          style={{ height: 42, padding: '0 18px', borderRadius: 10, border: 0, background: ACC, color: '#06110A', fontWeight: 700, fontSize: 13.5, cursor: busy ? 'default' : 'pointer', opacity: busy ? 0.6 : 1 }}
+        >
+          Schlüssel erstellen
+        </button>
+      </div>
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 16 }}>
+        {v.apiKeys.length === 0 && <div style={{ fontSize: 13, color: '#8C958F' }}>Noch keine Schlüssel ausgestellt.</div>}
+        {v.apiKeys.map((k) => (
+          <div key={k.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10, padding: '12px 14px', borderRadius: 10, background: '#101312', border: '1px solid rgba(255,255,255,0.06)', flexWrap: 'wrap' }}>
+            <div>
+              <div style={{ fontSize: 13.5, fontWeight: 600 }}>{k.label}</div>
+              <div style={{ fontFamily: MONO, fontSize: 11, color: '#8C958F', marginTop: 2 }}>{k.prefix}… · erstellt {k.createdLabel} · zuletzt genutzt {k.lastUsedLabel}</div>
+            </div>
+            {k.revoked ? (
+              <span style={{ fontFamily: MONO, fontSize: 11, color: '#8C958F' }}>Widerrufen</span>
+            ) : (
+              <button
+                onClick={k.revoke}
+                style={{ height: 34, padding: '0 14px', borderRadius: 8, border: '1px solid rgba(255,107,94,0.4)', background: 'none', color: '#FF6B5E', fontSize: 12.5, cursor: 'pointer' }}
+              >
+                Widerrufen
+              </button>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function ReviewCard({ item }) {
   const [reason, setReason] = useState('');
   const [showReject, setShowReject] = useState(false);
@@ -149,6 +222,8 @@ export default function Admin({ v }) {
           </div>
         </div>
       )}
+
+      <ApiKeysPanel v={v} />
 
       <button onClick={v.adminBack} style={{ marginTop: 32, height: 48, padding: '0 20px', borderRadius: 14, border: '1px solid rgba(255,255,255,0.14)', background: 'none', color: '#F2F4F1', fontWeight: 600, cursor: 'pointer' }}>
         ← Zurück zur Sammlung

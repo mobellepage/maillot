@@ -251,3 +251,31 @@ export async function loadTrendingScores(days = 14) {
   if (error) throw error;
   return data || [];
 }
+
+// ---------------------------------------------------------------------------
+// Licensable price-index API: admin-only key management. Row access is also
+// enforced server-side by the api_keys_admin_all RLS policy, and both RPCs
+// below are SECURITY DEFINER functions that re-check is_admin themselves —
+// this client code is just the thin wrapper around them.
+// ---------------------------------------------------------------------------
+export async function loadApiKeys() {
+  const { data, error } = await supabase
+    .from('api_keys')
+    .select('id,label,key_prefix,created_at,revoked_at,last_used_at')
+    .order('created_at', { ascending: false });
+  if (error) throw error;
+  return data || [];
+}
+
+// Returns { id, plaintext_key, key_prefix, created_at } — plaintext_key is
+// only ever available in this one response; only the hash is stored after.
+export async function createApiKey(label) {
+  const { data, error } = await supabase.rpc('create_api_key', { p_label: label });
+  if (error) throw error;
+  return (data || [])[0] || null;
+}
+
+export async function revokeApiKey(id) {
+  const { error } = await supabase.rpc('revoke_api_key', { p_id: id });
+  if (error) throw error;
+}

@@ -65,6 +65,10 @@ export function useMaillot() {
   const scanTimer = useRef(null);
   const { user, authLoading, signUp, signIn, signOut } = useAuth();
   const [reviewQueueNow, setReviewQueueNow] = useAdminQueue(state.isAdmin, state.view);
+  const [apiKeysNow, setApiKeysNow] = useApiKeys(state.isAdmin, state.view);
+  // Plaintext of a just-created API key — held only in memory, shown once in
+  // the admin UI, never persisted anywhere (only its hash lives in the DB).
+  const [newApiKey, setNewApiKey] = useState(null);
   const [ordersNow, setOrdersNow] = useOrders(user ? user.id : null, state.view, state.pTab);
   const [notifsNow, setNotifsNow] = useNotifications(user ? user.id : null);
   const trendScores = useTrendingScores(state.view);
@@ -1030,6 +1034,40 @@ export function useMaillot() {
         when: new Date(q.reviewedAt).toLocaleString('de-CH')
       }));
     v.adminBack = () => go('profile', { pTab: 'collection' });
+
+    // DATA/API PRODUCT — admin-issued keys for the licensable price-index API
+    // (see supabase edge function `price-index`). Plaintext only ever exists
+    // once, right after creation; everything else here is metadata only.
+    v.apiKeys = apiKeysNow.map((k) => ({
+      id: k.id,
+      label: k.label,
+      prefix: k.key_prefix,
+      createdLabel: new Date(k.created_at).toLocaleString('de-CH'),
+      lastUsedLabel: k.last_used_at ? new Date(k.last_used_at).toLocaleString('de-CH') : 'Nie',
+      revoked: !!k.revoked_at,
+      revoke: () => v.apiKeyRevoke(k.id)
+    }));
+    v.newApiKey = newApiKey
+      ? { plaintext: newApiKey.plaintext_key, prefix: newApiKey.key_prefix, dismiss: () => setNewApiKey(null) }
+      : null;
+    v.apiKeyCreate = async (label) => {
+      try {
+        const k = await db.createApiKey(label || 'API key');
+        if (!k) return;
+        setNewApiKey(k);
+        setApiKeysNow((prev) => [{ id: k.id, label: label || 'API key', key_prefix: k.key_prefix, created_at: k.created_at, revoked_at: null, last_used_at: null }, ...prev]);
+      } catch (e) {
+        toast('Fehler: ' + (e.message || e));
+      }
+    };
+    v.apiKeyRevoke = async (id) => {
+      try {
+        await db.revokeApiKey(id);
+        setApiKeysNow((prev) => prev.map((k) => (k.id === id ? { ...k, revoked_at: new Date().toISOString() } : k)));
+      } catch (e) {
+        toast('Fehler: ' + (e.message || e));
+      }
+    };
   }
 
   // VAULT ITEM DETAIL (self-added "Trikot hinzufügen" items)
@@ -1087,6 +1125,24 @@ function useAdminQueue(isAdmin, view) {
     };
   }, [isAdmin, view]);
   return [queue, setQueue];
+}
+
+// Small helper hook: loads the licensable price-index API's issued keys,
+// gated to the admin view exactly like useAdminQueue above — nobody but an
+// admin ever triggers a read of api_keys (RLS would reject it anyway).
+function useApiKeys(isAdmin, view) {
+  const [keys, setKeys] = useState([]);
+  useEffect(() => {
+    if (!isAdmin || view !== 'admin') return;
+    let cancelled = false;
+    db.loadApiKeys()
+      .then((k) => !cancelled && setKeys(k))
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [isAdmin, view]);
+  return [keys, setKeys];
 }
 
 // Small helper hook: loads/polls this user's orders (buyer or seller side)
