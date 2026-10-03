@@ -1,0 +1,69 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  app:
+    name: Lint · unit tests · build · smoke e2e
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run lint -- --deny-warnings
+      - run: npm test
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - run: npx playwright test --project=smoke --project=smoke-mobile
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report-smoke
+          path: playwright-report
+          retention-days: 7
+
+  database:
+    name: Migrations · database tests · backend e2e
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+      - run: npm ci
+      # Builds the whole database from supabase/migrations + seed.sql —
+      # proves every migration applies cleanly from zero.
+      - run: supabase start -x studio,imgproxy,inbucket,logflare,vector
+      - run: supabase db lint --level error
+      - run: supabase test db
+      - name: Export local stack credentials
+        run: |
+          supabase status -o env > .supabase.env
+          echo "E2E_SUPABASE_URL=$(grep '^API_URL=' .supabase.env | cut -d= -f2- | tr -d '"')" >> "$GITHUB_ENV"
+          echo "E2E_SUPABASE_ANON_KEY=$(grep '^ANON_KEY=' .supabase.env | cut -d= -f2- | tr -d '"')" >> "$GITHUB_ENV"
+      - run: npx playwright install --with-deps chromium
+      - run: npx playwright test --project=backend
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report-backend
+          path: playwright-report
+          retention-days: 7
+      - run: supabase stop --no-backup
+        if: always()

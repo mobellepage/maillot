@@ -13,6 +13,20 @@ cp .env.example .env.local   # point at the hosted project or local stack
 npm run dev
 ```
 
+## Tests
+
+```bash
+npm test                  # unit tests (Vitest)
+npm run test:e2e          # browser smoke tests (Playwright, offline backend)
+npm run test:db           # database tests (pgTAP) — needs `npm run db:start`
+E2E_SUPABASE_URL=http://127.0.0.1:54321 E2E_SUPABASE_ANON_KEY=<anon> npx playwright test --project=backend
+```
+
+CI (`.github/workflows/ci.yml`) runs all of it on every push and pull
+request: lint, unit tests, build and smoke e2e; then it builds the database
+from scratch with the Supabase CLI, runs the pgTAP suite and the backend e2e
+flow against it.
+
 ## Database & backend
 
 Everything that runs in Supabase lives in [`supabase/`](supabase) and is the
