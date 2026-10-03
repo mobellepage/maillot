@@ -354,6 +354,56 @@ export default function Profile({ v }) {
           </div>
         </>
       )}
+
+      {v.tabOrders && (
+        <>
+          {v.ordersEmpty && <div style={{ padding: '60px 20px', textAlign: 'center', color: '#8C958F' }}>No orders yet \u2014 buy or sell a shirt to see it here.</div>}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginTop: 24 }}>
+            {v.orders.map((o) => (
+              <div
+                key={o.id}
+                style={{ padding: 18, borderRadius: 18, background: '#101312', border: '1px solid rgba(255,255,255,0.06)', display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 14, justifyContent: 'space-between' }}
+              >
+                <div style={{ minWidth: 220, flex: '1 1 220px' }}>
+                  <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+                    <span style={{ fontSize: 11, fontWeight: 700, padding: '3px 8px', borderRadius: 999, background: 'rgba(255,255,255,0.06)', color: '#C9D0CB' }}>{o.roleLabel}</span>
+                    <span style={{ fontSize: 14.5, fontWeight: 600 }}>{o.name}</span>
+                    <span style={{ fontFamily: MONO, fontSize: 12, color: '#8C958F' }}>Size {o.size}</span>
+                  </div>
+                  <div style={{ fontSize: 12, color: '#8C958F', marginTop: 6 }}>
+                    {o.createdLabel}
+                    {o.trackingCode ? ' · Tracking: ' + o.trackingCode : ''}
+                  </div>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap' }}>
+                  <div style={{ fontFamily: MONO, fontSize: 16, fontWeight: 700 }}>{o.totalFmt}</div>
+                  <span style={{ fontSize: 12, fontWeight: 700, padding: '5px 10px', borderRadius: 999, color: o.statusColor, background: o.statusBg }}>{o.statusLabel}</span>
+                  <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                    {o.actions.map((a, i) => (
+                      <button
+                        key={i}
+                        onClick={a.run}
+                        style={{
+                          padding: '8px 14px',
+                          borderRadius: 10,
+                          border: a.primary ? 0 : '1px solid rgba(255,255,255,0.14)',
+                          background: a.primary ? '#4BFF8B' : 'none',
+                          color: a.primary ? '#06110A' : a.danger ? '#FF6B5E' : '#F2F4F1',
+                          fontWeight: 700,
+                          fontSize: 12.5,
+                          cursor: 'pointer'
+                        }}
+                      >
+                        {a.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
     </main>
   );
 }

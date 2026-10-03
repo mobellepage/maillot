@@ -188,6 +188,16 @@ export async function updateOrderStatus(orderId, status, extra) {
   if (error) throw error;
 }
 
+// Starts a Stripe Checkout Session (card + TWINT) for a pending_payment order
+// via the "checkout" Edge Function. Returns { configured: false, message } if
+// Stripe keys haven't been set on the project yet, or { configured: true, url }
+// to redirect the buyer to Stripe-hosted checkout.
+export async function createCheckoutSession(orderId) {
+  const { data, error } = await supabase.functions.invoke('checkout', { body: { orderId } });
+  if (error) throw error;
+  return data;
+}
+
 // ---------------------------------------------------------------------------
 // Disputes
 // ---------------------------------------------------------------------------

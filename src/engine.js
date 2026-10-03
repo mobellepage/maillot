@@ -13,6 +13,18 @@ const MS = 864e5;
 // user signs in, this is replaced by their real Supabase-backed watchlist.
 const DEMO_WATCH = ['nap-8788', 'bra-70', 'mia-26', 'fra-98', 'boc-81'];
 
+// Escrow order status \u2192 label/color, used by the Profile "Orders" tab.
+const ORDER_STATUS = {
+  pending_payment: { label: 'Zahlung ausstehend', color: '#E8B04B', bg: 'rgba(232,176,75,0.14)' },
+  paid_escrow: { label: 'Bezahlt \u00b7 in Treuhand', color: '#6FB6FF', bg: 'rgba(111,182,255,0.12)' },
+  shipped: { label: 'Versendet', color: '#6FB6FF', bg: 'rgba(111,182,255,0.12)' },
+  delivered: { label: 'Geliefert', color: ACC, bg: 'rgba(75,255,139,0.12)' },
+  released: { label: 'Abgeschlossen', color: ACC, bg: 'rgba(75,255,139,0.12)' },
+  disputed: { label: 'Reklamiert', color: NEG, bg: 'rgba(255,107,94,0.13)' },
+  cancelled: { label: 'Storniert', color: '#8C958F', bg: 'rgba(255,255,255,0.06)' },
+  refunded: { label: 'Rückerstattet', color: '#8C958F', bg: 'rgba(255,255,255,0.06)' }
+};
+
 function initialState() {
   const shared = typeof window !== 'undefined' ? parseShareHash(window.location.hash) : undefined;
   return {
@@ -24,6 +36,8 @@ function initialState() {
     // single-device localStorage model).
     isAdmin: false, dataLoaded: false, notifications: [],
     authMode: 'signin', authEmail: '', authPassword: '', authError: '', authBusy: false, authNotice: ''
+    // `orders` itself is NOT seeded here — it's loaded/polled lazily by
+    // useOrders() only while the Profile "Orders" tab is actually open.
   };
 }
 
@@ -33,6 +47,7 @@ export function useMaillot() {
   const scanTimer = useRef(null);
   const { user, authLoading, signUp, signIn, signOut } = useAuth();
   const [reviewQueueNow, setReviewQueueNow] = useAdminQueue(state.isAdmin, state.view);
+  const [ordersNow, setOrdersNow] = useOrders(user ? user.id : null, state.view, state.pTab);
 
   const setState = (patch) => setRaw((s) => ({ ...s, ...(typeof patch === 'function' ? patch(s) : patch) }));
 
@@ -150,6 +165,24 @@ export function useMaillot() {
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.view, state.isAdmin]);
+
+  // Stripe Checkout redirects back here via success_url/cancel_url hash
+  // fragments (see db.createCheckoutSession / the "checkout" edge function) \u2014
+  // detect those once on mount, clean the URL, and land the buyer on their
+  // Orders tab with a toast reflecting the outcome.
+  useEffect(() => {
+    const h = window.location.hash;
+    if (h.startsWith('#order-success')) {
+      window.history.replaceState(null, '', window.location.pathname + window.location.search);
+      setState({ view: 'profile', pTab: 'orders' });
+      toast('Zahlung erfolgreich \u2014 Betrag wird bis zur Lieferbestätigung treuhänderisch verwahrt.');
+    } else if (h.startsWith('#order-cancel')) {
+      window.history.replaceState(null, '', window.location.pathname + window.location.search);
+      setState({ view: 'profile', pTab: 'orders' });
+      toast('Zahlung abgebrochen.');
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const top = () => {
     try {
@@ -284,6 +317,95 @@ export function useMaillot() {
         toast('Erneut zur Prüfung eingereicht');
       })
       .catch(() => toast('Einreichung fehlgeschlagen \u2014 bitte erneut versuchen.'));
+  };
+
+  // Escrow order book: decorate a raw `orders` row (see utils/db.js#loadMyOrders)
+  // into display-ready fields plus a per-row list of actions, which depend on
+  // both the viewer's role (buyer vs seller) and the order's current status.
+  const decoOrder = (o) => {
+    const isBuyer = user && o.buyer_id === user.id;
+    const shirt = BY[o.shirt_id];
+    const total = Number(o.amount) + Number(o.auth_fee || 0) + Number(o.shipping_fee || 0);
+    const st = ORDER_STATUS[o.status] || { label: o.status, color: '#8C958F', bg: 'rgba(255,255,255,0.06)' };
+    const actions = [];
+    if (isBuyer && o.status === 'pending_payment') {
+      actions.push({ label: 'Jetzt bezahlen', primary: true, run: () => payOrder(o.id) });
+      actions.push({ label: 'Stornieren', danger: true, run: () => cancelOrder(o.id) });
+    }
+    if (!isBuyer && o.status === 'paid_escrow') {
+      actions.push({ label: 'Als versendet markieren', primary: true, run: () => shipOrder(o.id) });
+    }
+    if (isBuyer && o.status === 'shipped') {
+      actions.push({ label: 'Erhalt bestätigen & Treuhand freigeben', primary: true, run: () => releaseOrder(o.id) });
+    }
+    if (o.status === 'paid_escrow' || o.status === 'shipped') {
+      actions.push({ label: 'Reklamation einreichen', run: () => disputeOrder(o.id) });
+    }
+    return {
+      id: o.id, isBuyer, roleLabel: isBuyer ? 'Kauf' : 'Verkauf',
+      name: shirt ? shirt.name : o.shirt_id, size: o.size, totalFmt: chf(total),
+      statusLabel: st.label, statusColor: st.color, statusBg: st.bg,
+      trackingCode: o.tracking_code || '', createdLabel: new Date(o.created_at).toLocaleDateString('de-CH', { day: 'numeric', month: 'short', year: 'numeric' }),
+      actions
+    };
+  };
+
+  // Starts a Stripe Checkout Session for a pending_payment order. If Stripe
+  // hasn't been configured yet (no secret keys set on the Supabase project),
+  // the edge function responds with { configured: false } and we just toast
+  // instead of redirecting \u2014 the rest of the app keeps working either way.
+  const payOrder = async (orderId) => {
+    try {
+      const res = await db.createCheckoutSession(orderId);
+      if (!res.configured) {
+        toast(res.message || 'Zahlungen sind noch nicht konfiguriert.');
+        return;
+      }
+      window.location.href = res.url;
+    } catch (e) {
+      toast('Zahlung konnte nicht gestartet werden \u2014 bitte erneut versuchen.');
+    }
+  };
+  const shipOrder = async (orderId) => {
+    try {
+      await db.updateOrderStatus(orderId, 'shipped', { shipped_at: new Date().toISOString() });
+      setOrdersNow((prev) => prev.map((o) => (o.id === orderId ? { ...o, status: 'shipped' } : o)));
+      toast('Als versendet markiert');
+    } catch (e) {
+      toast('Aktion fehlgeschlagen \u2014 bitte erneut versuchen.');
+    }
+  };
+  const releaseOrder = async (orderId) => {
+    try {
+      const now = new Date().toISOString();
+      await db.updateOrderStatus(orderId, 'released', { delivered_at: now, released_at: now });
+      setOrdersNow((prev) => prev.map((o) => (o.id === orderId ? { ...o, status: 'released' } : o)));
+      toast('Erhalt bestätigt \u00b7 Treuhand freigegeben');
+    } catch (e) {
+      toast('Aktion fehlgeschlagen \u2014 bitte erneut versuchen.');
+    }
+  };
+  const disputeOrder = async (orderId) => {
+    if (!user) return;
+    const reason = window.prompt('Grund für die Reklamation:');
+    if (!reason) return;
+    try {
+      await db.openDispute(orderId, user.id, reason);
+      await db.updateOrderStatus(orderId, 'disputed');
+      setOrdersNow((prev) => prev.map((o) => (o.id === orderId ? { ...o, status: 'disputed' } : o)));
+      toast('Reklamation eingereicht');
+    } catch (e) {
+      toast('Reklamation fehlgeschlagen \u2014 bitte erneut versuchen.');
+    }
+  };
+  const cancelOrder = async (orderId) => {
+    try {
+      await db.updateOrderStatus(orderId, 'cancelled');
+      setOrdersNow((prev) => prev.map((o) => (o.id === orderId ? { ...o, status: 'cancelled' } : o)));
+      toast('Bestellung storniert');
+    } catch (e) {
+      toast('Stornieren fehlgeschlagen \u2014 bitte erneut versuchen.');
+    }
   };
 
   const deco = (s) => {
@@ -694,11 +816,14 @@ export function useMaillot() {
   v.pTop = chf(pl.mx);
   v.pBot = chf(pl.mn);
   v.pRanges = ['3M', '6M', '1Y'].map((k) => ({ label: k, bg: st.pRange === k ? '#F2F4F1' : 'transparent', color: st.pRange === k ? '#0A0C0B' : '#C9D0CB', pick: () => setState({ pRange: k }) }));
-  v.pTabs = [['collection', 'Collection', OWNED.length], ['watchlist', 'Watchlist', st.watch.length]].map(([k, l, n]) => ({ label: l, n: String(n), color: st.pTab === k ? '#F2F4F1' : '#8C958F', bar: st.pTab === k ? ACC : 'transparent', pick: () => setState({ pTab: k }) }));
+  v.pTabs = [['collection', 'Collection', OWNED.length], ['watchlist', 'Watchlist', st.watch.length], ['orders', 'Orders', ordersNow.length]].map(([k, l, n]) => ({ label: l, n: String(n), color: st.pTab === k ? '#F2F4F1' : '#8C958F', bar: st.pTab === k ? ACC : 'transparent', pick: () => setState({ pTab: k }) }));
   v.tabCollection = st.pTab === 'collection';
   v.tabWatch = st.pTab === 'watchlist';
+  v.tabOrders = st.pTab === 'orders';
   v.watchItems = st.watch.map((id) => deco(BY[id]));
   v.watchEmpty = !st.watch.length;
+  v.orders = user ? ordersNow.map(decoOrder) : [];
+  v.ordersEmpty = !v.orders.length;
 
   // Real, self-contained share link: the whole public-safe snapshot of the collection
   // is embedded in the URL hash (see utils/share.js), so it opens correctly for anyone,
@@ -851,4 +976,27 @@ function useAdminQueue(isAdmin, view) {
     };
   }, [isAdmin, view]);
   return [queue, setQueue];
+}
+
+// Small helper hook: loads/polls this user's orders (buyer or seller side)
+// only while the Profile "Orders" tab is actually open \u2014 same lazy-polling
+// shape as useAdminQueue above, so an idle profile never hits the network.
+function useOrders(userId, view, pTab) {
+  const [orders, setOrders] = useState([]);
+  useEffect(() => {
+    if (!userId || view !== 'profile' || pTab !== 'orders') return;
+    let cancelled = false;
+    const sync = () => {
+      db.loadMyOrders(userId)
+        .then((o) => !cancelled && setOrders(o))
+        .catch(() => {});
+    };
+    sync();
+    const interval = setInterval(sync, 3000);
+    return () => {
+      cancelled = true;
+      clearInterval(interval);
+    };
+  }, [userId, view, pTab]);
+  return [orders, setOrders];
 }
