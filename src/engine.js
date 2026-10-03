@@ -9,6 +9,17 @@ import { supabase } from './utils/supabase.js';
 import * as db from './utils/db.js';
 
 const MS = 864e5;
+
+// Coarse German relative-time label for the notification bell.
+function timeAgo(iso) {
+  const min = Math.floor((Date.now() - new Date(iso).getTime()) / 60000);
+  if (min < 1) return 'gerade eben';
+  if (min < 60) return 'vor ' + min + ' Min.';
+  const h = Math.floor(min / 60);
+  if (h < 24) return 'vor ' + h + ' Std.';
+  const d = Math.floor(h / 24);
+  return 'vor ' + d + (d > 1 ? ' Tagen' : ' Tag');
+}
 // Demo watchlist shown to signed-out visitors browsing the catalogue — once a
 // user signs in, this is replaced by their real Supabase-backed watchlist.
 const DEMO_WATCH = ['nap-8788', 'bra-70', 'mia-26', 'fra-98', 'boc-81'];
@@ -34,7 +45,7 @@ function initialState() {
     customItems: [], vaultItemId: null, publicData: shared,
     // Auth / account (Phase 6: real Supabase Auth, replaces the old anonymous,
     // single-device localStorage model).
-    isAdmin: false, dataLoaded: false, notifications: [],
+    isAdmin: false, dataLoaded: false, notifOpen: false,
     authMode: 'signin', authEmail: '', authPassword: '', authError: '', authBusy: false, authNotice: ''
     // `orders` itself is NOT seeded here — it's loaded/polled lazily by
     // useOrders() only while the Profile "Orders" tab is actually open.
@@ -48,6 +59,7 @@ export function useMaillot() {
   const { user, authLoading, signUp, signIn, signOut } = useAuth();
   const [reviewQueueNow, setReviewQueueNow] = useAdminQueue(state.isAdmin, state.view);
   const [ordersNow, setOrdersNow] = useOrders(user ? user.id : null, state.view, state.pTab);
+  const [notifsNow, setNotifsNow] = useNotifications(user ? user.id : null);
 
   const setState = (patch) => setRaw((s) => ({ ...s, ...(typeof patch === 'function' ? patch(s) : patch) }));
 
@@ -64,25 +76,25 @@ export function useMaillot() {
   }, []);
 
   // Real per-account data load: once a Supabase session exists, pull this
-  // user's custom items, watchlist and notifications from Postgres. On
-  // sign-out, fall back to the signed-out demo state (no account = no
-  // persisted collection, same as any real marketplace).
+  // user's custom items and watchlist from Postgres (notifications are
+  // handled separately by useNotifications() below, which polls so the bell
+  // stays live). On sign-out, fall back to the signed-out demo state (no
+  // account = no persisted collection, same as any real marketplace).
   useEffect(() => {
     let cancelled = false;
     if (!user) {
-      setState({ customItems: [], watch: DEMO_WATCH, notifications: [], isAdmin: false, dataLoaded: !authLoading });
+      setState({ customItems: [], watch: DEMO_WATCH, isAdmin: false, dataLoaded: !authLoading });
       return;
     }
     (async () => {
       try {
-        const [profile, customItems, watch, notifications] = await Promise.all([
+        const [profile, customItems, watch] = await Promise.all([
           supabase.from('profiles').select('is_admin').eq('id', user.id).maybeSingle().then((r) => r.data),
           db.loadCustomItems(user.id),
-          db.loadWatchlist(user.id),
-          db.loadNotifications(user.id)
+          db.loadWatchlist(user.id)
         ]);
         if (cancelled) return;
-        setState({ customItems, watch, notifications, isAdmin: !!(profile && profile.is_admin), dataLoaded: true });
+        setState({ customItems, watch, isAdmin: !!(profile && profile.is_admin), dataLoaded: true });
       } catch (e) {
         if (!cancelled) setState({ dataLoaded: true });
       }
@@ -222,6 +234,20 @@ export function useMaillot() {
       db.logEvent(user.id, id, wasOn ? 'unwatch' : 'watch').catch(() => {});
     }
   };
+  // Notification bell (Header.jsx): backed by useNotifications() below, which
+  // polls the real `notifications` table \u2014 rows land there the moment a bid
+  // matches, an order changes status, or a dispute opens (see the Postgres
+  // triggers in the "notifications_lifecycle_triggers" migration). Opening one
+  // marks it read and, if it references an order, jumps to the Orders tab.
+  const openNotification = (n) => {
+    if (!n.read) {
+      setNotifsNow((prev) => prev.map((x) => (x.id === n.id ? { ...x, read: true } : x)));
+      db.markNotificationRead(n.id).catch(() => {});
+    }
+    setState({ notifOpen: false });
+    if (n.data && n.data.order_id) go('profile', { pTab: 'orders' });
+  };
+
   const browseWith = (o) => go('browse', { q: o.q || '', filters: Object.assign({}, EMPTY, o.f || {}), minPrice: 0, maxPrice: o.max || 600 });
   const toggleF = (k, val) => {
     const f = Object.assign({}, state.filters);
@@ -433,6 +459,12 @@ export function useMaillot() {
     toast('Abgemeldet');
     go('home');
   };
+  v.notifications = notifsNow.map((n) => ({ id: n.id, title: n.title, body: n.body || '', read: n.read, timeAgo: timeAgo(n.created_at), open: () => openNotification(n) }));
+  v.unreadCount = notifsNow.filter((n) => !n.read).length;
+  v.hasUnread = v.unreadCount > 0;
+  v.notifOpen = st.notifOpen;
+  v.toggleNotif = () => setState({ notifOpen: !st.notifOpen });
+  v.closeNotif = () => setState({ notifOpen: false });
   const navDefs = [
     ['home', 'Discover', 'Discover'],
     ['browse', 'Marketplace', 'Market'],
@@ -999,4 +1031,29 @@ function useOrders(userId, view, pTab) {
     };
   }, [userId, view, pTab]);
   return [orders, setOrders];
+}
+
+// Small helper hook: polls this user's notifications (bid matches, order
+// status changes, disputes \u2014 see the Postgres triggers that insert into
+// `notifications`) so the header bell stays live across every view, not just
+// a specific tab. Longer interval than useOrders()/useAdminQueue() since it's
+// always-on rather than gated to one screen.
+function useNotifications(userId) {
+  const [notifications, setNotifications] = useState([]);
+  useEffect(() => {
+    if (!userId) return;
+    let cancelled = false;
+    const sync = () => {
+      db.loadNotifications(userId)
+        .then((n) => !cancelled && setNotifications(n))
+        .catch(() => {});
+    };
+    sync();
+    const interval = setInterval(sync, 8000);
+    return () => {
+      cancelled = true;
+      clearInterval(interval);
+    };
+  }, [userId]);
+  return [notifications, setNotifications];
 }
