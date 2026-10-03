@@ -240,3 +240,14 @@ export async function loadRecentEvents(sinceIso) {
   if (error) throw error;
   return data || [];
 }
+
+// Site-wide trending signal: calls the `trending_scores` Postgres function,
+// which aggregates every user's events (view/watch/bid/buy, weighted) into a
+// per-shirt score server-side — the `events` table's RLS only lets a client
+// SELECT its own rows, so this RPC (SECURITY DEFINER) is the only way to get
+// a real, cross-user trending ranking instead of a static list.
+export async function loadTrendingScores(days = 14) {
+  const { data, error } = await supabase.rpc('trending_scores', { days });
+  if (error) throw error;
+  return data || [];
+}

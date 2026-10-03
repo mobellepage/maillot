@@ -347,6 +347,125 @@ export default function Home({ v }) {
           ))}
         </div>
       </div>
+      {v.showRecommended && (
+        <section style={{ maxWidth: 1360, margin: '0 auto', padding: 'clamp(48px,6vw,88px) clamp(16px,4vw,40px) 0' }}>
+          <div style={{ marginBottom: 28 }}>
+            <div
+              style={{
+                fontFamily: "'JetBrains Mono',monospace",
+                fontSize: 11.5,
+                letterSpacing: '0.14em',
+                textTransform: 'uppercase',
+                color: '#4BFF8B'
+              }}
+            >
+              For you
+            </div>
+            <h2
+              style={{
+                margin: '8px 0 0',
+                fontSize: 'clamp(30px,4vw,48px)',
+                fontWeight: 800,
+                fontStretch: '75%',
+                textTransform: 'uppercase',
+                lineHeight: 1
+              }}
+            >
+              Recommended for you
+            </h2>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(min(100%,158px),1fr))', gap: 'clamp(10px,1.4vw,18px)' }}>
+            {v.recommended.map((s) => (
+              <div
+                key={s.id}
+                onClick={s.open}
+                className="hov-card"
+                style={{
+                  cursor: 'pointer',
+                  background: '#101312',
+                  border: '1px solid rgba(255,255,255,0.06)',
+                  borderRadius: 20,
+                  overflow: 'hidden',
+                  transition: 'transform .3s cubic-bezier(.2,.7,.2,1),border-color .3s,box-shadow .3s'
+                }}
+              >
+                <div
+                  style={{
+                    position: 'relative',
+                    aspectRatio: '1/1',
+                    display: 'grid',
+                    placeItems: 'center',
+                    background: `radial-gradient(circle at 50% 46%,${s.glowA} 0%,rgba(0,0,0,0) 62%),#0D100F`
+                  }}
+                >
+                  <button
+                    onClick={s.toggleWatch}
+                    className="hov-scale"
+                    style={{
+                      position: 'absolute',
+                      top: 6,
+                      right: 6,
+                      width: 36,
+                      height: 36,
+                      borderRadius: '50%',
+                      border: 0,
+                      background: 'rgba(10,12,11,0.6)',
+                      display: 'grid',
+                      placeItems: 'center',
+                      cursor: 'pointer',
+                      transition: 'transform .2s'
+                    }}
+                  >
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill={s.heartFill} stroke={s.heartStroke} strokeWidth="2">
+                      <path d="M12 20.5s-7.5-4.6-9.4-9.3C1.2 7.8 3.4 4.5 6.9 4.5c2 0 3.6 1.1 5.1 3 1.5-1.9 3.1-3 5.1-3 3.5 0 5.7 3.3 4.3 6.7-1.9 4.7-9.4 9.3-9.4 9.3z"></path>
+                    </svg>
+                  </button>
+                  <ShirtGraphic pat={s.pat} trim={s.trim} crest={s.crest} style={{ width: '68%' }} />
+                </div>
+                <div style={{ padding: '12px 14px 14px', display: 'flex', flexDirection: 'column', gap: 5 }}>
+                  <div
+                    style={{
+                      fontFamily: "'JetBrains Mono',monospace",
+                      fontSize: 10.5,
+                      letterSpacing: '0.06em',
+                      textTransform: 'uppercase',
+                      color: '#8C958F',
+                      whiteSpace: 'nowrap',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis'
+                    }}
+                  >
+                    {s.brand} · {s.season}
+                  </div>
+                  <div style={{ fontSize: 14.5, fontWeight: 600, lineHeight: 1.25, height: '2.5em', overflow: 'hidden' }}>{s.name}</div>
+                  <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 6, marginTop: 4 }}>
+                    <div style={{ minWidth: 0 }}>
+                      <div style={{ fontSize: 10.5, color: '#8C958F' }}>Lowest ask</div>
+                      <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 16, fontWeight: 600, whiteSpace: 'nowrap' }}>
+                        {s.priceFmt}
+                      </div>
+                    </div>
+                    <div
+                      style={{
+                        fontFamily: "'JetBrains Mono',monospace",
+                        fontSize: 11.5,
+                        fontWeight: 600,
+                        color: s.chColor,
+                        background: s.chBg,
+                        padding: '4px 7px',
+                        borderRadius: 6,
+                        whiteSpace: 'nowrap'
+                      }}
+                    >
+                      {s.chFmt}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
       <section style={{ maxWidth: 1360, margin: '0 auto', padding: 'clamp(48px,6vw,88px) clamp(16px,4vw,40px) 0' }}>
         <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 16, marginBottom: 28 }}>
           <div>

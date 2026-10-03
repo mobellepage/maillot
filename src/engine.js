@@ -60,6 +60,8 @@ export function useMaillot() {
   const [reviewQueueNow, setReviewQueueNow] = useAdminQueue(state.isAdmin, state.view);
   const [ordersNow, setOrdersNow] = useOrders(user ? user.id : null, state.view, state.pTab);
   const [notifsNow, setNotifsNow] = useNotifications(user ? user.id : null);
+  const trendScores = useTrendingScores(state.view);
+  const personalEvents = usePersonalEvents(user ? user.id : null, state.view);
 
   const setState = (patch) => setRaw((s) => ({ ...s, ...(typeof patch === 'function' ? patch(s) : patch) }));
 
@@ -544,8 +546,49 @@ export function useMaillot() {
   };
 
   // HOME
-  const T = ['ger-26', 'sui-26', 'acm-0607', 'mia-26', 'ars-91', 'fcb-2627', 'nap-8788', 'ned-88'];
+  // Behaviour-based trending: blend each shirt's real events-table signal
+  // (from trending_scores(), aggregating actual views/watches/bids/buys
+  // across every user server-side — see useTrendingScores() below) with its
+  // synthetic 30-day price trend. The synthetic trend alone keeps the list
+  // sensible on a cold start with no events yet; as real usage accumulates,
+  // the live signal increasingly dominates the ranking.
+  const maxTrendScore = Math.max(1, ...Object.values(trendScores));
+  const liveTrend = (s) => s.trend + ((trendScores[s.id] || 0) / maxTrendScore) * 40;
+  const T = [...SHIRTS].sort((a, b) => liveTrend(b) - liveTrend(a)).slice(0, 8).map((s) => s.id);
   v.trending = T.map((id) => deco(BY[id]));
+
+  // Personalised "Recommended for you": derived from this user's own recent
+  // events (view/watch/bid/buy, see usePersonalEvents() below — RLS already
+  // restricts that read to their own rows). Each club in the catalogue only
+  // has a single shirt, so a strict "same club" match would almost never
+  // surface anything — instead this scores by league/type affinity, the same
+  // similarity signal already used for v.related below, weighted by how much
+  // the user engaged with shirts sharing that league/type. The shirts that
+  // actually generated the events are excluded (recommending the exact thing
+  // they already viewed/bid on isn't useful), along with anything owned.
+  // Hidden entirely once there's no personal history yet, rather than
+  // showing an empty/cold-start section.
+  const ownedIds = new Set(OWNED.map((o) => o.id));
+  const seenIds = new Set();
+  const leagueWeight = {};
+  const typeWeight = {};
+  personalEvents.forEach((e) => {
+    const shirt = BY[e.shirt_id];
+    if (!shirt) return;
+    seenIds.add(shirt.id);
+    const w = { buy: 8, bid: 5, watch: 3, view: 1, unwatch: 0 }[e.type] || 0;
+    leagueWeight[shirt.league] = (leagueWeight[shirt.league] || 0) + w;
+    typeWeight[shirt.type] = (typeWeight[shirt.type] || 0) + w;
+  });
+  const affinityScore = (s) => (leagueWeight[s.league] || 0) + (typeWeight[s.type] || 0);
+  const recommended = Object.keys(leagueWeight).length || Object.keys(typeWeight).length
+    ? [...SHIRTS]
+        .filter((s) => affinityScore(s) > 0 && !ownedIds.has(s.id) && !seenIds.has(s.id))
+        .sort((a, b) => affinityScore(b) - affinityScore(a) || b.trend - a.trend)
+        .slice(0, 8)
+    : [];
+  v.recommended = recommended.map((s) => deco(s));
+  v.showRecommended = v.recommended.length > 0;
   const sortedCh = [...SHIRTS].sort((a, b) => b.ch - a.ch);
   const mv = st.movers === 'up' ? sortedCh.slice(0, 6) : sortedCh.slice(-6).reverse();
   v.movers = mv.map((s, i) => Object.assign(deco(s), { rank: String(i + 1).padStart(2, '0') }));
@@ -1056,4 +1099,48 @@ function useNotifications(userId) {
     };
   }, [userId]);
   return [notifications, setNotifications];
+}
+
+// Small helper hook: polls the aggregated, site-wide trending_scores() RPC
+// (see the "trending_scores_rpc" migration) while the homepage is open. Only
+// gated to the home view, like useAdminQueue()/useOrders() above, since it's
+// the one place the score is shown.
+function useTrendingScores(view) {
+  const [scores, setScores] = useState({});
+  useEffect(() => {
+    if (view !== 'home') return;
+    let cancelled = false;
+    const sync = () => {
+      db.loadTrendingScores()
+        .then((rows) => !cancelled && setScores(Object.fromEntries(rows.map((r) => [r.shirt_id, Number(r.score)]))))
+        .catch(() => {});
+    };
+    sync();
+    const interval = setInterval(sync, 30000);
+    return () => {
+      cancelled = true;
+      clearInterval(interval);
+    };
+  }, [view]);
+  return scores;
+}
+
+// Small helper hook: loads this user's own recent events (view/watch/bid/buy)
+// to drive the "Recommended for you" row on the homepage. Unlike
+// useTrendingScores() above this reads public.events directly — the
+// events_select_own RLS policy already restricts that to the signed-in
+// user's own rows, so no RPC is needed for a personal history read.
+function usePersonalEvents(userId, view) {
+  const [events, setEvents] = useState([]);
+  useEffect(() => {
+    if (!userId || view !== 'home') return;
+    let cancelled = false;
+    db.loadRecentEvents(new Date(Date.now() - 30 * MS).toISOString())
+      .then((rows) => !cancelled && setEvents(rows))
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [userId, view]);
+  return events;
 }
