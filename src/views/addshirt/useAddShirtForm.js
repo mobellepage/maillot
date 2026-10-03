@@ -121,6 +121,14 @@ export function useAddShirtForm(userId) {
       } else if (s.catalogId && s.scan.matchId === s.catalogId && s.scan.confidence < SCAN_AUTO_MATCH_THRESHOLD) {
         notes.push('Erkannter Text auf dem Etikett stimmt nur schwach mit dem gewählten Katalogartikel überein.');
         status = 'review';
+      } else if (s.catalogId && s.scan.matchId && s.scan.matchId !== s.catalogId && s.scan.confidence >= SCAN_AUTO_MATCH_THRESHOLD) {
+        // Strongest single fraud signal available here: the label photo's OCR text
+        // confidently matches a *different* catalog item than the one the seller
+        // selected — i.e. real photographic evidence contradicts the claimed item
+        // (mislabelled stock or a swapped/counterfeit label). Outranks the generic
+        // note-count threshold below, so it jumps straight to 'fake' on its own.
+        notes.push('Das Etikett passt mit hoher Sicherheit zu einem anderen Katalogartikel als dem ausgewählten — mögliche Fehlzuordnung oder Fälschung.');
+        status = 'fake';
       }
       const anyBlurry = Object.values(s.photos).some((p) => p.blurry);
       if (anyBlurry && status === 'ok') {
