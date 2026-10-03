@@ -1,0 +1,38 @@
+@import url('https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,300..900&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+html, body { margin: 0; background: #0A0C0B; color: #F2F4F1; -webkit-font-smoothing: antialiased; }
+#root { min-height: 100vh; }
+* { box-sizing: border-box; }
+a { color: #4BFF8B; text-decoration: none; }
+a:hover { color: #9DFFC0; }
+input, select, textarea, button { font: inherit; color: inherit; }
+input[type=range] { accent-color: #4BFF8B; }
+input::placeholder, textarea::placeholder { color: #6F7872; }
+::selection { background: #4BFF8B; color: #0A0C0B; }
+::-webkit-scrollbar { height: 6px; width: 8px; }
+::-webkit-scrollbar-thumb { background: #2A302D; border-radius: 9px; }
+
+@keyframes kvIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+@keyframes kvPulse { 0%, 100% { opacity: 1; } 50% { opacity: .3; } }
+
+/* Hover / active utility classes (replace the prototype's style-hover / style-active props) */
+.hov-link:hover { color: #F2F4F1; }
+.hov-acc:hover { color: #4BFF8B; }
+.hov-border-acc:hover { border-color: rgba(75,255,139,.5); }
+.hov-border-acc-strong:hover { border-color: #4BFF8B; }
+.hov-border-acc6:hover { border-color: rgba(75,255,139,.6); }
+.hov-bg-soft:hover { background: rgba(255,255,255,.05); }
+.hov-filter:hover { background: rgba(255,255,255,.045); }
+.hov-chip:hover { border-color: #4BFF8B; color: #F2F4F1; }
+.hov-chip-bg:hover { background: rgba(75,255,139,.15); }
+.hov-card:hover { transform: translateY(-4px); border-color: rgba(75,255,139,.35); box-shadow: 0 20px 50px rgba(0,0,0,.5); }
+.hov-card-lift:hover { transform: translateY(-4px); border-color: rgba(75,255,139,.35); }
+.hov-feat:hover { transform: scale(1.012); border-color: rgba(75,255,139,.35); }
+.hov-scale:hover { transform: scale(1.12); }
+.hov-row:hover { background: rgba(255,255,255,.04); }
+.hov-glow:hover { box-shadow: 0 0 0 5px rgba(75,255,139,.16); }
+.hov-primary:hover { box-shadow: 0 0 0 6px rgba(75,255,139,.16); }
+.hov-primary:active { transform: scale(0.98); }
+.hov-outline:hover { border-color: #F2F4F1; background: rgba(255,255,255,.04); }
+.hov-watch:active { transform: scale(0.92); }
+.hov-next:hover { background: #4BFF8B; }
