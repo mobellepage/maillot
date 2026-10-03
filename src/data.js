@@ -3,7 +3,6 @@ import { rng, generateSyntheticMarketData } from './marketData.js';
 
 export const ACC = '#4BFF8B';
 export const NEG = '#FF6B5E';
-const MS = 864e5;
 export const TODAY = new Date(2026, 9, 1).getTime();
 
 const RAW = [

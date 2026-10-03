@@ -144,7 +144,7 @@ export function useMaillot() {
         ]);
         if (cancelled) return;
         setState({ customItems, watch, isAdmin: !!(profile && profile.is_admin), dataLoaded: true });
-      } catch (e) {
+      } catch {
         if (!cancelled) setState({ dataLoaded: true });
       }
     })();
@@ -166,7 +166,7 @@ export function useMaillot() {
       let queue;
       try {
         queue = await db.loadReviewQueue();
-      } catch (e) {
+      } catch {
         return;
       }
       if (cancelled || !queue.length) return;
@@ -220,7 +220,7 @@ export function useMaillot() {
         const pendingIds = queue.filter((q) => q.status === 'pending').map((q) => q.id);
         await Promise.all(pendingIds.map((id) => db.markInReview(id).catch(() => {})));
         if (pendingIds.length) setRaw((s) => ({ ...s }));
-      } catch (e) {
+      } catch {
         /* best-effort */
       }
     })();
@@ -246,7 +246,10 @@ export function useMaillot() {
   useEffect(() => {
     if (state.view === 'publicvault') return;
     const path = pathFor(state);
-    if (path && path !== window.location.pathname) window.history.pushState(null, '', path);
+    // Leaving a (possibly broken) share link: drop its #/vault/… hash too,
+    // otherwise a reload would land back on it.
+    if (path && window.location.hash.startsWith('#/vault/')) window.history.replaceState(null, '', path);
+    else if (path && path !== window.location.pathname) window.history.pushState(null, '', path);
     document.title = titleFor(state);
     const meta = document.querySelector('meta[name="description"]');
     if (meta) meta.setAttribute('content', descriptionFor(state));
@@ -271,7 +274,7 @@ export function useMaillot() {
   const top = () => {
     try {
       window.scrollTo({ top: 0, behavior: 'instant' });
-    } catch (e) {
+    } catch {
       window.scrollTo(0, 0);
     }
   };
@@ -448,7 +451,7 @@ export function useMaillot() {
         return;
       }
       window.location.href = res.url;
-    } catch (e) {
+    } catch {
       toast(t('toast.paymentStartFailed'));
     }
   };
@@ -463,7 +466,7 @@ export function useMaillot() {
       await db.markOrderShipped(orderId, tracking);
       patchOrder(orderId, 'shipped');
       toast(t('toast.markedShipped'));
-    } catch (e) {
+    } catch {
       toast(t('toast.actionFailed'));
     }
   };
@@ -473,7 +476,7 @@ export function useMaillot() {
       await db.confirmOrderReceipt(orderId);
       patchOrder(orderId, 'released');
       toast(t('toast.releaseConfirmed'));
-    } catch (e) {
+    } catch {
       toast(t('toast.actionFailed'));
     }
   };
@@ -485,7 +488,7 @@ export function useMaillot() {
       await db.openDispute(orderId, reason.trim());
       patchOrder(orderId, 'disputed');
       toast(t('toast.disputeFiled'));
-    } catch (e) {
+    } catch {
       toast(t('toast.disputeFailed'));
     }
   };
@@ -494,7 +497,7 @@ export function useMaillot() {
       await db.cancelOrder(orderId);
       patchOrder(orderId, 'cancelled');
       toast(t('toast.orderCancelled'));
-    } catch (e) {
+    } catch {
       toast(t('toast.cancelFailed'));
     }
   };
@@ -892,7 +895,7 @@ export function useMaillot() {
       const order = await db.findOrderForBid(placed.id);
       setState({ modalBusy: false, modalDone: true, modalResult: order ? { kind: 'matched', orderId: order.id, amount: Number(order.amount) } : { kind: 'live', amount } });
       reloadBook();
-    } catch (e) {
+    } catch {
       setState({ modalBusy: false });
       toast(t('toast.actionFailed'));
     }
@@ -963,7 +966,7 @@ export function useMaillot() {
       } else {
         setState({ sScan: 'done', sScanMatch: null, sScanMsg: text ? 'We couldn’t match that label confidently — search for the shirt instead.' : 'No readable text on that photo — try the inner wash/product label, or search below.' });
       }
-    } catch (err) {
+    } catch {
       if (sellScanToken.current === token) setState({ sScan: 'idle', sScanMsg: 'Scanning failed — please search for the shirt instead.' });
     }
   };
@@ -1036,7 +1039,7 @@ export function useMaillot() {
       setState({ sBusy: false, sPub: true, sPubResult: order ? { sold: true, amount: Number(order.amount) } : { sold: false, amount: sa } });
       reloadBook();
       top();
-    } catch (e) {
+    } catch {
       setState({ sBusy: false });
       toast(t('toast.actionFailed'));
     }

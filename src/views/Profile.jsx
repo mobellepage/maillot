@@ -357,7 +357,7 @@ export default function Profile({ v }) {
 
       {v.tabOrders && (
         <>
-          {v.ordersEmpty && <div style={{ padding: '60px 20px', textAlign: 'center', color: '#8C958F' }}>No orders yet \u2014 buy or sell a shirt to see it here.</div>}
+          {v.ordersEmpty && <div style={{ padding: '60px 20px', textAlign: 'center', color: '#8C958F' }}>No orders yet — buy or sell a shirt to see it here.</div>}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginTop: 24 }}>
             {v.orders.map((o) => (
               <div

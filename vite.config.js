@@ -31,4 +31,8 @@ export default defineConfig({
       }
     })
   ],
+  test: {
+    // Unit tests only; e2e/ is Playwright's.
+    include: ['src/**/*.test.{js,jsx}']
+  }
 })

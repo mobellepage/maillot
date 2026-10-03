@@ -12,7 +12,7 @@ export function decodeShareData(encoded) {
   try {
     const json = decodeURIComponent(escape(atob(encoded)));
     return JSON.parse(json);
-  } catch (e) {
+  } catch {
     return null;
   }
 }
@@ -23,5 +23,9 @@ export function decodeShareData(encoded) {
 export function parseShareHash(hash) {
   const m = (hash || '').match(/^#\/vault\/(.+)$/);
   if (!m) return undefined;
-  return decodeShareData(decodeURIComponent(m[1]));
+  try {
+    return decodeShareData(decodeURIComponent(m[1]));
+  } catch {
+    return null; // malformed %-escapes: a broken link, not an app crash
+  }
 }

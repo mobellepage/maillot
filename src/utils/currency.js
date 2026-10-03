@@ -26,7 +26,7 @@ export function loadCachedRates() {
     const { rates, at } = JSON.parse(raw);
     if (!rates || Date.now() - at > RATES_TTL) return FALLBACK_RATES;
     return { ...FALLBACK_RATES, ...rates };
-  } catch (e) {
+  } catch {
     return FALLBACK_RATES;
   }
 }
@@ -39,7 +39,7 @@ export async function fetchLiveRates() {
     const rates = { CHF: 1, ...data.rates };
     localStorage.setItem(RATES_CACHE_KEY, JSON.stringify({ rates, at: Date.now() }));
     return rates;
-  } catch (e) {
+  } catch {
     return loadCachedRates();
   }
 }

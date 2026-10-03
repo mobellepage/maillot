@@ -26,3 +26,8 @@ dist-ssr
 # Supabase CLI local state
 supabase/.temp
 supabase/.branches
+
+# Test output
+/test-results/
+/playwright-report/
+/coverage/

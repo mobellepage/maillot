@@ -55,6 +55,8 @@ export function useAddShirtForm(userId) {
   const set = (patch) => setRaw((s) => ({ ...s, ...(typeof patch === 'function' ? patch(s) : patch) }));
 
   useEffect(() => {
+    // Photos, precheck and scan results are deliberately not persisted in the draft.
+    // eslint-disable-next-line no-unused-vars
     const { photos, precheck, scan, ...draft } = f;
     saveJSON(DRAFT_KEY, draft);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -93,7 +95,7 @@ export function useAddShirtForm(userId) {
         proposed: confident ? false : s.proposed,
         searchQ: confident ? item.name : s.searchQ
       }));
-    } catch (err) {
+    } catch {
       if (scanToken.current !== token) return;
       set({ scan: { status: 'error', ocrText: '', confidence: 0, matchId: null } });
     }
