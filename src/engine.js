@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { ACC, NEG, BY, SHIRTS, OWNED, PORT, EMPTY, RANGES, SIZES, MULT, CONDS, chf, pct, hexA, down, linePath, uniq, TODAY } from './data.js';
+import { ACC, NEG, BY, SHIRTS, OWNED, PORT, EMPTY, RANGES, SIZES, MULT, CONDS, pct, hexA, down, linePath, uniq, TODAY } from './data.js';
 import { loadJSON, saveJSON } from './utils/storage.js';
 import { estimateValue } from './addShirtData.js';
 import { encodeShareData, parseShareHash } from './utils/share.js';
@@ -7,6 +7,8 @@ import { buyerCheckoutFees, sellerPayout } from './fees.js';
 import { useAuth } from './utils/useAuth.js';
 import { supabase } from './utils/supabase.js';
 import * as db from './utils/db.js';
+import { CURRENCIES, loadCachedRates, fetchLiveRates, formatMoney } from './utils/currency.js';
+import { LANGS, translate } from './utils/i18n.js';
 
 const MS = 864e5;
 
@@ -24,16 +26,18 @@ function timeAgo(iso) {
 // user signs in, this is replaced by their real Supabase-backed watchlist.
 const DEMO_WATCH = ['nap-8788', 'bra-70', 'mia-26', 'fra-98', 'boc-81'];
 
-// Escrow order status \u2192 label/color, used by the Profile "Orders" tab.
+// Escrow order status \u2192 i18n key/color, used by the Profile "Orders" tab.
+// Labels themselves live in utils/i18n.js (order.<status> keys) so they follow
+// the viewer's chosen language; this map only carries the status-specific color.
 const ORDER_STATUS = {
-  pending_payment: { label: 'Zahlung ausstehend', color: '#E8B04B', bg: 'rgba(232,176,75,0.14)' },
-  paid_escrow: { label: 'Bezahlt \u00b7 in Treuhand', color: '#6FB6FF', bg: 'rgba(111,182,255,0.12)' },
-  shipped: { label: 'Versendet', color: '#6FB6FF', bg: 'rgba(111,182,255,0.12)' },
-  delivered: { label: 'Geliefert', color: ACC, bg: 'rgba(75,255,139,0.12)' },
-  released: { label: 'Abgeschlossen', color: ACC, bg: 'rgba(75,255,139,0.12)' },
-  disputed: { label: 'Reklamiert', color: NEG, bg: 'rgba(255,107,94,0.13)' },
-  cancelled: { label: 'Storniert', color: '#8C958F', bg: 'rgba(255,255,255,0.06)' },
-  refunded: { label: 'Rückerstattet', color: '#8C958F', bg: 'rgba(255,255,255,0.06)' }
+  pending_payment: { key: 'order.pending_payment', color: '#E8B04B', bg: 'rgba(232,176,75,0.14)' },
+  paid_escrow: { key: 'order.paid_escrow', color: '#6FB6FF', bg: 'rgba(111,182,255,0.12)' },
+  shipped: { key: 'order.shipped', color: '#6FB6FF', bg: 'rgba(111,182,255,0.12)' },
+  delivered: { key: 'order.delivered', color: ACC, bg: 'rgba(75,255,139,0.12)' },
+  released: { key: 'order.released', color: ACC, bg: 'rgba(75,255,139,0.12)' },
+  disputed: { key: 'order.disputed', color: NEG, bg: 'rgba(255,107,94,0.13)' },
+  cancelled: { key: 'order.cancelled', color: '#8C958F', bg: 'rgba(255,255,255,0.06)' },
+  refunded: { key: 'order.refunded', color: '#8C958F', bg: 'rgba(255,255,255,0.06)' }
 };
 
 function initialState() {
@@ -46,7 +50,10 @@ function initialState() {
     // Auth / account (Phase 6: real Supabase Auth, replaces the old anonymous,
     // single-device localStorage model).
     isAdmin: false, dataLoaded: false, notifOpen: false,
-    authMode: 'signin', authEmail: '', authPassword: '', authError: '', authBusy: false, authNotice: ''
+    authMode: 'signin', authEmail: '', authPassword: '', authError: '', authBusy: false, authNotice: '',
+    // Display-only device preferences (not account data, so localStorage is
+    // the right home for these — see utils/currency.js and utils/i18n.js).
+    currency: loadJSON('kv_currency', 'CHF'), lang: loadJSON('kv_lang', 'en')
     // `orders` itself is NOT seeded here — it's loaded/polled lazily by
     // useOrders() only while the Profile "Orders" tab is actually open.
   };
@@ -62,8 +69,29 @@ export function useMaillot() {
   const [notifsNow, setNotifsNow] = useNotifications(user ? user.id : null);
   const trendScores = useTrendingScores(state.view);
   const personalEvents = usePersonalEvents(user ? user.id : null, state.view);
+  // Live FX rates (see utils/currency.js) — fetched once per session and
+  // reused by every price formatted below; starts from the cached/fallback
+  // rates so prices render immediately, then refines once the fetch lands.
+  const [fxRates, setFxRates] = useState(loadCachedRates);
+  useEffect(() => {
+    fetchLiveRates().then(setFxRates);
+  }, []);
 
   const setState = (patch) => setRaw((s) => ({ ...s, ...(typeof patch === 'function' ? patch(s) : patch) }));
+  // Shadows the raw CHF formatter: every price in the data layer (data.js,
+  // orders/asks/bids) is stored in CHF, so converting + formatting at this
+  // single point makes every chf(...) call site below — and v.money, exposed
+  // for the two views that format prices directly — currency-aware for free.
+  const chf = (n) => formatMoney(n, state.currency, fxRates);
+  const t = (key) => translate(state.lang, key);
+  const setCurrency = (code) => {
+    saveJSON('kv_currency', code);
+    setState({ currency: code });
+  };
+  const setLang = (lang) => {
+    saveJSON('kv_lang', lang);
+    setState({ lang });
+  };
 
   useEffect(() => {
     const onR = () => setState({ w: window.innerWidth });
@@ -354,25 +382,25 @@ export function useMaillot() {
     const isBuyer = user && o.buyer_id === user.id;
     const shirt = BY[o.shirt_id];
     const total = Number(o.amount) + Number(o.auth_fee || 0) + Number(o.shipping_fee || 0);
-    const st = ORDER_STATUS[o.status] || { label: o.status, color: '#8C958F', bg: 'rgba(255,255,255,0.06)' };
+    const st = ORDER_STATUS[o.status] || { key: '', color: '#8C958F', bg: 'rgba(255,255,255,0.06)' };
     const actions = [];
     if (isBuyer && o.status === 'pending_payment') {
-      actions.push({ label: 'Jetzt bezahlen', primary: true, run: () => payOrder(o.id) });
-      actions.push({ label: 'Stornieren', danger: true, run: () => cancelOrder(o.id) });
+      actions.push({ label: t('order.action.payNow'), primary: true, run: () => payOrder(o.id) });
+      actions.push({ label: t('order.action.cancel'), danger: true, run: () => cancelOrder(o.id) });
     }
     if (!isBuyer && o.status === 'paid_escrow') {
-      actions.push({ label: 'Als versendet markieren', primary: true, run: () => shipOrder(o.id) });
+      actions.push({ label: t('order.action.markShipped'), primary: true, run: () => shipOrder(o.id) });
     }
     if (isBuyer && o.status === 'shipped') {
-      actions.push({ label: 'Erhalt bestätigen & Treuhand freigeben', primary: true, run: () => releaseOrder(o.id) });
+      actions.push({ label: t('order.action.confirmRelease'), primary: true, run: () => releaseOrder(o.id) });
     }
     if (o.status === 'paid_escrow' || o.status === 'shipped') {
-      actions.push({ label: 'Reklamation einreichen', run: () => disputeOrder(o.id) });
+      actions.push({ label: t('order.action.dispute'), run: () => disputeOrder(o.id) });
     }
     return {
-      id: o.id, isBuyer, roleLabel: isBuyer ? 'Kauf' : 'Verkauf',
+      id: o.id, isBuyer, roleLabel: isBuyer ? t('order.role.buy') : t('order.role.sell'),
       name: shirt ? shirt.name : o.shirt_id, size: o.size, totalFmt: chf(total),
-      statusLabel: st.label, statusColor: st.color, statusBg: st.bg,
+      statusLabel: st.key ? t(st.key) : o.status, statusColor: st.color, statusBg: st.bg,
       trackingCode: o.tracking_code || '', createdLabel: new Date(o.created_at).toLocaleDateString('de-CH', { day: 'numeric', month: 'short', year: 'numeric' }),
       actions
     };
@@ -386,21 +414,21 @@ export function useMaillot() {
     try {
       const res = await db.createCheckoutSession(orderId);
       if (!res.configured) {
-        toast(res.message || 'Zahlungen sind noch nicht konfiguriert.');
+        toast(res.message || t('toast.paymentsNotConfigured'));
         return;
       }
       window.location.href = res.url;
     } catch (e) {
-      toast('Zahlung konnte nicht gestartet werden \u2014 bitte erneut versuchen.');
+      toast(t('toast.paymentStartFailed'));
     }
   };
   const shipOrder = async (orderId) => {
     try {
       await db.updateOrderStatus(orderId, 'shipped', { shipped_at: new Date().toISOString() });
       setOrdersNow((prev) => prev.map((o) => (o.id === orderId ? { ...o, status: 'shipped' } : o)));
-      toast('Als versendet markiert');
+      toast(t('toast.markedShipped'));
     } catch (e) {
-      toast('Aktion fehlgeschlagen \u2014 bitte erneut versuchen.');
+      toast(t('toast.actionFailed'));
     }
   };
   const releaseOrder = async (orderId) => {
@@ -408,31 +436,31 @@ export function useMaillot() {
       const now = new Date().toISOString();
       await db.updateOrderStatus(orderId, 'released', { delivered_at: now, released_at: now });
       setOrdersNow((prev) => prev.map((o) => (o.id === orderId ? { ...o, status: 'released' } : o)));
-      toast('Erhalt bestätigt \u00b7 Treuhand freigegeben');
+      toast(t('toast.releaseConfirmed'));
     } catch (e) {
-      toast('Aktion fehlgeschlagen \u2014 bitte erneut versuchen.');
+      toast(t('toast.actionFailed'));
     }
   };
   const disputeOrder = async (orderId) => {
     if (!user) return;
-    const reason = window.prompt('Grund für die Reklamation:');
+    const reason = window.prompt(t('toast.disputePrompt'));
     if (!reason) return;
     try {
       await db.openDispute(orderId, user.id, reason);
       await db.updateOrderStatus(orderId, 'disputed');
       setOrdersNow((prev) => prev.map((o) => (o.id === orderId ? { ...o, status: 'disputed' } : o)));
-      toast('Reklamation eingereicht');
+      toast(t('toast.disputeFiled'));
     } catch (e) {
-      toast('Reklamation fehlgeschlagen \u2014 bitte erneut versuchen.');
+      toast(t('toast.disputeFailed'));
     }
   };
   const cancelOrder = async (orderId) => {
     try {
       await db.updateOrderStatus(orderId, 'cancelled');
       setOrdersNow((prev) => prev.map((o) => (o.id === orderId ? { ...o, status: 'cancelled' } : o)));
-      toast('Bestellung storniert');
+      toast(t('toast.orderCancelled'));
     } catch (e) {
-      toast('Stornieren fehlgeschlagen \u2014 bitte erneut versuchen.');
+      toast(t('toast.cancelFailed'));
     }
   };
 
@@ -458,7 +486,7 @@ export function useMaillot() {
   v.goAuth = () => go('auth', { authNotice: '' });
   v.doSignOut = () => {
     signOut();
-    toast('Abgemeldet');
+    toast(t('toast.signedOut'));
     go('home');
   };
   v.notifications = notifsNow.map((n) => ({ id: n.id, title: n.title, body: n.body || '', read: n.read, timeAgo: timeAgo(n.created_at), open: () => openNotification(n) }));
@@ -467,13 +495,21 @@ export function useMaillot() {
   v.notifOpen = st.notifOpen;
   v.toggleNotif = () => setState({ notifOpen: !st.notifOpen });
   v.closeNotif = () => setState({ notifOpen: false });
+  v.t = t;
+  v.money = chf;
+  v.currency = st.currency;
+  v.setCurrency = setCurrency;
+  v.currencyOptions = CURRENCIES;
+  v.lang = st.lang;
+  v.setLang = setLang;
+  v.langOptions = LANGS;
   const navDefs = [
-    ['home', 'Discover', 'Discover'],
-    ['browse', 'Marketplace', 'Market'],
-    ['sell', 'Sell', 'Sell'],
-    ['profile', 'My Collection', 'Collection']
+    ['home', t('nav.discover'), t('nav.discover')],
+    ['browse', t('nav.marketplace'), t('nav.marketShort')],
+    ['sell', t('nav.sell'), t('nav.sell')],
+    ['profile', t('nav.collection'), t('nav.collectionShort')]
   ];
-  if (st.isAdmin) navDefs.push(['admin', 'Admin', 'Admin']);
+  if (st.isAdmin) navDefs.push(['admin', t('nav.admin'), t('nav.admin')]);
   v.verifyTiers = Object.entries(VERIFY_BADGE).map(([level, b]) => ({ level, ...b }));
   v.isMobile = mob;
   v.notMobile = !mob;
@@ -524,7 +560,7 @@ export function useMaillot() {
     switchMode: () => setState({ authMode: st.authMode === 'signin' ? 'signup' : 'signin', authError: '' }),
     submit: async () => {
       if (!st.authEmail || !st.authPassword) {
-        setState({ authError: 'E-Mail und Passwort erforderlich.' });
+        setState({ authError: t('auth.required') });
         return;
       }
       setState({ authBusy: true, authError: '' });
@@ -536,10 +572,10 @@ export function useMaillot() {
       }
       setState({ authBusy: false, authPassword: '' });
       if (st.authMode === 'signup') {
-        toast('Konto erstellt \u2014 bitte E-Mail bestätigen falls nötig, dann anmelden.');
+        toast(t('toast.accountCreated'));
         setState({ authMode: 'signin' });
       } else {
-        toast('Angemeldet');
+        toast(t('toast.signedIn'));
         go('profile', { pTab: 'collection' });
       }
     }

@@ -83,10 +83,63 @@ export default function Header({ v }) {
             <input
               value={v.q}
               onChange={v.onNavSearch}
-              placeholder="Search shirts, clubs, players"
+              placeholder={v.t('header.search')}
               style={{ flex: 1, minWidth: 0, background: 'none', border: 0, outline: 'none', fontSize: 13.5, color: '#F2F4F1' }}
             />
           </div>
+        )}
+
+        {v.notMobile && (
+          <select
+            value={v.currency}
+            onChange={(e) => v.setCurrency(e.target.value)}
+            title="Currency"
+            style={{
+              height: 40,
+              padding: '0 8px',
+              borderRadius: 999,
+              background: '#141816',
+              border: '1px solid rgba(255,255,255,0.09)',
+              color: '#F2F4F1',
+              fontFamily: "'JetBrains Mono',monospace",
+              fontSize: 12.5,
+              cursor: 'pointer',
+              flex: 'none'
+            }}
+          >
+            {v.currencyOptions.map((c) => (
+              <option key={c} value={c} style={{ background: '#141816', color: '#F2F4F1' }}>
+                {c}
+              </option>
+            ))}
+          </select>
+        )}
+
+        {v.notMobile && (
+          <select
+            value={v.lang}
+            onChange={(e) => v.setLang(e.target.value)}
+            title="Language"
+            style={{
+              height: 40,
+              padding: '0 8px',
+              borderRadius: 999,
+              background: '#141816',
+              border: '1px solid rgba(255,255,255,0.09)',
+              color: '#F2F4F1',
+              fontFamily: "'JetBrains Mono',monospace",
+              fontSize: 12.5,
+              cursor: 'pointer',
+              flex: 'none',
+              textTransform: 'uppercase'
+            }}
+          >
+            {v.langOptions.map((l) => (
+              <option key={l} value={l} style={{ background: '#141816', color: '#F2F4F1' }}>
+                {l}
+              </option>
+            ))}
+          </select>
         )}
 
         <button
@@ -132,7 +185,7 @@ export default function Header({ v }) {
                   display: 'grid',
                   placeItems: 'center'
                 }}
-                title="Notifications"
+                title={v.t('header.notifications')}
               >
                 <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path>
@@ -181,7 +234,7 @@ export default function Header({ v }) {
                     }}
                   >
                     {v.notifications.length === 0 && (
-                      <div style={{ padding: '24px 14px', textAlign: 'center', color: '#8C958F', fontSize: 13 }}>No notifications yet.</div>
+                      <div style={{ padding: '24px 14px', textAlign: 'center', color: '#8C958F', fontSize: 13 }}>{v.t('header.noNotifications')}</div>
                     )}
                     {v.notifications.map((n) => (
                       <button
@@ -231,7 +284,7 @@ export default function Header({ v }) {
             </button>
             {v.notMobile && (
               <button onClick={v.doSignOut} style={{ background: 'none', border: 0, color: '#8C958F', fontSize: 12.5, cursor: 'pointer', flex: 'none' }}>
-                Abmelden
+                {v.t('header.signout')}
               </button>
             )}
           </>
@@ -240,7 +293,7 @@ export default function Header({ v }) {
             onClick={v.goAuth}
             style={{ height: 40, padding: '0 16px', borderRadius: 999, border: 0, background: '#4BFF8B', color: '#06110A', fontWeight: 700, fontSize: 13, cursor: 'pointer', flex: 'none' }}
           >
-            Sign in
+            {v.t('header.signin')}
           </button>
         )}
       </div>

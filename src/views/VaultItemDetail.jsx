@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import ShirtGraphic from '../components/ShirtGraphic.jsx';
-import { chf } from '../data.js';
 import { downloadVaultCard } from '../utils/cardExport.js';
 
 const MONO = "'JetBrains Mono',monospace";
@@ -29,7 +28,7 @@ export default function VaultItemDetail({ v }) {
     downloadVaultCard({
       name: it.name,
       size: it.sizeGroup + ' ' + it.size,
-      priceFmt: it.valuation && !it.valuation.blocked ? chf(it.valuation.mid) : '\u2014',
+      priceFmt: it.valuation && !it.valuation.blocked ? v.money(it.valuation.mid) : '\u2014',
       paid: 'Schätzwert',
       gain: '',
       gainC: '#8C958F',
@@ -125,10 +124,10 @@ export default function VaultItemDetail({ v }) {
             {it.valuation && !it.valuation.blocked ? (
               <>
                 <div style={{ fontFamily: MONO, fontSize: 26, fontWeight: 700, marginTop: 6 }}>
-                  {chf(it.valuation.low)} – {chf(it.valuation.high)}
+                  {v.money(it.valuation.low)} – {v.money(it.valuation.high)}
                 </div>
                 <div style={{ fontSize: 13, color: '#C9D0CB', marginTop: 4 }}>
-                  Ø {chf(it.valuation.mid)} · Vertrauen: {it.valuation.confidence}
+                  Ø {v.money(it.valuation.mid)} · Vertrauen: {it.valuation.confidence}
                 </div>
                 <div style={{ fontSize: 11.5, color: '#8C958F', marginTop: 6 }}>{it.valuation.basisText}</div>
                 {it.valueChange && (

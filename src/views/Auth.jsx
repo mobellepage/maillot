@@ -7,9 +7,9 @@ export default function Auth({ v }) {
   const a = v.auth;
   return (
     <main style={{ maxWidth: 420, margin: '0 auto', padding: 'clamp(40px,8vw,80px) clamp(16px,4vw,40px) 100px', animation: 'kvIn .4s ease both' }}>
-      <div style={{ fontFamily: MONO, fontSize: 11.5, letterSpacing: '0.14em', textTransform: 'uppercase', color: ACC }}>Konto</div>
+      <div style={{ fontFamily: MONO, fontSize: 11.5, letterSpacing: '0.14em', textTransform: 'uppercase', color: ACC }}>{v.t('auth.account')}</div>
       <h1 style={{ margin: '8px 0 0', fontSize: 'clamp(26px,4vw,34px)', fontWeight: 800, fontStretch: '72%', textTransform: 'uppercase', lineHeight: 1 }}>
-        {a.isSignIn ? 'Anmelden' : 'Konto erstellen'}
+        {a.isSignIn ? v.t('auth.signin') : v.t('auth.createAccount')}
       </h1>
 
       {a.notice && (
@@ -21,7 +21,7 @@ export default function Auth({ v }) {
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginTop: 24 }}>
         <label style={{ fontSize: 12.5, color: '#8C958F' }}>
-          E-Mail
+          {v.t('auth.email')}
           <input
             type="email"
             value={a.email}
@@ -31,7 +31,7 @@ export default function Auth({ v }) {
           />
         </label>
         <label style={{ fontSize: 12.5, color: '#8C958F' }}>
-          Passwort
+          {v.t('auth.password')}
           <input
             type="password"
             value={a.password}
@@ -46,16 +46,16 @@ export default function Auth({ v }) {
           disabled={a.busy}
           style={{ height: 48, marginTop: 8, borderRadius: 14, border: 0, background: ACC, color: '#06110A', fontWeight: 700, fontSize: 14.5, cursor: a.busy ? 'default' : 'pointer', opacity: a.busy ? 0.6 : 1 }}
         >
-          {a.busy ? 'Bitte warten\u2026' : a.isSignIn ? 'Anmelden' : 'Konto erstellen'}
+          {a.busy ? v.t('auth.pleaseWait') : a.isSignIn ? v.t('auth.signin') : v.t('auth.createAccount')}
         </button>
 
         <button onClick={a.switchMode} style={{ marginTop: 4, background: 'none', border: 0, color: '#8C958F', fontSize: 13, cursor: 'pointer', textAlign: 'center' }}>
-          {a.isSignIn ? 'Noch kein Konto? Jetzt registrieren' : 'Bereits ein Konto? Jetzt anmelden'}
+          {a.isSignIn ? v.t('auth.noAccount') : v.t('auth.haveAccount')}
         </button>
       </div>
 
       <button onClick={v.goHome} style={{ marginTop: 32, height: 44, padding: '0 18px', borderRadius: 12, border: '1px solid rgba(255,255,255,0.14)', background: 'none', color: '#F2F4F1', fontWeight: 600, cursor: 'pointer' }}>
-        ← Zur\u00fcck
+        {v.t('auth.back')}
       </button>
     </main>
   );

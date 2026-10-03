@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import ShirtGraphic from '../components/ShirtGraphic.jsx';
-import { SHIRTS, BY, chf } from '../data.js';
+import { SHIRTS, BY } from '../data.js';
 import {
   VERSIONS,
   SLEEVES,
@@ -279,7 +279,7 @@ export default function AddShirt({ v }) {
               <div style={{ fontWeight: 600 }}>{catalogItem.name}</div>
               {!valuation.blocked && (
                 <div style={{ fontFamily: MONO, fontSize: 20, fontWeight: 700, marginTop: 8 }}>
-                  {chf(valuation.low)} – {chf(valuation.high)}
+                  {v.money(valuation.low)} – {v.money(valuation.high)}
                 </div>
               )}
               <div style={{ fontSize: 12, color: '#8C958F', marginTop: 4 }}>Grobe Schätzung — Details im nächsten Schritt verfeinern diesen Wert.</div>
@@ -680,9 +680,9 @@ export default function AddShirt({ v }) {
             ) : (
               <div style={{ padding: 20, borderRadius: 18, background: '#101312', border: '1px solid rgba(255,255,255,0.06)' }}>
                 <div style={{ fontFamily: MONO, fontSize: 30, fontWeight: 700 }}>
-                  {chf(valuation.low)} – {chf(valuation.high)}
+                  {v.money(valuation.low)} – {v.money(valuation.high)}
                 </div>
-                <div style={{ fontSize: 13.5, color: '#C9D0CB', marginTop: 6 }}>Ø {chf(valuation.mid)} · Vertrauen: {valuation.confidence}</div>
+                <div style={{ fontSize: 13.5, color: '#C9D0CB', marginTop: 6 }}>Ø {v.money(valuation.mid)} · Vertrauen: {valuation.confidence}</div>
                 <div style={{ fontSize: 12, color: '#8C958F', marginTop: 8 }}>{valuation.basisText}</div>
               </div>
             )}
