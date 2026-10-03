@@ -213,6 +213,20 @@ export async function loadDisputesForOrder(orderId) {
   return data || [];
 }
 
+// Admin resolution queue — both RPCs are SECURITY DEFINER and re-check
+// is_admin server-side (see migration dispute_resolution_rpcs), same pattern
+// as trending_scores()/create_api_key() above.
+export async function loadDisputesForAdmin() {
+  const { data, error } = await supabase.rpc('list_disputes_for_admin');
+  if (error) throw error;
+  return data || [];
+}
+
+export async function resolveDispute(disputeId, outcome, note) {
+  const { error } = await supabase.rpc('resolve_dispute', { p_dispute_id: disputeId, p_outcome: outcome, p_note: note || null });
+  if (error) throw error;
+}
+
 // ---------------------------------------------------------------------------
 // Notifications
 // ---------------------------------------------------------------------------

@@ -66,6 +66,7 @@ export function useMaillot() {
   const { user, authLoading, signUp, signIn, signOut } = useAuth();
   const [reviewQueueNow, setReviewQueueNow] = useAdminQueue(state.isAdmin, state.view);
   const [apiKeysNow, setApiKeysNow] = useApiKeys(state.isAdmin, state.view);
+  const [disputesNow, setDisputesNow] = useDisputes(state.isAdmin, state.view);
   // Plaintext of a just-created API key — held only in memory, shown once in
   // the admin UI, never persisted anywhere (only its hash lives in the DB).
   const [newApiKey, setNewApiKey] = useState(null);
@@ -1068,6 +1069,45 @@ export function useMaillot() {
         toast('Fehler: ' + (e.message || e));
       }
     };
+
+    // DISPUTE/RETURNS WORKFLOW — admin resolution queue for orders a buyer or
+    // seller flagged via disputeOrder() above. Resolving releases escrow to
+    // the seller or refunds the buyer; the existing on_order_status_change DB
+    // trigger notifies both parties automatically (see migration
+    // dispute_resolution_rpcs / notify_order_status_change).
+    const openDisputes = disputesNow.filter((d) => d.dispute_status === 'open');
+    v.disputeQueue = openDisputes.map((d) => ({
+      id: d.dispute_id,
+      orderId: d.order_id,
+      name: d.shirt_id ? (BY[d.shirt_id] ? BY[d.shirt_id].name : d.shirt_id) : 'Eigenes Trikot (' + d.custom_item_id + ')',
+      size: d.size,
+      amountFmt: chf(Number(d.amount)),
+      reason: d.reason || '\u2014',
+      createdLabel: new Date(d.created_at).toLocaleString('de-CH'),
+      resolveRelease: (note) => v.disputeResolve(d.dispute_id, 'release', note),
+      resolveRefund: (note) => v.disputeResolve(d.dispute_id, 'refund', note)
+    }));
+    v.disputeEmpty = !openDisputes.length;
+    v.disputeHistory = disputesNow
+      .filter((d) => d.dispute_status !== 'open')
+      .slice(0, 20)
+      .map((d) => ({
+        id: d.dispute_id,
+        name: d.shirt_id ? (BY[d.shirt_id] ? BY[d.shirt_id].name : d.shirt_id) : 'Eigenes Trikot (' + d.custom_item_id + ')',
+        outcome: d.dispute_status === 'resolved_release' ? 'Freigegeben an Verkäufer' : 'Käufer erstattet',
+        note: d.resolution_note
+      }));
+    v.disputeResolve = async (disputeId, outcome, note) => {
+      try {
+        await db.resolveDispute(disputeId, outcome, note);
+        setDisputesNow((prev) =>
+          prev.map((d) => (d.dispute_id === disputeId ? { ...d, dispute_status: 'resolved_' + outcome, resolution_note: note, order_status: outcome === 'release' ? 'released' : 'refunded' } : d))
+        );
+        toast('Streitfall gelöst');
+      } catch (e) {
+        toast('Fehler: ' + (e.message || e));
+      }
+    };
   }
 
   // VAULT ITEM DETAIL (self-added "Trikot hinzufügen" items)
@@ -1143,6 +1183,24 @@ function useApiKeys(isAdmin, view) {
     };
   }, [isAdmin, view]);
   return [keys, setKeys];
+}
+
+// Small helper hook: loads the cross-user dispute queue (via the
+// list_disputes_for_admin RPC) for the admin resolution panel, gated to the
+// admin view exactly like useAdminQueue/useApiKeys above.
+function useDisputes(isAdmin, view) {
+  const [disputes, setDisputes] = useState([]);
+  useEffect(() => {
+    if (!isAdmin || view !== 'admin') return;
+    let cancelled = false;
+    db.loadDisputesForAdmin()
+      .then((d) => !cancelled && setDisputes(d))
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [isAdmin, view]);
+  return [disputes, setDisputes];
 }
 
 // Small helper hook: loads/polls this user's orders (buyer or seller side)

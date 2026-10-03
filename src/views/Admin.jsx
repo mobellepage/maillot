@@ -2,6 +2,86 @@ import { useState } from 'react';
 
 const MONO = "'JetBrains Mono',monospace";
 const ACC = '#4BFF8B';
+const NEG = '#FF6B5E';
+
+function DisputeCard({ d }) {
+  const [note, setNote] = useState('');
+  const [busy, setBusy] = useState(false);
+
+  const run = async (fn) => {
+    setBusy(true);
+    await fn(note);
+    setBusy(false);
+  };
+
+  return (
+    <div style={{ padding: 18, borderRadius: 16, background: '#101312', border: '1px solid rgba(255,107,94,0.25)' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10, flexWrap: 'wrap' }}>
+        <div>
+          <div style={{ fontWeight: 700, fontSize: 15 }}>{d.name}</div>
+          <div style={{ fontSize: 12.5, color: '#8C958F', marginTop: 2 }}>{d.size} · {d.amountFmt}</div>
+        </div>
+        <span style={{ fontFamily: MONO, fontSize: 10.5, color: '#6F7872' }}>{d.createdLabel}</span>
+      </div>
+      <div style={{ fontSize: 13, color: '#C9D0CB', marginTop: 10, lineHeight: 1.5 }}>Grund: {d.reason}</div>
+      <input
+        value={note}
+        onChange={(e) => setNote(e.target.value)}
+        placeholder="Notiz zur Lösung (optional)"
+        style={{ width: '100%', boxSizing: 'border-box', marginTop: 12, height: 40, padding: '0 12px', borderRadius: 10, background: '#121514', border: '1px solid rgba(255,255,255,0.1)', outline: 'none', fontSize: 13, color: '#F2F4F1' }}
+      />
+      <div style={{ display: 'flex', gap: 10, marginTop: 10, flexWrap: 'wrap' }}>
+        <button
+          disabled={busy}
+          onClick={() => run(d.resolveRelease)}
+          style={{ height: 42, padding: '0 16px', borderRadius: 10, border: 0, background: ACC, color: '#06110A', fontWeight: 700, fontSize: 13, cursor: busy ? 'default' : 'pointer', opacity: busy ? 0.6 : 1 }}
+        >
+          An Verkäufer freigeben
+        </button>
+        <button
+          disabled={busy}
+          onClick={() => run(d.resolveRefund)}
+          style={{ height: 42, padding: '0 16px', borderRadius: 10, border: `1px solid ${NEG}66`, background: 'none', color: NEG, fontWeight: 600, fontSize: 13, cursor: busy ? 'default' : 'pointer', opacity: busy ? 0.6 : 1 }}
+        >
+          Käufer erstatten
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function DisputesPanel({ v }) {
+  return (
+    <div style={{ marginTop: 40 }}>
+      <div style={{ fontFamily: MONO, fontSize: 11.5, letterSpacing: '0.14em', textTransform: 'uppercase', color: NEG }}>Streitfälle</div>
+      <h2 style={{ margin: '6px 0 0', fontSize: 'clamp(20px,2.6vw,26px)', fontWeight: 800, fontStretch: '76%', textTransform: 'uppercase' }}>Rückgabe- &amp; Streitfall-Bearbeitung</h2>
+      <div style={{ fontSize: 13, color: '#8C958F', marginTop: 8, lineHeight: 1.5, maxWidth: 560 }}>
+        Offene Streitfälle aus laufenden Bestellungen. Eine Entscheidung gibt das Treuhandgeld sofort an den Verkäufer frei oder erstattet den Käufer — beide werden automatisch benachrichtigt.
+      </div>
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 14, marginTop: 20 }}>
+        {v.disputeEmpty && <div style={{ fontSize: 14, color: '#8C958F', padding: '16px 0' }}>Keine offenen Streitfälle.</div>}
+        {v.disputeQueue.map((d) => (
+          <DisputeCard key={d.id} d={d} />
+        ))}
+      </div>
+
+      {v.disputeHistory.length > 0 && (
+        <div style={{ marginTop: 28 }}>
+          <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12, color: '#C9D0CB' }}>Zuletzt gelöst</div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {v.disputeHistory.map((h) => (
+              <div key={h.id} style={{ display: 'flex', justifyContent: 'space-between', gap: 10, padding: '10px 14px', borderRadius: 10, background: '#101312', border: '1px solid rgba(255,255,255,0.06)', fontSize: 12.5 }}>
+                <span style={{ color: '#C9D0CB' }}>{h.name}</span>
+                <span style={{ color: ACC, fontFamily: MONO, fontSize: 11 }}>{h.outcome}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
 
 function ApiKeysPanel({ v }) {
   const [label, setLabel] = useState('');
@@ -222,6 +302,8 @@ export default function Admin({ v }) {
           </div>
         </div>
       )}
+
+      <DisputesPanel v={v} />
 
       <ApiKeysPanel v={v} />
 
