@@ -1,0 +1,41 @@
+# Supabase CLI config for local development (`npm run db:start`).
+# Production project: vuclwradmphgasiactsa (eu-central-2).
+project_id = "maillot"
+
+[api]
+port = 54321
+schemas = ["public"]
+extra_search_path = ["public", "extensions"]
+
+[db]
+port = 54322
+major_version = 17
+
+[db.seed]
+enabled = true
+sql_paths = ["./seed.sql"]
+
+[studio]
+port = 54323
+
+[auth]
+site_url = "http://localhost:5173"
+additional_redirect_urls = ["http://localhost:4733"]
+enable_signup = true
+
+[auth.email]
+enable_confirmations = false
+
+# Edge functions. verify_jwt = false only where the function authenticates
+# callers itself (Stripe signature, API key, or id-only internal relay).
+[functions.checkout]
+verify_jwt = true
+
+[functions.stripe-webhook]
+verify_jwt = false
+
+[functions.send-notification]
+verify_jwt = false
+
+[functions.price-index]
+verify_jwt = false
