@@ -28,15 +28,8 @@ export interface RawShirt {
   added: number;
 }
 
-export interface Comment {
-  u: string;
-  t: string;
-  d: string;
-}
-
 /** A catalogue entry plus its (synthetic) market data and derived fields. */
 export interface Shirt extends RawShirt, MarketData {
-  cm: Comment[];
   pName: string;
   pNum: string;
   spark: string;
@@ -122,22 +115,11 @@ export function linePath(pairs: Point[], W: number, H: number, pad: number): { d
 export const SIZES = ['S', 'M', 'L', 'XL', 'XXL'];
 export const MULT: Record<string, number> = { S: 0.96, M: 1, L: 1.05, XL: 1.03, XXL: 0.93 };
 export const CONDS = ['New with tags', 'Excellent', 'Very good', 'Good', 'Match-worn'];
-const USERS = ['retro.ruud', 'zurich_kits', 'curva_sud_88', 'kitnerd.ch', 'thefootballattic', 'lukas.v', 'gol_vintage', 'basel.collects'];
-const LINES = [
-  'Picked mine up last month — stitching and crest are perfect. Maillot auth tag was on it.',
-  'Prices only go one way on this one. Glad I bought before the summer.',
-  'Fits slightly small, I\u2019d size up if you\u2019re between sizes.',
-  'Watch out for fakes of this one — check the wash tag code. Happy the vault verifies everything.',
-  'Absolute grail. The colours look even better in person.',
-  'Shipped from Zürich in two days, packaging was museum-grade.'
-];
-
 export const SHIRTS: Shirt[] = RAW.map((s): Shirt => {
   const r = rng(s.id);
   // See marketData.js — hist/sizes/avail/owners/wants/decade/sales are all placeholder
   // synthetic data pending a real transactions integration (Phase 4.11 audit).
   const { L, hist, sizes, avail, owners, wants, decade, sales } = generateSyntheticMarketData(s, r);
-  const cm = [0, 1, 2].map((): Comment => ({ u: USERS[Math.floor(r() * USERS.length)]!, t: LINES[Math.floor(r() * LINES.length)]!, d: 1 + Math.floor(r() * 20) + 'd' }));
   const parts = (s.player || '').split(' ');
   const num = parts.length > 1 ? parts.pop() || '' : '';
   return {
@@ -150,7 +132,6 @@ export const SHIRTS: Shirt[] = RAW.map((s): Shirt => {
     wants,
     decade,
     sales,
-    cm,
     pName: parts.join(' ').toUpperCase(),
     pNum: num,
     spark: linePath(down(hist.slice(-90), 32), 100, 32, 3).d,
@@ -162,34 +143,6 @@ export const SHIRTS: Shirt[] = RAW.map((s): Shirt => {
 
 export const BY: Record<string, Shirt> = {};
 SHIRTS.forEach((s) => (BY[s.id] = s));
-
-export interface OwnedShirt {
-  id: string;
-  cost: number;
-  size: string;
-  when: string;
-}
-
-export const OWNED: OwnedShirt[] = [
-  { id: 'acm-0607', cost: 380, size: 'L', when: 'Mar 2024' },
-  { id: 'ars-91', cost: 165, size: 'L', when: 'Aug 2023' },
-  { id: 'ger-26', cost: 120, size: 'M', when: 'Jun 2026' },
-  { id: 'ned-88', cost: 240, size: 'M', when: 'Jan 2025' },
-  { id: 'juv-9697', cost: 198, size: 'L', when: 'Nov 2024' },
-  { id: 'ajx-95', cost: 210, size: 'M', when: 'May 2025' },
-  { id: 'sui-26', cost: 95, size: 'M', when: 'May 2026' },
-  { id: 'yb-2526', cost: 89, size: 'L', when: 'Jul 2025' }
-];
-
-export const PORT: number[] = [];
-for (let d = 0; d < 365; d++) {
-  let v = 0;
-  OWNED.forEach((o) => {
-    const s = BY[o.id];
-    if (s) v += s.hist[Math.max(0, s.L - 365 + d)] ?? 0;
-  });
-  PORT.push(v);
-}
 
 export interface Filters {
   type: string[];

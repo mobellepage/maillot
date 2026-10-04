@@ -9,16 +9,22 @@ export default function Profile({ v }) {
       <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 20 }}>
         <div style={{ width: 88, height: 88, borderRadius: '50%', border: '3px solid #4BFF8B', padding: 4, flex: 'none' }}>
           <div style={{ width: '100%', height: '100%', borderRadius: '50%', background: 'linear-gradient(135deg,#2B3A31,#151A17)', display: 'grid', placeItems: 'center', fontSize: 26, fontWeight: 800 }}>
-            LM
+            {v.userInitials}
           </div>
         </div>
         <div style={{ flex: 1, minWidth: 220 }}>
-          <h1 style={{ margin: 0, fontSize: 'clamp(32px,4vw,48px)', fontWeight: 800, fontStretch: '72%', textTransform: 'uppercase', lineHeight: 1 }}>Luca Meier</h1>
-          <div style={{ fontSize: 14, color: '#8C958F', marginTop: 6 }}>@vintage.luca · Zürich · Collector since 2021</div>
-          <div style={{ display: 'flex', gap: 8, marginTop: 10, flexWrap: 'wrap' }}>
-            <span style={{ fontSize: 12, fontWeight: 600, padding: '5px 10px', borderRadius: 999, background: 'rgba(75,255,139,0.1)', color: '#4BFF8B' }}>✓ Verified collector</span>
-            <span style={{ fontSize: 12, fontWeight: 600, padding: '5px 10px', borderRadius: 999, background: 'rgba(255,255,255,0.06)', color: '#C9D0CB' }}>Top 5% portfolio</span>
+          <h1 style={{ margin: 0, fontSize: 'clamp(32px,4vw,48px)', fontWeight: 800, fontStretch: '72%', textTransform: 'uppercase', lineHeight: 1 }}>My collection</h1>
+          <div style={{ fontSize: 14, color: '#8C958F', marginTop: 6 }}>
+            {v.userHandle}
+            {v.memberSince && ' · Member since ' + v.memberSince}
           </div>
+          {v.hasExpert && (
+            <div style={{ display: 'flex', gap: 8, marginTop: 10, flexWrap: 'wrap' }}>
+              <span style={{ fontSize: 12, fontWeight: 600, padding: '5px 10px', borderRadius: 999, background: 'rgba(232,176,75,0.14)', color: '#E8B04B' }}>
+                ✓ {v.expertCount} expert-verified
+              </span>
+            </div>
+          )}
         </div>
         <button onClick={v.shareCollection} style={{ height: 48, padding: '0 20px', borderRadius: 14, border: '1px solid rgba(255,255,255,0.14)', background: 'none', color: '#F2F4F1', fontWeight: 600, cursor: 'pointer' }}>
           Sammlung teilen
@@ -45,9 +51,10 @@ export default function Profile({ v }) {
           <div>
             <div style={{ fontFamily: MONO, fontSize: 11.5, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#8C958F' }}>Portfolio value</div>
             <div style={{ fontFamily: MONO, fontSize: 'clamp(36px,4vw,48px)', fontWeight: 700, marginTop: 8 }}>{v.pValue}</div>
-            <div style={{ fontFamily: MONO, fontSize: 15, color: '#4BFF8B', marginTop: 6 }}>
-              {v.pGain} ({v.pGainPct}) all time
+            <div style={{ fontFamily: MONO, fontSize: 15, color: v.pGainColor, marginTop: 6 }}>
+              {v.pGain} ({v.pGainPct}) since added
             </div>
+            <div style={{ fontSize: 12, color: '#8C958F', marginTop: 6 }}>Estimate from catalogue data, condition and verification.</div>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
             <div style={{ padding: 14, borderRadius: 14, background: '#0D100F' }}>
@@ -62,52 +69,20 @@ export default function Profile({ v }) {
         </div>
 
         <div style={{ flex: '2 1 520px', minWidth: 0, padding: 'clamp(20px,2.4vw,28px)', borderRadius: 24, background: '#101312', border: '1px solid rgba(255,255,255,0.06)' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12, flexWrap: 'wrap' }}>
-            <div>
-              <div style={{ fontSize: 18, fontWeight: 800, fontStretch: '80%', textTransform: 'uppercase' }}>Value development</div>
-              <div style={{ fontFamily: MONO, fontSize: 13, color: '#4BFF8B', marginTop: 4 }}>{v.pRangeCh} this period</div>
-            </div>
-            <div style={{ display: 'flex', padding: 4, borderRadius: 999, border: '1px solid rgba(255,255,255,0.1)' }}>
-              {v.pRanges.map((r, i) => (
-                <button
-                  key={i}
-                  onClick={r.pick}
-                  style={{ padding: '6px 13px', borderRadius: 999, border: 0, cursor: 'pointer', fontFamily: MONO, fontSize: 12, fontWeight: 600, background: r.bg, color: r.color }}
-                >
-                  {r.label}
-                </button>
-              ))}
-            </div>
-          </div>
-          <div style={{ position: 'relative', height: 200, marginTop: 16 }}>
-            <svg viewBox="0 0 1000 240" preserveAspectRatio="none" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', display: 'block' }}>
-              <defs>
-                <linearGradient id="kvPort" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0" stopColor="#4BFF8B" stopOpacity="0.25" />
-                  <stop offset="1" stopColor="#4BFF8B" stopOpacity="0" />
-                </linearGradient>
-              </defs>
-              <path d={v.pArea} fill="url(#kvPort)" />
-              <path d={v.pLine} fill="none" stroke="#4BFF8B" strokeWidth="2.2" vectorEffect="non-scaling-stroke" />
-            </svg>
-            <div
-              style={{
-                position: 'absolute',
-                right: 0,
-                top: 0,
-                bottom: 0,
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'space-between',
-                fontFamily: MONO,
-                fontSize: 11,
-                color: '#8C958F',
-                pointerEvents: 'none'
-              }}
-            >
-              <span>{v.pTop}</span>
-              <span>{v.pBot}</span>
-            </div>
+          <div style={{ fontSize: 18, fontWeight: 800, fontStretch: '80%', textTransform: 'uppercase' }}>Verification</div>
+          <div style={{ fontSize: 13, color: '#8C958F', marginTop: 4 }}>Expert-verified shirts are valued higher and sell faster.</div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginTop: 20 }}>
+            {v.pTiers.map((t) => (
+              <div key={t.label}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13.5, marginBottom: 6 }}>
+                  <span style={{ color: '#C9D0CB' }}>{t.label}</span>
+                  <span style={{ fontFamily: MONO, color: t.color }}>{t.n}</span>
+                </div>
+                <div style={{ height: 6, borderRadius: 6, background: 'rgba(255,255,255,0.06)', overflow: 'hidden' }}>
+                  <div style={{ width: t.width, height: '100%', background: t.color, borderRadius: 6, transition: 'width .4s' }} />
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </div>
@@ -155,6 +130,18 @@ export default function Profile({ v }) {
               </button>
             ))}
           </div>
+        </div>
+      )}
+
+      {v.tabCollection && v.collectionEmpty && (
+        <div style={{ marginTop: 24, padding: 'clamp(28px,4vw,48px)', borderRadius: 24, border: '1.5px dashed rgba(75,255,139,0.35)', textAlign: 'center' }}>
+          <div style={{ fontSize: 'clamp(22px,2.6vw,30px)', fontWeight: 800, fontStretch: '78%', textTransform: 'uppercase' }}>Start your collection</div>
+          <p style={{ maxWidth: 440, margin: '10px auto 20px', fontSize: 14.5, lineHeight: 1.55, color: '#C9D0CB' }}>
+            Add the shirts you own to track their value, get them expert-verified and share your collection.
+          </p>
+          <button onClick={v.goAddShirt} className="hov-primary" style={{ height: 48, padding: '0 22px', borderRadius: 14, border: 0, background: '#4BFF8B', color: '#06110A', fontWeight: 700, cursor: 'pointer' }}>
+            + Add your first shirt
+          </button>
         </div>
       )}
 
@@ -341,7 +328,7 @@ export default function Profile({ v }) {
                   <div style={{ fontSize: 14.5, fontWeight: 600, lineHeight: 1.25, height: '2.5em', overflow: 'hidden' }}>{s.name}</div>
                   <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 6, marginTop: 4 }}>
                     <div style={{ minWidth: 0 }}>
-                      <div style={{ fontSize: 10.5, color: '#8C958F' }}>Lowest ask</div>
+                      <div style={{ fontSize: 10.5, color: '#8C958F' }}>Market value</div>
                       <div style={{ fontFamily: MONO, fontSize: 16, fontWeight: 600, whiteSpace: 'nowrap' }}>{s.priceFmt}</div>
                     </div>
                     <div style={{ fontFamily: MONO, fontSize: 11.5, fontWeight: 600, color: s.chColor, background: s.chBg, padding: '4px 7px', borderRadius: 6, whiteSpace: 'nowrap' }}>

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { ACC, NEG, BY, SHIRTS, OWNED, PORT, EMPTY, RANGES, SIZES, MULT, CONDS, pct, hexA, down, linePath, uniq, TODAY } from './data.ts';
+import { ACC, NEG, BY, SHIRTS, EMPTY, RANGES, SIZES, MULT, CONDS, pct, hexA, down, linePath, uniq, TODAY } from './data.ts';
 import { loadJSON, saveJSON } from './utils/storage.ts';
 import { estimateValue, matchCatalogFromOcrText } from './addShirtData.js';
 import { readLabelText } from './utils/ocr.ts';
@@ -25,9 +25,9 @@ function timeAgo(iso) {
   const d = Math.floor(h / 24);
   return 'vor ' + d + (d > 1 ? ' Tagen' : ' Tag');
 }
-// Demo watchlist shown to signed-out visitors browsing the catalogue — once a
-// user signs in, this is replaced by their real Supabase-backed watchlist.
-const DEMO_WATCH = ['nap-8788', 'bra-70', 'mia-26', 'fra-98', 'boc-81'];
+// Signed-out visitors start with an empty watchlist; signing in loads the
+// real Supabase-backed one.
+const DEMO_WATCH = [];
 
 // Escrow order status \u2192 i18n key/color, used by the Profile "Orders" tab.
 // Labels themselves live in utils/i18n.js (order.<status> keys) so they follow
@@ -79,10 +79,12 @@ export function useMaillot() {
   const [ordersNow, setOrdersNow] = useOrders(user ? user.id : null, state.view, state.pTab);
   const [notifsNow, setNotifsNow] = useNotifications(user ? user.id : null);
   const trendScores = useTrendingScores(state.view);
+  const publicStats = usePublicStats(state.view === 'home');
   // Live order book for the shirt/size currently open on the detail page.
   const detailShirt = BY[state.id] || BY['ger-26'];
   const detailSize = resolveSize(detailShirt, state.size);
   const sellingShirt = state.view === 'sell' && state.sShirt ? BY[state.sShirt] : null;
+  const shirtStats = useShirtStats(detailShirt.id, state.view === 'detail');
   const [book, reloadBook] = useOrderBook(
     sellingShirt ? sellingShirt.id : detailShirt.id,
     sellingShirt ? state.sSize : detailSize,
@@ -294,7 +296,7 @@ export function useMaillot() {
   };
   const open = (id) => {
     const s = BY[id];
-    go('detail', { id, imgView: 0, range: '1Y', size: s.sizes.find((z) => s.avail[z] && z === 'M') || s.sizes.find((z) => s.avail[z]) });
+    go('detail', { id, imgView: 0, range: '1Y', size: resolveSize(s, 'M') });
     db.logEvent(user ? user.id : null, id, 'view').catch(() => {});
   };
   const toast = (m) => {
@@ -644,7 +646,7 @@ export function useMaillot() {
   // they already viewed/bid on isn't useful), along with anything owned.
   // Hidden entirely once there's no personal history yet, rather than
   // showing an empty/cold-start section.
-  const ownedIds = new Set(OWNED.map((o) => o.id));
+  const ownedIds = new Set(st.customItems.map((c) => c.catalogId).filter(Boolean));
   const seenIds = new Set();
   const leagueWeight = {};
   const typeWeight = {};
@@ -687,7 +689,42 @@ export function useMaillot() {
     { label: 'Swiss Super League', f: { league: ['Swiss Super League'] } },
     { label: 'Under CHF 120', max: 120 }
   ].map((o) => ({ label: o.label, go: () => browseWith(o) }));
-  v.indices = [['KV 100', '1\u2019284.6', 3.2], ['Retro \u201990s', '842.1', 8.4], ['Match-worn', '2\u2019410.0', 5.1], ['World Cup \u201926', '318.7', 14.6], ['Swiss SL', '96.3', 1.2], ['Premier League', '512.9', -0.8], ['Serie A', '677.4', 4.3]].map(([l, val, c]) => ({ label: l, val, ch: pct(c), color: c >= 0 ? ACC : NEG }));
+  // Market index ticker: computed from the catalogue (the same index data the
+  // product pages chart), never typed in by hand.
+  const segment = (label, pred) => {
+    const xs = SHIRTS.filter(pred);
+    if (!xs.length) return null;
+    const avg = xs.reduce((a, x) => a + x.price, 0) / xs.length;
+    const ch = xs.reduce((a, x) => a + x.ch, 0) / xs.length;
+    return { label, val: Math.round(avg).toLocaleString('de-CH'), ch: pct(ch), color: ch >= 0 ? ACC : NEG };
+  };
+  v.indices = [
+    segment('All shirts', () => true),
+    segment('Retro', (x) => x.type === 'Retro'),
+    segment('Match-worn', (x) => x.type === 'Match-worn'),
+    segment('World Cup \u201926', (x) => x.league === 'National Teams' && x.year === 2026),
+    segment('Swiss SL', (x) => x.league === 'Swiss Super League'),
+    segment('Premier League', (x) => x.league === 'Premier League'),
+    segment('Serie A', (x) => x.league === 'Serie A')
+  ].filter(Boolean);
+  v.heroBadge = 'Live price index \u00b7 ' + SHIRTS.length + ' shirts catalogued';
+  // Hero stats: a real number is only shown once it's meaningful; until then
+  // the slots carry concrete promises instead of invented traction.
+  const ps = publicStats;
+  const compactChf = (n) => (n >= 1e6 ? 'CHF ' + (n / 1e6).toFixed(1) + 'M' : n >= 1e3 ? 'CHF ' + Math.round(n / 1e3) + 'k' : chf(n));
+  const realStats = ps
+    ? [
+        Number(ps.traded_chf) >= 50000 && { value: compactChf(Number(ps.traded_chf)), label: 'traded on Maillot' },
+        Number(ps.collectors) >= 1000 && { value: Number(ps.collectors).toLocaleString('de-CH'), label: 'collectors' },
+        Number(ps.live_listings) >= 100 && { value: Number(ps.live_listings).toLocaleString('de-CH'), label: 'live listings' }
+      ].filter(Boolean)
+    : [];
+  const promises = [
+    { value: 'Escrow', label: 'on every order' },
+    { value: '14-point', label: 'authentication in Z\u00fcrich' },
+    { value: 'TWINT', label: '& card payments' }
+  ];
+  v.heroStats = [...realStats, ...promises].slice(0, 3);
 
   // BROWSE
   const f = st.filters,
@@ -698,7 +735,7 @@ export function useMaillot() {
   list.sort(sorts[st.sort]);
   v.results = list.map((s) => deco(s));
   v.noResults = !list.length;
-  v.resultLabel = list.length + ' of ' + SHIRTS.length + ' shirts \u00b7 prices = lowest ask';
+  v.resultLabel = list.length + ' of ' + SHIRTS.length + ' shirts \u00b7 prices = market value';
   v.sort = st.sort;
   v.onSort = (e) => setState({ sort: e.target.value });
   const groups = [['type', 'Category', ['New', 'Retro', 'Match-worn']], ['league', 'League', uniq('league')], ['club', 'Club', uniq('club').sort()], ['brand', 'Brand', uniq('brand').sort()], ['decade', 'Era', uniq('decade').sort().reverse()], ['condition', 'Condition', CONDS]];
@@ -762,9 +799,8 @@ export function useMaillot() {
   v.isOneSize = s.type === 'Match-worn';
   v.multiSize = !v.isOneSize;
   v.sizeOpts = s.sizes.map((z) => {
-    const on = z === size,
-      av = s.avail[z];
-    return { label: z, price: av ? chf(askOf(z)) : 'Sold out', bg: on ? 'rgba(75,255,139,0.1)' : '#121514', border: on ? ACC : 'rgba(255,255,255,0.08)', op: av ? 1 : 0.38, cur: av ? 'pointer' : 'not-allowed', pick: () => av && setState({ size: z }) };
+    const on = z === size;
+    return { label: z, price: chf(askOf(z)), bg: on ? 'rgba(75,255,139,0.1)' : '#121514', border: on ? ACC : 'rgba(255,255,255,0.08)', op: 1, cur: 'pointer', pick: () => setState({ size: z }) };
   });
   v.askFmt = chf(ask);
   v.bidFmtTop = chf(bid);
@@ -773,8 +809,14 @@ export function useMaillot() {
   v.watched = st.watch.includes(s.id);
   v.watchLabel = v.watched ? 'Watching' : 'Watch';
   v.watchToggle = () => toggleWatch(s.id);
-  v.ownersLabel = s.type === 'Match-worn' ? '1 of 1 \u00b7 unique' : s.owners.toLocaleString('de-CH') + ' own';
-  v.wantsLabel = s.wants.toLocaleString('de-CH') + ' want';
+  // Real community numbers (watchlists + open listings across all sizes).
+  const ss = shirtStats && shirtStats.id === s.id ? shirtStats.stats : null;
+  const watchers = ss ? Number(ss.watchers) : 0;
+  v.watchersLabel = watchers ? watchers.toLocaleString('de-CH') + ' watching' : 'Be the first to watch';
+  v.listingsLabel = ss && Number(ss.live_listings) ? Number(ss.live_listings) + ' listed' : 'No listings yet';
+  v.watchersN = watchers.toLocaleString('de-CH');
+  v.listingsN = ss ? String(Number(ss.live_listings)) : '0';
+  v.isUnique = s.type === 'Match-worn';
   const days = RANGES[st.range],
     slice = s.hist.slice(-Math.min(days, s.L)),
     off = s.L - slice.length;
@@ -831,11 +873,10 @@ export function useMaillot() {
     ['52-week low', chf(Math.min(...y))],
     ['Avg. sale (30d)', chf(s.hist.slice(-30).reduce((a, b) => a + b, 0) / 30)],
     ['Volatility', (Math.abs(s.ch) / 3 + 2.1).toFixed(1) + '%'],
-    ['Total sales', (s.type === 'Match-worn' ? 3 : Math.round(s.owners * 0.34)).toLocaleString('de-CH')],
+    ['Completed sales on Maillot', ss ? Number(ss.completed_sales).toLocaleString('de-CH') : '\u2014'],
     ['Price premium vs retail', s.type === 'New' ? pct(s.ch * 0.8) : 'Retro \u00b7 n/a']
   ].map(([k, val]) => ({ k, v: val }));
   v.sales = s.sales.map((x) => ({ date: new Date(TODAY - x.o * MS).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }), size: x.size, price: chf(x.p * (s.type === 'Match-worn' ? 1 : MULT[x.size] || 1)), cond: s.cond }));
-  v.comments = s.cm.map((c) => ({ u: '@' + c.u, t: c.t, d: c.d, ini: c.u.slice(0, 2).toUpperCase() }));
   v.related = SHIRTS.filter((x) => x.id !== s.id && (x.league === s.league || x.type === s.type)).sort((a, b) => b.trend - a.trend).slice(0, 4).map((x) => deco(x));
   v.openBuy = () => liveAsk && setState({ modal: 'buy', modalDone: false, modalResult: null });
   v.openBid = () => setState({ modal: 'bid', modalDone: false, modalResult: null, bidAmt: String(liveBid ? Number(liveBid.amount) + 5 : bid) });
@@ -1059,34 +1100,37 @@ export function useMaillot() {
     top();
   };
 
-  // PROFILE
-  const owned = OWNED.map((o) => {
-    const x = BY[o.id];
-    const g = ((x.price - o.cost) / o.cost) * 100;
-    return Object.assign(deco(x), { paid: 'Paid ' + chf(o.cost), gain: pct(g), gainC: g >= 0 ? ACC : NEG, size: o.size, when: o.when });
-  });
-  const tot = OWNED.reduce((a, o) => a + BY[o.id].price, 0),
-    cost = OWNED.reduce((a, o) => a + o.cost, 0);
+  // PROFILE — only the signed-in user's own items; every number is derived
+  // from them (no demo collection, no fabricated history).
   const customOwned = st.customItems.map((c) => decoCustomCard(c));
-  const customVal = st.customItems.reduce((a, c) => a + (c.valuation && !c.valuation.blocked ? c.valuation.mid : 0), 0);
-  const totAll = tot + customVal,
-    costAll = cost + customVal;
-  v.owned = [...owned, ...customOwned];
+  const midOf = (val) => (val && !val.blocked ? val.mid : 0);
+  const valueNow = st.customItems.reduce((a, c) => a + midOf(c.valuation), 0);
+  const valueAdded = st.customItems.reduce((a, c) => a + midOf(c.initialValuation || c.valuation), 0);
+  v.owned = customOwned;
+  v.collectionEmpty = !customOwned.length;
   v.rejectedItems = customOwned.filter((c) => c.rejected).map((c) => ({ id: c.id, name: c.name, reason: c.rejectionReason, open: c.open }));
   v.hasRejected = v.rejectedItems.length > 0;
-  v.pValue = chf(totAll);
-  v.pGain = (totAll >= costAll ? '+' : '\u2212') + chf(Math.abs(totAll - costAll));
-  v.pGainPct = pct(costAll ? ((totAll - costAll) / costAll) * 100 : 0);
-  v.pCount = String(OWNED.length + st.customItems.length);
-  const pd = PORT.slice(-RANGES[st.pRange]);
-  const pl = linePath(down(pd, 120), 1000, 240, 20);
-  v.pLine = pl.d;
-  v.pArea = pl.area;
-  v.pRangeCh = pct(((pd[pd.length - 1] - pd[0]) / pd[0]) * 100);
-  v.pTop = chf(pl.mx);
-  v.pBot = chf(pl.mn);
-  v.pRanges = ['3M', '6M', '1Y'].map((k) => ({ label: k, bg: st.pRange === k ? '#F2F4F1' : 'transparent', color: st.pRange === k ? '#0A0C0B' : '#C9D0CB', pick: () => setState({ pRange: k }) }));
-  v.pTabs = [['collection', 'Collection', OWNED.length], ['watchlist', 'Watchlist', st.watch.length], ['orders', 'Orders', ordersNow.length]].map(([k, l, n]) => ({ label: l, n: String(n), color: st.pTab === k ? '#F2F4F1' : '#8C958F', bar: st.pTab === k ? ACC : 'transparent', pick: () => setState({ pTab: k }) }));
+  v.pValue = chf(valueNow);
+  v.pGain = (valueNow >= valueAdded ? '+' : '\u2212') + chf(Math.abs(valueNow - valueAdded));
+  v.pGainPct = pct(valueAdded ? ((valueNow - valueAdded) / valueAdded) * 100 : 0);
+  v.pGainColor = valueNow >= valueAdded ? ACC : NEG;
+  v.pCount = String(st.customItems.length);
+  // Verification breakdown replaces the old synthetic "value development" chart.
+  const tierCount = (pred) => st.customItems.filter(pred).length;
+  const tiers = [
+    ['Expert-verified', tierCount((c) => c.verification.level === 'expert'), '#E8B04B'],
+    ['Pre-checked', tierCount((c) => c.verification.level === 'precheck'), '#6FB6FF'],
+    ['In review', tierCount((c) => c.verification.level !== 'expert' && ['angefragt', 'in Prüfung'].includes(c.verification.status)), '#C9D0CB'],
+    ['Self-reported', tierCount((c) => c.verification.level === 'self' && !['angefragt', 'in Prüfung'].includes(c.verification.status)), '#8C958F']
+  ];
+  const tierTotal = Math.max(1, st.customItems.length);
+  v.pTiers = tiers.map(([label, n, color]) => ({ label, n: String(n), color, width: (n / tierTotal) * 100 + '%' }));
+  const sinceIso = user && user.created_at;
+  v.memberSince = sinceIso ? new Date(sinceIso).toLocaleDateString('en-GB', { month: 'long', year: 'numeric' }) : '';
+  v.userHandle = user ? '@' + user.email.split('@')[0] : '';
+  v.expertCount = String(tiers[0][1]);
+  v.hasExpert = tiers[0][1] > 0;
+  v.pTabs = [['collection', 'Collection', st.customItems.length], ['watchlist', 'Watchlist', st.watch.length], ['orders', 'Orders', ordersNow.length]].map(([k, l, n]) => ({ label: l, n: String(n), color: st.pTab === k ? '#F2F4F1' : '#8C958F', bar: st.pTab === k ? ACC : 'transparent', pick: () => setState({ pTab: k }) }));
   v.tabCollection = st.pTab === 'collection';
   v.tabWatch = st.pTab === 'watchlist';
   v.tabOrders = st.pTab === 'orders';
@@ -1100,8 +1144,8 @@ export function useMaillot() {
   // in any browser, with no account/backend/localStorage required on their end.
   v.shareCollection = () => {
     const payload = {
-      owner: v.userEmail ? v.userEmail.split('@')[0] : 'Luca Meier',
-      handle: v.userEmail ? '@' + v.userEmail.split('@')[0] : '@vintage.luca',
+      owner: v.userEmail.split('@')[0],
+      handle: v.userHandle,
       totalFmt: v.pValue,
       items: v.owned.map((s) => ({
         id: s.id, name: s.name, size: s.size, priceFmt: s.priceFmt, pat: s.pat, trim: s.trim, crest: s.crest, glowA: s.glowA,
@@ -1311,10 +1355,10 @@ export function useMaillot() {
   return { state: st, v };
 }
 
-// Size the detail page actually shows: the requested one if it exists and is
-// available, otherwise the first available size.
+// Size the detail page shows: the requested one if the shirt comes in it,
+// otherwise M, otherwise its only size (match-worn pieces).
 function resolveSize(shirt, wanted) {
-  return shirt.sizes.includes(wanted) && shirt.avail[wanted] ? wanted : shirt.sizes.find((z) => shirt.avail[z]);
+  return shirt.sizes.includes(wanted) ? wanted : shirt.sizes.includes('M') ? 'M' : shirt.sizes[0];
 }
 
 // Live order book (open asks/bids) for one shirt/size, polled only while the
@@ -1344,6 +1388,39 @@ function useOrderBook(shirtId, size, active) {
   return [current, () => setNonce((n) => n + 1)];
 }
 const EMPTY_BOOK = { key: '', bids: [], asks: [] };
+
+// Site-wide aggregate stats for the homepage hero (see public_stats()).
+function usePublicStats(active) {
+  const [stats, setStats] = useState(null);
+  useEffect(() => {
+    if (!active) return;
+    let cancelled = false;
+    db.loadPublicStats()
+      .then((x) => !cancelled && setStats(x))
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [active]);
+  return stats;
+}
+
+// Per-shirt community stats (watchers, listings, completed sales) for the
+// product page; tagged with the shirt id so a stale result never shows.
+function useShirtStats(shirtId, active) {
+  const [stats, setStats] = useState(null);
+  useEffect(() => {
+    if (!active || !shirtId) return;
+    let cancelled = false;
+    db.loadShirtStats(shirtId)
+      .then((x) => !cancelled && setStats({ id: shirtId, stats: x }))
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [shirtId, active]);
+  return stats;
+}
 
 // Small helper hook: loads the full review queue for the admin screen and
 // keeps it client-cached across the two "approve/reject" handlers above

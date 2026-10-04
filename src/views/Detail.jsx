@@ -62,7 +62,7 @@ export default function Detail({ v }) {
                   }}
                 />
               </span>
-              Maillot Verified
+              Authenticated on every sale
             </div>
             <div
               style={{
@@ -287,9 +287,9 @@ export default function Detail({ v }) {
             <span style={{ fontFamily: MONO, fontWeight: 700, color: d.chColor, background: d.chBg, padding: '5px 9px', borderRadius: 7 }}>
               {d.chFmt} · 30D
             </span>
-            <span>{v.ownersLabel}</span>
+            <span>{v.watchersLabel}</span>
             <span style={{ color: '#4A524D' }}>•</span>
-            <span>{v.wantsLabel}</span>
+            <span>{v.listingsLabel}</span>
           </div>
 
           <div style={{ marginTop: 30 }}>
@@ -561,7 +561,7 @@ export default function Detail({ v }) {
           ))}
           <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, padding: '10px 0', fontSize: 14 }}>
             <span style={{ color: '#8C958F' }}>Authentication</span>
-            <span style={{ color: '#4BFF8B', fontWeight: 600 }}>✓ Maillot Verified</span>
+            <span style={{ color: '#4BFF8B', fontWeight: 600 }}>✓ Checked in Zürich before it ships</span>
           </div>
         </div>
 
@@ -595,30 +595,26 @@ export default function Detail({ v }) {
           <div style={{ fontSize: 18, fontWeight: 800, fontStretch: '80%', textTransform: 'uppercase', marginBottom: 16 }}>Community</div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 18 }}>
             <div style={{ padding: 14, borderRadius: 14, background: '#0D100F' }}>
-              <div style={{ fontFamily: MONO, fontSize: 16, fontWeight: 700 }}>{v.ownersLabel}</div>
-              <div style={{ fontSize: 12, color: '#8C958F', marginTop: 2 }}>in collections</div>
+              <div style={{ fontFamily: MONO, fontSize: 16, fontWeight: 700 }}>{v.watchersN}</div>
+              <div style={{ fontSize: 12, color: '#8C958F', marginTop: 2 }}>collectors watching</div>
             </div>
             <div style={{ padding: 14, borderRadius: 14, background: '#0D100F' }}>
-              <div style={{ fontFamily: MONO, fontSize: 16, fontWeight: 700 }}>{v.wantsLabel}</div>
-              <div style={{ fontSize: 12, color: '#8C958F', marginTop: 2 }}>on wishlists</div>
+              <div style={{ fontFamily: MONO, fontSize: 16, fontWeight: 700 }}>{v.listingsN}</div>
+              <div style={{ fontSize: 12, color: '#8C958F', marginTop: 2 }}>live listings, all sizes</div>
             </div>
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-            {v.comments.map((c, i) => (
-              <div key={i} style={{ display: 'flex', gap: 12 }}>
-                <div style={{ width: 34, height: 34, flex: 'none', borderRadius: '50%', background: '#1E2421', display: 'grid', placeItems: 'center', fontSize: 11, fontWeight: 700, color: '#C9D0CB' }}>
-                  {c.ini}
-                </div>
-                <div>
-                  <div style={{ fontSize: 13 }}>
-                    <span style={{ fontWeight: 600 }}>{c.u}</span>
-                    <span style={{ color: '#6F7872' }}> · {c.d}</span>
-                  </div>
-                  <div style={{ fontSize: 13.5, lineHeight: 1.5, color: '#C9D0CB', marginTop: 3, textWrap: 'pretty' }}>{c.t}</div>
-                </div>
-              </div>
-            ))}
-          </div>
+          <p style={{ margin: 0, fontSize: 13.5, lineHeight: 1.55, color: '#C9D0CB' }}>
+            {v.isUnique
+              ? 'A single player-issue piece: only one exists, so the market here is one listing at a time. Watch it to hear the moment it comes up.'
+              : 'Watch this shirt to get notified when a new listing or a better price appears in your size.'}
+          </p>
+          <button
+            onClick={v.watchToggle}
+            className="hov-outline"
+            style={{ marginTop: 14, height: 44, padding: '0 18px', borderRadius: 12, border: '1.5px solid rgba(255,255,255,0.22)', background: 'none', color: '#F2F4F1', fontWeight: 700, fontSize: 14, cursor: 'pointer' }}
+          >
+            {v.watched ? '✓ Watching' : 'Watch this shirt'}
+          </button>
         </div>
       </div>
 
@@ -725,7 +721,7 @@ export default function Detail({ v }) {
                 <div style={{ fontSize: 14.5, fontWeight: 600, lineHeight: 1.25, height: '2.5em', overflow: 'hidden' }}>{s.name}</div>
                 <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 6, marginTop: 4 }}>
                   <div style={{ minWidth: 0 }}>
-                    <div style={{ fontSize: 10.5, color: '#8C958F' }}>Lowest ask</div>
+                    <div style={{ fontSize: 10.5, color: '#8C958F' }}>Market value</div>
                     <div style={{ fontFamily: MONO, fontSize: 16, fontWeight: 600, whiteSpace: 'nowrap' }}>{s.priceFmt}</div>
                   </div>
                   <div style={{ fontFamily: MONO, fontSize: 11.5, fontWeight: 600, color: s.chColor, background: s.chBg, padding: '4px 7px', borderRadius: 6, whiteSpace: 'nowrap' }}>

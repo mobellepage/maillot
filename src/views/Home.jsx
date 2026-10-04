@@ -48,7 +48,7 @@ export default function Home({ v }) {
                   animation: 'kvPulse 1.8s ease-in-out infinite'
                 }}
               ></span>
-              Live price index · 48’210 shirts
+              {v.heroBadge}
             </div>
             <h1
               style={{
@@ -207,18 +207,12 @@ export default function Home({ v }) {
               ))}
             </div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'clamp(20px,4vw,48px)', marginTop: 40 }}>
-              <div>
-                <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 24, fontWeight: 600 }}>CHF 12.4M</div>
-                <div style={{ fontSize: 13, color: '#8C958F', marginTop: 2 }}>traded in 2026</div>
-              </div>
-              <div>
-                <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 24, fontWeight: 600 }}>86’000</div>
-                <div style={{ fontSize: 13, color: '#8C958F', marginTop: 2 }}>collectors</div>
-              </div>
-              <div>
-                <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 24, fontWeight: 600 }}>100%</div>
-                <div style={{ fontSize: 13, color: '#8C958F', marginTop: 2 }}>authenticated</div>
-              </div>
+              {v.heroStats.map((x) => (
+                <div key={x.label}>
+                  <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 24, fontWeight: 600 }}>{x.value}</div>
+                  <div style={{ fontSize: 13, color: '#8C958F', marginTop: 2 }}>{x.label}</div>
+                </div>
+              ))}
             </div>
           </div>
           <div style={{ flex: '1 1 400px', minWidth: 0 }}>
@@ -306,7 +300,7 @@ export default function Home({ v }) {
                   </div>
                 </div>
                 <div style={{ textAlign: 'right', flex: 'none' }}>
-                  <div style={{ fontSize: 11, color: '#8C958F' }}>Lowest ask</div>
+                  <div style={{ fontSize: 11, color: '#8C958F' }}>Market value</div>
                   <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 20, fontWeight: 700 }}>{v.feat.priceFmt}</div>
                 </div>
               </div>
@@ -440,7 +434,7 @@ export default function Home({ v }) {
                   <div style={{ fontSize: 14.5, fontWeight: 600, lineHeight: 1.25, height: '2.5em', overflow: 'hidden' }}>{s.name}</div>
                   <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 6, marginTop: 4 }}>
                     <div style={{ minWidth: 0 }}>
-                      <div style={{ fontSize: 10.5, color: '#8C958F' }}>Lowest ask</div>
+                      <div style={{ fontSize: 10.5, color: '#8C958F' }}>Market value</div>
                       <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 16, fontWeight: 600, whiteSpace: 'nowrap' }}>
                         {s.priceFmt}
                       </div>
@@ -585,7 +579,7 @@ export default function Home({ v }) {
                 <div style={{ fontSize: 14.5, fontWeight: 600, lineHeight: 1.25, height: '2.5em', overflow: 'hidden' }}>{s.name}</div>
                 <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 6, marginTop: 4 }}>
                   <div style={{ minWidth: 0 }}>
-                    <div style={{ fontSize: 10.5, color: '#8C958F' }}>Lowest ask</div>
+                    <div style={{ fontSize: 10.5, color: '#8C958F' }}>Market value</div>
                     <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 16, fontWeight: 600, whiteSpace: 'nowrap' }}>
                       {s.priceFmt}
                     </div>

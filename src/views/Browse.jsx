@@ -361,7 +361,7 @@ export default function Browse({ v }) {
                   <div style={{ fontSize: 14.5, fontWeight: 600, lineHeight: 1.25, height: '2.5em', overflow: 'hidden' }}>{s.name}</div>
                   <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 6, marginTop: 4 }}>
                     <div style={{ minWidth: 0 }}>
-                      <div style={{ fontSize: 10.5, color: '#8C958F' }}>Lowest ask</div>
+                      <div style={{ fontSize: 10.5, color: '#8C958F' }}>Market value</div>
                       <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 16, fontWeight: 600, whiteSpace: 'nowrap' }}>
                         {s.priceFmt}
                       </div>

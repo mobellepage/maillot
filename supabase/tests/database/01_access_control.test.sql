@@ -34,7 +34,7 @@ select tests.create_user('00000000-0000-4000-a000-00000000a11c', 'alice@test.loc
 select tests.create_user('00000000-0000-4000-a000-000000000b0b', 'bob@test.local');
 select tests.create_user('00000000-0000-4000-a000-0000000ad111', 'admin@test.local', true);
 
-select plan(22);
+select plan(24);
 
 -- ---- profiles: no privilege escalation -----------------------------------
 select tests.login('00000000-0000-4000-a000-00000000a11c');
@@ -68,6 +68,8 @@ select throws_ok($$ select order_cancel(gen_random_uuid()) $$, '42501', null, 'a
 select lives_ok($$ insert into events (user_id, shirt_id, type) values (null, 'ger-26', 'view') $$, 'anon can log a view');
 select throws_ok($$ insert into events (user_id, shirt_id, type) values (null, 'ger-26', 'buy') $$, '42501', null, 'anon can only log views');
 select lives_ok($$ select * from trending_scores(14) $$, 'anon can read trending');
+select lives_ok($$ select * from public_stats() $$, 'anon can read aggregate market stats');
+select lives_ok($$ select * from shirt_stats('ger-26') $$, 'anon can read per-shirt stats');
 reset role;
 
 -- ---- admin ----------------------------------------------------------------

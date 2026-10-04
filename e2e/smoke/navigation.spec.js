@@ -22,7 +22,7 @@ test('search leads to a shareable product URL and Back works', async ({ page }) 
 test('deep link to a product shows market value and an honest empty order book', async ({ page }) => {
   await page.goto('/shirt/ger-26');
   await expect(page.getByRole('heading', { level: 1 })).toContainText(/Germany 2026 Home/i);
-  await expect(page.getByText('Market value', { exact: true })).toBeVisible();
+  await expect(page.getByText('Index estimate', { exact: true })).toBeVisible();
   await expect(page.getByText('No sellers yet')).toBeVisible();
   // No real seller => no "Buy now"; the primary action is a bid.
   await expect(page.getByRole('button', { name: /^Buy now/ })).toHaveCount(0);

@@ -551,7 +551,28 @@ export type Database = {
         Args: { p_approved: boolean; p_id: string; p_reason?: string };
         Returns: undefined;
       };
+      public_stats: {
+        Args: never;
+        Returns: {
+          collectors: number;
+          live_listings: number;
+          open_bids: number;
+          completed_sales: number;
+          traded_chf: number;
+        }[];
+      };
       revoke_api_key: { Args: { p_id: string }; Returns: undefined };
+      shirt_stats: {
+        Args: { p_shirt_id: string };
+        Returns: {
+          watchers: number;
+          live_listings: number;
+          open_bids: number;
+          completed_sales: number;
+          last_sale_amount: number | null;
+          last_sale_at: string | null;
+        }[];
+      };
       trending_scores: {
         Args: { days?: number };
         Returns: {

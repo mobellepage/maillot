@@ -344,6 +344,24 @@ export async function loadTrendingScores(days = 14): Promise<RpcReturns<'trendin
 }
 
 // ---------------------------------------------------------------------------
+// Public market statistics (aggregates only — see migration public_market_stats)
+// ---------------------------------------------------------------------------
+export type PublicStats = RpcReturns<'public_stats'>[number];
+export type ShirtStats = RpcReturns<'shirt_stats'>[number];
+
+export async function loadPublicStats(): Promise<PublicStats | null> {
+  const { data, error } = await supabase.rpc('public_stats');
+  if (error) throw error;
+  return (data || [])[0] || null;
+}
+
+export async function loadShirtStats(shirtId: string): Promise<ShirtStats | null> {
+  const { data, error } = await supabase.rpc('shirt_stats', { p_shirt_id: shirtId });
+  if (error) throw error;
+  return (data || [])[0] || null;
+}
+
+// ---------------------------------------------------------------------------
 // Licensable price-index API: admin-only key management (RLS + the RPCs
 // re-check is_admin server-side).
 // ---------------------------------------------------------------------------
