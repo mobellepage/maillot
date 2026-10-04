@@ -14,6 +14,7 @@
 //   /vault/item/:id       custom vault item
 //   /admin                admin
 //   /signin               auth
+//   /authentication       how authentication works
 //
 // Public share links keep their self-contained hash form (#/vault/<data>),
 // handled separately by utils/share.js.
@@ -48,6 +49,8 @@ export function pathFor(st: RouteState): string | null {
       return '/admin';
     case 'auth':
       return '/signin';
+    case 'authinfo':
+      return '/authentication';
     default:
       return null; // publicvault etc. — leave the URL alone
   }
@@ -67,6 +70,7 @@ export function stateFromPath(pathname: string): RouteState {
   if (a === 'vault') return { view: 'profile', pTab: 'collection' };
   if (a === 'admin') return { view: 'admin' };
   if (a === 'signin') return { view: 'auth' };
+  if (a === 'authentication') return { view: 'authinfo' };
   return { view: 'home' };
 }
 
@@ -92,6 +96,8 @@ export function titleFor(st: RouteState): string {
       return 'Admin · ' + SITE;
     case 'auth':
       return 'Sign in · ' + SITE;
+    case 'authinfo':
+      return 'How authentication works · ' + SITE;
     default:
       return SITE + ' — the market for football shirts';
   }
@@ -102,5 +108,6 @@ export function descriptionFor(st: RouteState): string {
     const s = BY[st.id];
     if (s) return 'Live bids, asks and price history for the ' + s.name + ' (' + s.brand + '). Every sale authenticated in Zürich.';
   }
+  if (st.view === 'authinfo') return 'How Maillot authenticates every football shirt: escrowed payment, a 14-point inspection in Zürich and a full-refund guarantee.';
   return 'The catalogue, marketplace and price index for football shirts. Every sale authenticated in Zürich.';
 }

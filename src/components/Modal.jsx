@@ -117,7 +117,13 @@ export default function Modal({ v }) {
                 </div>
                 <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start', marginTop: 20, padding: 14, borderRadius: 14, background: '#0D100F', border: '1px solid rgba(255,255,255,0.07)', fontSize: 13, lineHeight: 1.5, color: '#C9D0CB' }}>
                   <span style={{ color: '#4BFF8B', fontWeight: 700 }}>✓</span>
-                  <span>Pay securely with TWINT, card or Apple Pay on the next step. Your money is held in escrow and only released once the shirt has passed authentication and you confirm delivery.</span>
+                  <span>
+                    Pay securely with TWINT, card or Apple Pay on the next step. Your money is held in escrow and only released once the shirt has passed authentication
+                    and you confirm delivery.{' '}
+                    <button onClick={v.goAuthInfo} style={{ padding: 0, border: 0, background: 'none', color: '#4BFF8B', fontWeight: 600, fontSize: 13, cursor: 'pointer' }}>
+                      How authentication works
+                    </button>
+                  </span>
                 </div>
                 <button
                   onClick={v.confirmModal}

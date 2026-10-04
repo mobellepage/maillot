@@ -419,7 +419,10 @@ export default function Detail({ v }) {
             </div>
             <div style={{ fontSize: 13, lineHeight: 1.5, color: '#C9D0CB' }}>
               <span style={{ color: '#F2F4F1', fontWeight: 600 }}>14-point authentication in Zürich.</span> Every shirt is inspected by our
-              team before it ships to you. Not as described? Full refund.
+              team before it ships to you. Not as described? Full refund.{' '}
+              <button onClick={v.goAuthInfo} style={{ padding: 0, border: 0, background: 'none', color: '#4BFF8B', fontWeight: 600, fontSize: 13, cursor: 'pointer' }}>
+                How it works →
+              </button>
             </div>
           </div>
         </div>

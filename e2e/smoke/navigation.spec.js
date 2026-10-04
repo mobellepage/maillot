@@ -61,3 +61,12 @@ test('unknown URLs fall back to the home page', async ({ page }) => {
   await page.goto('/this/does/not/exist');
   await expect(page.getByRole('heading', { level: 1 })).toContainText('Every shirt');
 });
+
+test('product pages link to the authentication explainer', async ({ page }) => {
+  await page.goto('/shirt/fra-98');
+  await page.getByRole('button', { name: 'How it works →' }).click();
+  await expect(page).toHaveURL(/\/authentication$/);
+  await expect(page.getByRole('heading', { level: 1 })).toContainText(/How authentication works/i);
+  await expect(page.getByText('The 14-point checklist')).toBeVisible();
+  await expect(page.locator('main li').filter({ hasText: '✓' })).toHaveCount(14);
+});

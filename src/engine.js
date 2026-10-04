@@ -567,6 +567,8 @@ export function useMaillot() {
   v.isAdmin = view === 'admin';
   v.isPublicVault = view === 'publicvault';
   v.isAuth = view === 'auth';
+  v.isAuthInfo = view === 'authinfo';
+  v.goAuthInfo = () => go('authinfo');
   v.navItems = navDefs.map(([k, l, sh]) => {
     const on = view === k || (k === 'browse' && view === 'detail');
     return { label: l, short: sh, color: on ? '#F2F4F1' : '#8C958F', bg: on ? 'rgba(255,255,255,0.07)' : 'transparent', dot: on ? ACC : 'transparent', go: () => go(k) };

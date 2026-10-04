@@ -13,7 +13,8 @@ describe('router', () => {
     [{ view: 'addshirt' }, '/vault/add'],
     [{ view: 'vaultitem', vaultItemId: 'custom-1' }, '/vault/item/custom-1'],
     [{ view: 'admin' }, '/admin'],
-    [{ view: 'auth' }, '/signin']
+    [{ view: 'auth' }, '/signin'],
+    [{ view: 'authinfo' }, '/authentication']
   ];
 
   it.each(pages)('maps %o to %s and back', (state, path) => {

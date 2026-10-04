@@ -13,6 +13,7 @@ import VaultItemDetail from './views/VaultItemDetail.jsx';
 import Admin from './views/Admin.jsx';
 import PublicVault from './views/PublicVault.jsx';
 import Auth from './views/Auth.jsx';
+import Authentication from './views/Authentication.tsx';
 
 function App() {
   const { v } = useMaillot();
@@ -53,6 +54,7 @@ function App() {
       {v.isVaultItem && <VaultItemDetail v={v} />}
       {v.isAdmin && <Admin v={v} />}
       {v.isAuth && <Auth v={v} />}
+      {v.isAuthInfo && <Authentication v={v} />}
       <MobileNav v={v} />
       <Modal v={v} />
       <Toast v={v} />
