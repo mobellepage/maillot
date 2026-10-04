@@ -51,14 +51,27 @@ jobs:
       # proves every migration applies cleanly from zero.
       - run: supabase start -x studio,imgproxy,inbucket,logflare,vector
       - run: supabase db lint --level error
-      - run: supabase test db
+      - name: Database tests (pgTAP)
+        run: |
+          set -o pipefail
+          supabase test db 2>&1 | tee pgtap.log || {
+            # Logs need a GitHub login; annotations are public — surface failures there.
+            grep -E "not ok|# +(Failed|Looks like)|ERROR|psql:" pgtap.log | head -40 | while IFS= read -r l; do echo "::error title=pgTAP::$l"; done
+            exit 1
+          }
       - name: Export local stack credentials
         run: |
           supabase status -o env > .supabase.env
           echo "E2E_SUPABASE_URL=$(grep '^API_URL=' .supabase.env | cut -d= -f2- | tr -d '"')" >> "$GITHUB_ENV"
           echo "E2E_SUPABASE_ANON_KEY=$(grep '^ANON_KEY=' .supabase.env | cut -d= -f2- | tr -d '"')" >> "$GITHUB_ENV"
       - run: npx playwright install --with-deps chromium
-      - run: npx playwright test --project=backend
+      - name: Backend e2e
+        run: |
+          set -o pipefail
+          npx playwright test --project=backend --reporter=list 2>&1 | tee e2e.log || {
+            grep -E "✘|Error:|expect\(" e2e.log | head -40 | while IFS= read -r l; do echo "::error title=e2e::$l"; done
+            exit 1
+          }
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
