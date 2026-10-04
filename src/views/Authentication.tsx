@@ -2,7 +2,7 @@
 // The process described here is Maillot's policy; the escrow part is
 // enforced in code (see supabase/migrations/*security_hardening_v1.sql).
 
-const MONO = "'JetBrains Mono',monospace";
+const MONO = "'JetBrains Mono Variable','JetBrains Mono',monospace";
 const ACC = '#4BFF8B';
 
 export interface AuthenticationProps {

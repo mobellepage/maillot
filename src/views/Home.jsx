@@ -31,7 +31,7 @@ export default function Home({ v }) {
                 padding: '7px 14px 7px 10px',
                 borderRadius: 999,
                 border: '1px solid rgba(255,255,255,0.1)',
-                fontFamily: "'JetBrains Mono',monospace",
+                fontFamily: "'JetBrains Mono Variable','JetBrains Mono',monospace",
                 fontSize: 11.5,
                 letterSpacing: '0.08em',
                 textTransform: 'uppercase',
@@ -179,7 +179,7 @@ export default function Home({ v }) {
                           {s.brand} · {s.league}
                         </div>
                       </div>
-                      <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 13 }}>{s.priceFmt}</div>
+                      <div style={{ fontFamily: "'JetBrains Mono Variable','JetBrains Mono',monospace", fontSize: 13 }}>{s.priceFmt}</div>
                     </button>
                   ))}
                 </div>
@@ -209,7 +209,7 @@ export default function Home({ v }) {
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'clamp(20px,4vw,48px)', marginTop: 40 }}>
               {v.heroStats.map((x) => (
                 <div key={x.label}>
-                  <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 24, fontWeight: 600 }}>{x.value}</div>
+                  <div style={{ fontFamily: "'JetBrains Mono Variable','JetBrains Mono',monospace", fontSize: 24, fontWeight: 600 }}>{x.value}</div>
                   <div style={{ fontSize: 13, color: '#8C958F', marginTop: 2 }}>{x.label}</div>
                 </div>
               ))}
@@ -245,7 +245,7 @@ export default function Home({ v }) {
               >
                 <span
                   style={{
-                    fontFamily: "'JetBrains Mono',monospace",
+                    fontFamily: "'JetBrains Mono Variable','JetBrains Mono',monospace",
                     fontSize: 11,
                     letterSpacing: '0.12em',
                     textTransform: 'uppercase',
@@ -256,7 +256,7 @@ export default function Home({ v }) {
                 </span>
                 <span
                   style={{
-                    fontFamily: "'JetBrains Mono',monospace",
+                    fontFamily: "'JetBrains Mono Variable','JetBrains Mono',monospace",
                     fontSize: 12,
                     fontWeight: 700,
                     color: '#06110A',
@@ -295,13 +295,13 @@ export default function Home({ v }) {
               >
                 <div style={{ minWidth: 0 }}>
                   <div style={{ fontWeight: 700, fontSize: 16, lineHeight: 1.25 }}>{v.feat.name}</div>
-                  <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 12, color: '#8C958F', marginTop: 4 }}>
+                  <div style={{ fontFamily: "'JetBrains Mono Variable','JetBrains Mono',monospace", fontSize: 12, color: '#8C958F', marginTop: 4 }}>
                     adidas · Authentic
                   </div>
                 </div>
                 <div style={{ textAlign: 'right', flex: 'none' }}>
                   <div style={{ fontSize: 11, color: '#8C958F' }}>Market value</div>
-                  <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 20, fontWeight: 700 }}>{v.feat.priceFmt}</div>
+                  <div style={{ fontFamily: "'JetBrains Mono Variable','JetBrains Mono',monospace", fontSize: 20, fontWeight: 700 }}>{v.feat.priceFmt}</div>
                 </div>
               </div>
             </div>
@@ -330,7 +330,7 @@ export default function Home({ v }) {
                 marginRight: 28,
                 borderRight: '1px solid rgba(255,255,255,0.07)',
                 whiteSpace: 'nowrap',
-                fontFamily: "'JetBrains Mono',monospace",
+                fontFamily: "'JetBrains Mono Variable','JetBrains Mono',monospace",
                 fontSize: 13
               }}
             >
@@ -346,7 +346,7 @@ export default function Home({ v }) {
           <div style={{ marginBottom: 28 }}>
             <div
               style={{
-                fontFamily: "'JetBrains Mono',monospace",
+                fontFamily: "'JetBrains Mono Variable','JetBrains Mono',monospace",
                 fontSize: 11.5,
                 letterSpacing: '0.14em',
                 textTransform: 'uppercase',
@@ -419,7 +419,7 @@ export default function Home({ v }) {
                 <div style={{ padding: '12px 14px 14px', display: 'flex', flexDirection: 'column', gap: 5 }}>
                   <div
                     style={{
-                      fontFamily: "'JetBrains Mono',monospace",
+                      fontFamily: "'JetBrains Mono Variable','JetBrains Mono',monospace",
                       fontSize: 10.5,
                       letterSpacing: '0.06em',
                       textTransform: 'uppercase',
@@ -435,13 +435,13 @@ export default function Home({ v }) {
                   <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 6, marginTop: 4 }}>
                     <div style={{ minWidth: 0 }}>
                       <div style={{ fontSize: 10.5, color: '#8C958F' }}>Market value</div>
-                      <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 16, fontWeight: 600, whiteSpace: 'nowrap' }}>
+                      <div style={{ fontFamily: "'JetBrains Mono Variable','JetBrains Mono',monospace", fontSize: 16, fontWeight: 600, whiteSpace: 'nowrap' }}>
                         {s.priceFmt}
                       </div>
                     </div>
                     <div
                       style={{
-                        fontFamily: "'JetBrains Mono',monospace",
+                        fontFamily: "'JetBrains Mono Variable','JetBrains Mono',monospace",
                         fontSize: 11.5,
                         fontWeight: 600,
                         color: s.chColor,
@@ -465,7 +465,7 @@ export default function Home({ v }) {
           <div>
             <div
               style={{
-                fontFamily: "'JetBrains Mono',monospace",
+                fontFamily: "'JetBrains Mono Variable','JetBrains Mono',monospace",
                 fontSize: 11.5,
                 letterSpacing: '0.14em',
                 textTransform: 'uppercase',
@@ -524,7 +524,7 @@ export default function Home({ v }) {
                     position: 'absolute',
                     top: 10,
                     left: 10,
-                    fontFamily: "'JetBrains Mono',monospace",
+                    fontFamily: "'JetBrains Mono Variable','JetBrains Mono',monospace",
                     fontSize: 9.5,
                     letterSpacing: '0.1em',
                     textTransform: 'uppercase',
@@ -564,7 +564,7 @@ export default function Home({ v }) {
               <div style={{ padding: '12px 14px 14px', display: 'flex', flexDirection: 'column', gap: 5 }}>
                 <div
                   style={{
-                    fontFamily: "'JetBrains Mono',monospace",
+                    fontFamily: "'JetBrains Mono Variable','JetBrains Mono',monospace",
                     fontSize: 10.5,
                     letterSpacing: '0.06em',
                     textTransform: 'uppercase',
@@ -580,13 +580,13 @@ export default function Home({ v }) {
                 <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 6, marginTop: 4 }}>
                   <div style={{ minWidth: 0 }}>
                     <div style={{ fontSize: 10.5, color: '#8C958F' }}>Market value</div>
-                    <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 16, fontWeight: 600, whiteSpace: 'nowrap' }}>
+                    <div style={{ fontFamily: "'JetBrains Mono Variable','JetBrains Mono',monospace", fontSize: 16, fontWeight: 600, whiteSpace: 'nowrap' }}>
                       {s.priceFmt}
                     </div>
                   </div>
                   <div
                     style={{
-                      fontFamily: "'JetBrains Mono',monospace",
+                      fontFamily: "'JetBrains Mono Variable','JetBrains Mono',monospace",
                       fontSize: 11.5,
                       fontWeight: 600,
                       color: s.chColor,
@@ -618,7 +618,7 @@ export default function Home({ v }) {
           <div>
             <div
               style={{
-                fontFamily: "'JetBrains Mono',monospace",
+                fontFamily: "'JetBrains Mono Variable','JetBrains Mono',monospace",
                 fontSize: 11.5,
                 letterSpacing: '0.14em',
                 textTransform: 'uppercase',
@@ -678,7 +678,7 @@ export default function Home({ v }) {
               className="hov-row"
               style={{ display: 'flex', alignItems: 'center', gap: 14, padding: 12, borderRadius: 14, cursor: 'pointer', transition: 'background .2s' }}
             >
-              <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 12, color: '#6F7872', width: 20 }}>{m.rank}</div>
+              <div style={{ fontFamily: "'JetBrains Mono Variable','JetBrains Mono',monospace", fontSize: 12, color: '#6F7872', width: 20 }}>{m.rank}</div>
               <div
                 style={{
                   width: 56,
@@ -706,8 +706,8 @@ export default function Home({ v }) {
                 </svg>
               )}
               <div style={{ textAlign: 'right', flex: 'none' }}>
-                <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 15, fontWeight: 600 }}>{m.priceFmt}</div>
-                <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 12.5, color: m.chColor, marginTop: 3 }}>{m.chFmt}</div>
+                <div style={{ fontFamily: "'JetBrains Mono Variable','JetBrains Mono',monospace", fontSize: 15, fontWeight: 600 }}>{m.priceFmt}</div>
+                <div style={{ fontFamily: "'JetBrains Mono Variable','JetBrains Mono',monospace", fontSize: 12.5, color: m.chColor, marginTop: 3 }}>{m.chFmt}</div>
               </div>
             </div>
           ))}
@@ -727,7 +727,7 @@ export default function Home({ v }) {
           <div>
             <div
               style={{
-                fontFamily: "'JetBrains Mono',monospace",
+                fontFamily: "'JetBrains Mono Variable','JetBrains Mono',monospace",
                 fontSize: 11.5,
                 letterSpacing: '0.14em',
                 textTransform: 'uppercase',
@@ -781,7 +781,7 @@ export default function Home({ v }) {
                     position: 'absolute',
                     top: 12,
                     left: 12,
-                    fontFamily: "'JetBrains Mono',monospace",
+                    fontFamily: "'JetBrains Mono Variable','JetBrains Mono',monospace",
                     fontSize: 10.5,
                     letterSpacing: '0.08em',
                     textTransform: 'uppercase',
@@ -801,7 +801,7 @@ export default function Home({ v }) {
                 <div style={{ fontSize: 15, fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                   {s.name}
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 8, fontFamily: "'JetBrains Mono',monospace", fontSize: 13 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 8, fontFamily: "'JetBrains Mono Variable','JetBrains Mono',monospace", fontSize: 13 }}>
                   <span style={{ color: '#8C958F' }}>{s.brand}</span>
                   <span style={{ fontWeight: 600 }}>{s.priceFmt}</span>
                 </div>
@@ -810,27 +810,6 @@ export default function Home({ v }) {
           ))}
         </div>
       </section>
-      <footer
-        style={{
-          maxWidth: 1360,
-          margin: 'clamp(64px,8vw,120px) auto 0',
-          padding: '32px clamp(16px,4vw,40px) 48px',
-          borderTop: '1px solid rgba(255,255,255,0.07)',
-          display: 'flex',
-          flexWrap: 'wrap',
-          gap: 16,
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          color: '#8C958F',
-          fontSize: 13
-        }}
-      >
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <span style={{ fontWeight: 800, fontStretch: '78%', fontSize: 18, color: '#F2F4F1', letterSpacing: '0.03em' }}>MAILLOT</span>
-          <span>The market for football shirts.</span>
-        </div>
-        <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 12 }}>© 2026 Maillot AG · Zürich · Prices in CHF</div>
-      </footer>
     </main>
   );
 }

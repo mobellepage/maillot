@@ -256,7 +256,7 @@ export function useMaillot() {
     const meta = document.querySelector('meta[name="description"]');
     if (meta) meta.setAttribute('content', descriptionFor(state));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [state.view, state.id, state.pTab, state.vaultItemId]);
+  }, [state.view, state.id, state.pTab, state.vaultItemId, state.legalDoc]);
   useEffect(() => {
     const onPop = () => {
       if (parseShareHash(window.location.hash) !== undefined) return;
@@ -569,6 +569,9 @@ export function useMaillot() {
   v.isAuth = view === 'auth';
   v.isAuthInfo = view === 'authinfo';
   v.goAuthInfo = () => go('authinfo');
+  v.isLegal = view === 'legal';
+  v.legalDoc = st.legalDoc || 'help';
+  v.goLegal = (doc) => go('legal', { legalDoc: doc });
   v.navItems = navDefs.map(([k, l, sh]) => {
     const on = view === k || (k === 'browse' && view === 'detail');
     return { label: l, short: sh, color: on ? '#F2F4F1' : '#8C958F', bg: on ? 'rgba(255,255,255,0.07)' : 'transparent', dot: on ? ACC : 'transparent', go: () => go(k) };

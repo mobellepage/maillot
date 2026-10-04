@@ -17,7 +17,7 @@ import {
 import { analyzeAndCompress } from '../utils/image.ts';
 import { useAddShirtForm } from './addshirt/useAddShirtForm.js';
 
-const MONO = "'JetBrains Mono',monospace";
+const MONO = "'JetBrains Mono Variable','JetBrains Mono',monospace";
 const ACC = '#4BFF8B';
 const STEP_LABELS = ['Scan', 'Trikot', 'Details', 'Fotos', 'Vorprüfung', 'Verifizierung', 'Wert & Abschluss'];
 

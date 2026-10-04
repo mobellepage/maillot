@@ -1,4 +1,4 @@
-const MONO = "'JetBrains Mono',monospace";
+const MONO = "'JetBrains Mono Variable','JetBrains Mono',monospace";
 const ACC = '#4BFF8B';
 
 // Real Supabase email/password auth screen — replaces the old "everyone is

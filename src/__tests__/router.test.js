@@ -14,7 +14,11 @@ describe('router', () => {
     [{ view: 'vaultitem', vaultItemId: 'custom-1' }, '/vault/item/custom-1'],
     [{ view: 'admin' }, '/admin'],
     [{ view: 'auth' }, '/signin'],
-    [{ view: 'authinfo' }, '/authentication']
+    [{ view: 'authinfo' }, '/authentication'],
+    [{ view: 'legal', legalDoc: 'help' }, '/help'],
+    [{ view: 'legal', legalDoc: 'terms' }, '/legal/terms'],
+    [{ view: 'legal', legalDoc: 'privacy' }, '/legal/privacy'],
+    [{ view: 'legal', legalDoc: 'imprint' }, '/legal/imprint']
   ];
 
   it.each(pages)('maps %o to %s and back', (state, path) => {
@@ -25,6 +29,7 @@ describe('router', () => {
   it('falls back to home for unknown paths and unknown shirts', () => {
     expect(stateFromPath('/nope')).toEqual({ view: 'home' });
     expect(stateFromPath('/shirt/does-not-exist')).toEqual({ view: 'home' });
+    expect(stateFromPath('/legal/unknown')).toEqual({ view: 'home' });
   });
 
   it('tolerates trailing slashes and encoded ids', () => {

@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,300..900&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+/* Fonts are self-hosted (see main.jsx) — no third-party font requests, so no visitor IPs go to Google. */
 
 html, body { margin: 0; background: #0A0C0B; color: #F2F4F1; -webkit-font-smoothing: antialiased; }
 #root { min-height: 100vh; }

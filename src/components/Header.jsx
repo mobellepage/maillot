@@ -101,7 +101,7 @@ export default function Header({ v }) {
               background: '#141816',
               border: '1px solid rgba(255,255,255,0.09)',
               color: '#F2F4F1',
-              fontFamily: "'JetBrains Mono',monospace",
+              fontFamily: "'JetBrains Mono Variable','JetBrains Mono',monospace",
               fontSize: 12.5,
               cursor: 'pointer',
               flex: 'none'
@@ -127,7 +127,7 @@ export default function Header({ v }) {
               background: '#141816',
               border: '1px solid rgba(255,255,255,0.09)',
               color: '#F2F4F1',
-              fontFamily: "'JetBrains Mono',monospace",
+              fontFamily: "'JetBrains Mono Variable','JetBrains Mono',monospace",
               fontSize: 12.5,
               cursor: 'pointer',
               flex: 'none',
@@ -156,7 +156,7 @@ export default function Header({ v }) {
             border: '1px solid rgba(255,255,255,0.09)',
             cursor: 'pointer',
             color: '#F2F4F1',
-            fontFamily: "'JetBrains Mono',monospace",
+            fontFamily: "'JetBrains Mono Variable','JetBrains Mono',monospace",
             fontSize: 13,
             transition: 'border-color .2s',
             flex: 'none'

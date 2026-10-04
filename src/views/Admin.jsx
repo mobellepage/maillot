@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-const MONO = "'JetBrains Mono',monospace";
+const MONO = "'JetBrains Mono Variable','JetBrains Mono',monospace";
 const ACC = '#4BFF8B';
 const NEG = '#FF6B5E';
 

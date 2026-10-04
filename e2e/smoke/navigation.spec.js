@@ -70,3 +70,20 @@ test('product pages link to the authentication explainer', async ({ page }) => {
   await expect(page.getByText('The 14-point checklist')).toBeVisible();
   await expect(page.locator('main li').filter({ hasText: '✓' })).toHaveCount(14);
 });
+
+test('footer reaches every legal page and no fonts are fetched from Google @mobile', async ({ page }) => {
+  const thirdParty = [];
+  page.on('request', (r) => /googleapis|gstatic/.test(r.url()) && thirdParty.push(r.url()));
+  await page.goto('/');
+  for (const [link, heading, path] of [
+    ['Terms of use', /Terms of use/i, /\/legal\/terms$/],
+    ['Privacy policy', /Privacy policy/i, /\/legal\/privacy$/],
+    ['Imprint', /Imprint/i, /\/legal\/imprint$/],
+    ['Help & contact', /Help & contact/i, /\/help$/]
+  ]) {
+    await page.locator('footer').getByRole('button', { name: link }).click();
+    await expect(page).toHaveURL(path);
+    await expect(page.getByRole('heading', { level: 1 })).toContainText(heading);
+  }
+  expect(thirdParty).toEqual([]);
+});

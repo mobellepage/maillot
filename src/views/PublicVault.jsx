@@ -1,6 +1,6 @@
 import ShirtGraphic from '../components/ShirtGraphic.jsx';
 
-const MONO = "'JetBrains Mono',monospace";
+const MONO = "'JetBrains Mono Variable','JetBrains Mono',monospace";
 
 // Read-only page rendered from a decoded share-link payload (see utils/share.js) —
 // no buy/sell/watch/admin actions, no dependency on this visitor's own localStorage.

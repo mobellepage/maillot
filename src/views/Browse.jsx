@@ -7,7 +7,7 @@ export default function Browse({ v }) {
         <div>
           <div
             style={{
-              fontFamily: "'JetBrains Mono',monospace",
+              fontFamily: "'JetBrains Mono Variable','JetBrains Mono',monospace",
               fontSize: 11.5,
               letterSpacing: '0.14em',
               textTransform: 'uppercase',
@@ -149,7 +149,7 @@ export default function Browse({ v }) {
               <div key={gi} style={{ padding: '16px 0', borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
                 <div
                   style={{
-                    fontFamily: "'JetBrains Mono',monospace",
+                    fontFamily: "'JetBrains Mono Variable','JetBrains Mono',monospace",
                     fontSize: 11,
                     letterSpacing: '0.12em',
                     textTransform: 'uppercase',
@@ -206,7 +206,7 @@ export default function Browse({ v }) {
                         ></span>
                       </span>
                       <span style={{ flex: 1 }}>{o.label}</span>
-                      <span style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 11.5, color: '#6F7872' }}>{o.count}</span>
+                      <span style={{ fontFamily: "'JetBrains Mono Variable','JetBrains Mono',monospace", fontSize: 11.5, color: '#6F7872' }}>{o.count}</span>
                     </button>
                   ))}
                   {g.hasMore && (
@@ -223,7 +223,7 @@ export default function Browse({ v }) {
             <div style={{ padding: '16px 0 8px' }}>
               <div
                 style={{
-                  fontFamily: "'JetBrains Mono',monospace",
+                  fontFamily: "'JetBrains Mono Variable','JetBrains Mono',monospace",
                   fontSize: 11,
                   letterSpacing: '0.12em',
                   textTransform: 'uppercase',
@@ -233,7 +233,7 @@ export default function Browse({ v }) {
               >
                 Price range
               </div>
-              <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 14, marginBottom: 12 }}>{v.priceLabel}</div>
+              <div style={{ fontFamily: "'JetBrains Mono Variable','JetBrains Mono',monospace", fontSize: 14, marginBottom: 12 }}>{v.priceLabel}</div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 6, fontSize: 12, color: '#8C958F' }}>
                 <label style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                   Min
@@ -306,7 +306,7 @@ export default function Browse({ v }) {
                       position: 'absolute',
                       top: 10,
                       left: 10,
-                      fontFamily: "'JetBrains Mono',monospace",
+                      fontFamily: "'JetBrains Mono Variable','JetBrains Mono',monospace",
                       fontSize: 9.5,
                       letterSpacing: '0.1em',
                       textTransform: 'uppercase',
@@ -346,7 +346,7 @@ export default function Browse({ v }) {
                 <div style={{ padding: '12px 14px 14px', display: 'flex', flexDirection: 'column', gap: 5 }}>
                   <div
                     style={{
-                      fontFamily: "'JetBrains Mono',monospace",
+                      fontFamily: "'JetBrains Mono Variable','JetBrains Mono',monospace",
                       fontSize: 10.5,
                       letterSpacing: '0.06em',
                       textTransform: 'uppercase',
@@ -362,13 +362,13 @@ export default function Browse({ v }) {
                   <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 6, marginTop: 4 }}>
                     <div style={{ minWidth: 0 }}>
                       <div style={{ fontSize: 10.5, color: '#8C958F' }}>Market value</div>
-                      <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 16, fontWeight: 600, whiteSpace: 'nowrap' }}>
+                      <div style={{ fontFamily: "'JetBrains Mono Variable','JetBrains Mono',monospace", fontSize: 16, fontWeight: 600, whiteSpace: 'nowrap' }}>
                         {s.priceFmt}
                       </div>
                     </div>
                     <div
                       style={{
-                        fontFamily: "'JetBrains Mono',monospace",
+                        fontFamily: "'JetBrains Mono Variable','JetBrains Mono',monospace",
                         fontSize: 11.5,
                         fontWeight: 600,
                         color: s.chColor,

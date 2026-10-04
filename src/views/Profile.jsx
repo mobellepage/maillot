@@ -1,7 +1,7 @@
 import ShirtGraphic, { CLIP } from '../components/ShirtGraphic.jsx';
 import { downloadVaultCard } from '../utils/cardExport.js';
 
-const MONO = "'JetBrains Mono',monospace";
+const MONO = "'JetBrains Mono Variable','JetBrains Mono',monospace";
 
 export default function Profile({ v }) {
   return (

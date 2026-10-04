@@ -1,6 +1,6 @@
 import ShirtGraphic from '../components/ShirtGraphic.jsx';
 
-const MONO = "'JetBrains Mono',monospace";
+const MONO = "'JetBrains Mono Variable','JetBrains Mono',monospace";
 const CARD = { padding: 24, borderRadius: 24, background: '#101312', border: '1px solid rgba(255,255,255,0.06)' };
 
 function ShirtRow({ s, right }) {

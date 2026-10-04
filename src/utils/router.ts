@@ -15,6 +15,8 @@
 //   /admin                admin
 //   /signin               auth
 //   /authentication       how authentication works
+//   /help                 help & contact
+//   /legal/:doc           imprint · terms · privacy
 //
 // Public share links keep their self-contained hash form (#/vault/<data>),
 // handled separately by utils/share.js.
@@ -25,6 +27,7 @@ export interface RouteState {
   id?: string;
   pTab?: string;
   vaultItemId?: string | null;
+  legalDoc?: string;
 }
 
 const PROFILE_TABS: Record<string, string> = { collection: '/vault', watchlist: '/watchlist', orders: '/orders' };
@@ -51,6 +54,8 @@ export function pathFor(st: RouteState): string | null {
       return '/signin';
     case 'authinfo':
       return '/authentication';
+    case 'legal':
+      return st.legalDoc && st.legalDoc !== 'help' ? '/legal/' + st.legalDoc : '/help';
     default:
       return null; // publicvault etc. — leave the URL alone
   }
@@ -71,10 +76,15 @@ export function stateFromPath(pathname: string): RouteState {
   if (a === 'admin') return { view: 'admin' };
   if (a === 'signin') return { view: 'auth' };
   if (a === 'authentication') return { view: 'authinfo' };
+  if (a === 'help') return { view: 'legal', legalDoc: 'help' };
+  if (a === 'legal' && b && LEGAL_PAGES.has(b)) return { view: 'legal', legalDoc: b };
   return { view: 'home' };
 }
 
 // Views that only make sense for a signed-in user.
+const LEGAL_PAGES: ReadonlySet<string> = new Set(['imprint', 'terms', 'privacy']);
+const LEGAL_TITLES: Record<string, string> = { help: 'Help & contact', imprint: 'Imprint', terms: 'Terms of use', privacy: 'Privacy policy' };
+
 export const PRIVATE_VIEWS: ReadonlySet<string> = new Set(['profile', 'addshirt', 'vaultitem', 'admin']);
 
 const SITE = 'MAILLOT';
@@ -98,6 +108,8 @@ export function titleFor(st: RouteState): string {
       return 'Sign in · ' + SITE;
     case 'authinfo':
       return 'How authentication works · ' + SITE;
+    case 'legal':
+      return (LEGAL_TITLES[st.legalDoc || 'help'] || 'Help') + ' · ' + SITE;
     default:
       return SITE + ' — the market for football shirts';
   }

@@ -14,6 +14,8 @@ import Admin from './views/Admin.jsx';
 import PublicVault from './views/PublicVault.jsx';
 import Auth from './views/Auth.jsx';
 import Authentication from './views/Authentication.tsx';
+import Legal from './views/Legal.tsx';
+import Footer from './components/Footer.tsx';
 
 function App() {
   const { v } = useMaillot();
@@ -25,7 +27,7 @@ function App() {
           minHeight: '100vh',
           background: '#0A0C0B',
           color: '#F2F4F1',
-          fontFamily: "'Archivo',system-ui,sans-serif"
+          fontFamily: "'Archivo Variable','Archivo',system-ui,sans-serif"
         }}
       >
         <PublicVault v={v} />
@@ -40,7 +42,7 @@ function App() {
         minHeight: '100vh',
         background: '#0A0C0B',
         color: '#F2F4F1',
-        fontFamily: "'Archivo',system-ui,sans-serif",
+        fontFamily: "'Archivo Variable','Archivo',system-ui,sans-serif",
         paddingBottom: v.padBottom
       }}
     >
@@ -55,6 +57,8 @@ function App() {
       {v.isAdmin && <Admin v={v} />}
       {v.isAuth && <Auth v={v} />}
       {v.isAuthInfo && <Authentication v={v} />}
+      {v.isLegal && <Legal v={v} />}
+      <Footer v={v} />
       <MobileNav v={v} />
       <Modal v={v} />
       <Toast v={v} />

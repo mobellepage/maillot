@@ -94,7 +94,7 @@ export default function Modal({ v }) {
               </div>
               <div style={{ minWidth: 0 }}>
                 <div style={{ fontWeight: 600, fontSize: 15, lineHeight: 1.3 }}>{d.name}</div>
-                <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 12, color: '#8C958F', marginTop: 4 }}>
+                <div style={{ fontFamily: "'JetBrains Mono Variable','JetBrains Mono',monospace", fontSize: 12, color: '#8C958F', marginTop: 4 }}>
                   Size {v.sizeSel} · {d.cond}
                 </div>
               </div>
@@ -106,13 +106,13 @@ export default function Modal({ v }) {
                   {v.buyRows.map((r, i) => (
                     <div key={i} style={{ display: 'flex', justifyContent: 'space-between', color: '#C9D0CB' }}>
                       <span>{r.k}</span>
-                      <span style={{ fontFamily: "'JetBrains Mono',monospace", color: '#F2F4F1' }}>{r.v}</span>
+                      <span style={{ fontFamily: "'JetBrains Mono Variable','JetBrains Mono',monospace", color: '#F2F4F1' }}>{r.v}</span>
                     </div>
                   ))}
                   <div style={{ height: 1, background: 'rgba(255,255,255,0.08)', margin: '4px 0' }} />
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
                     <span style={{ fontWeight: 600 }}>Total</span>
-                    <span style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 22, fontWeight: 700 }}>{v.buyTotal}</span>
+                    <span style={{ fontFamily: "'JetBrains Mono Variable','JetBrains Mono',monospace", fontSize: 22, fontWeight: 700 }}>{v.buyTotal}</span>
                   </div>
                 </div>
                 <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start', marginTop: 20, padding: 14, borderRadius: 14, background: '#0D100F', border: '1px solid rgba(255,255,255,0.07)', fontSize: 13, lineHeight: 1.5, color: '#C9D0CB' }}>
@@ -154,7 +154,7 @@ export default function Modal({ v }) {
                     fontSize: 12,
                     color: '#8C958F',
                     marginBottom: 8,
-                    fontFamily: "'JetBrains Mono',monospace",
+                    fontFamily: "'JetBrains Mono Variable','JetBrains Mono',monospace",
                     letterSpacing: '0.1em',
                     textTransform: 'uppercase'
                   }}
@@ -173,7 +173,7 @@ export default function Modal({ v }) {
                     border: '1.5px solid rgba(75,255,139,0.45)'
                   }}
                 >
-                  <span style={{ fontFamily: "'JetBrains Mono',monospace", color: '#8C958F', fontSize: 18 }}>CHF</span>
+                  <span style={{ fontFamily: "'JetBrains Mono Variable','JetBrains Mono',monospace", color: '#8C958F', fontSize: 18 }}>CHF</span>
                   <input
                     value={v.bidAmt}
                     onChange={v.onBidAmt}
@@ -184,7 +184,7 @@ export default function Modal({ v }) {
                       background: 'none',
                       border: 0,
                       outline: 'none',
-                      fontFamily: "'JetBrains Mono',monospace",
+                      fontFamily: "'JetBrains Mono Variable','JetBrains Mono',monospace",
                       fontSize: 32,
                       fontWeight: 700,
                       color: '#F2F4F1'
@@ -210,7 +210,7 @@ export default function Modal({ v }) {
                       }}
                     >
                       <div style={{ fontSize: 11, color: '#8C958F' }}>{b.k}</div>
-                      <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 14, fontWeight: 600, marginTop: 2 }}>{b.v}</div>
+                      <div style={{ fontFamily: "'JetBrains Mono Variable','JetBrains Mono',monospace", fontSize: 14, fontWeight: 600, marginTop: 2 }}>{b.v}</div>
                     </button>
                   ))}
                 </div>
@@ -219,7 +219,7 @@ export default function Modal({ v }) {
                     fontSize: 12,
                     color: '#8C958F',
                     margin: '20px 0 10px',
-                    fontFamily: "'JetBrains Mono',monospace",
+                    fontFamily: "'JetBrains Mono Variable','JetBrains Mono',monospace",
                     letterSpacing: '0.1em',
                     textTransform: 'uppercase'
                   }}

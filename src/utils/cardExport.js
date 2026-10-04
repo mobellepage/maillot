@@ -87,12 +87,12 @@ export function renderVaultCard(data) {
   ctx.ellipse(sx + shirtW * 0.61, sy + shirtH * 0.23, shirtW * 0.045, shirtW * 0.055, 0, 0, Math.PI * 2);
   ctx.fill();
 
-  ctx.font = '600 24px "JetBrains Mono",monospace';
+  ctx.font = '600 24px "JetBrains Mono Variable","JetBrains Mono",monospace';
   ctx.fillStyle = '#C9D0CB';
   ctx.fillText('SIZE ' + data.size, 28, 44);
 
   if (data.badgeLabel) {
-    ctx.font = '700 20px "JetBrains Mono",monospace';
+    ctx.font = '700 20px "JetBrains Mono Variable","JetBrains Mono",monospace';
     const label = data.badgeLabel;
     const padX = 16;
     const textW = ctx.measureText(label).width;
@@ -107,7 +107,7 @@ export function renderVaultCard(data) {
 
   ctx.textBaseline = 'alphabetic';
   ctx.fillStyle = '#F2F4F1';
-  ctx.font = '700 36px Archivo,system-ui,sans-serif';
+  ctx.font = '700 36px "Archivo Variable",Archivo,system-ui,sans-serif';
   const nameLines = wrapText(ctx, data.name || '', W - 56);
   let ny = photoH + 56;
   nameLines.slice(0, 2).forEach((line) => {
@@ -115,25 +115,25 @@ export function renderVaultCard(data) {
     ny += 42;
   });
 
-  ctx.font = '500 20px "JetBrains Mono",monospace';
+  ctx.font = '500 20px "JetBrains Mono Variable","JetBrains Mono",monospace';
   ctx.fillStyle = '#8C958F';
   ctx.fillText(data.paid || '', 28, ny + 26);
 
-  ctx.font = '700 46px "JetBrains Mono",monospace';
+  ctx.font = '700 46px "JetBrains Mono Variable","JetBrains Mono",monospace';
   ctx.fillStyle = '#F2F4F1';
   ctx.fillText(data.priceFmt || '\u2014', 28, ny + 76);
 
   if (data.gain) {
-    ctx.font = '700 26px "JetBrains Mono",monospace';
+    ctx.font = '700 26px "JetBrains Mono Variable","JetBrains Mono",monospace';
     ctx.fillStyle = data.gainC || '#8C958F';
     const w = ctx.measureText(data.gain).width;
     ctx.fillText(data.gain, W - 28 - w, ny + 76);
   }
 
-  ctx.font = '700 22px Archivo,system-ui,sans-serif';
+  ctx.font = '700 22px "Archivo Variable",Archivo,system-ui,sans-serif';
   ctx.fillStyle = '#4BFF8B';
   ctx.fillText('MAILLOT', 28, H - 32);
-  ctx.font = '500 16px "JetBrains Mono",monospace';
+  ctx.font = '500 16px "JetBrains Mono Variable","JetBrains Mono",monospace';
   ctx.fillStyle = '#6F7872';
   ctx.fillText('maillot.app', W - 28 - ctx.measureText('maillot.app').width, H - 32);
 

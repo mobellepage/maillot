@@ -1,7 +1,7 @@
 import { CLIP } from '../components/ShirtGraphic.jsx';
 import { MARKET_DATA_LABEL } from '../marketData.ts';
 
-const MONO = "'JetBrains Mono',monospace";
+const MONO = "'JetBrains Mono Variable','JetBrains Mono',monospace";
 
 export default function Detail({ v }) {
   const d = v.d;

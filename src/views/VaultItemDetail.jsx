@@ -2,7 +2,7 @@ import { useState } from 'react';
 import ShirtGraphic from '../components/ShirtGraphic.jsx';
 import { downloadVaultCard } from '../utils/cardExport.js';
 
-const MONO = "'JetBrains Mono',monospace";
+const MONO = "'JetBrains Mono Variable','JetBrains Mono',monospace";
 const ACC = '#4BFF8B';
 
 export default function VaultItemDetail({ v }) {
