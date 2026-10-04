@@ -15,7 +15,7 @@ async function signIn(page, email) {
   await page.locator('form').getByRole('button', { name: /sign in|anmelden/i }).click();
   try {
     await expect(page).toHaveURL(/\/vault$/, { timeout: 10000 });
-  } catch (e) {
+  } catch {
     // Surface the auth error text in the CI annotation instead of a bare URL mismatch.
     throw new Error('Sign-in failed: ' + (await page.locator('main').innerText()).slice(0, 300));
   }
