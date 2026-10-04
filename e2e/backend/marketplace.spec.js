@@ -13,7 +13,12 @@ async function signIn(page, email) {
   await page.getByLabel(/email/i).fill(email);
   await page.getByLabel(/password|passwort/i).fill(PASSWORD);
   await page.locator('form').getByRole('button', { name: /sign in|anmelden/i }).click();
-  await expect(page).toHaveURL(/\/vault$/);
+  try {
+    await expect(page).toHaveURL(/\/vault$/, { timeout: 10000 });
+  } catch (e) {
+    // Surface the auth error text in the CI annotation instead of a bare URL mismatch.
+    throw new Error('Sign-in failed: ' + (await page.locator('main').innerText()).slice(0, 300));
+  }
 }
 
 test('buyer: Buy now matches the live ask, then cancels before paying', async ({ page }) => {
