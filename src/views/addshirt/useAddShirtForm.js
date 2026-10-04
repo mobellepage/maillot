@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
-import { loadJSON, saveJSON } from '../../utils/storage.js';
-import { readLabelText } from '../../utils/ocr.js';
+import { loadJSON, saveJSON } from '../../utils/storage.ts';
+import { readLabelText } from '../../utils/ocr.ts';
 import { matchCatalogFromOcrText } from '../../addShirtData.js';
-import { enqueueReview, findReview } from '../../utils/db.js';
+import { enqueueReview, findReview } from '../../utils/db.ts';
 
 const DRAFT_KEY = 'kv_add_shirt_draft_v1';
 // Below this word-overlap confidence, a scanned label is treated as "found some

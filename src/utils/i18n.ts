@@ -6,9 +6,10 @@
 // existed. Product/browsing copy (Home, Browse, Sell, AddShirt, Admin) is
 // intentionally left as-is for now; any string can be migrated into DICT and
 // wrapped in t(...) incrementally later.
-export const LANGS = ['en', 'de'];
+export const LANGS = ['en', 'de'] as const;
+export type Lang = (typeof LANGS)[number];
 
-const DICT = {
+const DICT: Record<string, Partial<Record<Lang, string>> & { en: string }> = {
   'nav.discover': { en: 'Discover', de: 'Entdecken' },
   'nav.marketplace': { en: 'Marketplace', de: 'Marktplatz' },
   'nav.marketShort': { en: 'Market', de: 'Markt' },
@@ -70,8 +71,8 @@ const DICT = {
   'toast.actionFailed': { en: 'Action failed \u2014 please try again.', de: 'Aktion fehlgeschlagen \u2014 bitte erneut versuchen.' }
 };
 
-export function translate(lang, key) {
+export function translate(lang: string, key: string): string {
   const entry = DICT[key];
   if (!entry) return key;
-  return entry[lang] || entry.en || key;
+  return entry[lang as Lang] || entry.en || key;
 }

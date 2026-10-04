@@ -1,8 +1,8 @@
 // Static reference data + pure helpers for the "Trikot hinzufügen" (Add Shirt) flow.
 // Kept separate from data.js (the market/catalogue data) since this is specific to
 // the self-cataloguing wizard.
-import { SHIRTS } from './data.js';
-import { MARKET_DATA_LABEL } from './marketData.js';
+import { SHIRTS } from './data.ts';
+import { MARKET_DATA_LABEL } from './marketData.ts';
 
 export const VERSIONS = ['Fan-Replica', 'Player-Issue / Authentic', 'Match-Issued', 'Match-Worn', 'Unbekannt'];
 

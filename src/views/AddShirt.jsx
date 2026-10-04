@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import ShirtGraphic from '../components/ShirtGraphic.jsx';
-import { SHIRTS, BY } from '../data.js';
+import { SHIRTS, BY } from '../data.ts';
 import {
   VERSIONS,
   SLEEVES,
@@ -14,7 +14,7 @@ import {
   buildPhotoSpecs,
   estimateValue
 } from '../addShirtData.js';
-import { analyzeAndCompress } from '../utils/image.js';
+import { analyzeAndCompress } from '../utils/image.ts';
 import { useAddShirtForm } from './addshirt/useAddShirtForm.js';
 
 const MONO = "'JetBrains Mono',monospace";

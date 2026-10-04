@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { pathFor, stateFromPath, titleFor, PRIVATE_VIEWS } from '../utils/router.js';
+import { pathFor, stateFromPath, titleFor, PRIVATE_VIEWS } from '../utils/router.ts';
 
 describe('router', () => {
   const pages = [

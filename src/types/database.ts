@@ -1,0 +1,576 @@
+// Generated from the Supabase schema — do not edit by hand.
+// Regenerate with `npm run db:types` (local stack) after any migration.
+
+export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
+
+export type Database = {
+  __InternalSupabase: {
+    PostgrestVersion: '14.18';
+  };
+  public: {
+    Tables: {
+      api_keys: {
+        Row: {
+          created_at: string;
+          created_by: string | null;
+          id: string;
+          key_hash: string;
+          key_prefix: string;
+          label: string;
+          last_used_at: string | null;
+          revoked_at: string | null;
+        };
+        Insert: {
+          created_at?: string;
+          created_by?: string | null;
+          id?: string;
+          key_hash: string;
+          key_prefix: string;
+          label: string;
+          last_used_at?: string | null;
+          revoked_at?: string | null;
+        };
+        Update: {
+          created_at?: string;
+          created_by?: string | null;
+          id?: string;
+          key_hash?: string;
+          key_prefix?: string;
+          label?: string;
+          last_used_at?: string | null;
+          revoked_at?: string | null;
+        };
+        Relationships: [];
+      };
+      asks: {
+        Row: {
+          amount: number;
+          condition: string | null;
+          created_at: string;
+          custom_item_id: string | null;
+          edition: string | null;
+          id: string;
+          player_print: string | null;
+          shirt_id: string | null;
+          size: string;
+          status: string;
+          user_id: string;
+        };
+        Insert: {
+          amount: number;
+          condition?: string | null;
+          created_at?: string;
+          custom_item_id?: string | null;
+          edition?: string | null;
+          id?: string;
+          player_print?: string | null;
+          shirt_id?: string | null;
+          size: string;
+          status?: string;
+          user_id: string;
+        };
+        Update: {
+          amount?: number;
+          condition?: string | null;
+          created_at?: string;
+          custom_item_id?: string | null;
+          edition?: string | null;
+          id?: string;
+          player_print?: string | null;
+          shirt_id?: string | null;
+          size?: string;
+          status?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'asks_custom_item_id_fkey';
+            columns: ['custom_item_id'];
+            isOneToOne: false;
+            referencedRelation: 'custom_items';
+            referencedColumns: ['id'];
+          }
+        ];
+      };
+      bids: {
+        Row: {
+          amount: number;
+          created_at: string;
+          expires_at: string | null;
+          id: string;
+          shirt_id: string;
+          size: string;
+          status: string;
+          user_id: string;
+        };
+        Insert: {
+          amount: number;
+          created_at?: string;
+          expires_at?: string | null;
+          id?: string;
+          shirt_id: string;
+          size: string;
+          status?: string;
+          user_id: string;
+        };
+        Update: {
+          amount?: number;
+          created_at?: string;
+          expires_at?: string | null;
+          id?: string;
+          shirt_id?: string;
+          size?: string;
+          status?: string;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
+      custom_items: {
+        Row: {
+          catalog_id: string | null;
+          condition: Json | null;
+          created_at: string;
+          flock: Json | null;
+          id: string;
+          initial_valuation: Json | null;
+          patches: Json | null;
+          photos: Json | null;
+          precheck: Json | null;
+          proposed: boolean | null;
+          proposed_club: string | null;
+          proposed_season: string | null;
+          proposed_variant: string | null;
+          provenance: string | null;
+          sale_price: string | null;
+          signature: Json | null;
+          size: string | null;
+          size_group: string | null;
+          sleeve: string | null;
+          tags_attached: boolean | null;
+          updated_at: string;
+          user_id: string;
+          valuation: Json | null;
+          verification: Json;
+          version: string | null;
+          visibility: string;
+        };
+        Insert: {
+          catalog_id?: string | null;
+          condition?: Json | null;
+          created_at?: string;
+          flock?: Json | null;
+          id: string;
+          initial_valuation?: Json | null;
+          patches?: Json | null;
+          photos?: Json | null;
+          precheck?: Json | null;
+          proposed?: boolean | null;
+          proposed_club?: string | null;
+          proposed_season?: string | null;
+          proposed_variant?: string | null;
+          provenance?: string | null;
+          sale_price?: string | null;
+          signature?: Json | null;
+          size?: string | null;
+          size_group?: string | null;
+          sleeve?: string | null;
+          tags_attached?: boolean | null;
+          updated_at?: string;
+          user_id: string;
+          valuation?: Json | null;
+          verification?: Json;
+          version?: string | null;
+          visibility?: string;
+        };
+        Update: {
+          catalog_id?: string | null;
+          condition?: Json | null;
+          created_at?: string;
+          flock?: Json | null;
+          id?: string;
+          initial_valuation?: Json | null;
+          patches?: Json | null;
+          photos?: Json | null;
+          precheck?: Json | null;
+          proposed?: boolean | null;
+          proposed_club?: string | null;
+          proposed_season?: string | null;
+          proposed_variant?: string | null;
+          provenance?: string | null;
+          sale_price?: string | null;
+          signature?: Json | null;
+          size?: string | null;
+          size_group?: string | null;
+          sleeve?: string | null;
+          tags_attached?: boolean | null;
+          updated_at?: string;
+          user_id?: string;
+          valuation?: Json | null;
+          verification?: Json;
+          version?: string | null;
+          visibility?: string;
+        };
+        Relationships: [];
+      };
+      disputes: {
+        Row: {
+          created_at: string;
+          id: string;
+          opened_by: string | null;
+          order_id: string;
+          reason: string;
+          resolution_note: string | null;
+          status: string;
+          updated_at: string;
+        };
+        Insert: {
+          created_at?: string;
+          id?: string;
+          opened_by?: string | null;
+          order_id: string;
+          reason: string;
+          resolution_note?: string | null;
+          status?: string;
+          updated_at?: string;
+        };
+        Update: {
+          created_at?: string;
+          id?: string;
+          opened_by?: string | null;
+          order_id?: string;
+          reason?: string;
+          resolution_note?: string | null;
+          status?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'disputes_order_id_fkey';
+            columns: ['order_id'];
+            isOneToOne: false;
+            referencedRelation: 'orders';
+            referencedColumns: ['id'];
+          }
+        ];
+      };
+      events: {
+        Row: {
+          created_at: string;
+          id: number;
+          shirt_id: string;
+          type: string;
+          user_id: string | null;
+        };
+        Insert: {
+          created_at?: string;
+          id?: never;
+          shirt_id: string;
+          type: string;
+          user_id?: string | null;
+        };
+        Update: {
+          created_at?: string;
+          id?: never;
+          shirt_id?: string;
+          type?: string;
+          user_id?: string | null;
+        };
+        Relationships: [];
+      };
+      notifications: {
+        Row: {
+          body: string | null;
+          created_at: string;
+          data: Json | null;
+          emailed_at: string | null;
+          id: string;
+          read: boolean;
+          title: string;
+          type: string;
+          user_id: string;
+        };
+        Insert: {
+          body?: string | null;
+          created_at?: string;
+          data?: Json | null;
+          emailed_at?: string | null;
+          id?: string;
+          read?: boolean;
+          title: string;
+          type: string;
+          user_id: string;
+        };
+        Update: {
+          body?: string | null;
+          created_at?: string;
+          data?: Json | null;
+          emailed_at?: string | null;
+          id?: string;
+          read?: boolean;
+          title?: string;
+          type?: string;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
+      orders: {
+        Row: {
+          amount: number;
+          ask_id: string | null;
+          auth_fee: number;
+          bid_id: string | null;
+          buyer_id: string | null;
+          commission: number;
+          created_at: string;
+          custom_item_id: string | null;
+          delivered_at: string | null;
+          id: string;
+          paid_at: string | null;
+          released_at: string | null;
+          seller_id: string | null;
+          shipped_at: string | null;
+          shipping_fee: number;
+          shirt_id: string | null;
+          size: string | null;
+          status: string;
+          stripe_checkout_session_id: string | null;
+          stripe_payment_intent_id: string | null;
+          tracking_code: string | null;
+          updated_at: string;
+        };
+        Insert: {
+          amount: number;
+          ask_id?: string | null;
+          auth_fee?: number;
+          bid_id?: string | null;
+          buyer_id?: string | null;
+          commission?: number;
+          created_at?: string;
+          custom_item_id?: string | null;
+          delivered_at?: string | null;
+          id?: string;
+          paid_at?: string | null;
+          released_at?: string | null;
+          seller_id?: string | null;
+          shipped_at?: string | null;
+          shipping_fee?: number;
+          shirt_id?: string | null;
+          size?: string | null;
+          status?: string;
+          stripe_checkout_session_id?: string | null;
+          stripe_payment_intent_id?: string | null;
+          tracking_code?: string | null;
+          updated_at?: string;
+        };
+        Update: {
+          amount?: number;
+          ask_id?: string | null;
+          auth_fee?: number;
+          bid_id?: string | null;
+          buyer_id?: string | null;
+          commission?: number;
+          created_at?: string;
+          custom_item_id?: string | null;
+          delivered_at?: string | null;
+          id?: string;
+          paid_at?: string | null;
+          released_at?: string | null;
+          seller_id?: string | null;
+          shipped_at?: string | null;
+          shipping_fee?: number;
+          shirt_id?: string | null;
+          size?: string | null;
+          status?: string;
+          stripe_checkout_session_id?: string | null;
+          stripe_payment_intent_id?: string | null;
+          tracking_code?: string | null;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'orders_ask_id_fkey';
+            columns: ['ask_id'];
+            isOneToOne: false;
+            referencedRelation: 'asks';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'orders_bid_id_fkey';
+            columns: ['bid_id'];
+            isOneToOne: false;
+            referencedRelation: 'bids';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'orders_custom_item_id_fkey';
+            columns: ['custom_item_id'];
+            isOneToOne: false;
+            referencedRelation: 'custom_items';
+            referencedColumns: ['id'];
+          }
+        ];
+      };
+      profiles: {
+        Row: {
+          created_at: string;
+          handle: string | null;
+          id: string;
+          is_admin: boolean;
+        };
+        Insert: {
+          created_at?: string;
+          handle?: string | null;
+          id: string;
+          is_admin?: boolean;
+        };
+        Update: {
+          created_at?: string;
+          handle?: string | null;
+          id?: string;
+          is_admin?: boolean;
+        };
+        Relationships: [];
+      };
+      review_queue: {
+        Row: {
+          custom_item_id: string | null;
+          id: string;
+          reason: string | null;
+          reviewed_at: string | null;
+          reviewer_id: string | null;
+          snapshot: Json;
+          status: string;
+          submitted_at: string;
+          user_id: string;
+        };
+        Insert: {
+          custom_item_id?: string | null;
+          id: string;
+          reason?: string | null;
+          reviewed_at?: string | null;
+          reviewer_id?: string | null;
+          snapshot: Json;
+          status?: string;
+          submitted_at?: string;
+          user_id: string;
+        };
+        Update: {
+          custom_item_id?: string | null;
+          id?: string;
+          reason?: string | null;
+          reviewed_at?: string | null;
+          reviewer_id?: string | null;
+          snapshot?: Json;
+          status?: string;
+          submitted_at?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'review_queue_custom_item_id_fkey';
+            columns: ['custom_item_id'];
+            isOneToOne: false;
+            referencedRelation: 'custom_items';
+            referencedColumns: ['id'];
+          }
+        ];
+      };
+      watchlist: {
+        Row: {
+          created_at: string;
+          shirt_id: string;
+          user_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          shirt_id: string;
+          user_id: string;
+        };
+        Update: {
+          created_at?: string;
+          shirt_id?: string;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
+    };
+    Views: {
+      [_ in never]: never;
+    };
+    Functions: {
+      create_api_key: {
+        Args: { p_label: string };
+        Returns: {
+          created_at: string;
+          id: string;
+          key_prefix: string;
+          plaintext_key: string;
+        }[];
+      };
+      is_admin: { Args: never; Returns: boolean };
+      list_disputes_for_admin: {
+        Args: never;
+        Returns: {
+          amount: number;
+          buyer_id: string;
+          created_at: string;
+          custom_item_id: string;
+          dispute_id: string;
+          dispute_status: string;
+          order_id: string;
+          order_status: string;
+          reason: string;
+          resolution_note: string;
+          seller_id: string;
+          shirt_id: string;
+          size: string;
+        }[];
+      };
+      match_order_book: {
+        Args: { p_shirt_id: string; p_size: string };
+        Returns: undefined;
+      };
+      order_cancel: { Args: { p_order_id: string }; Returns: undefined };
+      order_confirm_receipt: {
+        Args: { p_order_id: string };
+        Returns: undefined;
+      };
+      order_mark_shipped: {
+        Args: { p_order_id: string; p_tracking?: string };
+        Returns: undefined;
+      };
+      order_open_dispute: {
+        Args: { p_order_id: string; p_reason: string };
+        Returns: string;
+      };
+      resolve_dispute: {
+        Args: { p_dispute_id: string; p_note: string; p_outcome: string };
+        Returns: undefined;
+      };
+      resolve_review: {
+        Args: { p_approved: boolean; p_id: string; p_reason?: string };
+        Returns: undefined;
+      };
+      revoke_api_key: { Args: { p_id: string }; Returns: undefined };
+      trending_scores: {
+        Args: { days?: number };
+        Returns: {
+          score: number;
+          shirt_id: string;
+        }[];
+      };
+    };
+    Enums: {
+      [_ in never]: never;
+    };
+    CompositeTypes: {
+      [_ in never]: never;
+    };
+  };
+};
+
+type PublicSchema = Database['public'];
+export type Tables<T extends keyof PublicSchema['Tables']> = PublicSchema['Tables'][T]['Row'];
+export type TablesInsert<T extends keyof PublicSchema['Tables']> = PublicSchema['Tables'][T]['Insert'];
+export type TablesUpdate<T extends keyof PublicSchema['Tables']> = PublicSchema['Tables'][T]['Update'];
+export type RpcReturns<F extends keyof PublicSchema['Functions']> = PublicSchema['Functions'][F]['Returns'];

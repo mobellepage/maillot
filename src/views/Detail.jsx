@@ -1,5 +1,5 @@
 import { CLIP } from '../components/ShirtGraphic.jsx';
-import { MARKET_DATA_LABEL } from '../marketData.js';
+import { MARKET_DATA_LABEL } from '../marketData.ts';
 
 const MONO = "'JetBrains Mono',monospace";
 

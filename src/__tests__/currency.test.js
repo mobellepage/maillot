@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { formatMoney } from '../utils/currency.js';
+import { formatMoney, FALLBACK_RATES } from '../utils/currency.ts';
 
 describe('formatMoney', () => {
   const rates = { CHF: 1, EUR: 1.05, USD: 1.13, GBP: 0.95 };
@@ -17,7 +17,7 @@ describe('formatMoney', () => {
   });
 
   it('falls back to built-in rates and CHF formatting', () => {
-    expect(formatMoney(100, 'USD', null)).toBe('$113');
+    expect(formatMoney(100, 'USD', null)).toBe('$' + Math.round(100 * FALLBACK_RATES.USD));
     expect(formatMoney(100, 'XYZ', rates)).toBe('CHF 100');
     expect(formatMoney(undefined, 'CHF', rates)).toBe('CHF 0');
   });

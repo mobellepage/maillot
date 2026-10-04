@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { buyerCheckoutFees, sellerPayout, BUYER_AUTH_FEE_CHF, BUYER_SHIPPING_CHF } from '../fees.js';
+import { buyerCheckoutFees, sellerPayout, BUYER_AUTH_FEE_CHF, BUYER_SHIPPING_CHF } from '../fees.ts';
 
 // These numbers are duplicated server-side in match_order_book() (auth 9,
 // shipping 12, 8% commission) — if either side changes, these tests and

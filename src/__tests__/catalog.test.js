@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { matchCatalogFromOcrText, estimateValue } from '../addShirtData.js';
-import { BY } from '../data.js';
+import { BY } from '../data.ts';
 
 describe('matchCatalogFromOcrText', () => {
   it('matches label text to the right catalogue item', () => {

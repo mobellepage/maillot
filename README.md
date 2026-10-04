@@ -13,6 +13,14 @@ cp .env.example .env.local   # point at the hosted project or local stack
 npm run dev
 ```
 
+## TypeScript
+
+Strict TypeScript (`noUncheckedIndexedAccess` included). The data layer —
+`src/utils/*.ts`, `src/data.ts`, `src/types/` — is fully typed against the
+generated schema in `src/types/database.ts` (regenerate with `npm run db:types`
+after a migration). Views and the engine are still `.jsx` and migrate as they
+are split into feature modules. `npm run typecheck` runs in CI.
+
 ## Tests
 
 ```bash

@@ -24,7 +24,7 @@ export const SELLER_FEE_RATE = 0.08; // 8% commission deducted from the seller's
  * @param {number} askPrice - the listed/ask price in CHF
  * @returns {{ authFee: number, shipping: number, total: number }}
  */
-export function buyerCheckoutFees(askPrice) {
+export function buyerCheckoutFees(askPrice: number): { authFee: number; shipping: number; total: number } {
   return { authFee: BUYER_AUTH_FEE_CHF, shipping: BUYER_SHIPPING_CHF, total: askPrice + BUYER_AUTH_FEE_CHF + BUYER_SHIPPING_CHF };
 }
 
@@ -32,7 +32,7 @@ export function buyerCheckoutFees(askPrice) {
  * @param {number} askPrice - the seller's asking price in CHF
  * @returns {{ commission: number, payout: number }}
  */
-export function sellerPayout(askPrice) {
+export function sellerPayout(askPrice: number): { commission: number; payout: number } {
   const commission = Math.round(askPrice * SELLER_FEE_RATE);
   return { commission, payout: askPrice - commission };
 }

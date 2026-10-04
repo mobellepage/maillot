@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { encodeShareData, decodeShareData, parseShareHash } from '../utils/share.js';
+import { encodeShareData, decodeShareData, parseShareHash } from '../utils/share.ts';
 
 describe('share links', () => {
   const payload = { owner: 'Zoë', items: [{ id: 'ger-26', name: 'Germany 2026 Home "The Last Adidas"', priceFmt: 'CHF 140' }] };

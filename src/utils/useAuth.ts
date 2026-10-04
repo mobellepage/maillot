@@ -3,10 +3,16 @@
 // supabase-js itself (localStorage-backed refresh token), so reloads keep you
 // signed in; this hook just mirrors the current session into React state.
 import { useEffect, useState } from 'react';
-import { supabase } from './supabase.js';
+import type { User } from '@supabase/supabase-js';
+import { supabase } from './supabase.ts';
+
+export interface AuthResult {
+  user: User | null;
+  error: string | null;
+}
 
 export function useAuth() {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState<User | null>(null);
   const [authLoading, setAuthLoading] = useState(true);
 
   useEffect(() => {
@@ -20,12 +26,12 @@ export function useAuth() {
     return () => sub.subscription.unsubscribe();
   }, []);
 
-  const signUp = async (email, password) => {
+  const signUp = async (email: string, password: string): Promise<AuthResult> => {
     const { data, error } = await supabase.auth.signUp({ email, password });
     return { user: data ? data.user : null, error: error ? error.message : null };
   };
 
-  const signIn = async (email, password) => {
+  const signIn = async (email: string, password: string): Promise<AuthResult> => {
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
     return { user: data ? data.user : null, error: error ? error.message : null };
   };

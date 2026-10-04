@@ -17,22 +17,29 @@
 //
 // Public share links keep their self-contained hash form (#/vault/<data>),
 // handled separately by utils/share.js.
-import { BY } from '../data.js';
+import { BY } from '../data.ts';
 
-const PROFILE_TABS = { collection: '/vault', watchlist: '/watchlist', orders: '/orders' };
+export interface RouteState {
+  view: string;
+  id?: string;
+  pTab?: string;
+  vaultItemId?: string | null;
+}
 
-export function pathFor(st) {
+const PROFILE_TABS: Record<string, string> = { collection: '/vault', watchlist: '/watchlist', orders: '/orders' };
+
+export function pathFor(st: RouteState): string | null {
   switch (st.view) {
     case 'home':
       return '/';
     case 'browse':
       return '/market';
     case 'detail':
-      return '/shirt/' + encodeURIComponent(st.id);
+      return '/shirt/' + encodeURIComponent(st.id || '');
     case 'sell':
       return '/sell';
     case 'profile':
-      return PROFILE_TABS[st.pTab] || '/vault';
+      return (st.pTab && PROFILE_TABS[st.pTab]) || '/vault';
     case 'addshirt':
       return '/vault/add';
     case 'vaultitem':
@@ -46,7 +53,7 @@ export function pathFor(st) {
   }
 }
 
-export function stateFromPath(pathname) {
+export function stateFromPath(pathname: string): RouteState {
   const parts = pathname.replace(/\/+$/, '').split('/').filter(Boolean).map(decodeURIComponent);
   const [a, b, c] = parts;
   if (!a) return { view: 'home' };
@@ -64,13 +71,13 @@ export function stateFromPath(pathname) {
 }
 
 // Views that only make sense for a signed-in user.
-export const PRIVATE_VIEWS = new Set(['profile', 'addshirt', 'vaultitem', 'admin']);
+export const PRIVATE_VIEWS: ReadonlySet<string> = new Set(['profile', 'addshirt', 'vaultitem', 'admin']);
 
 const SITE = 'MAILLOT';
-export function titleFor(st) {
+export function titleFor(st: RouteState): string {
   switch (st.view) {
     case 'detail': {
-      const s = BY[st.id];
+      const s = st.id ? BY[st.id] : undefined;
       return s ? s.name + ' — price, bids & sales · ' + SITE : SITE;
     }
     case 'browse':
@@ -90,8 +97,8 @@ export function titleFor(st) {
   }
 }
 
-export function descriptionFor(st) {
-  if (st.view === 'detail') {
+export function descriptionFor(st: RouteState): string {
+  if (st.view === 'detail' && st.id) {
     const s = BY[st.id];
     if (s) return 'Live bids, asks and price history for the ' + s.name + ' (' + s.brand + '). Every sale authenticated in Zürich.';
   }

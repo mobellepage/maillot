@@ -1,17 +1,17 @@
 import { useEffect, useRef, useState } from 'react';
-import { ACC, NEG, BY, SHIRTS, OWNED, PORT, EMPTY, RANGES, SIZES, MULT, CONDS, pct, hexA, down, linePath, uniq, TODAY } from './data.js';
-import { loadJSON, saveJSON } from './utils/storage.js';
+import { ACC, NEG, BY, SHIRTS, OWNED, PORT, EMPTY, RANGES, SIZES, MULT, CONDS, pct, hexA, down, linePath, uniq, TODAY } from './data.ts';
+import { loadJSON, saveJSON } from './utils/storage.ts';
 import { estimateValue, matchCatalogFromOcrText } from './addShirtData.js';
-import { readLabelText } from './utils/ocr.js';
-import { analyzeAndCompress } from './utils/image.js';
-import { encodeShareData, parseShareHash } from './utils/share.js';
-import { buyerCheckoutFees, sellerPayout } from './fees.js';
-import { useAuth } from './utils/useAuth.js';
-import { supabase } from './utils/supabase.js';
-import * as db from './utils/db.js';
-import { CURRENCIES, loadCachedRates, fetchLiveRates, formatMoney } from './utils/currency.js';
-import { LANGS, translate } from './utils/i18n.js';
-import { pathFor, stateFromPath, titleFor, descriptionFor, PRIVATE_VIEWS } from './utils/router.js';
+import { readLabelText } from './utils/ocr.ts';
+import { analyzeAndCompress } from './utils/image.ts';
+import { encodeShareData, parseShareHash } from './utils/share.ts';
+import { buyerCheckoutFees, sellerPayout } from './fees.ts';
+import { useAuth } from './utils/useAuth.ts';
+import { supabase } from './utils/supabase.ts';
+import * as db from './utils/db.ts';
+import { CURRENCIES, loadCachedRates, fetchLiveRates, formatMoney } from './utils/currency.ts';
+import { LANGS, translate } from './utils/i18n.ts';
+import { pathFor, stateFromPath, titleFor, descriptionFor, PRIVATE_VIEWS } from './utils/router.ts';
 
 const MS = 864e5;
 

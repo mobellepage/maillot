@@ -1,11 +1,56 @@
 // Core data + helpers for Maillot, ported from the original prototype.
-import { rng, generateSyntheticMarketData } from './marketData.js';
+import { rng, generateSyntheticMarketData, type MarketData } from './marketData.ts';
+
+export type ShirtType = 'New' | 'Retro' | 'Match-worn';
+
+/** A catalogue entry as authored below. */
+export interface RawShirt {
+  id: string;
+  club: string;
+  name: string;
+  season: string;
+  year: number;
+  brand: string;
+  league: string;
+  type: ShirtType;
+  cond: string;
+  edition: string;
+  player?: string;
+  price: number;
+  /** 30-day price change in % */
+  ch: number;
+  pat: string;
+  trim: string;
+  num?: string;
+  crest: string;
+  glow: string;
+  /** days since it was added to the catalogue */
+  added: number;
+}
+
+export interface Comment {
+  u: string;
+  t: string;
+  d: string;
+}
+
+/** A catalogue entry plus its (synthetic) market data and derived fields. */
+export interface Shirt extends RawShirt, MarketData {
+  cm: Comment[];
+  pName: string;
+  pNum: string;
+  spark: string;
+  /** lower-cased search haystack */
+  hay: string;
+  sku: string;
+  trend: number;
+}
 
 export const ACC = '#4BFF8B';
 export const NEG = '#FF6B5E';
 export const TODAY = new Date(2026, 9, 1).getTime();
 
-const RAW = [
+const RAW: RawShirt[] = [
   { id: 'ger-26', club: 'Germany', name: 'Germany 2026 Home "The Last Adidas"', season: '2026', year: 2026, brand: 'adidas', league: 'National Teams', type: 'New', cond: 'New with tags', edition: 'Authentic', player: 'Wirtz 17', price: 140, ch: 31, pat: 'linear-gradient(180deg,#F4F4F1 0 31%,#151515 31% 35%,#DD0000 35% 39%,#FFCE00 39% 43%,#F4F4F1 43%)', trim: '#151515', crest: '#151515', glow: '#FFCE00', added: 9 },
   { id: 'sui-26', club: 'Switzerland', name: 'Switzerland 2026 Home', season: '2026', year: 2026, brand: 'Puma', league: 'National Teams', type: 'New', cond: 'New with tags', edition: 'Authentic', player: 'Xhaka 10', price: 95, ch: 12, pat: 'linear-gradient(180deg,#E3262E,#B51B22)', trim: '#FFFFFF', crest: '#FFFFFF', glow: '#E3262E', added: 3 },
   { id: 'acm-0607', club: 'AC Milan', name: 'AC Milan 2006/07 Home — Match-worn', season: '2006/07', year: 2006, brand: 'adidas', league: 'Serie A', type: 'Match-worn', cond: 'Match-worn', edition: 'Player issue', player: 'Kaká 22', price: 450, ch: 6, pat: 'repeating-linear-gradient(90deg,#C8102E 0 11%,#141414 11% 22%)', trim: '#FFFFFF', crest: '#FFFFFF', glow: '#C8102E', added: 60 },
@@ -28,25 +73,34 @@ const RAW = [
   { id: 'bas-2526', club: 'FC Basel 1893', name: 'FC Basel 2025/26 Home', season: '2025/26', year: 2025, brand: 'Macron', league: 'Swiss Super League', type: 'New', cond: 'New with tags', edition: 'Replica', player: 'Shaqiri 10', price: 85, ch: -1, pat: 'linear-gradient(90deg,#D6001C 0 50%,#003E80 50%)', trim: '#FFFFFF', crest: '#FFFFFF', glow: '#D6001C', added: 20 }
 ];
 
-export const chf = (n) => 'CHF\u00a0' + Math.round(n).toLocaleString('de-CH');
-export const pct = (v) => (v >= 0 ? '+' : '\u2212') + Math.abs(v).toFixed(1) + '%';
-export const hexA = (h, a) => {
+export const chf = (n: number): string => 'CHF\u00a0' + Math.round(n).toLocaleString('de-CH');
+export const pct = (v: number): string => (v >= 0 ? '+' : '\u2212') + Math.abs(v).toFixed(1) + '%';
+export const hexA = (h: string, a: number): string => {
   const n = parseInt(h.slice(1), 16);
   return 'rgba(' + ((n >> 16) & 255) + ',' + ((n >> 8) & 255) + ',' + (n & 255) + ',' + a + ')';
 };
 
-export function down(vals, max) {
-  if (vals.length <= max) return vals.map((v, i) => [i, v]);
-  const out = [];
+export type Point = [index: number, value: number];
+
+export function down(vals: number[], max: number): Point[] {
+  if (vals.length <= max) return vals.map((v, i): Point => [i, v]);
+  const out: Point[] = [];
   const step = (vals.length - 1) / (max - 1);
   for (let k = 0; k < max; k++) {
     const i = Math.round(k * step);
-    out.push([i, vals[i]]);
+    out.push([i, vals[i]!]);
   }
   return out;
 }
 
-export function linePath(pairs, W, H, pad) {
+export interface ChartPoint {
+  x: number;
+  y: number;
+  v: number;
+  i: number;
+}
+
+export function linePath(pairs: Point[], W: number, H: number, pad: number): { d: string; area: string; pts: ChartPoint[]; mn: number; mx: number } {
   const vs = pairs.map((p) => p[1]);
   let mn = Math.min(...vs),
     mx = Math.max(...vs);
@@ -55,7 +109,7 @@ export function linePath(pairs, W, H, pad) {
     mn -= 1;
   }
   const n = pairs.length;
-  const pts = pairs.map((p, k) => ({
+  const pts = pairs.map((p, k): ChartPoint => ({
     x: n === 1 ? W : (k / (n - 1)) * W,
     y: pad + (1 - (p[1] - mn) / (mx - mn)) * (H - 2 * pad),
     v: p[1],
@@ -66,7 +120,7 @@ export function linePath(pairs, W, H, pad) {
 }
 
 export const SIZES = ['S', 'M', 'L', 'XL', 'XXL'];
-export const MULT = { S: 0.96, M: 1, L: 1.05, XL: 1.03, XXL: 0.93 };
+export const MULT: Record<string, number> = { S: 0.96, M: 1, L: 1.05, XL: 1.03, XXL: 0.93 };
 export const CONDS = ['New with tags', 'Excellent', 'Very good', 'Good', 'Match-worn'];
 const USERS = ['retro.ruud', 'zurich_kits', 'curva_sud_88', 'kitnerd.ch', 'thefootballattic', 'lukas.v', 'gol_vintage', 'basel.collects'];
 const LINES = [
@@ -78,15 +132,16 @@ const LINES = [
   'Shipped from Zürich in two days, packaging was museum-grade.'
 ];
 
-export const SHIRTS = RAW.map((s) => {
+export const SHIRTS: Shirt[] = RAW.map((s): Shirt => {
   const r = rng(s.id);
   // See marketData.js — hist/sizes/avail/owners/wants/decade/sales are all placeholder
   // synthetic data pending a real transactions integration (Phase 4.11 audit).
   const { L, hist, sizes, avail, owners, wants, decade, sales } = generateSyntheticMarketData(s, r);
-  const cm = [0, 1, 2].map(() => ({ u: USERS[Math.floor(r() * USERS.length)], t: LINES[Math.floor(r() * LINES.length)], d: 1 + Math.floor(r() * 20) + 'd' }));
+  const cm = [0, 1, 2].map((): Comment => ({ u: USERS[Math.floor(r() * USERS.length)]!, t: LINES[Math.floor(r() * LINES.length)]!, d: 1 + Math.floor(r() * 20) + 'd' }));
   const parts = (s.player || '').split(' ');
-  const num = parts.length > 1 ? parts.pop() : '';
-  return Object.assign({}, s, {
+  const num = parts.length > 1 ? parts.pop() || '' : '';
+  return {
+    ...s,
     L,
     hist,
     sizes,
@@ -102,13 +157,20 @@ export const SHIRTS = RAW.map((s) => {
     hay: [s.club, s.name, s.season, s.brand, s.league, s.player, s.type].join(' ').toLowerCase(),
     sku: 'KV-' + (10000 + Math.floor(r() * 89999)),
     trend: s.ch * 1.6 + wants / 900
-  });
+  };
 });
 
-export const BY = {};
+export const BY: Record<string, Shirt> = {};
 SHIRTS.forEach((s) => (BY[s.id] = s));
 
-export const OWNED = [
+export interface OwnedShirt {
+  id: string;
+  cost: number;
+  size: string;
+  when: string;
+}
+
+export const OWNED: OwnedShirt[] = [
   { id: 'acm-0607', cost: 380, size: 'L', when: 'Mar 2024' },
   { id: 'ars-91', cost: 165, size: 'L', when: 'Aug 2023' },
   { id: 'ger-26', cost: 120, size: 'M', when: 'Jun 2026' },
@@ -119,16 +181,25 @@ export const OWNED = [
   { id: 'yb-2526', cost: 89, size: 'L', when: 'Jul 2025' }
 ];
 
-export const PORT = [];
+export const PORT: number[] = [];
 for (let d = 0; d < 365; d++) {
   let v = 0;
   OWNED.forEach((o) => {
     const s = BY[o.id];
-    v += s.hist[Math.max(0, s.L - 365 + d)];
+    if (s) v += s.hist[Math.max(0, s.L - 365 + d)] ?? 0;
   });
   PORT.push(v);
 }
 
-export const EMPTY = { type: [], league: [], brand: [], decade: [], condition: [], club: [] };
-export const RANGES = { '1M': 30, '3M': 90, '6M': 180, '1Y': 365, ALL: 9999 };
-export const uniq = (k) => [...new Set(SHIRTS.map((s) => s[k]))];
+export interface Filters {
+  type: string[];
+  league: string[];
+  brand: string[];
+  decade: string[];
+  condition: string[];
+  club: string[];
+}
+
+export const EMPTY: Filters = { type: [], league: [], brand: [], decade: [], condition: [], club: [] };
+export const RANGES: Record<string, number> = { '1M': 30, '3M': 90, '6M': 180, '1Y': 365, ALL: 9999 };
+export const uniq = (k: keyof RawShirt): string[] => [...new Set(SHIRTS.map((s) => String(s[k] ?? '')))];
