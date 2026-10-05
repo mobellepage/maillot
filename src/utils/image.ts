@@ -12,6 +12,14 @@ function loadImage(url: string): Promise<HTMLImageElement> {
   });
 }
 
+/** Mean luminance 0–255 of a small probe — catches photos that are far too dark or washed out. */
+function meanLuminance(ctx: CanvasRenderingContext2D, w: number, h: number): number {
+  const { data } = ctx.getImageData(0, 0, w, h);
+  let sum = 0;
+  for (let i = 0; i < data.length; i += 4) sum += data[i]! * 0.299 + data[i + 1]! * 0.587 + data[i + 2]! * 0.114;
+  return sum / (w * h || 1);
+}
+
 // Downsampled grayscale variance-of-Laplacian: a standard, simple sharpness estimate.
 // Low variance ~= flat/blurry image, high variance ~= lots of crisp edges.
 function sharpnessVariance(ctx: CanvasRenderingContext2D, w: number, h: number): number {
@@ -56,6 +64,8 @@ export interface CompressedPhoto {
   height: number;
   lowRes: boolean;
   blurry: boolean;
+  tooDark: boolean;
+  tooBright: boolean;
 }
 
 function toBlob(canvas: HTMLCanvasElement, quality: number): Promise<Blob> {
@@ -94,6 +104,7 @@ export async function analyzeAndCompress(file: Blob, opts: CompressOptions = {})
   if (!pctx) throw new Error('canvas 2d context unavailable');
   pctx.drawImage(canvas, 0, 0, pw, ph);
   const variance = sharpnessVariance(pctx, pw, ph);
+  const luminance = meanLuminance(pctx, pw, ph);
 
   // Re-encoding through a canvas drops every EXIF field, including GPS.
   const dataUrl = canvas.toDataURL('image/jpeg', quality);
@@ -113,6 +124,8 @@ export async function analyzeAndCompress(file: Blob, opts: CompressOptions = {})
     width,
     height,
     lowRes: shortSide < minShortSide,
-    blurry: variance < blurThreshold
+    blurry: variance < blurThreshold,
+    tooDark: luminance < 45,
+    tooBright: luminance > 240
   };
 }

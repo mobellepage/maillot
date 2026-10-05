@@ -42,6 +42,8 @@ export interface Photo {
   height?: number;
   lowRes?: boolean;
   blurry?: boolean;
+  tooDark?: boolean;
+  tooBright?: boolean;
 }
 
 export interface Valuation {

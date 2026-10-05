@@ -1,18 +1,31 @@
 // Steps 4–6: photos, automatic pre-check, expert verification.
+import { useState } from 'react';
 import { buildPhotoSpecs } from '../../../addShirtData.js';
+import type { Photo } from '../../../types/domain.ts';
+import { GuidedCapture } from './GuidedCapture.tsx';
 import { Button, Card, Notice } from '../../../ui/index.ts';
 import { VERIFY_BADGES } from '../model.ts';
 import { PhotoSlot } from './parts.tsx';
 import { usePrefs } from '../../../lib/prefs.tsx';
 import type { Wizard } from './useAddShirtForm.ts';
 
-export function PhotosStep({ w, busyKey, onPhoto }: { w: Wizard; busyKey: string | null; onPhoto: (spec: { key: string; label: string }, f: File) => void }) {
+export function PhotosStep({ w, busyKey, onPhoto }: { w: Wizard; busyKey: string | null; onPhoto: (spec: { key: string; label: string }, f: File) => Promise<Photo | null> }) {
+  const [guided, setGuided] = useState(false);
   const { t } = usePrefs();
   const specs = buildPhotoSpecs(w.f, t) as { key: string; label: string; hint?: string }[];
   const done = specs.filter((s) => w.f.photos[s.key]).length;
   return (
     <div>
       <p style={{ fontSize: 13.5, color: 'var(--text-2)', margin: '0 0 16px' }}>{t('as.p.intro')}</p>
+      {done < specs.length && (
+        <Card tight accent style={{ display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap', marginBottom: 16 }}>
+          <div style={{ flex: '1 1 240px', fontSize: 13.5, color: 'var(--text-2)' }}>{t('gc.startBody')}</div>
+          <Button size="sm" onClick={() => setGuided(true)}>
+            {t('gc.start')}
+          </Button>
+        </Card>
+      )}
+      {guided && <GuidedCapture specs={specs} photos={w.f.photos} startKey={null} onShot={onPhoto} onClose={() => setGuided(false)} />}
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 18 }}>
         <div role="progressbar" aria-valuemin={0} aria-valuemax={specs.length} aria-valuenow={done} aria-label={t('as.p.progress')} style={{ flex: 1, height: 6, borderRadius: 6, background: 'rgba(255,255,255,0.08)', overflow: 'hidden' }}>
           <div style={{ height: '100%', width: (done / specs.length) * 100 + '%', background: 'var(--accent)', transition: 'width .3s' }} />

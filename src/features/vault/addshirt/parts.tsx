@@ -26,7 +26,7 @@ export function Pills({ children }: { children: ReactNode }) {
 }
 
 export function PhotoInput({ data, busy, onFile, size = 84, label }: { data: Photo | undefined; busy: boolean; onFile: (file: File) => void; size?: number; label: string }) {
-  const warn = data && (data.lowRes || data.blurry);
+  const warn = data && (data.lowRes || data.blurry || data.tooDark || data.tooBright);
   const src = usePhotoUrls([data], true)(data);
   return (
     <label
@@ -75,6 +75,8 @@ export function PhotoSlot({ spec, data, busy, onFile, onRemove }: { spec: { key:
             <span className="badge badge--accent">{t('as.p.uploaded')}</span>
             {data.lowRes && <span className="badge badge--warn">{t('as.p.lowRes')}</span>}
             {data.blurry && <span className="badge badge--warn">{t('as.p.blurry')}</span>}
+            {data.tooDark && <span className="badge badge--warn">{t('as.p.dark')}</span>}
+            {data.tooBright && <span className="badge badge--warn">{t('as.p.bright')}</span>}
             <button type="button" className="link-btn link-btn--muted" onClick={onRemove} style={{ fontSize: 11, textDecoration: 'underline' }}>
               {t('as.p.retake')}
             </button>

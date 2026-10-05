@@ -120,6 +120,7 @@ export default function AddShirtPage() {
       {f.step === 3 && <PhotosStep w={w} busyKey={busyKey} onPhoto={async (spec, file) => {
             const p = await capture(spec.key, file, spec.label);
             if (p) w.setPhoto(spec.key, p);
+            return p;
           }} />}
       {f.step === 4 && <PrecheckStep w={w} />}
       {f.step === 5 && <VerifyStep w={w} />}
