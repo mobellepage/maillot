@@ -73,3 +73,22 @@ export async function resolveDispute(disputeId: string, outcome: 'release' | 're
   if (error) throw error;
 }
 
+
+// ---------------------------------------------------------------------------
+// Seller payouts (Stripe Connect)
+// ---------------------------------------------------------------------------
+export async function loadPayoutStatus(): Promise<{ connected: boolean; payouts_enabled: boolean } | null> {
+  const { data, error } = await supabase.rpc('my_payout_status');
+  if (error) throw error;
+  return (data || [])[0] || null;
+}
+
+export type PayoutLinkResult = { configured: false; message?: string } | { configured: true; url?: string; kind?: 'onboarding' | 'dashboard'; error?: string };
+
+/** Stripe-hosted onboarding (or dashboard) link for the signed-in seller. */
+export async function startPayoutOnboarding(): Promise<PayoutLinkResult> {
+  const { data, error } = await supabase.functions.invoke<PayoutLinkResult>('connect-onboarding', { body: {} });
+  if (error) throw error;
+  if (!data) throw new Error('empty response');
+  return data;
+}

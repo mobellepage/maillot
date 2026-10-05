@@ -97,6 +97,24 @@ npx supabase secrets set STRIPE_SECRET_KEY=... # see .env.example for the full l
 All payment/email functions are inert (respond `configured: false`) until
 their secrets are set.
 
+### Payouts (Stripe Connect)
+
+Buyers pay the platform; money is held until the buyer confirms receipt
+(or an admin resolves a dispute). Then a DB trigger marks the order
+`payout_status = pending | refund_pending` and calls the `settle` function,
+which transfers the seller's share (amount − commission) to their Express
+account, or refunds the buyer. Each transfer/refund uses the order id as the
+idempotency key, so retries are safe.
+
+1. Enable **Connect** in the Stripe dashboard (Express accounts, country CH).
+2. Add a webhook endpoint → `…/functions/v1/stripe-webhook` with
+   `checkout.session.completed` and `checkout.session.async_payment_succeeded`,
+   plus a **Connected accounts** endpoint for `account.updated` (same URL,
+   same signing secret, or set it as `STRIPE_WEBHOOK_SECRET`).
+3. Sellers set up payouts from *My collection → Payouts*. Payouts released
+   before onboarding wait as `awaiting_onboarding` and are sent automatically
+   once Stripe reports `payouts_enabled`.
+
 ## Environments
 
 Environment-specific values live in `private.app_settings`, never in code:

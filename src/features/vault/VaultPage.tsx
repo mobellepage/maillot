@@ -15,6 +15,7 @@ import { CollectionTab } from './CollectionTab.tsx';
 import { badgeFor, itemLook, itemName, valueOf } from './model.ts';
 import { useCollection } from './useCollection.ts';
 import { VaultSummary } from './VaultSummary.tsx';
+import { PayoutsCard } from './PayoutsCard.tsx';
 
 type Tab = 'collection' | 'watchlist' | 'orders';
 const TITLES: Record<Tab, string> = { collection: 'My collection', watchlist: 'Watchlist', orders: 'Orders' };
@@ -96,6 +97,7 @@ export default function VaultPage({ tab }: { tab: Tab }) {
       </div>
 
       <VaultSummary items={items} watching={watch.ids.length} />
+      <PayoutsCard />
 
       <nav aria-label="Collection sections" style={{ display: 'flex', gap: 28, marginTop: 40, borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
         {tabs.map(([k, label, n]) => (

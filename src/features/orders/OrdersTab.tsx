@@ -10,6 +10,7 @@ import type { Order } from '../../utils/db.ts';
 import { Badge, Button, EmptyState, ButtonLink, Skeleton } from '../../ui/index.ts';
 import { DisputeDialog, ReleaseDialog, ShipDialog } from './OrderDialogs.tsx';
 import { ORDER_TONE } from './status.ts';
+import { SettlementLine } from './SettlementLine.tsx';
 import { useOrderActions, useOrders } from './useOrders.ts';
 
 type Open = { kind: 'ship' | 'release' | 'dispute'; order: Order } | null;
@@ -81,6 +82,7 @@ export function OrdersTab() {
                   {formatDate(o.created_at, lang)}
                   {o.tracking_code ? ' · Tracking: ' + o.tracking_code : ''}
                 </div>
+                <SettlementLine order={o} isBuyer={isBuyer} amountFmt={money(Number(o.amount) - Number(o.commission))} />
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap' }}>
                 <div className="mono" style={{ fontSize: 16, fontWeight: 700 }}>

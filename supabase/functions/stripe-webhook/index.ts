@@ -31,6 +31,18 @@ Deno.serve(async (req: Request) => {
     return new Response(`Webhook signature verification failed: ${(err as Error).message}`, { status: 400 });
   }
 
+  // Connected account finished (or lost) payout onboarding: mirror the flag
+  // and release any payouts that were waiting for it.
+  if (event.type === "account.updated") {
+    const acct = event.data.object as Stripe.Account;
+    const service = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
+    const { data: profile } = await service.from("profiles").update({ payouts_enabled: !!acct.payouts_enabled }).eq("stripe_account_id", acct.id).select("id").maybeSingle();
+    if (profile && acct.payouts_enabled) {
+      await fetch(Deno.env.get("SUPABASE_URL") + "/functions/v1/settle", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ seller_id: profile.id }) }).catch(() => {});
+    }
+    return json({ received: true });
+  }
+
   if (event.type !== "checkout.session.completed" && event.type !== "checkout.session.async_payment_succeeded") {
     return json({ received: true, ignored: event.type });
   }

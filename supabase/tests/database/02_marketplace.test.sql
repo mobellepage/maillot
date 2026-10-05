@@ -44,7 +44,7 @@ create or replace function tests.last_dispute()
 returns uuid language sql security definer as $$ select id from public.disputes order by created_at desc limit 1 $$;
 grant execute on function tests.last_dispute() to authenticated;
 
-select plan(32);
+select plan(34);
 
 -- ======================= matching engine ==================================
 -- self-trade: one user's crossing bid and ask must never match
@@ -101,6 +101,7 @@ select tests.login('00000000-0000-4000-a000-00000000a11c');
 select lives_ok(format('select order_confirm_receipt(%L)', (tests.order_for('liv-2526', 'L')).id), 'buyer confirms receipt');
 select tests.logout();
 select is((tests.order_for('liv-2526', 'L')).status, 'released', 'order released');
+select is((tests.order_for('liv-2526', 'L')).payout_status, 'pending', 'release queues the seller payout');
 select ok(exists (select 1 from notifications where user_id = '00000000-0000-4000-a000-000000000b0b' and type = 'order_released'), 'seller notified of release');
 
 -- ======================= cancellation =====================================
@@ -132,6 +133,7 @@ select lives_ok(format('select resolve_dispute(%L, %L, %L)', tests.last_dispute(
 select throws_ok(format('select resolve_dispute(%L, %L, null)', tests.last_dispute(), 'release'), null, 'dispute not found or already resolved', 'a dispute resolves only once');
 select tests.logout();
 select is((tests.order_for('psg-2526', 'M')).status, 'refunded', 'order refunded');
+select is((tests.order_for('psg-2526', 'M')).payout_status, 'refund_pending', 'refund queues the buyer refund');
 
 -- ======================= expert verification ==============================
 select tests.login('00000000-0000-4000-a000-00000000a11c');

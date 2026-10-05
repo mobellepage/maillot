@@ -39,3 +39,9 @@ verify_jwt = false
 
 [functions.price-index]
 verify_jwt = false
+
+[functions.settle]
+verify_jwt = false
+
+[functions.connect-onboarding]
+verify_jwt = true

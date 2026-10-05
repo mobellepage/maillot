@@ -368,6 +368,11 @@ export type Database = {
           stripe_payment_intent_id: string | null;
           tracking_code: string | null;
           updated_at: string;
+          payout_status: string;
+          payout_transfer_id: string | null;
+          refund_id: string | null;
+          settlement_error: string | null;
+          settled_at: string | null;
         };
         Insert: {
           amount: number;
@@ -447,6 +452,8 @@ export type Database = {
           handle: string | null;
           id: string;
           is_admin: boolean;
+          payouts_enabled: boolean;
+          stripe_account_id: string | null;
         };
         Insert: {
           created_at?: string;
@@ -571,6 +578,7 @@ export type Database = {
         Args: { p_shirt_id: string; p_size: string };
         Returns: undefined;
       };
+      my_payout_status: { Args: never; Returns: { connected: boolean; payouts_enabled: boolean }[] };
       order_cancel: { Args: { p_order_id: string }; Returns: undefined };
       order_confirm_receipt: {
         Args: { p_order_id: string };
