@@ -38,7 +38,8 @@ export default function Footer() {
           links={[
             ['Browse shirts', '/market'],
             ['Sell a shirt', '/sell'],
-            ['How authentication works', '/authentication']
+            ['How authentication works', '/authentication'],
+            ['Verify a certificate', '/verify']
           ]}
         />
         <Col

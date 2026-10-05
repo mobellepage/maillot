@@ -7,6 +7,7 @@ const ACC = 'var(--accent)';
 
 import { ButtonLink } from '../../ui/index.ts';
 import { usePageMeta } from '../../lib/meta.ts';
+import { INSPECTION_CHECKLIST } from '../../config/inspection.ts';
 
 const STEPS: { title: string; body: string }[] = [
   {
@@ -23,7 +24,7 @@ const STEPS: { title: string; body: string }[] = [
   },
   {
     title: 'Tagged and shipped to you',
-    body: 'Shirts that pass get a tamper-evident Maillot tag and are shipped to you, insured and tracked.'
+    body: 'Shirts that pass get a tamper-evident Maillot tag with a certificate code anyone can check at maillot.app/verify, and are shipped to you, insured and tracked.'
   },
   {
     title: 'You confirm — the seller is paid',
@@ -31,22 +32,7 @@ const STEPS: { title: string; body: string }[] = [
   }
 ];
 
-const CHECKS: string[] = [
-  'Product code on the wash tag matches the season and edition',
-  'Wash-tag print, font and layout',
-  'Neck and jock tags: placement, stitching, materials',
-  'Club crest: embroidery or heat-press method and density',
-  'Manufacturer logo: application method and alignment',
-  'Fabric weight and weave pattern for the edition',
-  'Seams, hems and overlock stitching',
-  'Sponsor print: material, finish and placement',
-  'Name and number printing: font, material, era-correct supplier',
-  'Sleeve and league patches: correct for the season and competition',
-  'Colours against reference photos under calibrated light',
-  'Condition matches the listing (wear, marks, fading, repairs)',
-  'Match-worn: provenance documents and use marks consistent with the claim',
-  'Signatures: certificate of authenticity checked with the issuer'
-];
+
 
 const FAQ: { q: string; a: string }[] = [
   {
@@ -98,7 +84,7 @@ export default function AuthenticationPage() {
           </p>
         </div>
         <ul style={{ flex: '2 1 480px', listStyle: 'none', padding: 0, margin: 0, display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(min(100%,300px),1fr))', gap: 8 }}>
-          {CHECKS.map((c) => (
+          {INSPECTION_CHECKLIST.v1.map((c) => (
             <li key={c} style={{ display: 'flex', gap: 10, alignItems: 'flex-start', padding: '12px 14px', borderRadius: 12, background: 'var(--sunken)', fontSize: 14, lineHeight: 1.45 }}>
               <span aria-hidden="true" style={{ color: ACC, fontWeight: 700 }}>
                 ✓

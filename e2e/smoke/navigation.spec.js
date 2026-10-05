@@ -88,3 +88,14 @@ test('footer reaches every legal page and no fonts are fetched from Google @mobi
   }
   expect(thirdParty).toEqual([]);
 });
+
+test('certificate check: footer link, code form, and a clear error when the check fails', async ({ page }) => {
+  await page.goto('/');
+  await page.locator('footer').getByRole('link', { name: 'Verify a certificate' }).click();
+  await expect(page.getByRole('heading', { level: 1 })).toContainText(/Verify a certificate/i);
+  await page.getByLabel('Certificate code').fill('mlt-abcd-efgh-jkmn');
+  await page.getByRole('button', { name: 'Check' }).click();
+  await expect(page).toHaveURL(/\/verify\/MLT-ABCD-EFGH-JKMN$/);
+  // The smoke backend is unreachable, so the lookup fails — visibly, not silently.
+  await expect(page.getByText(/couldn’t check this code/i)).toBeVisible({ timeout: 15000 });
+});

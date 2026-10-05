@@ -109,6 +109,15 @@ refunds the buyer. Labels need `SWISSPOST_CLIENT_ID`, `SWISSPOST_CLIENT_SECRET`,
 (`{"name1","street","zip","city"}`) — verify the request against the current
 Swiss Post Digital Commerce API docs when you get credentials.
 
+### Certificates
+
+A pass at the centre issues a certificate (`MLT-XXXX-XXXX-XXXX`, ~59 bits)
+via trigger. The tag on the shirt carries its QR code (→ `/verify/<code>`)
+and optionally an NFC chip whose UID admins bind in *Admin → Certificates*;
+a chip that appends `?tag=<UID>` to the URL is checked against it.
+`verify_certificate()` is public and returns shirt, size, date and checklist
+version — never buyer or seller. Revocations show publicly.
+
 ### Order deadlines (pg_cron)
 
 `run_order_lifecycle()` runs every 5 minutes (`cron.job` "order-lifecycle"):

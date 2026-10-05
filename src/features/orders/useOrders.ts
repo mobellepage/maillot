@@ -21,6 +21,12 @@ export function useOrders(enabled = true) {
   return useQuery({ queryKey: ['orders', user?.id], enabled: on, queryFn: () => db.loadMyOrders(user!.id) });
 }
 
+/** The buyer's certificate codes by order id (only purchases that passed). */
+export function useMyCertificates(enabled: boolean) {
+  const { user } = useSession();
+  return useQuery({ queryKey: ['certificates', user?.id], enabled: enabled && !!user, queryFn: db.loadMyCertificateCodes, staleTime: 5 * 60_000 });
+}
+
 export function useOrderActions() {
   const { user } = useSession();
   const qc = useQueryClient();

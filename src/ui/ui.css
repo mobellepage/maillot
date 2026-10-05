@@ -719,3 +719,21 @@ textarea::placeholder {
     display: block;
   }
 }
+
+/* Printing a page (certificates): just the content, on white. */
+@media print {
+  header,
+  footer,
+  nav,
+  .skip-link,
+  [aria-live="polite"] {
+    display: none !important;
+  }
+  body {
+    background: #fff;
+    color: #000;
+  }
+  .card {
+    break-inside: avoid;
+  }
+}

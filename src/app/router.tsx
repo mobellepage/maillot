@@ -3,8 +3,7 @@
 import { createBrowserRouter, Navigate } from 'react-router';
 import RootLayout from './RootLayout.tsx';
 import { RequireAuth } from './RequireAuth.tsx';
-import { AddShirtPage, AdminPage, AuthenticationPage, BrowsePage, DetailPage, HomePage, LegalPage, SellPage, SignInPage, VaultItemPage, VaultPage } from './pages.tsx';
-
+import { AddShirtPage, AdminPage, AuthenticationPage, BrowsePage, DetailPage, HomePage, LegalPage, SellPage, SignInPage, VaultItemPage, VaultPage, VerifyPage } from './pages.tsx';
 
 export const router = createBrowserRouter([
   {
@@ -22,6 +21,8 @@ export const router = createBrowserRouter([
       { path: 'admin', element: <RequireAuth admin><AdminPage /></RequireAuth> },
       { path: 'signin', element: <SignInPage /> },
       { path: 'authentication', element: <AuthenticationPage /> },
+      { path: 'verify', element: <VerifyPage /> },
+      { path: 'verify/:code', element: <VerifyPage /> },
       { path: 'help', element: <LegalPage doc="help" /> },
       { path: 'legal/:doc', element: <LegalPage /> },
       { path: '*', element: <Navigate to="/" replace /> }

@@ -13,7 +13,7 @@ import { ORDER_TONE } from './status.ts';
 import { SettlementLine } from './SettlementLine.tsx';
 import { ShipmentLine } from './ShipmentLine.tsx';
 import { nextDeadline } from './policy.ts';
-import { useOrderActions, useOrders } from './useOrders.ts';
+import { useMyCertificates, useOrderActions, useOrders } from './useOrders.ts';
 
 type Open = { kind: 'ship' | 'release' | 'dispute'; order: Order } | null;
 
@@ -23,6 +23,7 @@ export function OrdersTab() {
   const toast = useToast();
   const orders = useOrders();
   const act = useOrderActions();
+  const certs = useMyCertificates((orders.data ?? []).some((o) => o.inspection === 'passed'));
   const [open, setOpen] = useState<Open>(null);
   const [now] = useState(Date.now);
   const [params, setParams] = useSearchParams();
@@ -84,7 +85,7 @@ export function OrdersTab() {
                 <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 6 }}>
                   {formatDate(o.created_at, lang)}
                 </div>
-                <ShipmentLine order={o} isBuyer={isBuyer} />
+                <ShipmentLine order={o} isBuyer={isBuyer} certificate={isBuyer ? certs.data?.[o.id] : undefined} />
                 <SettlementLine order={o} isBuyer={isBuyer} amountFmt={money(Number(o.amount) - Number(o.commission))} />
                 <DeadlineLine order={o} isBuyer={isBuyer} lang={lang} now={now} />
               </div>

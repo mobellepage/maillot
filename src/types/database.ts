@@ -308,6 +308,22 @@ export type Database = {
         };
         Relationships: [];
       };
+      certificates: {
+        Row: {
+          code: string;
+          order_id: string | null;
+          shirt_id: string | null;
+          size: string | null;
+          checks: Json;
+          nfc_uid: string | null;
+          issued_at: string;
+          revoked_at: string | null;
+          revoked_reason: string | null;
+        };
+        Insert: { code: string; order_id?: string | null; shirt_id?: string | null; size?: string | null; checks?: Json; nfc_uid?: string | null; issued_at?: string; revoked_at?: string | null; revoked_reason?: string | null };
+        Update: { code?: string; order_id?: string | null; shirt_id?: string | null; size?: string | null; checks?: Json; nfc_uid?: string | null; issued_at?: string; revoked_at?: string | null; revoked_reason?: string | null };
+        Relationships: [];
+      };
       order_addresses: {
         Row: { order_id: string; ship_to: Json; created_at: string };
         Insert: { order_id: string; ship_to: Json; created_at?: string };
@@ -612,6 +628,12 @@ export type Database = {
         Args: { p_order_id: string; p_passed: boolean; p_note?: string; p_outbound_tracking?: string; p_outbound_carrier?: string };
         Returns: undefined;
       };
+      verify_certificate: {
+        Args: { p_code: string; p_tag?: string };
+        Returns: { code: string; shirt_id: string | null; size: string | null; checks: Json; issued_at: string; revoked: boolean; revoked_reason: string | null; tag_match: boolean | null }[];
+      };
+      admin_attach_tag: { Args: { p_code: string; p_uid: string }; Returns: undefined };
+      admin_revoke_certificate: { Args: { p_code: string; p_reason: string }; Returns: undefined };
       my_payout_status: { Args: never; Returns: { connected: boolean; payouts_enabled: boolean }[] };
       order_cancel: { Args: { p_order_id: string }; Returns: undefined };
       order_confirm_receipt: {

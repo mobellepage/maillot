@@ -1,5 +1,6 @@
 // Where the shirt physically is: inbound to the Zürich centre, being
 // inspected, or forwarded to the buyer — with carrier tracking links.
+import { Link } from 'react-router';
 import type { Order } from '../../utils/db.ts';
 import { carrierName, trackingUrl } from './shipping.ts';
 
@@ -15,7 +16,7 @@ function Track({ carrier, code }: { carrier: string | null; code: string }) {
   );
 }
 
-export function ShipmentLine({ order: o, isBuyer }: { order: Order; isBuyer: boolean }) {
+export function ShipmentLine({ order: o, isBuyer, certificate }: { order: Order; isBuyer: boolean; certificate?: string }) {
   const style = { fontSize: 12.5, marginTop: 6, color: 'var(--text-2)', lineHeight: 1.5 };
   if (o.status === 'shipped' && o.inspection === 'pending')
     return (
@@ -33,6 +34,12 @@ export function ShipmentLine({ order: o, isBuyer }: { order: Order; isBuyer: boo
           <>
             {' · '}
             <Track carrier={o.outbound_carrier} code={o.outbound_tracking} />
+          </>
+        )}
+        {certificate && (
+          <>
+            {' · '}
+            <Link to={'/verify/' + certificate}>Certificate</Link>
           </>
         )}
       </div>

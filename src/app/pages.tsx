@@ -13,3 +13,4 @@ export const SignInPage = lazy(() => import('../features/auth/SignInPage.tsx'));
 export const AuthenticationPage = lazy(() => import('../features/trust/AuthenticationPage.tsx'));
 export const LegalPage = lazy(() => import('../features/trust/LegalPage.tsx'));
 
+export const VerifyPage = lazy(() => import('../features/certificate/VerifyPage.tsx'));
