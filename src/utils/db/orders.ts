@@ -14,6 +14,11 @@ export async function loadMyOrders(userId: string): Promise<Order[]> {
   return data || [];
 }
 
+/** What the buyer pays: price + authentication + shipping. */
+export function orderTotal(o: Pick<Order, 'amount' | 'auth_fee' | 'shipping_fee'>): number {
+  return Number(o.amount) + Number(o.auth_fee || 0) + Number(o.shipping_fee || 0);
+}
+
 export async function markOrderShipped(orderId: string, tracking?: string | null, carrier?: string | null): Promise<void> {
   const args: { p_order_id: string; p_tracking?: string; p_carrier?: string } = { p_order_id: orderId };
   if (tracking) args.p_tracking = tracking;

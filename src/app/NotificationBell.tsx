@@ -42,7 +42,7 @@ export default function NotificationBell() {
                   onClick={() => {
                     if (!n.read) markRead(n.id);
                     setOpen(false);
-                    if (data.order_id) navigate('/orders');
+                    if (data.order_id) navigate('/orders/' + data.order_id);
                     else if (data.shirt_id) navigate('/shirt/' + data.shirt_id);
                   }}
                   style={{ display: 'block', background: n.read ? 'none' : 'rgba(75,255,139,0.07)', marginBottom: 2 }}

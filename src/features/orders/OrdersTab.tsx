@@ -6,31 +6,22 @@ import { usePrefs } from '../../lib/prefs.tsx';
 import { useSession } from '../../lib/session.tsx';
 import { useToast } from '../../lib/toast.tsx';
 import type { OrderStatus } from '../../types/domain.ts';
-import type { Order } from '../../utils/db.ts';
-import { Badge, Button, EmptyState, ButtonLink, Skeleton, useConfirm } from '../../ui/index.ts';
-import { DisputeDialog, ReleaseDialog, ShipDialog } from './OrderDialogs.tsx';
+import { orderTotal } from '../../utils/db.ts';
+import { Badge, EmptyState, ButtonLink, Skeleton } from '../../ui/index.ts';
+import { DeadlineLine } from './DeadlineLine.tsx';
+import { OrderActions } from './OrderActions.tsx';
 import { ORDER_TONE } from './status.ts';
 import { SettlementLine } from './SettlementLine.tsx';
 import { ShipmentLine } from './ShipmentLine.tsx';
-import { nextDeadline } from './policy.ts';
-import { useMyCertificates, useOrderActions, useOrders } from './useOrders.ts';
-
-type Open = { kind: 'ship' | 'release' | 'dispute'; order: Order } | null;
+import { useMyCertificates, useOrders } from './useOrders.ts';
 
 export function OrdersTab() {
   const { user } = useSession();
   const { t, money, lang } = usePrefs();
   const toast = useToast();
   const orders = useOrders();
-  const act = useOrderActions();
   const certs = useMyCertificates((orders.data ?? []).some((o) => o.inspection === 'passed'));
-  const [open, setOpen] = useState<Open>(null);
   const [now] = useState(Date.now);
-  const confirm = useConfirm();
-  const cancelOrder = async (o: Order) => {
-    const ok = await confirm({ title: 'Cancel this order?', body: 'The shirt goes back on the market and your bid is closed. You haven’t been charged.', confirmLabel: 'Cancel order', cancelLabel: 'Keep it', tone: 'danger' });
-    if (ok) act.cancel.mutate(o.id);
-  };
   const [params, setParams] = useSearchParams();
 
   // Returning from Stripe Checkout: confirm once, then drop the query.
@@ -41,8 +32,6 @@ export function OrdersTab() {
     setParams({}, { replace: true });
   }, [params, setParams, toast]);
 
-  const close = () => setOpen(null);
-  const total = (o: Order) => Number(o.amount) + Number(o.auth_fee || 0) + Number(o.shipping_fee || 0);
 
   if (orders.isLoading) {
     return (
@@ -96,63 +85,20 @@ export function OrdersTab() {
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap' }}>
                 <div className="mono" style={{ fontSize: 16, fontWeight: 700 }}>
-                  {money(isBuyer ? total(o) : Number(o.amount))}
+                  {money(isBuyer ? orderTotal(o) : Number(o.amount))}
                 </div>
                 <Badge tone={ORDER_TONE[status] ?? 'neutral'} style={{ fontFamily: 'var(--font-sans)', fontSize: 12 }}>
                   {t('order.' + status)}
                 </Badge>
-                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                  {isBuyer && status === 'pending_payment' && (
-                    <>
-                      <Button size="sm" busy={act.pay.isPending && act.pay.variables === o.id} busyLabel="Opening…" onClick={() => act.pay.mutate(o.id)}>
-                        {t('order.action.payNow')}
-                      </Button>
-                      <Button size="sm" variant="danger" busy={act.cancel.isPending && act.cancel.variables === o.id} onClick={() => cancelOrder(o)}>
-                        {t('order.action.cancel')}
-                      </Button>
-                    </>
-                  )}
-                  {!isBuyer && status === 'paid_escrow' && (
-                    <Button size="sm" onClick={() => setOpen({ kind: 'ship', order: o })}>
-                      {t('order.action.markShipped')}
-                    </Button>
-                  )}
-                  {isBuyer && status === 'shipped' && o.inspection === 'passed' && (
-                    <Button size="sm" onClick={() => setOpen({ kind: 'release', order: o })}>
-                      {t('order.action.confirmRelease')}
-                    </Button>
-                  )}
-                  {(status === 'paid_escrow' || status === 'shipped') && (
-                    <Button size="sm" variant="ghost" onClick={() => setOpen({ kind: 'dispute', order: o })}>
-                      {t('order.action.dispute')}
-                    </Button>
-                  )}
-                </div>
+                <OrderActions order={o} isBuyer={isBuyer} />
+                <Link to={'/orders/' + o.id} className="btn btn--ghost btn--sm">
+                  Details
+                </Link>
               </div>
             </li>
           );
         })}
       </ul>
-      <ShipDialog
-        key={'s' + open?.order.id}
-        orderId={open?.kind === 'ship' ? open.order.id : null}
-        onClose={close}
-        busy={act.ship.isPending}
-        onSubmit={(tracking, carrier) => open && act.ship.mutate({ id: open.order.id, tracking, carrier }, { onSuccess: close })}
-      />
-      <ReleaseDialog open={open?.kind === 'release'} onClose={close} busy={act.release.isPending} amountFmt={open ? money(Number(open.order.amount)) : ''} onConfirm={() => open && act.release.mutate(open.order.id, { onSuccess: close })} />
-      <DisputeDialog key={'d' + open?.order.id} open={open?.kind === 'dispute'} onClose={close} busy={act.dispute.isPending} onSubmit={(reason) => open && act.dispute.mutate({ id: open.order.id, reason }, { onSuccess: close })} />
     </>
-  );
-}
-
-function DeadlineLine({ order, isBuyer, lang, now }: { order: Order; isBuyer: boolean; lang: string; now: number }) {
-  const d = nextDeadline(order, isBuyer);
-  if (!d || Number.isNaN(d.at.getTime())) return null;
-  const soon = d.at.getTime() - now < 48 * 3600_000;
-  return (
-    <div style={{ fontSize: 12.5, marginTop: 6, color: soon ? 'var(--warn)' : 'var(--text-2)' }}>
-      {d.text(formatDate(d.at.toISOString(), lang, true))}
-    </div>
   );
 }

@@ -3,7 +3,7 @@
 import { createBrowserRouter, Navigate } from 'react-router';
 import RootLayout from './RootLayout.tsx';
 import { RequireAuth } from './RequireAuth.tsx';
-import { AddShirtPage, AdminPage, AuthenticationPage, BrowsePage, DetailPage, HomePage, LegalPage, SellPage, SignInPage, VaultItemPage, VaultPage, VerifyPage, IndexReportPage, DevelopersPage } from './pages.tsx';
+import { AddShirtPage, AdminPage, AuthenticationPage, BrowsePage, DetailPage, HomePage, LegalPage, SellPage, SignInPage, VaultItemPage, VaultPage, VerifyPage, IndexReportPage, DevelopersPage, OrderPage } from './pages.tsx';
 
 export const router = createBrowserRouter([
   {
@@ -16,6 +16,7 @@ export const router = createBrowserRouter([
       { path: 'vault', element: <RequireAuth><VaultPage tab="collection" /></RequireAuth> },
       { path: 'watchlist', element: <VaultPage tab="watchlist" /> },
       { path: 'orders', element: <RequireAuth><VaultPage tab="orders" /></RequireAuth> },
+      { path: 'orders/:id', element: <RequireAuth><OrderPage /></RequireAuth> },
       { path: 'vault/add', element: <RequireAuth><AddShirtPage /></RequireAuth> },
       { path: 'vault/item/:id', element: <RequireAuth><VaultItemPage /></RequireAuth> },
       { path: 'admin', element: <RequireAuth admin><AdminPage /></RequireAuth> },
