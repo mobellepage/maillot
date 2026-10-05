@@ -1,13 +1,22 @@
 // Live market data: order book, per-shirt stats, site-wide stats, trending.
 import { useQuery } from '@tanstack/react-query';
 import * as db from '../../utils/db.ts';
+import { useLive } from '../../lib/realtime.ts';
 
 export function useOrderBook(shirtId: string | undefined, size: string | undefined) {
+  // Any new/cancelled/matched bid or ask on this shirt refreshes the book and stats live.
+  useLive(
+    [
+      { table: 'bids', filter: 'shirt_id=eq.' + shirtId },
+      { table: 'asks', filter: 'shirt_id=eq.' + shirtId }
+    ],
+    [['orderBook', shirtId], ['shirtStats', shirtId]],
+    !!shirtId
+  );
   return useQuery({
     queryKey: ['orderBook', shirtId, size],
     enabled: !!shirtId && !!size,
     queryFn: () => db.loadOrderBook(shirtId!, size!),
-    refetchInterval: 5000,
     placeholderData: { bids: [], asks: [] }
   });
 }

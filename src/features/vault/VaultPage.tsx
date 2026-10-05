@@ -23,7 +23,7 @@ export default function VaultPage({ tab }: { tab: Tab }) {
   const { user } = useSession();
   const { money } = usePrefs();
   const toast = useToast();
-  const { items } = useCollection(tab === 'collection');
+  const { items } = useCollection();
   const watch = useWatchlist();
   const orders = useOrders(!!user);
   const watched = watch.ids.map((id) => getShirt(id)).filter((s) => !!s);

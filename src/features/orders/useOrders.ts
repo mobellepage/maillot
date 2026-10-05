@@ -5,15 +5,20 @@ import * as db from '../../utils/db.ts';
 import { useSession } from '../../lib/session.tsx';
 import { useToast } from '../../lib/toast.tsx';
 import { usePrefs } from '../../lib/prefs.tsx';
+import { useLive } from '../../lib/realtime.ts';
 
 export function useOrders(enabled = true) {
   const { user } = useSession();
-  return useQuery({
-    queryKey: ['orders', user?.id],
-    enabled: enabled && !!user,
-    queryFn: () => db.loadMyOrders(user!.id),
-    refetchInterval: 10_000
-  });
+  const on = enabled && !!user;
+  useLive(
+    [
+      { table: 'orders', filter: 'buyer_id=eq.' + user?.id },
+      { table: 'orders', filter: 'seller_id=eq.' + user?.id }
+    ],
+    [['orders', user?.id]],
+    on
+  );
+  return useQuery({ queryKey: ['orders', user?.id], enabled: on, queryFn: () => db.loadMyOrders(user!.id) });
 }
 
 export function useOrderActions() {

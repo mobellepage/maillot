@@ -1,12 +1,13 @@
 // Local state for the "add a shirt" wizard. Short-lived and complex, so it
 // stays out of server state; only the finished item is saved. The draft
 // (minus photos) survives reloads in localStorage.
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { matchCatalogFromOcrText } from '../../../addShirtData.js';
 import { enqueueReview, findReview } from '../../../utils/db.ts';
 import { loadJSON, saveJSON } from '../../../utils/storage.ts';
 import { readLabelText } from '../../../utils/ocr.ts';
-import type { Condition, Flock, Photo, Precheck, Signature, Verification, Visibility } from '../../../types/domain.ts';
+import { useLive } from '../../../lib/realtime.ts';
+import type { Condition, Flock, Photo, Precheck, Review, Signature, Verification, Visibility } from '../../../types/domain.ts';
 
 const DRAFT_KEY = 'kv_add_shirt_draft_v1';
 // Below this word-overlap confidence a scan is "found some text" rather than a match.
@@ -128,15 +129,13 @@ export function useAddShirtForm(userId: string | undefined) {
     saveJSON(DRAFT_KEY, draft);
   }, [f]);
 
-  // While a review is pending, check its outcome every few seconds.
+  // While a review is pending, apply the expert's decision as soon as the
+  // review_queue row changes (realtime), plus once on mount for a resumed draft.
   const reviewId = f.verification.reviewId;
   const waiting = f.verification.status === 'angefragt' || f.verification.status === 'in Prüfung';
-  useEffect(() => {
-    if (!waiting || !reviewId) return;
-    let cancelled = false;
-    const sync = async () => {
-      const entry = await findReview(reviewId).catch(() => null);
-      if (cancelled || !entry) return;
+  const applyReview = useCallback(
+    (entry: Review | null) => {
+      if (!entry || !reviewId) return;
       setRaw((s) => {
         if (s.verification.reviewId !== reviewId) return s;
         if (entry.status === 'approved') return { ...s, verification: { level: 'expert', status: 'verifiziert', reason: '', reviewId } };
@@ -144,14 +143,21 @@ export function useAddShirtForm(userId: string | undefined) {
         if (entry.status === 'in_review' && s.verification.status !== 'in Prüfung') return { ...s, verification: { ...s.verification, status: 'in Prüfung' } };
         return s;
       });
-    };
-    sync();
-    const iv = setInterval(sync, 5000);
+    },
+    [reviewId]
+  );
+  const syncReview = useCallback(() => {
+    if (reviewId) findReview(reviewId).then(applyReview, () => {});
+  }, [reviewId, applyReview]);
+  useEffect(() => {
+    if (!waiting || !reviewId) return;
+    let live = true;
+    findReview(reviewId).then((e) => live && applyReview(e), () => {});
     return () => {
-      cancelled = true;
-      clearInterval(iv);
+      live = false;
     };
-  }, [waiting, reviewId]);
+  }, [waiting, reviewId, applyReview]);
+  useLive([{ table: 'review_queue', filter: 'id=eq.' + reviewId }], [], waiting && !!reviewId, syncReview);
 
   return {
     f,

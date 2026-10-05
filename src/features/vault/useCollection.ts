@@ -9,6 +9,7 @@ import { BY } from '../../data.ts';
 import type { CustomItem, Review, Valuation } from '../../types/domain.ts';
 import { useSession } from '../../lib/session.tsx';
 import { useToast } from '../../lib/toast.tsx';
+import { useLive } from '../../lib/realtime.ts';
 
 export function currentValuation(c: CustomItem): Valuation | null {
   const catalogItem = c.catalogId ? BY[c.catalogId] : null;
@@ -31,11 +32,20 @@ export function displayStatus(c: CustomItem, reviews: Review[]): CustomItem['ver
   return r && r.status === 'in_review' ? 'in Prüfung' : 'angefragt';
 }
 
-export function useCollection(poll = false) {
+export function useCollection() {
   const { user } = useSession();
   const uid = user?.id;
-  const items = useQuery({ queryKey: ['customItems', uid], enabled: !!uid, queryFn: () => db.loadCustomItems(uid!), refetchInterval: poll ? 15_000 : false });
-  const reviews = useQuery({ queryKey: ['myReviews', uid], enabled: !!uid, queryFn: db.loadReviewQueue, refetchInterval: poll ? 15_000 : false });
+  const items = useQuery({ queryKey: ['customItems', uid], enabled: !!uid, queryFn: () => db.loadCustomItems(uid!) });
+  const reviews = useQuery({ queryKey: ['myReviews', uid], enabled: !!uid, queryFn: db.loadReviewQueue });
+  // An expert's decision stamps the item server-side; show it the moment it lands.
+  useLive(
+    [
+      { table: 'custom_items', filter: 'user_id=eq.' + uid },
+      { table: 'review_queue', filter: 'user_id=eq.' + uid }
+    ],
+    [['customItems', uid], ['myReviews', uid]],
+    !!uid
+  );
   return { items: items.data ?? [], reviews: reviews.data ?? [], loading: items.isLoading };
 }
 

@@ -13,7 +13,7 @@ const VISIBILITY: Record<string, string> = { private: 'Private', public: 'In pub
 
 export default function VaultItemPage() {
   const { id } = useParams();
-  const { items, reviews, loading } = useCollection(true);
+  const { items, reviews, loading } = useCollection();
   const { retry } = useCollectionActions();
   const { money, lang } = usePrefs();
   const [photoIdx, setPhotoIdx] = useState(0);

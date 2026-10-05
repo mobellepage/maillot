@@ -5,10 +5,12 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import * as db from '../../utils/db.ts';
 import { useSession } from '../../lib/session.tsx';
 import { useToast } from '../../lib/toast.tsx';
+import { useLive } from '../../lib/realtime.ts';
 
 export function useReviewQueue() {
   const { isAdmin } = useSession();
-  const q = useQuery({ queryKey: ['reviewQueue'], enabled: isAdmin, queryFn: db.loadReviewQueue, refetchInterval: 20_000 });
+  const q = useQuery({ queryKey: ['reviewQueue'], enabled: isAdmin, queryFn: db.loadReviewQueue });
+  useLive([{ table: 'review_queue' }], [['reviewQueue']], isAdmin);
   // An admin opening the queue is the real signal that a human is now
   // looking: flip brand-new requests to in_review (once per session).
   const marked = useRef(new Set<string>());
@@ -35,7 +37,8 @@ export function useResolveReview() {
 
 export function useAdminDisputes() {
   const { isAdmin } = useSession();
-  return useQuery({ queryKey: ['adminDisputes'], enabled: isAdmin, queryFn: db.loadDisputesForAdmin, refetchInterval: 20_000 });
+  useLive([{ table: 'disputes' }, { table: 'orders' }], [['adminDisputes']], isAdmin);
+  return useQuery({ queryKey: ['adminDisputes'], enabled: isAdmin, queryFn: db.loadDisputesForAdmin });
 }
 
 export function useResolveDispute() {
