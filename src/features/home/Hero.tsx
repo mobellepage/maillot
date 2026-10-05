@@ -1,21 +1,22 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { SHIRTS, pct, type Shirt } from '../../data.ts';
+import type { MessageKey } from '../../i18n/index.ts';
 import { usePrefs } from '../../lib/prefs.tsx';
 import { Button, SearchIcon, ShirtGraphic, alpha } from '../../ui/index.ts';
 import { search } from '../catalog/model.ts';
 import { HeroStats } from './HeroStats.tsx';
 
-const QUICK: { label: string; to: string }[] = [
-  { label: 'Retro classics', to: '/market?type=Retro' },
-  { label: 'Match-worn', to: '/market?type=Match-worn' },
-  { label: 'World Cup 2026', to: '/market?q=2026&league=National+Teams' },
-  { label: 'Swiss Super League', to: '/market?league=Swiss+Super+League' },
-  { label: 'Under CHF 120', to: '/market?max=120' }
+const QUICK: { label: MessageKey; to: string }[] = [
+  { label: 'home.quick.retro', to: '/market?type=Retro' },
+  { label: 'home.quick.matchWorn', to: '/market?type=Match-worn' },
+  { label: 'home.quick.wc', to: '/market?q=2026&league=National+Teams' },
+  { label: 'home.quick.ssl', to: '/market?league=Swiss+Super+League' },
+  { label: 'home.quick.under', to: '/market?max=120' }
 ];
 
 export function Hero({ featured }: { featured: Shirt }) {
-  const { money } = usePrefs();
+  const { money, t, label } = usePrefs();
   const navigate = useNavigate();
   const [q, setQ] = useState('');
   const [active, setActive] = useState(-1);
@@ -36,17 +37,17 @@ export function Hero({ featured }: { featured: Shirt }) {
         <div style={{ flex: '1 1 520px', minWidth: 0 }}>
           <div className="mono" style={{ display: 'inline-flex', alignItems: 'center', gap: 10, padding: '7px 14px 7px 10px', borderRadius: 999, border: '1px solid rgba(255,255,255,0.1)', fontSize: 11.5, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--text-2)' }}>
             <span aria-hidden="true" style={{ width: 7, height: 7, borderRadius: '50%', background: 'var(--accent)', boxShadow: '0 0 12px var(--accent)', animation: 'kvPulse 1.8s ease-in-out infinite' }} />
-            Live price index · {SHIRTS.length} shirts catalogued
+            {t('home.liveIndex', { n: SHIRTS.length })}
           </div>
           <h1 id="hero-title" className="display display--xl" style={{ marginTop: 22, fontWeight: 800 }}>
-            Every shirt.
+            {t('home.h1a')}
             <br />
-            Every season.
+            {t('home.h1b')}
             <br />
-            <span style={{ color: 'var(--accent)' }}>One market.</span>
+            <span style={{ color: 'var(--accent)' }}>{t('home.h1c')}</span>
           </h1>
           <p className="lede" style={{ margin: '24px 0 0', maxWidth: 520 }}>
-            The catalogue, marketplace and price index for football shirts — new releases, retro classics and match-worn grails. Every sale authenticated in Zürich.
+            {t('home.lede')}
           </p>
 
           <form
@@ -75,8 +76,8 @@ export function Hero({ featured }: { featured: Shirt }) {
                     setActive((i) => Math.max(-1, i - 1));
                   } else if (e.key === 'Escape') setQ('');
                 }}
-                placeholder="Search any shirt…"
-                aria-label="Search any shirt"
+                placeholder={t('home.searchPlaceholder')}
+                aria-label={t('home.searchLabel')}
                 role="combobox"
                 aria-expanded={sug.length > 0}
                 aria-controls="hero-suggestions"
@@ -85,7 +86,7 @@ export function Hero({ featured }: { featured: Shirt }) {
                 style={{ flex: 1, minWidth: 0, background: 'none', border: 0, outline: 'none', fontSize: 17, color: 'var(--text)' }}
               />
               <Button type="submit" size="sm" style={{ height: 48 }}>
-                Search
+                {t('home.search')}
               </Button>
             </div>
             {sug.length > 0 && (
@@ -99,7 +100,7 @@ export function Hero({ featured }: { featured: Shirt }) {
                       <span style={{ flex: 1, minWidth: 0 }}>
                         <span style={{ display: 'block', fontSize: 14, fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{s.name}</span>
                         <span style={{ display: 'block', fontSize: 12, color: 'var(--muted)' }}>
-                          {s.brand} · {s.league}
+                          {s.brand} · {label('league', s.league)}
                         </span>
                       </span>
                       <span className="mono" style={{ fontSize: 13 }}>
@@ -112,10 +113,10 @@ export function Hero({ featured }: { featured: Shirt }) {
             )}
           </form>
 
-          <nav aria-label="Quick searches" style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 16 }}>
+          <nav aria-label={t('home.quickNav')} style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 16 }}>
             {QUICK.map((c) => (
               <Link key={c.label} to={c.to} className="chip">
-                {c.label}
+                {t(c.label, { price: money(120) })}
               </Link>
             ))}
           </nav>
@@ -126,12 +127,12 @@ export function Hero({ featured }: { featured: Shirt }) {
           <Link
             to={'/shirt/' + featured.id}
             className="card card--interactive"
-            aria-label={'Shirt of the week: ' + featured.name}
+            aria-label={t('home.shirtOfWeekLabel', { name: featured.name })}
             style={{ position: 'relative', display: 'grid', placeItems: 'center', aspectRatio: '1/1.02', borderRadius: 32, padding: 0, overflow: 'hidden', color: 'var(--text)', background: `radial-gradient(circle at 50% 42%,${alpha(featured.glow, 0.34)} 0%,rgba(0,0,0,0) 58%),linear-gradient(180deg,var(--surface-2),var(--bg-deep))` }}
           >
             <span style={{ position: 'absolute', top: 22, left: 22, right: 22, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <span className="mono" style={{ fontSize: 11, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--text-2)' }}>
-                Shirt of the week
+                {t('home.shirtOfWeek')}
               </span>
               <span className="badge badge--solid" style={{ fontSize: 12 }}>
                 {pct(featured.ch)} · 30D
@@ -142,11 +143,11 @@ export function Hero({ featured }: { featured: Shirt }) {
               <span style={{ minWidth: 0 }}>
                 <span style={{ display: 'block', fontWeight: 700, fontSize: 16, lineHeight: 1.25 }}>{featured.name}</span>
                 <span className="mono" style={{ display: 'block', fontSize: 12, color: 'var(--muted)', marginTop: 4 }}>
-                  {featured.brand} · {featured.edition}
+                  {featured.brand} · {label('edition', featured.edition)}
                 </span>
               </span>
               <span style={{ textAlign: 'right', flex: 'none' }}>
-                <span style={{ display: 'block', fontSize: 11, color: 'var(--muted)' }}>Market value</span>
+                <span style={{ display: 'block', fontSize: 11, color: 'var(--muted)' }}>{t('common.marketValue')}</span>
                 <span className="mono" style={{ display: 'block', fontSize: 20, fontWeight: 700 }}>
                   {money(featured.price)}
                 </span>

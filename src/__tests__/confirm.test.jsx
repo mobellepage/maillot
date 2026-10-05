@@ -1,10 +1,13 @@
 // @vitest-environment happy-dom
 import React from 'react'; // test files are compiled with the classic JSX runtime
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { ConfirmProvider, useConfirm } from '../ui/Confirm.tsx';
+import { PrefsProvider } from '../lib/prefs.tsx';
 
 afterEach(cleanup);
+// PrefsProvider fetches live FX rates; keep tests offline.
+vi.stubGlobal('fetch', () => new Promise(() => {}));
 
 function Harness({ onResult }) {
   const confirm = useConfirm();
@@ -18,9 +21,11 @@ function Harness({ onResult }) {
 function setup() {
   const results = [];
   render(
-    <ConfirmProvider>
-      <Harness onResult={(r) => results.push(r)} />
-    </ConfirmProvider>
+    <PrefsProvider>
+      <ConfirmProvider>
+        <Harness onResult={(r) => results.push(r)} />
+      </ConfirmProvider>
+    </PrefsProvider>
   );
   return results;
 }

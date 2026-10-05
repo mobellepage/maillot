@@ -5,13 +5,14 @@ import { useSession } from '../lib/session.tsx';
 import { useToast } from '../lib/toast.tsx';
 import { useWatchlist } from '../features/watchlist/useWatchlist.ts';
 import type { Currency } from '../utils/currency.ts';
-import type { Lang } from '../utils/i18n.ts';
+import type { Lang } from '../i18n/index.ts';
 import NotificationBell from './NotificationBell.tsx';
 import { useNavItems } from './nav.ts';
 
 export function Logo() {
+  const { t } = usePrefs();
   return (
-    <Link to="/" aria-label="MAILLOT home" style={{ display: 'flex', alignItems: 'center', gap: 10, flex: 'none', color: 'var(--text)' }}>
+    <Link to="/" aria-label={t('header.home')} style={{ display: 'flex', alignItems: 'center', gap: 10, flex: 'none', color: 'var(--text)' }}>
       <span aria-hidden="true" style={{ width: 28, height: 28, borderRadius: 8, background: 'var(--accent)', display: 'grid', placeItems: 'center' }}>
         <span style={{ width: 10, height: 10, border: '2.5px solid var(--bg)', borderRadius: 2, transform: 'rotate(45deg)' }} />
       </span>
@@ -40,7 +41,7 @@ export default function Header() {
       </a>
       <div style={{ maxWidth: 1360, margin: '0 auto', padding: '0 var(--gutter)', height: 68, display: 'flex', alignItems: 'center', gap: 'clamp(12px,2vw,28px)' }}>
         <Logo />
-        <nav aria-label="Main" className="hide-mobile" style={{ display: 'flex', gap: 2 }}>
+        <nav aria-label={t('header.mainNav')} className="hide-mobile" style={{ display: 'flex', gap: 2 }}>
           {items.map((n) => (
             <NavLink key={n.to} to={n.to} end={n.to === '/'} className="nav-link" aria-current={n.match?.(pathname) || pathname === n.to ? 'page' : undefined}>
               {n.label}
@@ -70,28 +71,28 @@ export default function Header() {
             style={{ flex: 1, minWidth: 0, background: 'none', border: 0, outline: 'none', fontSize: 13.5, color: 'var(--text)' }}
           />
         </form>
-        <select className="hide-mobile" aria-label="Currency" value={currency} onChange={(e) => setCurrency(e.target.value as Currency)} style={pillSelect}>
+        <select className="hide-mobile" aria-label={t('header.currency')} value={currency} onChange={(e) => setCurrency(e.target.value as Currency)} style={pillSelect}>
           {currencies.map((c) => (
             <option key={c} value={c}>
               {c}
             </option>
           ))}
         </select>
-        <select className="hide-mobile" aria-label="Language" value={lang} onChange={(e) => setLang(e.target.value as Lang)} style={{ ...pillSelect, textTransform: 'uppercase' }}>
+        <select className="hide-mobile" aria-label={t('header.language')} value={lang} onChange={(e) => setLang(e.target.value as Lang)} style={{ ...pillSelect, textTransform: 'uppercase' }}>
           {langs.map((l) => (
             <option key={l} value={l}>
               {l.toUpperCase()}
             </option>
           ))}
         </select>
-        <Link to="/watchlist" aria-label={`Watchlist (${watch.ids.length})`} className="icon-btn" style={{ width: 'auto', padding: '0 12px', borderRadius: 999, gap: 6, display: 'flex', alignItems: 'center', fontFamily: 'var(--font-mono)', fontSize: 13, color: 'var(--text)' }}>
+        <Link to="/watchlist" aria-label={t('header.watchlist', { n: watch.ids.length })} className="icon-btn" style={{ width: 'auto', padding: '0 12px', borderRadius: 999, gap: 6, display: 'flex', alignItems: 'center', fontFamily: 'var(--font-mono)', fontSize: 13, color: 'var(--text)' }}>
           <HeartIcon size={15} filled style={{ color: 'var(--accent)' }} />
           {watch.ids.length}
         </Link>
         {user ? (
           <>
             <NotificationBell />
-            <Link to="/vault" title={user.email} aria-label="My collection" style={{ width: 40, height: 40, borderRadius: '50%', border: '2px solid var(--accent)', background: 'var(--avatar-grad)', color: 'var(--text)', fontWeight: 700, fontSize: 13, display: 'grid', placeItems: 'center', flex: 'none' }}>
+            <Link to="/vault" title={user.email} aria-label={t('header.myCollection')} style={{ width: 40, height: 40, borderRadius: '50%', border: '2px solid var(--accent)', background: 'var(--avatar-grad)', color: 'var(--text)', fontWeight: 700, fontSize: 13, display: 'grid', placeItems: 'center', flex: 'none' }}>
               {(user.email || '?').slice(0, 2).toUpperCase()}
             </Link>
             <button

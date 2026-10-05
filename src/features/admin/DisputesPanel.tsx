@@ -49,6 +49,7 @@ function DisputeCard({ d }: { d: AdminDispute }) {
 }
 
 export function DisputesPanel() {
+  const { t } = usePrefs();
   const q = useAdminDisputes();
   const all = q.data ?? [];
   const open = all.filter((d) => d.dispute_status === 'open');
@@ -58,7 +59,7 @@ export function DisputesPanel() {
       <SectionHeader id="disputes-title" eyebrow="Disputes" title="Returns & disputes" size="sm" />
       <p style={{ fontSize: 13, color: 'var(--muted)', margin: '-12px 0 0', lineHeight: 1.5, maxWidth: 560 }}>A decision releases the escrowed payment to the seller or refunds the buyer. Both are notified automatically.</p>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 14, marginTop: 20 }}>
-        {q.isError && <ErrorState compact what="disputes" onRetry={() => q.refetch()} />}
+        {q.isError && <ErrorState compact what={t('what.disputes')} onRetry={() => q.refetch()} />}
         {q.isSuccess && !open.length && <p style={{ fontSize: 14, color: 'var(--muted)', margin: 0 }}>No open disputes.</p>}
         {open.map((d) => (
           <DisputeCard key={d.dispute_id} d={d} />

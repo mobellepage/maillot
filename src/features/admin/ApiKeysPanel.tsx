@@ -5,7 +5,7 @@ import { Button, Notice, SectionHeader, TextField, useConfirm, ErrorState } from
 import { useApiKeyActions, useApiKeys } from './queries.ts';
 
 export function ApiKeysPanel() {
-  const { lang } = usePrefs();
+  const { lang, t } = usePrefs();
   const keysQuery = useApiKeys();
   const keys = keysQuery.data ?? [];
   const { create, revoke } = useApiKeyActions();
@@ -44,7 +44,7 @@ export function ApiKeysPanel() {
       <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: 8, margin: '16px 0 0' }}>
         {keysQuery.isError && (
           <li>
-            <ErrorState compact what="API keys" onRetry={() => keysQuery.refetch()} />
+            <ErrorState compact what={t('what.apiKeys')} onRetry={() => keysQuery.refetch()} />
           </li>
         )}
         {keysQuery.isSuccess && !keys.length && <li style={{ fontSize: 13, color: 'var(--muted)' }}>No keys issued yet.</li>}

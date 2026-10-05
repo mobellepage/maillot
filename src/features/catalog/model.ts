@@ -2,6 +2,7 @@
 // related shirts and the index ticker. No React, no I/O — unit-tested.
 import { BY, CONDS, MULT, pct, SHIRTS, type Shirt } from '../../data.ts';
 import type { ShirtCardModel } from '../../ui/ShirtCard.tsx';
+import type { MessageKey } from '../../i18n/index.ts';
 import { alpha } from '../../ui/tokens.ts';
 
 export type FilterKey = 'type' | 'league' | 'club' | 'brand' | 'decade' | 'condition';
@@ -14,12 +15,13 @@ export const PRICE_MAX = 600;
 
 const FIELD: Record<FilterKey, keyof Shirt> = { type: 'type', league: 'league', club: 'club', brand: 'brand', decade: 'decade', condition: 'cond' };
 
-export const SORTS: { value: SortKey; label: string }[] = [
-  { value: 'trending', label: 'Trending' },
-  { value: 'gain', label: 'Biggest gainers' },
-  { value: 'newest', label: 'Newest' },
-  { value: 'asc', label: 'Price low → high' },
-  { value: 'desc', label: 'Price high → low' }
+/** Labels are message keys. */
+export const SORTS: { value: SortKey; label: MessageKey }[] = [
+  { value: 'trending', label: 'sort.trending' },
+  { value: 'gain', label: 'sort.gain' },
+  { value: 'newest', label: 'sort.newest' },
+  { value: 'asc', label: 'sort.asc' },
+  { value: 'desc', label: 'sort.desc' }
 ];
 
 const SORT_FN: Record<SortKey, (a: Shirt, b: Shirt) => number> = {
@@ -61,7 +63,8 @@ export function browse({ q, filters, min, max, sort }: BrowseQuery): Shirt[] {
 
 export interface FilterGroup {
   key: FilterKey;
-  title: string;
+  /** Message key */
+  title: MessageKey;
   options: { value: string; count: number }[];
 }
 
@@ -69,12 +72,12 @@ export function filterGroups(): FilterGroup[] {
   const opts = (k: FilterKey, values: string[]) => values.map((value) => ({ value, count: SHIRTS.filter((s) => String(s[FIELD[k]]) === value).length }));
   const uniq = (k: FilterKey) => [...new Set(SHIRTS.map((s) => String(s[FIELD[k]])))];
   return [
-    { key: 'type', title: 'Category', options: opts('type', ['New', 'Retro', 'Match-worn']) },
-    { key: 'league', title: 'League', options: opts('league', uniq('league')) },
-    { key: 'club', title: 'Club', options: opts('club', uniq('club').sort()) },
-    { key: 'brand', title: 'Brand', options: opts('brand', uniq('brand').sort()) },
-    { key: 'decade', title: 'Era', options: opts('decade', uniq('decade').sort().reverse()) },
-    { key: 'condition', title: 'Condition', options: opts('condition', CONDS.filter((c) => SHIRTS.some((s) => s.cond === c))) }
+    { key: 'type', title: 'filter.type', options: opts('type', ['New', 'Retro', 'Match-worn']) },
+    { key: 'league', title: 'filter.league', options: opts('league', uniq('league')) },
+    { key: 'club', title: 'filter.club', options: opts('club', uniq('club').sort()) },
+    { key: 'brand', title: 'filter.brand', options: opts('brand', uniq('brand').sort()) },
+    { key: 'decade', title: 'filter.decade', options: opts('decade', uniq('decade').sort().reverse()) },
+    { key: 'condition', title: 'filter.condition', options: opts('condition', CONDS.filter((c) => SHIRTS.some((s) => s.cond === c))) }
   ];
 }
 
@@ -95,8 +98,9 @@ export function related(s: Shirt, n = 4): Shirt[] {
     .slice(0, n);
 }
 
+/** Message key for the card's category tag. */
 export function tagFor(s: Shirt): string {
-  return s.type === 'New' ? 'New season' : s.type;
+  return s.type === 'New' ? 'tag.newSeason' : 'type.' + s.type;
 }
 
 export function toCard(s: Shirt, money: (chf: number) => string): ShirtCardModel {
@@ -115,6 +119,7 @@ export function toCard(s: Shirt, money: (chf: number) => string): ShirtCardModel
 }
 
 export interface IndexSegment {
+  /** A message key, or a proper name shown as is (league names). */
   label: string;
   value: number;
   change: number;
@@ -128,11 +133,11 @@ export function indexSegments(): IndexSegment[] {
     return { label, value: Math.round(xs.reduce((a, x) => a + x.price, 0) / xs.length), change: xs.reduce((a, x) => a + x.ch, 0) / xs.length };
   };
   return [
-    seg('All shirts', () => true),
-    seg('Retro', (x) => x.type === 'Retro'),
-    seg('Match-worn', (x) => x.type === 'Match-worn'),
-    seg('World Cup ’26', (x) => x.league === 'National Teams' && x.year === 2026),
-    seg('Swiss SL', (x) => x.league === 'Swiss Super League'),
+    seg('index.seg.all', () => true),
+    seg('index.seg.retro', (x) => x.type === 'Retro'),
+    seg('index.seg.matchWorn', (x) => x.type === 'Match-worn'),
+    seg('index.seg.wc', (x) => x.league === 'National Teams' && x.year === 2026),
+    seg('index.seg.ssl', (x) => x.league === 'Swiss Super League'),
     seg('Premier League', (x) => x.league === 'Premier League'),
     seg('Serie A', (x) => x.league === 'Serie A')
   ].filter((x): x is IndexSegment => !!x);

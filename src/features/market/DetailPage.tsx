@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useCatalog } from '../catalog/useCatalog.ts';
 import { Link, Navigate, useParams, useSearchParams } from 'react-router';
 import { usePageMeta } from '../../lib/meta.ts';
+import { usePrefs } from '../../lib/prefs.tsx';
 import { useSession } from '../../lib/session.tsx';
 import * as db from '../../utils/db.ts';
 import { Page, SectionHeader } from '../../ui/index.ts';
@@ -27,7 +28,8 @@ export default function DetailPage() {
   const bookQuery = useOrderBook(s?.id, size);
   const book = bookQuery.data ?? { bids: [], asks: [] };
   const stats = useShirtStats(s?.id).data;
-  usePageMeta(s ? s.name + ' — price, bids & sales' : null, s ? `Live bids, asks and price history for the ${s.name} (${s.brand}). Every sale authenticated in Zürich.` : undefined);
+  const { t, label } = usePrefs();
+  usePageMeta(s ? t('detail.metaTitle', { name: s.name }) : null, s ? t('detail.metaDesc', { name: s.name, brand: s.brand }) : undefined);
 
   useEffect(() => {
     if (s) db.logEvent(user?.id ?? null, s.id, 'view').catch(() => {});
@@ -38,13 +40,13 @@ export default function DetailPage() {
   const liveAsk = book.asks.find((a) => a.user_id !== user?.id);
   return (
     <Page style={{ paddingTop: 24 }}>
-      <nav aria-label="Breadcrumb" style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: 'var(--muted)', marginBottom: 22, flexWrap: 'wrap' }}>
+      <nav aria-label={t('detail.breadcrumb')} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: 'var(--muted)', marginBottom: 22, flexWrap: 'wrap' }}>
         <Link to="/market" className="nav-link" style={{ padding: 0 }}>
-          ← Marketplace
+          {t('detail.back')}
         </Link>
         <span aria-hidden="true">/</span>
         <Link to={'/market?league=' + encodeURIComponent(s.league)} className="nav-link" style={{ padding: 0 }}>
-          {s.league}
+          {label('league', s.league)}
         </Link>
         <span aria-hidden="true">/</span>
         <span aria-current="page" style={{ color: 'var(--text-2)' }}>
@@ -74,7 +76,7 @@ export default function DetailPage() {
       <InfoCards s={s} stats={stats} watched={watch.has(s.id)} toggleWatch={() => watch.toggle(s.id)} />
 
       <section aria-labelledby="related-title" style={{ marginTop: 'clamp(48px,6vw,80px)' }}>
-        <SectionHeader id="related-title" title="You might also like" size="sm" />
+        <SectionHeader id="related-title" title={t('detail.related')} size="sm" />
         <ShirtGrid shirts={related(s)} />
       </section>
 

@@ -7,14 +7,14 @@ import { movers } from '../catalog/model.ts';
 
 export function Movers() {
   const [dir, setDir] = useState<'up' | 'down'>('up');
-  const { money } = usePrefs();
+  const { money, t } = usePrefs();
   return (
     <section aria-labelledby="movers-title" style={{ maxWidth: 1360, margin: '0 auto', padding: 'clamp(56px,7vw,100px) var(--gutter) 0' }}>
       <SectionHeader
         id="movers-title"
-        eyebrow="30-day change"
-        title="Biggest movers"
-        action={<Segmented label="Direction" value={dir} onChange={setDir} options={[{ value: 'up', label: 'Gainers' }, { value: 'down', label: 'Losers' }]} />}
+        eyebrow={t('home.movers.eyebrow')}
+        title={t('home.movers.title')}
+        action={<Segmented label={t('home.movers.direction')} value={dir} onChange={setDir} options={[{ value: 'up', label: t('home.movers.up') }, { value: 'down', label: t('home.movers.down') }]} />}
       />
       <ol style={{ listStyle: 'none', margin: 0, padding: '8px 0 0', display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(min(100%,420px),1fr))', gap: '4px 28px', borderTop: '1px solid var(--line)' }}>
         {movers(dir).map((m, i) => (

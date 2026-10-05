@@ -1,4 +1,5 @@
 // Locale-aware date helpers shared by notifications, orders and admin.
+import { LOCALE, type Lang } from '../i18n/index.ts';
 
 export function timeAgo(iso: string, lang: string = 'en'): string {
   const min = Math.floor((Date.now() - new Date(iso).getTime()) / 60000);
@@ -11,5 +12,5 @@ export function timeAgo(iso: string, lang: string = 'en'): string {
 }
 
 export function formatDate(iso: string | number, lang: string = 'en', withTime = false): string {
-  return new Date(iso).toLocaleDateString(lang === 'de' ? 'de-CH' : 'en-GB', withTime ? { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' } : { day: 'numeric', month: 'short', year: 'numeric' });
+  return new Date(iso).toLocaleDateString(LOCALE[lang as Lang] ?? 'en-GB', withTime ? { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' } : { day: 'numeric', month: 'short', year: 'numeric' });
 }

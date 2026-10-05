@@ -91,6 +91,7 @@ function InspectionCard({ i }: { i: Inspection }) {
 }
 
 export function InspectionPanel() {
+  const { t } = usePrefs();
   const q = useInspections();
   const list = q.data ?? [];
   const arrived = list.filter((i) => i.shipped_at);
@@ -102,7 +103,7 @@ export function InspectionPanel() {
         A pass forwards the shirt and starts the buyer’s confirmation window; a fail refunds the buyer. Both sides are notified.
       </p>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 14, marginTop: 20 }}>
-        {q.isError && <ErrorState compact what="inspections" onRetry={() => q.refetch()} />}
+        {q.isError && <ErrorState compact what={t('what.inspections')} onRetry={() => q.refetch()} />}
         {q.isSuccess && !list.length && <p style={{ fontSize: 14, color: 'var(--muted)', margin: 0 }}>Nothing on its way in.</p>}
         {[...arrived, ...incoming].map((i) => (
           <InspectionCard key={i.order_id} i={i} />

@@ -1,4 +1,5 @@
 import { useSyncExternalStore } from 'react';
+import { usePrefs } from '../lib/prefs.tsx';
 
 const subscribe = (cb: () => void) => {
   window.addEventListener('online', cb);
@@ -11,11 +12,12 @@ const subscribe = (cb: () => void) => {
 
 /** A thin bar while the browser is offline; prices and orders can't update. */
 export function OfflineBar() {
+  const { t } = usePrefs();
   const online = useSyncExternalStore(subscribe, () => navigator.onLine, () => true);
   if (online) return null;
   return (
     <div className="offline-bar" role="status">
-      You’re offline — prices and orders will update when you reconnect.
+      {t('error.offlineBar')}
     </div>
   );
 }

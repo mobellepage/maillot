@@ -45,7 +45,7 @@ export function OrdersTab() {
   if (orders.isError)
     return (
       <div style={{ marginTop: 24 }}>
-        <ErrorState what="your orders" onRetry={() => orders.refetch()} />
+        <ErrorState what={t('what.orders')} onRetry={() => orders.refetch()} />
       </div>
     );
   const list = orders.data ?? [];

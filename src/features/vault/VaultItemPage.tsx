@@ -20,7 +20,7 @@ export default function VaultItemPage() {
   const { retry, remove } = useCollectionActions();
   const confirm = useConfirm();
   const nav = useNavigate();
-  const { money, lang } = usePrefs();
+  const { money, lang, t } = usePrefs();
   const [photoIdx, setPhotoIdx] = useState(0);
   const c = items.find((x) => x.id === id);
   usePageMeta(c ? itemName(c) : 'My collection');
@@ -36,7 +36,7 @@ export default function VaultItemPage() {
   if (error)
     return (
       <Page narrow>
-        <ErrorState what="this shirt" onRetry={refetch} />
+        <ErrorState what={t('what.item')} onRetry={refetch} />
       </Page>
     );
   if (!c) return <Navigate to="/vault" replace />;

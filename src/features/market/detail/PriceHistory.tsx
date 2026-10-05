@@ -7,7 +7,7 @@ const DAY = 864e5;
 type Range = '1M' | '3M' | '6M' | '1Y' | 'ALL';
 
 export function PriceHistory({ s }: { s: Shirt }) {
-  const { money } = usePrefs();
+  const { money, t, locale } = usePrefs();
   const [range, setRange] = useState<Range>('1Y');
   const [hover, setHover] = useState<number | null>(null);
   const slice = s.hist.slice(-Math.min(RANGES[range] ?? 365, s.L));
@@ -16,7 +16,7 @@ export function PriceHistory({ s }: { s: Shirt }) {
   const first = slice[0] ?? s.price;
   const last = slice[slice.length - 1] ?? s.price;
   const color = last >= first ? 'var(--accent)' : 'var(--neg)';
-  const dateOf = (i: number) => new Date(TODAY - (s.L - 1 - i) * DAY).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: '2-digit' });
+  const dateOf = (i: number) => new Date(TODAY - (s.L - 1 - i) * DAY).toLocaleDateString(locale, { day: 'numeric', month: 'short', year: '2-digit' });
   const point = hover === null ? null : lp.pts[Math.round(hover * (lp.pts.length - 1))] ?? null;
 
   const onMove = (e: PointerEvent<HTMLDivElement>) => {
@@ -29,8 +29,8 @@ export function PriceHistory({ s }: { s: Shirt }) {
       <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'flex-end', gap: 16, marginBottom: 18 }}>
         <div>
           <h2 id="history-title" className="mono" style={{ margin: 0, fontSize: 11.5, fontWeight: 400, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--muted)', display: 'flex', gap: 8, alignItems: 'center' }}>
-            Price history · {point ? dateOf(offset + point.i) : 'Market value today'}
-            <Badge tone="neutral" title="Simulated demo market data until real sales accumulate" style={{ fontSize: 9.5 }}>
+            {t('ph.title')} · {point ? dateOf(offset + point.i) : t('ph.today')}
+            <Badge tone="neutral" title={t('ph.demoTitle')} style={{ fontSize: 9.5 }}>
               DEMO
             </Badge>
           </h2>
@@ -43,10 +43,10 @@ export function PriceHistory({ s }: { s: Shirt }) {
             </span>
           </div>
         </div>
-        <Segmented mono label="Range" value={range} onChange={(r) => (setRange(r), setHover(null))} options={(['1M', '3M', '6M', '1Y', 'ALL'] as Range[]).map((r) => ({ value: r, label: r }))} />
+        <Segmented mono label={t('ph.range')} value={range} onChange={(r) => (setRange(r), setHover(null))} options={(['1M', '3M', '6M', '1Y', 'ALL'] as Range[]).map((r) => ({ value: r, label: r }))} />
       </div>
       <div style={{ position: 'relative', height: 'clamp(200px,28vw,300px)' }}>
-        <svg viewBox="0 0 1000 280" preserveAspectRatio="none" role="img" aria-label={`Price history over ${range}: from ${money(first)} to ${money(last)}`} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', overflow: 'visible' }}>
+        <svg viewBox="0 0 1000 280" preserveAspectRatio="none" role="img" aria-label={t('ph.aria', { range, from: money(first), to: money(last) })} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', overflow: 'visible' }}>
           <defs>
             <linearGradient id="kvArea" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0" stopColor={color} stopOpacity="0.26" />

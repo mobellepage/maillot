@@ -5,11 +5,13 @@
 import { useEffect, useId, useRef, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { CloseIcon } from './icons.tsx';
+import { usePrefs } from '../lib/prefs.tsx';
 
 const FOCUSABLE = 'a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])';
 
 export function Dialog({ open, onClose, title, children, width = 480 }: { open: boolean; onClose: () => void; title: ReactNode; children: ReactNode; width?: number }) {
   const titleId = useId();
+  const { t } = usePrefs();
   const panel = useRef<HTMLDivElement>(null);
   // Latest onClose without re-running the open/close effect on every render
   // (that would steal focus from whatever field the user is typing in).
@@ -94,7 +96,7 @@ export function Dialog({ open, onClose, title, children, width = 480 }: { open: 
           <h2 id={titleId} className="display" style={{ fontSize: 22, fontStretch: '82%' }}>
             {title}
           </h2>
-          <button type="button" onClick={onClose} className="icon-btn" aria-label="Close">
+          <button type="button" onClick={onClose} className="icon-btn" aria-label={t('dialog.close')}>
             <CloseIcon />
           </button>
         </div>

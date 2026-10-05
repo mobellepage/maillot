@@ -4,12 +4,14 @@
 //  - anything else crashed while rendering: say so, offer a way out.
 import { useEffect } from 'react';
 import { isRouteErrorResponse, Link, useRouteError } from 'react-router';
+import { usePrefs } from '../lib/prefs.tsx';
 import { isChunkError } from './chunkError.ts';
 
 const RELOADED = 'maillot:chunk-reload';
 
 export default function RouteError() {
   const error = useRouteError();
+  const { t } = usePrefs();
   const chunk = isChunkError(error);
 
   useEffect(() => {
@@ -30,12 +32,12 @@ export default function RouteError() {
   const notFound = isRouteErrorResponse(error) && error.status === 404;
   return (
     <main id="main" role="alert" style={{ maxWidth: 560, margin: '0 auto', padding: 'clamp(56px,10vw,120px) var(--gutter)', textAlign: 'center' }}>
-      <div className="eyebrow">{notFound ? '404' : 'Something went wrong'}</div>
+      <div className="eyebrow">{notFound ? '404' : t('error.somethingWrong')}</div>
       <h1 className="display" style={{ marginTop: 10, fontSize: 'clamp(28px,4vw,40px)' }}>
-        {chunk ? 'Maillot was just updated' : notFound ? 'Page not found' : 'This page crashed'}
+        {chunk ? t('error.updated') : notFound ? t('error.notFound') : t('error.crashed')}
       </h1>
       <p style={{ color: 'var(--text-2)', fontSize: 15, lineHeight: 1.6, margin: '14px 0 0' }}>
-        {chunk ? 'Reload to get the latest version.' : notFound ? 'The link may be old or mistyped.' : 'We’ve been told about it. Reloading usually helps; your orders and collection are safe.'}
+        {chunk ? t('error.updatedBody') : notFound ? t('error.notFoundBody') : t('error.crashedBody')}
       </p>
       <div style={{ display: 'flex', gap: 10, justifyContent: 'center', marginTop: 24, flexWrap: 'wrap' }}>
         <button
@@ -50,10 +52,10 @@ export default function RouteError() {
             window.location.reload();
           }}
         >
-          Reload
+          {t('common.reload')}
         </button>
         <Link to="/" className="btn btn--ghost btn--sm" reloadDocument>
-          Home
+          {t('common.home')}
         </Link>
       </div>
     </main>

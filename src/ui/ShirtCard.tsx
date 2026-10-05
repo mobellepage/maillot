@@ -5,6 +5,7 @@
 import type { CSSProperties } from 'react';
 import { Link } from 'react-router';
 import { HeartIcon } from './icons.tsx';
+import { usePrefs } from '../lib/prefs.tsx';
 import { ShirtGraphic, type ShirtLook } from './ShirtGraphic.tsx';
 
 export interface ShirtCardModel {
@@ -12,6 +13,7 @@ export interface ShirtCardModel {
   name: string;
   brand: string;
   season: string;
+  /** Message key (e.g. tag.newSeason, type.Retro) */
   tag: string;
   look: ShirtLook;
   glow: string;
@@ -20,12 +22,13 @@ export interface ShirtCardModel {
   up: boolean;
 }
 
-export function ShirtCard({ s, watched, onToggleWatch, priceLabel = 'Market value' }: { s: ShirtCardModel; watched: boolean; onToggleWatch: (id: string) => void; priceLabel?: string }) {
+export function ShirtCard({ s, watched, onToggleWatch, priceLabel }: { s: ShirtCardModel; watched: boolean; onToggleWatch: (id: string) => void; priceLabel?: string }) {
+  const { t } = usePrefs();
   return (
     <article className="card card--interactive shirt-card" style={{ padding: 0, borderRadius: 20, overflow: 'hidden', position: 'relative' }}>
       <div style={{ position: 'relative', aspectRatio: '1/1', display: 'grid', placeItems: 'center', background: `radial-gradient(circle at 50% 46%,${s.glow} 0%,rgba(0,0,0,0) 62%),var(--sunken)` }}>
         <span className="badge badge--neutral" style={{ position: 'absolute', top: 10, left: 10, fontSize: 9.5, letterSpacing: '0.1em', textTransform: 'uppercase', borderRadius: 6, background: 'var(--overlay)', border: '1px solid rgba(255,255,255,0.08)' }}>
-          {s.tag}
+          {t(s.tag)}
         </span>
         <ShirtGraphic {...s.look} style={{ width: '68%' }} />
       </div>
@@ -40,7 +43,7 @@ export function ShirtCard({ s, watched, onToggleWatch, priceLabel = 'Market valu
         </h3>
         <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 6, marginTop: 4 }}>
           <div style={{ minWidth: 0 }}>
-            <div style={{ fontSize: 10.5, color: 'var(--muted)' }}>{priceLabel}</div>
+            <div style={{ fontSize: 10.5, color: 'var(--muted)' }}>{priceLabel ?? t('common.marketValue')}</div>
             <div className="mono" style={{ fontSize: 16, fontWeight: 600, whiteSpace: 'nowrap' }}>
               {s.priceFmt}
             </div>
@@ -56,12 +59,13 @@ export function ShirtCard({ s, watched, onToggleWatch, priceLabel = 'Market valu
 }
 
 export function WatchButton({ watched, onToggle, name, style, size = 36 }: { watched: boolean; onToggle: () => void; name: string; style?: CSSProperties; size?: number }) {
+  const { t } = usePrefs();
   return (
     <button
       type="button"
       onClick={onToggle}
       aria-pressed={watched}
-      aria-label={(watched ? 'Remove from' : 'Add to') + ' watchlist: ' + name}
+      aria-label={t('card.watch', { name })}
       className="watch-btn"
       style={{ width: size, height: size, color: watched ? 'var(--accent)' : 'var(--text)', ...style }}
     >

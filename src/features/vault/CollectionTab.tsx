@@ -7,7 +7,7 @@ import { badgeFor, itemLook, itemName, valueOf } from './model.ts';
 import { usePhotoUrls } from '../../lib/usePhotoUrls.ts';
 
 export function CollectionTab({ items, loading, error, onRetry }: { items: CustomItem[]; loading?: boolean; error?: boolean; onRetry?: () => void }) {
-  const { money } = usePrefs();
+  const { money, t } = usePrefs();
   const rejected = items.filter((c) => c.verification.status === 'abgelehnt');
   const cover = usePhotoUrls(items.map((c) => c.photos?.front), true);
   if (loading)
@@ -21,7 +21,7 @@ export function CollectionTab({ items, loading, error, onRetry }: { items: Custo
   if (error)
     return (
       <div style={{ marginTop: 24 }}>
-        <ErrorState what="your collection" onRetry={onRetry} />
+        <ErrorState what={t('what.collection')} onRetry={onRetry} />
       </div>
     );
   if (!items.length) {

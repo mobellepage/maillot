@@ -4,11 +4,11 @@ import { SectionHeader, ShirtGraphic, alpha } from '../../ui/index.ts';
 import { newest } from '../catalog/model.ts';
 
 export function NewArrivals() {
-  const { money } = usePrefs();
+  const { money, t } = usePrefs();
   return (
     <section aria-labelledby="new-title" style={{ maxWidth: 1360, margin: '0 auto', padding: 'clamp(56px,7vw,100px) 0 0' }}>
       <div style={{ padding: '0 var(--gutter)' }}>
-        <SectionHeader id="new-title" eyebrow="Just catalogued" title="New to the catalogue" />
+        <SectionHeader id="new-title" eyebrow={t('home.new.eyebrow')} title={t('home.new.title')} />
       </div>
       <ul style={{ listStyle: 'none', margin: 0, display: 'flex', gap: 14, overflowX: 'auto', padding: '0 var(--gutter) 12px', scrollSnapType: 'x mandatory' }}>
         {newest().map((s) => (

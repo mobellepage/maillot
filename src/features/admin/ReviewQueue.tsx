@@ -85,7 +85,7 @@ function ReviewCard({ r }: { r: Review }) {
 }
 
 export function ReviewQueue() {
-  const { lang } = usePrefs();
+  const { lang, t } = usePrefs();
   const q = useReviewQueue();
   const all = q.data ?? [];
   const open = all.filter((r) => r.status === 'pending' || r.status === 'in_review');
@@ -112,7 +112,7 @@ export function ReviewQueue() {
         ))}
       </dl>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 14, marginTop: 28 }}>
-        {q.isError && <ErrorState compact what="the review queue" onRetry={() => q.refetch()} />}
+        {q.isError && <ErrorState compact what={t('what.reviewQueue')} onRetry={() => q.refetch()} />}
         {q.isSuccess && !open.length && <p style={{ fontSize: 14, color: 'var(--muted)', padding: '32px 0', margin: 0 }}>No open reviews.</p>}
         {open.map((r) => (
           <ReviewCard key={r.id} r={r} />

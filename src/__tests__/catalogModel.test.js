@@ -57,7 +57,7 @@ describe('sizes, value and related shirts', () => {
 
   it('computes index segments from the catalogue', () => {
     const all = indexSegments()[0];
-    expect(all.label).toBe('All shirts');
+    expect(all.label).toBe('index.seg.all');
     expect(all.value).toBe(Math.round(SHIRTS.reduce((a, s) => a + s.price, 0) / SHIRTS.length));
   });
 

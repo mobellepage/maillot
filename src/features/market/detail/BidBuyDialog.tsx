@@ -28,7 +28,7 @@ export interface BidBuyProps {
 type Result = { kind: 'matched'; orderId: string; amount: number } | { kind: 'live'; amount: number } | null;
 
 export function BidBuyDialog({ mode, onClose, shirt, size, lowestAsk, topBid, marketValue }: BidBuyProps) {
-  const { money, t } = usePrefs();
+  const { money, t, label } = usePrefs();
   const { user } = useSession();
   const toast = useToast();
   const qc = useQueryClient();
@@ -62,13 +62,15 @@ export function BidBuyDialog({ mode, onClose, shirt, size, lowestAsk, topBid, ma
     }
   };
 
-  const title = result ? (result.kind === 'matched' ? 'It’s a match' : 'Bid placed') : mode === 'buy' ? 'Buy now' : 'Place a bid';
+  const title = result ? (result.kind === 'matched' ? t('bb.match') : t('bb.bidPlaced')) : mode === 'buy' ? t('bb.buyNow') : t('bb.placeABid');
   const hint =
     lowestAsk && amount >= lowestAsk
-      ? `Your bid meets the lowest ask — it will execute instantly at ${money(lowestAsk)}.`
+      ? t('bb.hint.instant', { price: money(lowestAsk) })
       : amount > (topBid ?? 0)
-        ? (topBid ? 'You’ll be the highest bidder.' : 'You’ll be the first bidder in this size.') + ' Sellers see your bid immediately.'
-        : `Below the current highest bid (${money(topBid ?? 0)}).`;
+        ? topBid
+          ? t('bb.hint.highest')
+          : t('bb.hint.first')
+        : t('bb.hint.below', { price: money(topBid ?? 0) });
 
   return (
     <Dialog open={!!mode} onClose={close} title={title}>
@@ -79,16 +81,16 @@ export function BidBuyDialog({ mode, onClose, shirt, size, lowestAsk, topBid, ma
           </div>
           <p style={{ color: 'var(--text-2)', fontSize: 14.5, lineHeight: 1.55, margin: '0 0 24px', textWrap: 'pretty' }}>
             {result.kind === 'matched'
-              ? `A seller accepted at ${money(result.amount)}. Pay now to lock it in — your money is held in escrow until the shirt has passed authentication and you confirm delivery.`
-              : `Your bid of ${money(result.amount)} for ${shirt.name} (size ${size}) is live for ${days} days. If a seller meets it, we’ll notify you to complete payment.`}
+              ? t('bb.matchedBody', { price: money(result.amount) })
+              : t('bb.liveBody', { price: money(result.amount), name: shirt.name, size, days })}
           </p>
           {result.kind === 'matched' && (
-            <Button block size="lg" busy={pay.isPending} busyLabel="Opening checkout…" onClick={() => pay.mutate(result.orderId)} style={{ marginBottom: 10 }}>
-              Pay now
+            <Button block size="lg" busy={pay.isPending} busyLabel={t('bb.openingCheckout')} onClick={() => pay.mutate(result.orderId)} style={{ marginBottom: 10 }}>
+              {t('bb.payNow')}
             </Button>
           )}
           <Button block variant="ghost" onClick={close}>
-            {result.kind === 'matched' ? 'Pay later from Orders' : 'Done'}
+            {result.kind === 'matched' ? t('bb.payLater') : t('bb.done')}
           </Button>
         </div>
       ) : (
@@ -100,16 +102,16 @@ export function BidBuyDialog({ mode, onClose, shirt, size, lowestAsk, topBid, ma
             <span style={{ minWidth: 0 }}>
               <span style={{ display: 'block', fontWeight: 600, fontSize: 15, lineHeight: 1.3 }}>{shirt.name}</span>
               <span className="mono" style={{ display: 'block', fontSize: 12, color: 'var(--muted)', marginTop: 4 }}>
-                Size {size} · {shirt.cond}
+                {t('bb.sizeCond', { size, cond: label('cond', shirt.cond) })}
               </span>
             </span>
           </div>
 
           {mode === 'buy' ? (
             <>
-              <KeyValueList rows={[[`Lowest ask · size ${size}`, money(lowestAsk ?? 0)], ['Authentication (Zürich)', money(fees.authFee)], ['Insured shipping', money(fees.shipping)]]} />
+              <KeyValueList rows={[[t('bb.lowestAskSize', { size }), money(lowestAsk ?? 0)], [t('bb.authFee'), money(fees.authFee)], [t('bb.shipping'), money(fees.shipping)]]} />
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginTop: 12, paddingTop: 12, borderTop: '1px solid var(--line)' }}>
-                <span style={{ fontWeight: 600 }}>Total</span>
+                <span style={{ fontWeight: 600 }}>{t('bb.total')}</span>
                 <span className="mono" style={{ fontSize: 22, fontWeight: 700 }}>
                   {money(fees.total)}
                 </span>
@@ -117,9 +119,9 @@ export function BidBuyDialog({ mode, onClose, shirt, size, lowestAsk, topBid, ma
             </>
           ) : (
             <>
-              <TextField label="Your bid (CHF)" large inputMode="numeric" value={bid} onChange={(e) => setBid(e.target.value.replace(/[^0-9]/g, '').slice(0, 6))} adornment={<span className="mono">CHF</span>} hint={hint} style={{ fontFamily: 'var(--font-mono)' }} />
-              <div role="group" aria-label="Quick amounts" style={{ display: 'flex', gap: 8, marginTop: 12, flexWrap: 'wrap' }}>
-                {[topBid ? ['Beat highest bid', topBid + 1] : ['Market value', marketValue], ['Strong bid', Math.round(((topBid ?? marketValue * 0.88) + (lowestAsk ?? marketValue)) / 2)], lowestAsk ? ['Buy at lowest ask', lowestAsk] : ['Opening bid', Math.round(marketValue * 0.88)]].map(([k, n]) => (
+              <TextField label={t('bb.yourBid')} large inputMode="numeric" value={bid} onChange={(e) => setBid(e.target.value.replace(/[^0-9]/g, '').slice(0, 6))} adornment={<span className="mono">CHF</span>} hint={hint} style={{ fontFamily: 'var(--font-mono)' }} />
+              <div role="group" aria-label={t('bb.quick')} style={{ display: 'flex', gap: 8, marginTop: 12, flexWrap: 'wrap' }}>
+                {[topBid ? [t('bb.beat'), topBid + 1] : [t('common.marketValue'), marketValue], [t('bb.strong'), Math.round(((topBid ?? marketValue * 0.88) + (lowestAsk ?? marketValue)) / 2)], lowestAsk ? [t('bb.atAsk'), lowestAsk] : [t('bb.opening'), Math.round(marketValue * 0.88)]].map(([k, n]) => (
                   <button key={k} type="button" className="option-btn" onClick={() => setBid(String(n))} style={{ flex: 1, minWidth: 110, padding: 10 }}>
                     <span style={{ display: 'block', fontSize: 11, color: 'var(--muted)' }}>{k}</span>
                     <span className="mono" style={{ display: 'block', fontSize: 14, fontWeight: 600, marginTop: 2 }}>
@@ -130,12 +132,12 @@ export function BidBuyDialog({ mode, onClose, shirt, size, lowestAsk, topBid, ma
               </div>
               <fieldset style={{ border: 0, padding: 0, margin: '20px 0 0' }}>
                 <legend className="mono" style={{ fontSize: 12, color: 'var(--muted)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 10 }}>
-                  Bid expires in
+                  {t('bb.expires')}
                 </legend>
                 <div style={{ display: 'flex', gap: 6 }}>
                   {EXPIRY.map((d) => (
                     <button key={d} type="button" className="option-btn" aria-pressed={days === d} onClick={() => setDays(d)} style={{ flex: 1, height: 42, fontSize: 13, fontWeight: 600, textAlign: 'center' }}>
-                      {d} days
+                      {t('bb.days', { n: d })}
                     </button>
                   ))}
                 </div>
@@ -148,19 +150,19 @@ export function BidBuyDialog({ mode, onClose, shirt, size, lowestAsk, topBid, ma
               ✓
             </span>
             <span>
-              Pay securely with TWINT, card or Apple Pay. Your money is held in escrow and only released once the shirt has passed authentication and you confirm delivery.{' '}
+              {t('bb.payInfo')}{' '}
               <Link to="/authentication" onClick={close}>
-                How authentication works
+                {t('bb.howAuth')}
               </Link>
             </span>
           </div>
           {user ? (
-            <Button block size="lg" busy={busy} busyLabel={mode === 'buy' ? 'Matching…' : 'Placing bid…'} disabled={!amount} onClick={submit} style={{ marginTop: 18 }}>
-              {mode === 'buy' ? 'Confirm purchase · ' + money(fees.total) : 'Place bid · ' + money(amount)}
+            <Button block size="lg" busy={busy} busyLabel={mode === 'buy' ? t('bb.matching') : t('bb.placing')} disabled={!amount} onClick={submit} style={{ marginTop: 18 }}>
+              {mode === 'buy' ? t('bb.confirmPurchase', { price: money(fees.total) }) : t('bb.placeBidPrice', { price: money(amount) })}
             </Button>
           ) : (
             <Link to="/signin" state={{ from: '/shirt/' + shirt.id, notice: 'auth.signInToTrade' }} className="btn btn--primary btn--lg btn--block" style={{ marginTop: 18 }}>
-              Sign in to continue
+              {t('bb.signIn')}
             </Link>
           )}
         </>

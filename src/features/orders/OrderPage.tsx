@@ -51,7 +51,7 @@ export default function OrderPage() {
   if (orders.isError)
     return (
       <Page narrow>
-        <ErrorState what="this order" onRetry={() => orders.refetch()} />
+        <ErrorState what={t('what.order')} onRetry={() => orders.refetch()} />
       </Page>
     );
   if (!o) return <Navigate to="/orders" replace />;

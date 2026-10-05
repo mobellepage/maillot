@@ -22,7 +22,7 @@ export interface PricePanelProps {
 }
 
 export function PricePanel({ s, size, setSize, book, myUserId, stats, watched, toggleWatch, openBuy, openBid, bookError, retryBook }: PricePanelProps) {
-  const { money } = usePrefs();
+  const { money, t, tp, label } = usePrefs();
   const liveAsk = book.asks.find((a) => a.user_id !== myUserId) ?? null;
   const myAsk = myUserId ? book.asks.find((a) => a.user_id === myUserId) : undefined;
   const liveBid = book.bids[0] ?? null;
@@ -33,7 +33,7 @@ export function PricePanel({ s, size, setSize, book, myUserId, stats, watched, t
   return (
     <div style={{ flex: '1 1 400px', minWidth: 0 }}>
       <div className="mono" style={{ fontSize: 12, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--muted)' }}>
-        {s.brand} · {s.season} · {s.league}
+        {s.brand} · {s.season} · {label('league', s.league)}
       </div>
       <h1 className="display" style={{ margin: '12px 0 0', fontSize: 'clamp(32px,4.2vw,54px)' }}>
         {s.name}
@@ -42,17 +42,17 @@ export function PricePanel({ s, size, setSize, book, myUserId, stats, watched, t
         <span className={'badge ' + (s.ch >= 0 ? 'badge--accent' : 'badge--neg')} style={{ borderRadius: 7, fontSize: 12.5 }}>
           {pct(s.ch)} · 30D
         </span>
-        <span>{watchers ? watchers.toLocaleString('de-CH') + ' watching' : 'Be the first to watch'}</span>
+        <span>{watchers ? tp('pp.watching', watchers) : t('pp.firstWatch')}</span>
         <span aria-hidden="true" style={{ color: 'var(--faint-2)' }}>
           •
         </span>
-        <span>{listings ? listings + ' listed' : 'No listings yet'}</span>
+        <span>{listings ? tp('pp.listed', listings) : t('pp.noListings')}</span>
       </div>
 
       <fieldset style={{ border: 0, padding: 0, margin: '30px 0 0' }}>
         <legend style={{ display: 'flex', width: '100%', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 10, padding: 0 }}>
-          <span style={{ fontSize: 13, fontWeight: 600 }}>Size</span>
-          <span style={{ fontSize: 12.5, color: unique ? 'var(--warn)' : 'var(--muted)', marginLeft: 'auto' }}>{unique ? 'Unique player-issue item' : 'Market value by size'}</span>
+          <span style={{ fontSize: 13, fontWeight: 600 }}>{t('pp.size')}</span>
+          <span style={{ fontSize: 12.5, color: unique ? 'var(--warn)' : 'var(--muted)', marginLeft: 'auto' }}>{unique ? t('pp.unique') : t('pp.bySize')}</span>
         </legend>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(78px,1fr))', gap: 8 }}>
           {s.sizes.map((z) => (
@@ -67,41 +67,41 @@ export function PricePanel({ s, size, setSize, book, myUserId, stats, watched, t
       </fieldset>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,minmax(0,1fr))', gap: 8, marginTop: 20 }}>
-        <StatTile label="Lowest ask" live={!!liveAsk} highlight={!!liveAsk} value={liveAsk ? money(Number(liveAsk.amount)) : '—'} sub={liveAsk ? book.asks.length + (book.asks.length === 1 ? ' listing' : ' listings') : 'No sellers yet'} />
-        <StatTile label="Highest bid" value={liveBid ? money(Number(liveBid.amount)) : '—'} sub={liveBid ? book.bids.length + (book.bids.length === 1 ? ' bid' : ' bids') : 'No bids yet'} />
-        <StatTile label="Market value" value={money(marketValue(s, size))} sub={s.priceSource === 'trades' ? 'From ' + s.trades.count + (s.trades.count === 1 ? ' sale' : ' sales') + ' on Maillot' : 'Index estimate'} />
+        <StatTile label={t('pp.lowestAsk')} live={!!liveAsk} highlight={!!liveAsk} value={liveAsk ? money(Number(liveAsk.amount)) : '—'} sub={liveAsk ? tp('pp.listings', book.asks.length) : t('pp.noSellers')} />
+        <StatTile label={t('pp.highestBid')} value={liveBid ? money(Number(liveBid.amount)) : '—'} sub={liveBid ? tp('pp.bids', book.bids.length) : t('pp.noBids')} />
+        <StatTile label={t('common.marketValue')} value={money(marketValue(s, size))} sub={s.priceSource === 'trades' ? tp('pp.fromSales', s.trades.count) : t('pp.estimate')} />
       </div>
       {myAsk && (
         <div style={{ marginTop: 10, fontSize: 13, color: 'var(--text-2)' }}>
-          Your ask in this size: <span className="mono">{money(Number(myAsk.amount))}</span>
+          {t('pp.yourAsk')} <span className="mono">{money(Number(myAsk.amount))}</span>
         </div>
       )}
 
       {bookError && (
         <Notice tone="warn" style={{ marginTop: 14 }}>
-          Live bids and asks couldn’t load, so “Buy now” may be missing.{' '}
+          {t('pp.bookError')}{' '}
           <button type="button" className="link-btn" onClick={retryBook}>
-            Try again
+            {t('common.tryAgain')}
           </button>
         </Notice>
       )}
       <div style={{ display: 'flex', gap: 10, marginTop: 16 }}>
         {liveAsk ? (
           <Button size="lg" onClick={openBuy} style={{ flex: 1.3 }}>
-            Buy now · {money(Number(liveAsk.amount))}
+            {t('pp.buyNow', { price: money(Number(liveAsk.amount)) })}
           </Button>
         ) : (
           <Button size="lg" onClick={openBid} style={{ flex: 1.3 }}>
-            Place bid
+            {t('pp.placeBid')}
           </Button>
         )}
         {liveAsk ? (
           <Button size="lg" variant="secondary" onClick={openBid} style={{ flex: 1 }}>
-            Place bid
+            {t('pp.placeBid')}
           </Button>
         ) : (
           <ButtonLink size="lg" variant="secondary" to={`/sell?shirt=${s.id}&size=${size}`} style={{ flex: 1 }}>
-            Sell yours
+            {t('pp.sellYours')}
           </ButtonLink>
         )}
         <WatchButton watched={watched} onToggle={toggleWatch} name={s.name} size={58} style={{ borderRadius: 14, border: '1.5px solid rgba(255,255,255,0.14)', background: 'none' }} />
@@ -112,7 +112,7 @@ export function PricePanel({ s, size, setSize, book, myUserId, stats, watched, t
           <ShieldIcon />
         </span>
         <p style={{ margin: 0, fontSize: 13, lineHeight: 1.5, color: 'var(--text-2)' }}>
-          <strong style={{ color: 'var(--text)' }}>14-point authentication in Zürich.</strong> Every shirt is inspected by our team before it ships to you. Not as described? Full refund. <Link to="/authentication">How it works →</Link>
+          <strong style={{ color: 'var(--text)' }}>{t('pp.authTitle')}</strong> {t('pp.authBody')} <Link to="/authentication">{t('pp.howItWorks')}</Link>
         </p>
       </div>
     </div>

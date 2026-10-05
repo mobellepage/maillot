@@ -2,7 +2,7 @@
 // language. Exposes money() and t() so every screen formats the same way.
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { CURRENCIES, type Currency, fetchLiveRates, formatMoney, loadCachedRates, type Rates } from '../utils/currency.ts';
-import { LANGS, type Lang, translate } from '../utils/i18n.ts';
+import { detectLang, EN, format, LANGS, loadMessages, LOCALE, type Lang, type MessageKey, type Messages, type Vars } from '../i18n/index.ts';
 import { loadJSON, saveJSON } from '../utils/storage.ts';
 
 interface Prefs {
@@ -12,7 +12,14 @@ interface Prefs {
   setLang: (l: Lang) => void;
   /** Format a CHF amount in the viewer's currency. */
   money: (chf: number | null | undefined) => string;
-  t: (key: string) => string;
+  /** Translate a message key; unknown keys fall back to English, then to the key. */
+  t: (key: MessageKey | (string & {}), vars?: Vars) => string;
+  /** BCP 47 locale for dates and numbers (en-GB, de-CH, fr-CH). */
+  locale: string;
+  /** Plural: picks `${base}.one` for n = 1, else `${base}.other`; {n} is filled in. */
+  tp: (base: string, n: number, vars?: Vars) => string;
+  /** Display name for a catalogue value (type, league, condition, edition); unknown values pass through. */
+  label: (kind: 'type' | 'league' | 'cond' | 'edition', value: string) => string;
   currencies: readonly Currency[];
   langs: readonly Lang[];
 }
@@ -21,7 +28,11 @@ const PrefsContext = createContext<Prefs | null>(null);
 
 export function PrefsProvider({ children }: { children: ReactNode }) {
   const [currency, setCurrencyState] = useState<Currency>(() => loadJSON<Currency>('kv_currency', 'CHF'));
-  const [lang, setLangState] = useState<Lang>(() => loadJSON<Lang>('kv_lang', 'en'));
+  const [lang, setLangState] = useState<Lang>(() => {
+    const saved = loadJSON<string | null>('kv_lang', null);
+    return (LANGS as readonly string[]).includes(saved ?? '') ? (saved as Lang) : detectLang();
+  });
+  const [messages, setMessages] = useState<{ lang: Lang; dict: Messages }>({ lang: 'en', dict: EN });
   const [rates, setRates] = useState<Rates>(loadCachedRates);
 
   useEffect(() => {
@@ -34,6 +45,13 @@ export function PrefsProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     document.documentElement.lang = lang;
+    let live = true;
+    loadMessages(lang)
+      .then((dict) => live && setMessages({ lang, dict }))
+      .catch(() => {}); // offline before the chunk was cached: stay in English
+    return () => {
+      live = false;
+    };
   }, [lang]);
 
   const setCurrency = useCallback((c: Currency) => {
@@ -52,11 +70,14 @@ export function PrefsProvider({ children }: { children: ReactNode }) {
       lang,
       setLang,
       money: (chf) => formatMoney(chf, currency, rates),
-      t: (key) => translate(lang, key),
+      t: (key, vars) => format(messages.dict, key, vars),
+      locale: LOCALE[lang],
+      tp: (base, n, vars) => format(messages.dict, base + (n === 1 ? '.one' : '.other'), { n, ...vars }),
+      label: (kind, value) => (kind + '.' + value in EN ? format(messages.dict, kind + '.' + value) : value),
       currencies: CURRENCIES,
       langs: LANGS
     }),
-    [currency, setCurrency, lang, setLang, rates]
+    [currency, setCurrency, lang, setLang, rates, messages]
   );
   return <PrefsContext.Provider value={value}>{children}</PrefsContext.Provider>;
 }

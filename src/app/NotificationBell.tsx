@@ -3,10 +3,11 @@ import { useNavigate } from 'react-router';
 import { BellIcon } from '../ui/index.ts';
 import { usePrefs } from '../lib/prefs.tsx';
 import { useNotifications } from '../features/notifications/useNotifications.ts';
+import { localizeNotification } from '../features/notifications/localize.ts';
 import { timeAgo } from '../lib/format.ts';
 
 export default function NotificationBell() {
-  const { t, lang } = usePrefs();
+  const { t, lang, money } = usePrefs();
   const { items, loading, error, retry, unread, markRead } = useNotifications();
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
@@ -32,16 +33,17 @@ export default function NotificationBell() {
           >
             {error && (
               <div role="alert" style={{ padding: '20px 14px', textAlign: 'center', fontSize: 13, color: 'var(--text-2)' }}>
-                Couldn’t load notifications.{' '}
+                {t('header.notificationsFailed')}{' '}
                 <button type="button" className="link-btn" onClick={retry}>
-                  Try again
+                  {t('common.tryAgain')}
                 </button>
               </div>
             )}
-            {loading && <div style={{ padding: '24px 14px', textAlign: 'center', color: 'var(--muted)', fontSize: 13 }}>Loading…</div>}
+            {loading && <div style={{ padding: '24px 14px', textAlign: 'center', color: 'var(--muted)', fontSize: 13 }}>{t('common.loading')}</div>}
             {!error && !loading && items.length === 0 && <div style={{ padding: '24px 14px', textAlign: 'center', color: 'var(--muted)', fontSize: 13 }}>{t('header.noNotifications')}</div>}
             {items.map((n) => {
               const data = (n.data || {}) as { order_id?: string; shirt_id?: string };
+              const text = localizeNotification(n, t, money);
               return (
                 <button
                   key={n.id}
@@ -57,10 +59,10 @@ export default function NotificationBell() {
                   style={{ display: 'block', background: n.read ? 'none' : 'rgba(75,255,139,0.07)', marginBottom: 2 }}
                 >
                   <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    {!n.read && <span aria-label="unread" style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--accent)', flex: 'none' }} />}
-                    <span style={{ fontSize: 13, fontWeight: 700 }}>{n.title}</span>
+                    {!n.read && <span aria-label={t('header.unread')} style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--accent)', flex: 'none' }} />}
+                    <span style={{ fontSize: 13, fontWeight: 700 }}>{text.title}</span>
                   </span>
-                  {n.body && <span style={{ display: 'block', fontSize: 12, color: 'var(--muted)', marginTop: 3 }}>{n.body}</span>}
+                  {text.body && <span style={{ display: 'block', fontSize: 12, color: 'var(--muted)', marginTop: 3 }}>{text.body}</span>}
                   <span style={{ display: 'block', fontSize: 10.5, color: 'var(--faint)', marginTop: 4 }}>{timeAgo(n.created_at, lang)}</span>
                 </button>
               );

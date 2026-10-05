@@ -4,6 +4,7 @@
 import { createContext, useCallback, useContext, useRef, useState, type ReactNode } from 'react';
 import { Button } from './Button.tsx';
 import { Dialog } from './Dialog.tsx';
+import { usePrefs } from '../lib/prefs.tsx';
 
 export type ConfirmOptions = {
   title: ReactNode;
@@ -18,6 +19,7 @@ const ConfirmContext = createContext<((o: ConfirmOptions) => Promise<boolean>) |
 
 export function ConfirmProvider({ children }: { children: ReactNode }) {
   const [opts, setOpts] = useState<ConfirmOptions | null>(null);
+  const { t } = usePrefs();
   const resolver = useRef<((v: boolean) => void) | null>(null);
 
   const confirm = useCallback((o: ConfirmOptions) => {
@@ -39,10 +41,10 @@ export function ConfirmProvider({ children }: { children: ReactNode }) {
         {opts?.body && <div style={{ fontSize: 14, lineHeight: 1.55, color: 'var(--text-2)' }}>{opts.body}</div>}
         <div style={{ display: 'flex', gap: 10, marginTop: 22 }}>
           <Button variant="ghost" onClick={() => settle(false)} style={{ flex: 1 }}>
-            {opts?.cancelLabel ?? 'Cancel'}
+            {opts?.cancelLabel ?? t('confirm.cancelLabel')}
           </Button>
           <Button variant={opts?.tone === 'danger' ? 'danger' : 'primary'} onClick={() => settle(true)} style={{ flex: 1.4 }}>
-            {opts?.confirmLabel ?? 'Confirm'}
+            {opts?.confirmLabel ?? t('confirm.confirmLabel')}
           </Button>
         </div>
       </Dialog>
