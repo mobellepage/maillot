@@ -32,7 +32,11 @@ export interface Condition {
 }
 
 export interface Photo {
-  dataUrl: string;
+  /** Storage object path (vault-photos bucket). */
+  path?: string;
+  thumbPath?: string;
+  /** Legacy inline image / local preview before upload. Never persisted for new photos. */
+  dataUrl?: string;
   label?: string;
   width?: number;
   height?: number;

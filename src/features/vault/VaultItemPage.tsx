@@ -7,6 +7,7 @@ import { usePrefs } from '../../lib/prefs.tsx';
 import { downloadVaultCard } from '../../utils/cardExport.js';
 import { Badge, Button, Card, KeyValueList, Notice, Page, ShirtGraphic, HEX } from '../../ui/index.ts';
 import { badgeFor, itemLook, itemName, valueOf } from './model.ts';
+import { usePhotoUrls } from '../../lib/usePhotoUrls.ts';
 import { currentValuation, displayStatus, useCollection, useCollectionActions } from './useCollection.ts';
 
 const VISIBILITY: Record<string, string> = { private: 'Private', public: 'In public collection', offers: 'Open to offers', forsale: 'For sale' };
@@ -19,13 +20,16 @@ export default function VaultItemPage() {
   const [photoIdx, setPhotoIdx] = useState(0);
   const c = items.find((x) => x.id === id);
   usePageMeta(c ? itemName(c) : 'My collection');
+  const entries = Object.entries(c?.photos || {});
+  const fullUrl = usePhotoUrls(entries.map(([, p]) => p));
+  const thumbUrl = usePhotoUrls(entries.map(([, p]) => p), true);
   if (loading) return <Page />;
   if (!c) return <Navigate to="/vault" replace />;
 
   const name = itemName(c);
   const badge = badgeFor(c);
   const { look, glow } = itemLook(c);
-  const photos = Object.entries(c.photos || {}).map(([key, p]) => ({ key, url: p.dataUrl, label: p.label || key }));
+  const photos = entries.map(([key, p]) => ({ key, url: fullUrl(p), thumb: thumbUrl(p), label: p.label || key }));
   const photo = photos[photoIdx];
   const val = currentValuation(c);
   const from = c.initialValuation && !c.initialValuation.blocked ? c.initialValuation.mid : null;
@@ -47,8 +51,8 @@ export default function VaultItemPage() {
       </div>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 28 }}>
         <div style={{ flex: '1 1 360px', minWidth: 0 }}>
-          <div style={{ position: 'relative', aspectRatio: '1/1', borderRadius: 24, overflow: 'hidden', background: photo ? `url(${photo.url}) center/cover` : `radial-gradient(circle at 50% 45%,${glow},rgba(0,0,0,0) 62%),var(--sunken)`, border: '1px solid var(--line)', display: 'grid', placeItems: 'center' }} role="img" aria-label={photo ? photo.label : name}>
-            {!photo && <ShirtGraphic hero {...look} style={{ width: '58%' }} />}
+          <div style={{ position: 'relative', aspectRatio: '1/1', borderRadius: 24, overflow: 'hidden', background: photo?.url ? `url(${photo.url}) center/cover` : `radial-gradient(circle at 50% 45%,${glow},rgba(0,0,0,0) 62%),var(--sunken)`, border: '1px solid var(--line)', display: 'grid', placeItems: 'center' }} role="img" aria-label={photo ? photo.label : name}>
+            {!photo?.url && <ShirtGraphic hero {...look} style={{ width: '58%' }} />}
             <Badge tone={badge.tone} title={badge.desc} style={{ position: 'absolute', top: 14, left: 14 }}>
               {badge.label}
             </Badge>
@@ -57,7 +61,7 @@ export default function VaultItemPage() {
           {photos.length > 0 && (
             <div role="group" aria-label="Photos" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(64px,1fr))', gap: 8, marginTop: 10 }}>
               {photos.map((p, i) => (
-                <button key={p.key} type="button" aria-label={p.label} aria-pressed={i === photoIdx} onClick={() => setPhotoIdx(i)} style={{ aspectRatio: '1/1', borderRadius: 10, border: `1.5px solid ${i === photoIdx ? 'var(--accent)' : 'rgba(255,255,255,0.1)'}`, background: `url(${p.url}) center/cover`, cursor: 'pointer', padding: 0 }} />
+                <button key={p.key} type="button" aria-label={p.label} aria-pressed={i === photoIdx} onClick={() => setPhotoIdx(i)} style={{ aspectRatio: '1/1', borderRadius: 10, border: `1.5px solid ${i === photoIdx ? 'var(--accent)' : 'rgba(255,255,255,0.1)'}`, background: p.thumb ? `url(${p.thumb}) center/cover` : 'var(--sunken)', cursor: 'pointer', padding: 0 }} />
               ))}
             </div>
           )}

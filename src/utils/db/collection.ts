@@ -3,6 +3,7 @@ import { supabase } from '../supabase.ts';
 import type { Tables } from '../../types/database.ts';
 import type { CustomItem, Review, ReviewSnapshot } from '../../types/domain.ts';
 import { fromJson, toJson } from './json.ts';
+import { persistablePhotos } from './photos.ts';
 
 // ---------------------------------------------------------------------------
 // Custom (self-added) vault items
@@ -56,7 +57,7 @@ function customItemToRow(userId: string, c: CustomItem) {
     tags_attached: c.tagsAttached,
     condition: toJson(c.condition),
     provenance: c.provenance,
-    photos: toJson(c.photos),
+    photos: toJson(persistablePhotos(c.photos)),
     precheck: toJson(c.precheck),
     verification: toJson(c.verification),
     visibility: c.visibility,
@@ -107,7 +108,7 @@ export async function findReview(id: string): Promise<Review | null> {
 
 export async function enqueueReview(userId: string, customItemId: string | null, snapshot: ReviewSnapshot): Promise<string> {
   const id = 'rev-' + Date.now() + '-' + Math.random().toString(36).slice(2, 7);
-  const { error } = await supabase.from('review_queue').insert({ id, user_id: userId, custom_item_id: customItemId, snapshot: toJson(snapshot), status: 'pending' });
+  const { error } = await supabase.from('review_queue').insert({ id, user_id: userId, custom_item_id: customItemId, snapshot: toJson({ ...snapshot, photos: snapshot.photos ? persistablePhotos(snapshot.photos) : undefined }), status: 'pending' });
   if (error) throw error;
   return id;
 }

@@ -1,5 +1,6 @@
 import type { ChangeEvent, ReactNode } from 'react';
 import type { Photo } from '../../../types/domain.ts';
+import { usePhotoUrls } from '../../../lib/usePhotoUrls.ts';
 
 export function Section({ title, hint, children }: { title: ReactNode; hint?: ReactNode; children: ReactNode }) {
   return (
@@ -25,6 +26,7 @@ export function Pills({ children }: { children: ReactNode }) {
 
 export function PhotoInput({ data, busy, onFile, size = 84, label }: { data: Photo | undefined; busy: boolean; onFile: (file: File) => void; size?: number; label: string }) {
   const warn = data && (data.lowRes || data.blurry);
+  const src = usePhotoUrls([data], true)(data);
   return (
     <label
       style={{
@@ -34,7 +36,7 @@ export function PhotoInput({ data, busy, onFile, size = 84, label }: { data: Pho
         height: size,
         borderRadius: 12,
         border: data ? `1.5px solid ${warn ? 'var(--warn)' : 'var(--accent)'}` : '1.5px dashed rgba(255,255,255,0.2)',
-        background: data ? `url(${data.dataUrl}) center/cover` : 'var(--sunken)',
+        background: src ? `url(${src}) center/cover` : 'var(--sunken)',
         display: 'grid',
         placeItems: 'center',
         cursor: 'pointer',

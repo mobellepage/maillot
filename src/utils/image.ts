@@ -46,11 +46,20 @@ export interface CompressOptions {
 }
 
 export interface CompressedPhoto {
+  /** For on-device preview and OCR only — never stored. */
   dataUrl: string;
+  /** Re-encoded JPEG (EXIF/GPS stripped), ready to upload. */
+  blob: Blob;
+  /** ~400px JPEG for lists and thumbnails. */
+  thumb: Blob;
   width: number;
   height: number;
   lowRes: boolean;
   blurry: boolean;
+}
+
+function toBlob(canvas: HTMLCanvasElement, quality: number): Promise<Blob> {
+  return new Promise((resolve, reject) => canvas.toBlob((b) => (b ? resolve(b) : reject(new Error('encode failed'))), 'image/jpeg', quality));
 }
 
 export async function analyzeAndCompress(file: Blob, opts: CompressOptions = {}): Promise<CompressedPhoto> {
@@ -86,11 +95,21 @@ export async function analyzeAndCompress(file: Blob, opts: CompressOptions = {})
   pctx.drawImage(canvas, 0, 0, pw, ph);
   const variance = sharpnessVariance(pctx, pw, ph);
 
-  const dataUrl = canvas.toDataURL('image/jpeg', quality); // re-encoding strips EXIF/GPS
+  // Re-encoding through a canvas drops every EXIF field, including GPS.
+  const dataUrl = canvas.toDataURL('image/jpeg', quality);
+  const blob = await toBlob(canvas, quality);
+  const tScale = Math.min(1, 400 / Math.max(width, height));
+  const tc = document.createElement('canvas');
+  tc.width = Math.max(1, Math.round(width * tScale));
+  tc.height = Math.max(1, Math.round(height * tScale));
+  tc.getContext('2d')?.drawImage(canvas, 0, 0, tc.width, tc.height);
+  const thumb = await toBlob(tc, 0.8);
   const shortSide = Math.min(img.naturalWidth, img.naturalHeight);
 
   return {
     dataUrl,
+    blob,
+    thumb,
     width,
     height,
     lowRes: shortSide < minShortSide,

@@ -5,6 +5,7 @@ import { usePrefs } from '../../lib/prefs.tsx';
 import type { Review } from '../../types/domain.ts';
 import { Badge, Button, Card, Notice, TextField } from '../../ui/index.ts';
 import { useResolveReview, useReviewQueue } from './queries.ts';
+import { usePhotoUrls } from '../../lib/usePhotoUrls.ts';
 
 function ReviewCard({ r }: { r: Review }) {
   const { lang } = usePrefs();
@@ -13,6 +14,8 @@ function ReviewCard({ r }: { r: Review }) {
   const [reason, setReason] = useState('');
   const name = (r.catalogId && BY[r.catalogId]?.name) || r.proposedName || 'Untitled shirt';
   const photos = Object.entries(r.photos || {});
+  const full = usePhotoUrls(photos.map(([, p]) => p));
+  const thumb = usePhotoUrls(photos.map(([, p]) => p), true);
   const pc = r.precheck;
   return (
     <Card style={{ padding: 20, borderRadius: 18 }}>
@@ -46,7 +49,7 @@ function ReviewCard({ r }: { r: Review }) {
         <ul style={{ listStyle: 'none', padding: '0 0 4px', margin: '14px 0 0', display: 'flex', gap: 8, overflowX: 'auto' }}>
           {photos.map(([k, p]) => (
             <li key={k} style={{ flex: 'none', textAlign: 'center' }}>
-              <a href={p.dataUrl} target="_blank" rel="noreferrer" aria-label={'Open photo: ' + (p.label || k)} style={{ display: 'block', width: 72, height: 72, borderRadius: 10, background: `url(${p.dataUrl}) center/cover`, border: '1px solid rgba(255,255,255,0.1)' }} />
+              <a href={full(p)} target="_blank" rel="noreferrer" aria-label={'Open photo: ' + (p.label || k)} style={{ display: 'block', width: 72, height: 72, borderRadius: 10, background: thumb(p) ? `url(${thumb(p)}) center/cover` : 'var(--sunken)', border: '1px solid rgba(255,255,255,0.1)' }} />
               <div style={{ fontSize: 9.5, color: 'var(--muted)', marginTop: 4, maxWidth: 72, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.label || k}</div>
             </li>
           ))}

@@ -7,6 +7,7 @@ import { useSession } from '../../lib/session.tsx';
 import { useToast } from '../../lib/toast.tsx';
 import type { Valuation } from '../../types/domain.ts';
 import { analyzeAndCompress } from '../../utils/image.ts';
+import { uploadPhoto } from '../../utils/db.ts';
 import { Button, CheckIcon, Page } from '../../ui/index.ts';
 import { PhotosStep, PrecheckStep, VerifyStep } from './addshirt/CheckSteps.tsx';
 import { DetailsStep } from './addshirt/DetailsStep.tsx';
@@ -34,10 +35,17 @@ export default function AddShirtPage() {
   const specs = buildPhotoSpecs(f) as { key: string }[];
   const canNext = [f.scan.status !== 'scanning', !!f.catalogId || (f.proposed && !!f.proposedClub.trim() && !!f.proposedSeason.trim()), !!f.version, specs.every((s) => f.photos[s.key]), !!f.precheck, true, false][f.step];
 
-  const compress = async (key: string, file: File, label: string) => {
+  // Compress on the device (strips EXIF/GPS), upload the full image and a
+  // thumbnail to private storage, keep the data URL only as a local preview.
+  const capture = async (key: string, file: File, label: string) => {
     setBusyKey(key);
     try {
-      return { ...(await analyzeAndCompress(file)), label };
+      const { blob, thumb, ...meta } = await analyzeAndCompress(file);
+      const { path, thumbPath } = await uploadPhoto(user!.id, 'items/' + f.draftId, key, blob, thumb);
+      return { ...meta, label, path, thumbPath };
+    } catch {
+      toast('Upload failed — please try again.');
+      return null;
     } finally {
       setBusyKey(null);
     }
@@ -99,10 +107,16 @@ export default function AddShirtPage() {
         ))}
       </ol>
 
-      {f.step === 0 && <ScanStep w={w} busy={busyKey === 'product_code'} valuation={valuation} onScanFile={async (file) => w.runScan(await compress('product_code', file, 'Etikett mit Artikelnummer'))} />}
+      {f.step === 0 && <ScanStep w={w} busy={busyKey === 'product_code'} valuation={valuation} onScanFile={async (file) => {
+            const p = await capture('product_code', file, 'Etikett mit Artikelnummer');
+            if (p) w.runScan(p);
+          }} />}
       {f.step === 1 && <IdentifyStep w={w} />}
       {f.step === 2 && <DetailsStep w={w} />}
-      {f.step === 3 && <PhotosStep w={w} busyKey={busyKey} onPhoto={async (spec, file) => w.setPhoto(spec.key, await compress(spec.key, file, spec.label))} />}
+      {f.step === 3 && <PhotosStep w={w} busyKey={busyKey} onPhoto={async (spec, file) => {
+            const p = await capture(spec.key, file, spec.label);
+            if (p) w.setPhoto(spec.key, p);
+          }} />}
       {f.step === 4 && <PrecheckStep w={w} />}
       {f.step === 5 && <VerifyStep w={w} />}
       {f.step === 6 && <FinishStep w={w} valuation={valuation} onSave={save} saving={add.isPending} />}
@@ -112,7 +126,7 @@ export default function AddShirtPage() {
           variant="ghost"
           onClick={() => {
             if (f.step === 0) {
-              w.reset();
+              w.reset(true);
               navigate('/vault');
             } else go(f.step - 1);
           }}

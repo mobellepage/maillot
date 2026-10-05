@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { precheck } from '../features/vault/addshirt/useAddShirtForm.ts';
+import { precheck } from '../features/vault/addshirt/precheck.ts';
 
 const sharp = { dataUrl: 'data:', lowRes: false, blurry: false };
 const form = (over = {}) => ({

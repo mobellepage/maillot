@@ -4,10 +4,12 @@ import type { CustomItem } from '../../types/domain.ts';
 import { downloadVaultCard } from '../../utils/cardExport.js';
 import { ButtonLink, DownloadIcon, EmptyState, Notice, ShirtGraphic, HEX } from '../../ui/index.ts';
 import { badgeFor, itemLook, itemName, valueOf } from './model.ts';
+import { usePhotoUrls } from '../../lib/usePhotoUrls.ts';
 
 export function CollectionTab({ items }: { items: CustomItem[] }) {
   const { money } = usePrefs();
   const rejected = items.filter((c) => c.verification.status === 'abgelehnt');
+  const cover = usePhotoUrls(items.map((c) => c.photos?.front), true);
   if (!items.length) {
     return (
       <div style={{ marginTop: 24 }}>
@@ -38,17 +40,18 @@ export function CollectionTab({ items }: { items: CustomItem[] }) {
           const { look, glow } = itemLook(c);
           const value = valueOf(c);
           const name = itemName(c);
+          const photo = cover(c.photos?.front);
           return (
             <li key={c.id}>
               <article className="card card--interactive" style={{ position: 'relative', padding: 0, borderRadius: 22, overflow: 'hidden' }}>
                 <div style={{ aspectRatio: '1/1.08', display: 'grid', placeItems: 'center', position: 'relative', background: `radial-gradient(circle at 50% 46%,${glow},rgba(0,0,0,0) 62%),var(--sunken)` }}>
-                  <span className="mono" style={{ position: 'absolute', top: 12, left: 12, fontSize: 10.5, color: 'var(--text-2)' }}>
+                  <span className="mono" style={{ position: 'absolute', top: 12, left: 12, zIndex: 1, fontSize: 10.5, color: 'var(--text-2)', textShadow: '0 1px 3px rgba(0,0,0,0.8)' }}>
                     SIZE {c.size}
                   </span>
-                  <span className={'badge badge--' + badge.tone} title={badge.desc} style={{ position: 'absolute', top: 12, right: 12, fontSize: 9.5 }}>
+                  <span className={'badge badge--' + badge.tone} title={badge.desc} style={{ position: 'absolute', top: 12, right: 12, zIndex: 1, fontSize: 9.5 }}>
                     {badge.label}
                   </span>
-                  <ShirtGraphic {...look} style={{ width: '66%' }} />
+                  {photo ? <img src={photo} alt="" loading="lazy" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} /> : <ShirtGraphic {...look} style={{ width: '66%' }} />}
                 </div>
                 <div style={{ padding: '14px 16px 16px' }}>
                   <h3 style={{ margin: 0, fontSize: 14.5, fontWeight: 600, lineHeight: 1.25, height: '2.5em', overflow: 'hidden' }}>

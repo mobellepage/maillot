@@ -7,3 +7,4 @@ export * from './db/collection.ts';
 export * from './db/market.ts';
 export * from './db/orders.ts';
 export * from './db/misc.ts';
+export * from './db/photos.ts';

@@ -34,7 +34,7 @@ select tests.create_user('00000000-0000-4000-a000-00000000a11c', 'alice@test.loc
 select tests.create_user('00000000-0000-4000-a000-000000000b0b', 'bob@test.local');
 select tests.create_user('00000000-0000-4000-a000-0000000ad111', 'admin@test.local', true);
 
-select plan(24);
+select plan(27);
 
 -- ---- profiles: no privilege escalation -----------------------------------
 select tests.login('00000000-0000-4000-a000-00000000a11c');
@@ -53,6 +53,13 @@ select throws_ok($$ insert into notifications (user_id, type, title) values ('00
 select throws_ok($$ insert into events (user_id, shirt_id, type) values ('00000000-0000-4000-a000-000000000b0b', 'ger-26', 'buy') $$, '42501', null, 'user cannot log events as someone else');
 select throws_ok($$ insert into events (user_id, shirt_id, type) values ('00000000-0000-4000-a000-00000000a11c', 'ger-26', 'hack') $$, '42501', null, 'unknown event types are rejected');
 select lives_ok($$ insert into events (user_id, shirt_id, type) values ('00000000-0000-4000-a000-00000000a11c', 'ger-26', 'watch') $$, 'user can log their own events');
+
+-- ---- photo storage: own folder only ---------------------------------------
+select lives_ok($$ insert into storage.objects (bucket_id, name) values ('vault-photos', '00000000-0000-4000-a000-00000000a11c/items/x/front.jpg') $$, 'user can upload into their own folder');
+select throws_ok($$ insert into storage.objects (bucket_id, name) values ('vault-photos', '00000000-0000-4000-a000-000000000b0b/items/x/front.jpg') $$, '42501', null, 'user cannot upload into someone else''s folder');
+select tests.login('00000000-0000-4000-a000-000000000b0b');
+select is((select count(*)::int from storage.objects where bucket_id = 'vault-photos'), 0, 'users cannot see other users'' photos');
+select tests.login('00000000-0000-4000-a000-00000000a11c');
 
 -- ---- internal & admin functions ------------------------------------------
 select throws_ok($$ select match_order_book('ger-26', 'M') $$, '42501', null, 'matching engine is not callable via API');
