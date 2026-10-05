@@ -2,7 +2,8 @@ import { Link } from 'react-router';
 import { pct, type Shirt } from '../../../data.ts';
 import { usePrefs } from '../../../lib/prefs.tsx';
 import { Button, ButtonLink, Notice, ShieldIcon, StatTile, WatchButton } from '../../../ui/index.ts';
-import type { OrderBook, ShirtStats } from '../../../utils/db.ts';
+import type { OrderBook, SellerCard, ShirtStats } from '../../../utils/db.ts';
+import { Stars } from '../../../ui/Stars.tsx';
 import { marketValue } from '../../catalog/model.ts';
 
 export interface PricePanelProps {
@@ -17,11 +18,13 @@ export interface PricePanelProps {
   openBuy: () => void;
   openBid: () => void;
   /** The live order book failed to load: say so instead of showing "no asks". */
+  /** Seller handle and rating by user id, for the lowest ask. */
+  sellers?: Record<string, SellerCard>;
   bookError?: boolean;
   retryBook?: () => void;
 }
 
-export function PricePanel({ s, size, setSize, book, myUserId, stats, watched, toggleWatch, openBuy, openBid, bookError, retryBook }: PricePanelProps) {
+export function PricePanel({ s, size, setSize, book, myUserId, stats, watched, toggleWatch, openBuy, openBid, sellers, bookError, retryBook }: PricePanelProps) {
   const { money, t, tp, label } = usePrefs();
   const liveAsk = book.asks.find((a) => a.user_id !== myUserId) ?? null;
   const myAsk = myUserId ? book.asks.find((a) => a.user_id === myUserId) : undefined;
@@ -71,6 +74,7 @@ export function PricePanel({ s, size, setSize, book, myUserId, stats, watched, t
         <StatTile label={t('pp.highestBid')} value={liveBid ? money(Number(liveBid.amount)) : '—'} sub={liveBid ? tp('pp.bids', book.bids.length) : t('pp.noBids')} />
         <StatTile label={t('common.marketValue')} value={money(marketValue(s, size))} sub={s.priceSource === 'trades' ? tp('pp.fromSales', s.trades.count) : t('pp.estimate')} />
       </div>
+      {liveAsk && sellers?.[liveAsk.user_id ?? ''] && <SoldBy card={sellers[liveAsk.user_id ?? '']!} />}
       {myAsk && (
         <div style={{ marginTop: 10, fontSize: 13, color: 'var(--text-2)' }}>
           {t('pp.yourAsk')} <span className="mono">{money(Number(myAsk.amount))}</span>
@@ -115,6 +119,18 @@ export function PricePanel({ s, size, setSize, book, myUserId, stats, watched, t
           <strong style={{ color: 'var(--text)' }}>{t('pp.authTitle')}</strong> {t('pp.authBody')} <Link to="/authentication">{t('pp.howItWorks')}</Link>
         </p>
       </div>
+    </div>
+  );
+}
+
+function SoldBy({ card }: { card: SellerCard }) {
+  const { t, tp } = usePrefs();
+  return (
+    <div style={{ marginTop: 10, fontSize: 13, color: 'var(--text-2)', display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+      {t('seller.soldBy')}
+      {card.handle ? <Link to={'/u/' + card.handle}>@{card.handle}</Link> : <span>{t('seller.newSeller')}</span>}
+      {card.rating !== null && <Stars value={Number(card.rating)} label={t('seller.stars', { n: Number(card.rating).toFixed(1) })} size={13} />}
+      <span style={{ color: 'var(--muted)' }}>· {card.sales ? tp('seller.salesShort', card.sales) : t('seller.newSeller')}</span>
     </div>
   );
 }

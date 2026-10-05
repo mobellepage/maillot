@@ -102,3 +102,11 @@ test('new member: sign up, answer the welcome questions, land on the first step'
   await page.goto('/market');
   await expect(page).toHaveURL(/\/market$/);
 });
+
+test('seller profile: public page with live listings, linked from the shirt page', async ({ page }) => {
+  await page.goto('/shirt/juv-9697?size=L');
+  await page.getByRole('link', { name: '@zurich_kits' }).click();
+  await expect(page).toHaveURL(/\/u\/zurich_kits$/);
+  await expect(page.getByRole('heading', { level: 1 })).toContainText('@zurich_kits');
+  await seen(page, page.getByRole('link', { name: /Juventus 1996/ }));
+});

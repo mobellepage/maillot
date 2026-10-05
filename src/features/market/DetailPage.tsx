@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { useCatalog } from '../catalog/useCatalog.ts';
 import { Link, Navigate, useParams, useSearchParams } from 'react-router';
 import { usePageMeta } from '../../lib/meta.ts';
@@ -28,6 +29,8 @@ export default function DetailPage() {
   const bookQuery = useOrderBook(s?.id, size);
   const book = bookQuery.data ?? { bids: [], asks: [] };
   const stats = useShirtStats(s?.id).data;
+  const askSellers = [...new Set(book.asks.map((a) => a.user_id).filter((x): x is string => !!x))];
+  const sellers = useQuery({ queryKey: ['sellerCards', askSellers.join(',')], enabled: askSellers.length > 0, queryFn: () => db.loadSellerCards(askSellers), staleTime: 60_000 }).data ?? {};
   const { t, label } = usePrefs();
   usePageMeta(s ? t('detail.metaTitle', { name: s.name }) : null, s ? t('detail.metaDesc', { name: s.name, brand: s.brand }) : undefined);
 
@@ -67,6 +70,7 @@ export default function DetailPage() {
           toggleWatch={() => watch.toggle(s.id)}
           openBuy={() => setDialog('buy')}
           openBid={() => setDialog('bid')}
+          sellers={sellers}
           bookError={bookQuery.isError}
           retryBook={() => bookQuery.refetch()}
         />

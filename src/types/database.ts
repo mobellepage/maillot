@@ -324,6 +324,12 @@ export type Database = {
         Update: { code?: string; order_id?: string | null; shirt_id?: string | null; size?: string | null; checks?: Json; nfc_uid?: string | null; issued_at?: string; revoked_at?: string | null; revoked_reason?: string | null };
         Relationships: [];
       };
+      seller_reviews: {
+        Row: { order_id: string; seller_id: string; buyer_id: string; rating: number; comment: string | null; created_at: string };
+        Insert: { order_id: string; seller_id: string; buyer_id: string; rating: number; comment?: string | null; created_at?: string };
+        Update: { order_id?: string; seller_id?: string; buyer_id?: string; rating?: number; comment?: string | null; created_at?: string };
+        Relationships: [];
+      };
       order_addresses: {
         Row: { order_id: string; ship_to: Json; created_at: string };
         Insert: { order_id: string; ship_to: Json; created_at?: string };
@@ -641,6 +647,14 @@ export type Database = {
       admin_attach_tag: { Args: { p_code: string; p_uid: string }; Returns: undefined };
       admin_revoke_certificate: { Args: { p_code: string; p_reason: string }; Returns: undefined };
       handle_available: { Args: { p_handle: string }; Returns: boolean };
+      review_seller: { Args: { p_order_id: string; p_rating: number; p_comment?: string }; Returns: undefined };
+      seller_profile: {
+        Args: { p_handle: string };
+        Returns: { handle: string; member_since: string; sales: number; rating: number | null; reviews: number; pass_rate: number | null; avg_ship_days: number | null; listings: number }[];
+      };
+      seller_listings: { Args: { p_handle: string }; Returns: { ask_id: string; shirt_id: string; size: string; amount: number; condition: string | null; created_at: string }[] };
+      seller_review_list: { Args: { p_handle: string }; Returns: { rating: number; comment: string | null; shirt_id: string | null; created_at: string }[] };
+      seller_cards: { Args: { p_user_ids: string[] }; Returns: { user_id: string; handle: string | null; rating: number | null; reviews: number; sales: number }[] };
       my_payout_status: { Args: never; Returns: { connected: boolean; payouts_enabled: boolean }[] };
       order_cancel: { Args: { p_order_id: string }; Returns: undefined };
       order_confirm_receipt: {

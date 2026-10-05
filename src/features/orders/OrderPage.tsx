@@ -17,6 +17,7 @@ import { DeadlineLine } from './DeadlineLine.tsx';
 import { OrderActions } from './OrderActions.tsx';
 import { SettlementLine } from './SettlementLine.tsx';
 import { ShipmentLine } from './ShipmentLine.tsx';
+import { ReviewCard } from './ReviewCard.tsx';
 import { ORDER_TONE } from './status.ts';
 import { buildTimeline, type StepState } from './timeline.ts';
 import { useMyCertificates, useOrders } from './useOrders.ts';
@@ -99,6 +100,8 @@ export default function OrderPage() {
           </div>
         </div>
       </Card>
+
+      {isBuyer && o.status === 'released' && <ReviewCard orderId={o.id} />}
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(280px,1fr))', gap: 16, marginTop: 16, alignItems: 'start' }}>
         <Card>

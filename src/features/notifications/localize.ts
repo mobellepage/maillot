@@ -23,7 +23,8 @@ const BY_TITLE: Record<string, [MessageKey, MessageKey | null]> = {
   'Did your shirt arrive?': ['notif.releaseReminder.title', 'notif.releaseReminder.body'],
   'Dispute opened against your order': ['notif.dispute.title', null],
   'Your bid was matched': ['notif.bidMatched.title', 'notif.bidMatched.body'],
-  'Your item sold': ['notif.askMatched.title', 'notif.askMatched.body']
+  'Your item sold': ['notif.askMatched.title', 'notif.askMatched.body'],
+  'New review': ['notif.review.title', null]
 };
 
 type N = { title: string; body: string | null; data: unknown };

@@ -10,3 +10,4 @@ export * from './db/misc.ts';
 export * from './db/photos.ts';
 export * from './db/catalog.ts';
 export * from './db/certificates.ts';
+export * from './db/sellers.ts';

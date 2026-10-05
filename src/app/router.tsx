@@ -20,7 +20,8 @@ import {
   IndexReportPage,
   DevelopersPage,
   OrderPage,
-  WelcomePage
+  WelcomePage,
+  SellerPage
 } from './pages.tsx';
 
 export const router = createBrowserRouter([
@@ -97,6 +98,7 @@ export const router = createBrowserRouter([
           { path: 'authentication', element: <AuthenticationPage /> },
           { path: 'price-index', element: <IndexReportPage /> },
           { path: 'developers', element: <DevelopersPage /> },
+          { path: 'u/:handle', element: <SellerPage /> },
           { path: 'verify', element: <VerifyPage /> },
           { path: 'verify/:code', element: <VerifyPage /> },
           { path: 'help', element: <LegalPage doc="help" /> },
