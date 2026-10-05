@@ -7,9 +7,11 @@ import { PageFallback } from './PageFallback.tsx';
 import { parseShareHash } from '../utils/share.ts';
 import PublicVaultPage from '../features/vault/PublicVaultPage.tsx';
 import { useCatalogSync } from '../features/catalog/useCatalog.ts';
+import { useOnboardingRedirect } from './useOnboardingRedirect.ts';
 
 export default function RootLayout() {
   useCatalogSync();
+  useOnboardingRedirect();
   const { hash } = useLocation();
   // Self-contained share links (#/vault/<data>) render a standalone page.
   const shared = parseShareHash(hash);

@@ -17,3 +17,4 @@ export const VerifyPage = lazy(() => import('../features/certificate/VerifyPage.
 export const IndexReportPage = lazy(() => import('../features/index/IndexReportPage.tsx'));
 export const DevelopersPage = lazy(() => import('../features/index/DevelopersPage.tsx'));
 export const OrderPage = lazy(() => import('../features/orders/OrderPage.tsx'));
+export const WelcomePage = lazy(() => import('../features/onboarding/WelcomePage.tsx'));

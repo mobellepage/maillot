@@ -484,6 +484,9 @@ export type Database = {
           is_admin: boolean;
           payouts_enabled: boolean;
           stripe_account_id: string | null;
+          goals: string[];
+          interests: Json;
+          onboarded_at: string | null;
         };
         Insert: {
           created_at?: string;
@@ -496,6 +499,9 @@ export type Database = {
           handle?: string | null;
           id?: string;
           is_admin?: boolean;
+          goals?: string[];
+          interests?: Json;
+          onboarded_at?: string | null;
         };
         Relationships: [];
       };
@@ -634,6 +640,7 @@ export type Database = {
       };
       admin_attach_tag: { Args: { p_code: string; p_uid: string }; Returns: undefined };
       admin_revoke_certificate: { Args: { p_code: string; p_reason: string }; Returns: undefined };
+      handle_available: { Args: { p_handle: string }; Returns: boolean };
       my_payout_status: { Args: never; Returns: { connected: boolean; payouts_enabled: boolean }[] };
       order_cancel: { Args: { p_order_id: string }; Returns: undefined };
       order_confirm_receipt: {

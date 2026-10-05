@@ -7,10 +7,21 @@ import { supabase } from '../utils/supabase.ts';
 
 export interface AuthResult {
   error: string | null;
+  /** Sign-up only: true when no email confirmation is needed and the member is signed in. */
+  signedIn?: boolean;
+}
+
+export interface Profile {
+  handle: string | null;
+  goals: string[];
+  interests: { leagues?: string[]; types?: string[] };
+  onboardedAt: string | null;
 }
 
 interface Session {
   user: User | null;
+  /** The signed-in member's profile; undefined while it loads. */
+  profile: Profile | null | undefined;
   /** true until the stored session has been read on first load */
   loading: boolean;
   isAdmin: boolean;
@@ -42,7 +53,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     queryKey: ['profile', user?.id],
     enabled: !!user,
     queryFn: async () => {
-      const { data, error } = await supabase.from('profiles').select('is_admin,handle').eq('id', user!.id).maybeSingle();
+      const { data, error } = await supabase.from('profiles').select('is_admin,handle,goals,interests,onboarded_at').eq('id', user!.id).maybeSingle();
       if (error) throw error;
       return data;
     }
@@ -52,13 +63,14 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     user,
     loading,
     isAdmin: !!profile.data?.is_admin,
+    profile: !user ? null : profile.data === undefined ? undefined : profile.data && { handle: profile.data.handle, goals: profile.data.goals ?? [], interests: (profile.data.interests ?? {}) as Profile['interests'], onboardedAt: profile.data.onboarded_at },
     signIn: async (email, password) => {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       return { error: error ? error.message : null };
     },
     signUp: async (email, password) => {
-      const { error } = await supabase.auth.signUp({ email, password });
-      return { error: error ? error.message : null };
+      const { data, error } = await supabase.auth.signUp({ email, password });
+      return { error: error ? error.message : null, signedIn: !!data.session };
     },
     signOut: async () => {
       await supabase.auth.signOut();

@@ -35,6 +35,8 @@ test('buyer: Buy now matches the live ask, then cancels before paying', async ({
   await page.goto('/orders');
   await expect(page.getByText('Payment pending').first()).toBeVisible();
   await page.getByRole('button', { name: 'Cancel' }).first().click();
+  // Irreversible actions ask first.
+  await page.getByRole('dialog', { name: 'Cancel this order?' }).getByRole('button', { name: 'Cancel order' }).click();
   await expect(page.getByText('Cancelled').first()).toBeVisible();
 
   // The seller's ask went back on the book.
@@ -64,4 +66,30 @@ test('bid below the ask stays on the book', async ({ page }) => {
   await amount.fill('200');
   await page.getByRole('button', { name: /^Place bid · / }).click();
   await expect(page.getByRole('heading', { name: 'Bid placed' }).or(page.getByText('Bid placed'))).toBeVisible();
+});
+
+test('new member: sign up, answer the welcome questions, land on the first step', async ({ page }) => {
+  const email = `new-${Date.now()}@maillot.test`;
+  await page.goto('/signin');
+  await page.getByRole('button', { name: /No account yet/ }).click();
+  await page.getByLabel(/email/i).fill(email);
+  await page.getByLabel(/password|passwort/i).fill('a-long-test-password-1');
+  await page.locator('form').getByRole('button', { name: /create|erstellen/i }).click();
+  await expect(page).toHaveURL(/\/welcome$/, { timeout: 10000 });
+  // Until it's answered (or skipped), other pages lead back here.
+  await page.goto('/market');
+  await expect(page).toHaveURL(/\/welcome$/);
+
+  await page.getByRole('button', { name: /Track my collection/ }).click();
+  await page.getByRole('button', { name: 'Continue' }).click();
+  await page.getByRole('button', { name: 'Serie A' }).click();
+  await page.getByRole('button', { name: 'Continue' }).click();
+  await page.getByLabel('Username').fill('new_member_' + String(Date.now()).slice(-6));
+  await expect(page.getByText('✓ Available')).toBeVisible();
+  await page.getByRole('button', { name: 'Add your first shirt' }).click();
+  await expect(page).toHaveURL(/\/vault\/add$/);
+
+  // Answered once: no more detours.
+  await page.goto('/market');
+  await expect(page).toHaveURL(/\/market$/);
 });

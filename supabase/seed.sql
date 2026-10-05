@@ -24,6 +24,8 @@ from auth.users u where u.email like '%@maillot.test';
 
 -- profiles rows are created by the on_auth_user_created trigger.
 update public.profiles set is_admin = true where id = '11111111-1111-1111-1111-111111111111';
+-- Seed accounts skip the welcome flow (e2e tests sign in and go straight to work).
+update public.profiles set onboarded_at = now() where id in (select id from auth.users where email like '%@maillot.test');
 
 -- Some liquidity so the detail page's live order book isn't empty locally.
 insert into public.asks (user_id, shirt_id, size, amount, condition, edition) values

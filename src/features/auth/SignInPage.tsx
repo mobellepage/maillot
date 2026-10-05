@@ -24,13 +24,15 @@ export default function SignInPage() {
     if (!email || !password) return setError(t('auth.required'));
     setBusy(true);
     setError(null);
-    const { error: err } = await (signingIn ? signIn : signUp)(email, password);
+    const { error: err, signedIn } = await (signingIn ? signIn : signUp)(email, password);
     setBusy(false);
     if (err) return setError(err);
     setPassword('');
     if (signingIn) {
       toast(t('toast.signedIn'));
       navigate(state.from || '/vault', { replace: true });
+    } else if (signedIn) {
+      navigate('/welcome', { replace: true, state: { from: state.from } });
     } else {
       toast(t('toast.accountCreated'));
       setMode('signin');

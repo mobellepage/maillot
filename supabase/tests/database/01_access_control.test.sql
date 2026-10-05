@@ -34,13 +34,16 @@ select tests.create_user('00000000-0000-4000-a000-00000000a11c', 'alice@test.loc
 select tests.create_user('00000000-0000-4000-a000-000000000b0b', 'bob@test.local');
 select tests.create_user('00000000-0000-4000-a000-0000000ad111', 'admin@test.local', true);
 
-select plan(30);
+select plan(35);
 
 -- ---- profiles: no privilege escalation -----------------------------------
 select tests.login('00000000-0000-4000-a000-00000000a11c');
 select throws_ok($$ update profiles set is_admin = true where id = '00000000-0000-4000-a000-00000000a11c' $$, '42501', null, 'user cannot make themselves admin');
 select throws_ok($$ insert into profiles (id, handle, is_admin) values (gen_random_uuid(), 'x', true) $$, '42501', null, 'user cannot insert profiles');
 select lives_ok($$ update profiles set handle = 'alice' where id = '00000000-0000-4000-a000-00000000a11c' $$, 'user can change their handle');
+select throws_ok($$ update profiles set handle = 'Not OK!' where id = '00000000-0000-4000-a000-00000000a11c' $$, '23514', null, 'handles must be 3-20 lowercase letters, digits or _');
+select lives_ok($$ update profiles set goals = '{collect,sell}', interests = '{"leagues":["Serie A"]}', onboarded_at = now() where id = '00000000-0000-4000-a000-00000000a11c' $$, 'user can save onboarding answers');
+select throws_ok($$ update profiles set goals = '{hack}' where id = '00000000-0000-4000-a000-00000000a11c' $$, '23514', null, 'unknown goals are rejected');
 select is((select count(*)::int from profiles), 1, 'user only sees their own profile');
 
 -- ---- orders / disputes / notifications: no direct writes -----------------
@@ -58,6 +61,8 @@ select lives_ok($$ insert into events (user_id, shirt_id, type) values ('0000000
 select lives_ok($$ insert into storage.objects (bucket_id, name) values ('vault-photos', '00000000-0000-4000-a000-00000000a11c/items/x/front.jpg') $$, 'user can upload into their own folder');
 select throws_ok($$ insert into storage.objects (bucket_id, name) values ('vault-photos', '00000000-0000-4000-a000-000000000b0b/items/x/front.jpg') $$, '42501', null, 'user cannot upload into someone else''s folder');
 select tests.login('00000000-0000-4000-a000-000000000b0b');
+select is(handle_available('ALICE'), false, 'taken handles are unavailable, case-insensitively');
+select is((select handle from profiles where id = '00000000-0000-4000-a000-000000000b0b'), null::text, 'new accounts get no handle from their email');
 select is((select count(*)::int from storage.objects where bucket_id = 'vault-photos'), 0, 'users cannot see other users'' photos');
 select tests.login('00000000-0000-4000-a000-00000000a11c');
 

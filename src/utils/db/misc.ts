@@ -79,3 +79,19 @@ export async function revokeApiKey(id: string): Promise<void> {
   const { error } = await supabase.rpc('revoke_api_key', { p_id: id });
   if (error) throw error;
 }
+
+// ---------------------------------------------------------------------------
+// Profile / onboarding
+// ---------------------------------------------------------------------------
+export async function isHandleAvailable(handle: string): Promise<boolean> {
+  const { data, error } = await supabase.rpc('handle_available', { p_handle: handle });
+  if (error) throw error;
+  return !!data;
+}
+
+export async function saveOnboarding(userId: string, answers: { goals: string[]; interests: { leagues: string[]; types: string[] }; handle?: string | null }): Promise<void> {
+  const patch: { goals: string[]; interests: { leagues: string[]; types: string[] }; onboarded_at: string; handle?: string } = { goals: answers.goals, interests: answers.interests, onboarded_at: new Date().toISOString() };
+  if (answers.handle) patch.handle = answers.handle;
+  const { error } = await supabase.from('profiles').update(patch).eq('id', userId);
+  if (error) throw error;
+}
