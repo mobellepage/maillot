@@ -99,3 +99,15 @@ test('certificate check: footer link, code form, and a clear error when the chec
   // The smoke backend is unreachable, so the lookup fails — visibly, not silently.
   await expect(page.getByText(/couldn’t check this code/i)).toBeVisible({ timeout: 15000 });
 });
+
+test('index report and data API are reachable and the report offers a CSV', async ({ page }) => {
+  await page.goto('/');
+  await page.locator('footer').getByRole('link', { name: 'Shirt Index report' }).click();
+  await expect(page.getByRole('heading', { level: 1 })).toContainText(/Maillot Shirt Index/i);
+  const download = page.waitForEvent('download');
+  await page.getByRole('button', { name: 'Download CSV' }).click();
+  expect((await download).suggestedFilename()).toMatch(/^maillot-shirt-index-\d{4}-\d{2}-\d{2}\.csv$/);
+  await page.getByRole('link', { name: 'Data API' }).first().click();
+  await expect(page).toHaveURL(/\/developers$/);
+  await expect(page.getByRole('heading', { level: 1 })).toContainText(/Shirt prices as data/i);
+});

@@ -25,7 +25,11 @@ export default function RootLayout() {
       </div>
       <Footer />
       <MobileNav />
-      <ScrollRestoration />
+      {/* Every full page load has location.key "default", so keying on it
+          would restore one page's scroll position on another. Key initial
+          loads by path; in-app navigations by entry (back restores, new
+          navigations start at the top). */}
+      <ScrollRestoration getKey={(loc) => (loc.key === 'default' ? loc.pathname : loc.key)} />
     </div>
   );
 }

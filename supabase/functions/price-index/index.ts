@@ -1,6 +1,8 @@
 // price-index: licensable, API-key-gated price-index data product.
-// Returns aggregated market data (completed sales + current order book) for a
-// given shirt_id, computed from the existing orders/asks/bids tables.
+//   GET /price-index                 -> every catalogue shirt: index price,
+//                                       30-day change, market price and source
+//   GET /price-index?shirt_id=<id>   -> one shirt: completed sales + order book
+// Documented for customers at /developers in the app.
 //
 // Auth: NOT a Supabase user JWT. Callers authenticate with an API key issued
 // via the admin-only create_api_key() RPC, passed as:
@@ -37,7 +39,6 @@ Deno.serve(async (req) => {
 
   const url = new URL(req.url)
   const shirtId = url.searchParams.get('shirt_id')
-  if (!shirtId) return json({ error: 'missing shirt_id query param' }, 400)
 
   const authHeader = req.headers.get('authorization') || ''
   const rawKey = req.headers.get('x-api-key') || (authHeader.startsWith('Bearer ') ? authHeader.slice(7) : '')
@@ -59,6 +60,38 @@ Deno.serve(async (req) => {
   if (!apiKey || apiKey.revoked_at) return json({ error: 'invalid or revoked API key' }, 401)
 
   admin.from('api_keys').update({ last_used_at: new Date().toISOString() }).eq('id', apiKey.id).then(() => {})
+
+  if (!shirtId) {
+    const [{ data: rows, error: rowsErr }, { data: market, error: marketErr }] = await Promise.all([
+      admin.from('catalog_shirts').select('id, name, club, season, type, league, index_price, index_change_30d').eq('active', true).order('id'),
+      admin.rpc('catalog_market')
+    ])
+    if (rowsErr || marketErr) return json({ error: 'query failed' }, 500)
+    const byId = new Map((market || []).map((m: { shirt_id: string }) => [m.shirt_id, m]))
+    return json({
+      shirts: (rows || []).map((r) => {
+        const m = byId.get(r.id) as { completed_sales: number; last_price: number | null; last_sold_at: string | null; avg_recent: number | null } | undefined
+        const fromTrades = !!m && Number(m.completed_sales) > 0 && m.avg_recent !== null
+        return {
+          shirt_id: r.id,
+          name: r.name,
+          club: r.club,
+          season: r.season,
+          type: r.type,
+          league: r.league,
+          index_price: Number(r.index_price),
+          change_30d_pct: Number(r.index_change_30d),
+          market_price: fromTrades ? Math.round(Number(m!.avg_recent)) : Number(r.index_price),
+          price_source: fromTrades ? 'trades' : 'estimate',
+          completed_sales: m ? Number(m.completed_sales) : 0,
+          last_price: m?.last_price != null ? Number(m.last_price) : null,
+          last_sold_at: m?.last_sold_at ?? null
+        }
+      }),
+      currency: 'CHF',
+      generated_at: new Date().toISOString()
+    })
+  }
 
   const [{ data: sales, error: salesErr }, { data: bids, error: bidsErr }, { data: asks, error: asksErr }] = await Promise.all([
     admin

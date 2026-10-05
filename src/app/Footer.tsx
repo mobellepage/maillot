@@ -43,6 +43,13 @@ export default function Footer() {
           ]}
         />
         <Col
+          title="Data"
+          links={[
+            ['Shirt Index report', '/price-index'],
+            ['Data API', '/developers']
+          ]}
+        />
+        <Col
           title="Support"
           links={[
             ['Help & contact', '/help'],
