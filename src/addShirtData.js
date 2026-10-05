@@ -1,8 +1,9 @@
-// Static reference data + pure helpers for the "Trikot hinzufügen" (Add Shirt) flow.
+// Static reference data + pure helpers for the Add Shirt flow. Option values
+// (versions, sleeves, flock, defects, patches) are stored as they are here and
+// translated for display through opt.<value> messages.
 // Kept separate from data.js (the market/catalogue data) since this is specific to
 // the self-cataloguing wizard.
 import { SHIRTS } from './data.ts';
-import { MARKET_DATA_LABEL } from './marketData.ts';
 
 export const VERSIONS = ['Fan-Replica', 'Player-Issue / Authentic', 'Match-Issued', 'Match-Worn', 'Unbekannt'];
 
@@ -61,63 +62,30 @@ export function matchCatalogFromOcrText(text) {
   return { item: best, confidence, words };
 }
 
-export const CONDITION_SCALE = [
-  { grade: 10, label: 'Neuwertig mit Etikett', desc: 'Ungetragen, Hangtag (BNWT) vollständig vorhanden.' },
-  { grade: 9, label: 'Neuwertig', desc: 'Ungetragen oder einmal anprobiert, keine sichtbaren Mängel.' },
-  { grade: 8, label: 'Sehr gut', desc: 'Leicht getragen, Flock und Logos vollständig intakt.' },
-  { grade: 7, label: 'Gut', desc: 'Normale Gebrauchsspuren, keine Löcher oder Flecken.' },
-  { grade: 6, label: 'Gut mit kleinen Mängeln', desc: 'Leichte Abnutzung an Flock oder Stoff erkennbar.' },
-  { grade: 5, label: 'Durchschnittlich', desc: 'Sichtbare Gebrauchsspuren, evtl. ein kleiner Fleck.' },
-  { grade: 4, label: 'Gebraucht', desc: 'Deutliche Abnutzung, Flock evtl. angerissen.' },
-  { grade: 3, label: 'Stark gebraucht', desc: 'Mehrere Mängel, z. B. Flecken oder verblasster Druck.' },
-  { grade: 2, label: 'Schlecht', desc: 'Löcher, starke Flecken oder angerissene Nähte.' },
-  { grade: 1, label: 'Defekt', desc: 'Stark beschädigt, nur noch Sammlerwert als Ersatzteil.' }
-];
+// label/desc are message keys (as.grade.N / as.grade.N.desc).
+export const CONDITION_SCALE = [10, 9, 8, 7, 6, 5, 4, 3, 2, 1].map((grade) => ({ grade, label: 'as.grade.' + grade, desc: 'as.grade.' + grade + '.desc' }));
 
 export const DEFECTS = ['Flock rissig/abblätternd', 'Sponsor abgerieben', 'Flecken', 'Löcher', 'Ausgeblichen'];
 
-export const VISIBILITIES = [
-  { key: 'private', label: 'Privat', desc: 'Nur du siehst dieses Trikot.' },
-  { key: 'public', label: 'In meiner öffentlichen Sammlung', desc: 'Andere Sammler können es in deinem Profil sehen.' },
-  { key: 'offers', label: 'Offen für Angebote', desc: 'Du kannst unverbindliche Angebote erhalten.' },
-  { key: 'forsale', label: 'Zum Verkauf', desc: 'Mit Preis im Marktplatz gelistet.' }
-];
+// label/desc are message keys.
+export const VISIBILITIES = ['private', 'public', 'offers', 'forsale'].map((key) => ({ key, label: 'vault.vis.' + key, desc: 'as.vis.' + key + '.desc' }));
 
 // Builds the exact list of photos required for this specific shirt, in the order
 // they should be captured. Base 7 are always required; the rest depend on what the
-// collector entered in Schritt 2.
-export function buildPhotoSpecs(f) {
-  const specs = [
-    { key: 'front', label: 'Front komplett', hint: 'Flach ausgelegt, das ganze Trikot im Bild.' },
-    { key: 'back', label: 'Rücken komplett', hint: 'Inkl. Flock, falls vorhanden.' },
-    { key: 'crest', label: 'Vereinswappen / Logo', hint: 'Nahaufnahme, scharf und zentriert.' },
-    { key: 'sponsor', label: 'Ausrüster-Logo & Sponsor', hint: 'Beide Logos gut lesbar im Bild.' },
-    { key: 'collar', label: 'Innenetikett (Grösse)', hint: 'Grössenangabe im Kragen.' },
-    { key: 'product_code', label: 'Etikett mit Artikelnummer', hint: 'Wichtigstes Echtheitsmerkmal — bitte klar lesbar fotografieren.' },
-    { key: 'seams', label: 'Nähte / Innenverarbeitung', hint: 'Verarbeitung von innen.' }
-  ];
-  if (f.flock.source !== 'Keine') {
-    specs.push({ key: 'flock_closeup', label: 'Flock Nahaufnahme', hint: 'Name & Nummer scharf erkennbar.' });
-  }
-  f.patches.forEach((p) => {
-    specs.push({ key: 'patch_' + p, label: 'Patch: ' + p, hint: 'Nahaufnahme dieses Patches.' });
-  });
+// collector entered in the details step. `t` translates the labels (the label is
+// stored with the photo, so it's in the language the collector used).
+export function buildPhotoSpecs(f, t = (k) => k) {
+  const spec = (key, msg = key, vars) => ({ key, label: t('as.photo.' + msg, vars), hint: t('as.photo.' + msg + '.hint', vars) });
+  const specs = ['front', 'back', 'crest', 'sponsor', 'collar', 'product_code', 'seams'].map((k) => spec(k));
+  if (f.flock.source !== 'Keine') specs.push(spec('flock_closeup'));
+  f.patches.forEach((p) => specs.push(spec('patch_' + p, 'patch', { name: t('opt.' + p) === 'opt.' + p ? p : t('opt.' + p) })));
   if (f.signature.signed) {
-    specs.push({ key: 'signature_closeup', label: 'Signatur Nahaufnahme', hint: 'Unterschrift scharf und vollständig im Bild.' });
-    if (f.signature.hasCoa) {
-      specs.push({ key: 'coa_front', label: 'Echtheitszertifikat (Vorderseite)', hint: '' });
-      specs.push({ key: 'coa_back', label: 'Echtheitszertifikat (Rückseite)', hint: '' });
-    }
+    specs.push(spec('signature_closeup'));
+    if (f.signature.hasCoa) specs.push({ ...spec('coa_front'), hint: '' }, { ...spec('coa_back'), hint: '' });
   }
-  if (f.tagsAttached) {
-    specs.push({ key: 'hangtag', label: 'Anhänger (BNWT)', hint: 'Preisschild/Hangtag sichtbar.' });
-  }
-  f.condition.defects.forEach((d) => {
-    specs.push({ key: 'defect_' + d, label: 'Mangel: ' + d, hint: 'Nahaufnahme der betroffenen Stelle.' });
-  });
-  if (f.version === 'Match-Issued' || f.version === 'Match-Worn') {
-    specs.push({ key: 'provenance_doc', label: 'Herkunftsnachweis', hint: 'Vereinszertifikat, Auktionsbeleg o. Ä.' });
-  }
+  if (f.tagsAttached) specs.push(spec('hangtag'));
+  f.condition.defects.forEach((d) => specs.push(spec('defect_' + d, 'defect', { name: t('opt.' + d) === 'opt.' + d ? d : t('opt.' + d) })));
+  if (f.version === 'Match-Issued' || f.version === 'Match-Worn') specs.push(spec('provenance_doc'));
   return specs;
 }
 
@@ -136,7 +104,7 @@ const VERIFY_MULT = { self: 1, precheck: 1.05, expert: 1.18 };
 // for Match-Worn shirts until an expert has verified them.
 export function estimateValue({ catalogItem, version, conditionGrade, flock, patches, signature, verificationLevel }) {
   if (version === 'Match-Worn' && verificationLevel !== 'expert') {
-    return { blocked: true, reason: 'Für Match-Worn-Trikots zeigen wir erst nach erfolgreicher Experten-Verifizierung eine Wertschätzung.' };
+    return { blocked: true, reason: 'val.mwBlocked' };
   }
 
   const base = catalogItem ? catalogItem.price : 90;
@@ -161,9 +129,8 @@ export function estimateValue({ catalogItem, version, conditionGrade, flock, pat
   // Audit note (Phase 4.11): "Verkäufe" here come from the catalogue's synthetic
   // market data (see marketData.js), not a real transactions feed — labelled
   // honestly rather than presented as real sales history.
-  const basisText = catalogItem
-    ? 'Basiert auf ' + salesCount + ' Verkäufen in den letzten 12 Monaten · Katalogartikel · ' + MARKET_DATA_LABEL
-    : 'Basiert auf einer groben Schätzung — dieses Trikot ist noch nicht im Katalog.';
+  // reason/basis are message keys; confidence is a stored value (opt.*).
+  const basis = catalogItem ? { key: 'val.basisCatalog', vars: { n: salesCount } } : { key: 'val.basisRough' };
 
-  return { blocked: false, low, mid, high, confidence, basisText };
+  return { blocked: false, low, mid, high, confidence, basis };
 }

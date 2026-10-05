@@ -5,6 +5,7 @@
 import { useEffect } from 'react';
 import { Link } from 'react-router';
 import { Logo } from '../../app/Header.tsx';
+import { usePrefs } from '../../lib/prefs.tsx';
 import { EmptyState, HEX, ShirtGraphic } from '../../ui/index.ts';
 
 interface SharedItem {
@@ -32,11 +33,12 @@ const text = (v: unknown, max = 120) => (typeof v === 'string' ? v.slice(0, max)
 export default function PublicVaultPage({ data }: { data: unknown }) {
   const pv = data && typeof data === 'object' ? (data as SharedVault) : null;
   const items = Array.isArray(pv?.items) ? pv!.items!.slice(0, 200) : [];
-  const owner = text(pv?.owner, 60) || 'A collector';
+  const { t } = usePrefs();
+  const owner = text(pv?.owner, 60) || t('vault.aCollector');
 
   useEffect(() => {
-    document.title = pv ? owner + '’s collection · MAILLOT' : 'Link not valid · MAILLOT';
-  }, [pv, owner]);
+    document.title = (pv ? t('pub.title', { owner }) : t('pub.invalid')) + ' · MAILLOT';
+  }, [pv, owner, t]);
 
   return (
     <div style={{ minHeight: '100vh' }}>
@@ -45,13 +47,13 @@ export default function PublicVaultPage({ data }: { data: unknown }) {
           <Logo />
           <div style={{ flex: 1 }} />
           <Link to="/vault" className="btn btn--ghost btn--sm">
-            Start your own collection →
+            {t('pub.startOwn')}
           </Link>
         </div>
       </header>
       {!pv ? (
         <main id="main" style={{ maxWidth: 600, margin: '0 auto', padding: '80px 20px' }}>
-          <EmptyState title="Link not valid">This collection link couldn’t be read. Check that the whole URL was copied.</EmptyState>
+          <EmptyState title={t('pub.invalid')}>{t('pub.invalidBody')}</EmptyState>
         </main>
       ) : (
         <main id="main" className="page page--narrow">
@@ -63,11 +65,11 @@ export default function PublicVaultPage({ data }: { data: unknown }) {
               <h1 className="display" style={{ fontSize: 'clamp(26px,3.4vw,36px)', lineHeight: 1.05 }}>
                 {owner}
               </h1>
-              <div style={{ fontSize: 13.5, color: 'var(--muted)', marginTop: 6 }}>{text(pv.handle, 60)} · Public collection · read-only</div>
+              <div style={{ fontSize: 13.5, color: 'var(--muted)', marginTop: 6 }}>{text(pv.handle, 60) ? text(pv.handle, 60) + ' · ' : ''}{t('pub.readOnly')}</div>
             </div>
             <div style={{ textAlign: 'right' }}>
               <div className="mono" style={{ fontSize: 11, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--muted)' }}>
-                Collection value
+                {t('vault.value')}
               </div>
               <div className="mono" style={{ fontSize: 26, fontWeight: 700, marginTop: 2 }}>
                 {text(pv.totalFmt, 30)}

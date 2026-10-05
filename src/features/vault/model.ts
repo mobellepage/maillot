@@ -4,6 +4,7 @@ import type { CustomItem } from '../../types/domain.ts';
 import { HEX, alpha, type Tone } from '../../ui/index.ts';
 import { currentValuation } from './useCollection.ts';
 
+/** label and desc are message keys. */
 export interface VerifyBadge {
   label: string;
   tone: Tone;
@@ -12,10 +13,10 @@ export interface VerifyBadge {
 }
 
 export const VERIFY_BADGES: Record<'self' | 'precheck' | 'expert' | 'rejected', VerifyBadge> = {
-  self: { label: 'Self-reported', tone: 'neutral', color: HEX.text2, desc: 'Details come from the owner only — not yet checked.' },
-  precheck: { label: 'Pre-checked', tone: 'info', color: HEX.info, desc: 'Automatic photo and label checks found nothing unusual — no human has seen it yet.' },
-  expert: { label: 'Expert-verified', tone: 'warn', color: HEX.warn, desc: 'A specialist reviewed the submission and approved it.' },
-  rejected: { label: 'Rejected', tone: 'neg', color: HEX.neg, desc: 'The submission was rejected in review.' }
+  self: { label: 'badge.self', tone: 'neutral', color: HEX.text2, desc: 'badge.self.desc' },
+  precheck: { label: 'badge.precheck', tone: 'info', color: HEX.info, desc: 'badge.precheck.desc' },
+  expert: { label: 'badge.expert', tone: 'warn', color: HEX.warn, desc: 'badge.expert.desc' },
+  rejected: { label: 'badge.rejected', tone: 'neg', color: HEX.neg, desc: 'badge.rejected.desc' }
 };
 
 export function badgeFor(c: CustomItem): VerifyBadge {

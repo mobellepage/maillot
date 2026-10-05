@@ -7,12 +7,12 @@ import { badgeFor, itemLook, itemName, valueOf } from './model.ts';
 import { usePhotoUrls } from '../../lib/usePhotoUrls.ts';
 
 export function CollectionTab({ items, loading, error, onRetry }: { items: CustomItem[]; loading?: boolean; error?: boolean; onRetry?: () => void }) {
-  const { money, t } = usePrefs();
+  const { money, t, tp } = usePrefs();
   const rejected = items.filter((c) => c.verification.status === 'abgelehnt');
   const cover = usePhotoUrls(items.map((c) => c.photos?.front), true);
   if (loading)
     return (
-      <div className="grid-cards" style={{ marginTop: 24 }} aria-busy="true" aria-label="Loading your collection">
+      <div className="grid-cards" style={{ marginTop: 24 }} aria-busy="true" aria-label={t('vault.loading')}>
         {[0, 1, 2, 3].map((i) => (
           <Skeleton key={i} height={280} radius={20} />
         ))}
@@ -27,8 +27,8 @@ export function CollectionTab({ items, loading, error, onRetry }: { items: Custo
   if (!items.length) {
     return (
       <div style={{ marginTop: 24 }}>
-        <EmptyState accent title="Start your collection" action={<ButtonLink to="/vault/add">+ Add your first shirt</ButtonLink>}>
-          Add the shirts you own to track their value, get them expert-verified and share your collection.
+        <EmptyState accent title={t('vault.start')} action={<ButtonLink to="/vault/add">{t('vault.addFirst')}</ButtonLink>}>
+          {t('vault.startBody')}
         </EmptyState>
       </div>
     );
@@ -37,13 +37,13 @@ export function CollectionTab({ items, loading, error, onRetry }: { items: Custo
     <>
       {rejected.length > 0 && (
         <Notice tone="neg" style={{ marginTop: 24 }}>
-          <strong>{rejected.length === 1 ? '1 submission rejected' : rejected.length + ' submissions rejected'}</strong>
+          <strong>{tp('vault.rejected', rejected.length)}</strong>
           {rejected.map((c) => (
             <div key={c.id} style={{ marginTop: 6, color: 'var(--text-2)' }}>
               <Link to={'/vault/item/' + c.id} style={{ color: 'inherit', fontWeight: 600 }}>
                 {itemName(c)}
               </Link>{' '}
-              — {c.verification.reason}
+              — {t(c.verification.reason)}
             </div>
           ))}
         </Notice>
@@ -62,8 +62,8 @@ export function CollectionTab({ items, loading, error, onRetry }: { items: Custo
                   <span className="mono" style={{ position: 'absolute', top: 12, left: 12, zIndex: 1, fontSize: 10.5, color: 'var(--text-2)', textShadow: '0 1px 3px rgba(0,0,0,0.8)' }}>
                     SIZE {c.size}
                   </span>
-                  <span className={'badge badge--' + badge.tone} title={badge.desc} style={{ position: 'absolute', top: 12, right: 12, zIndex: 1, fontSize: 9.5 }}>
-                    {badge.label}
+                  <span className={'badge badge--' + badge.tone} title={t(badge.desc)} style={{ position: 'absolute', top: 12, right: 12, zIndex: 1, fontSize: 9.5 }}>
+                    {t(badge.label)}
                   </span>
                   {photo ? <img src={photo} alt="" loading="lazy" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} /> : <ShirtGraphic {...look} style={{ width: '66%' }} />}
                 </div>
@@ -75,16 +75,16 @@ export function CollectionTab({ items, loading, error, onRetry }: { items: Custo
                   </h3>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginTop: 10 }}>
                     <div>
-                      <div style={{ fontSize: 11, color: 'var(--muted)' }}>Estimated value</div>
+                      <div style={{ fontSize: 11, color: 'var(--muted)' }}>{t('vault.estimated')}</div>
                       <div className="mono" style={{ fontSize: 16, fontWeight: 600, marginTop: 2 }}>
-                        {value !== null ? money(value) : 'Pending'}
+                        {value !== null ? money(value) : t('vault.pending')}
                       </div>
                     </div>
                     <button
                       type="button"
                       className="icon-btn"
-                      aria-label={'Export ' + name + ' as an image'}
-                      onClick={() => downloadVaultCard({ name, size: c.size, priceFmt: value !== null ? money(value) : '—', paid: 'Estimated value', gain: '', gainC: HEX.muted, glowA: glow, ...look, badgeLabel: badge.label, badgeColor: badge.color })}
+                      aria-label={t('vault.export', { name })}
+                      onClick={() => downloadVaultCard({ name, size: c.size, priceFmt: value !== null ? money(value) : '—', paid: t('vault.estimated'), gain: '', gainC: HEX.muted, glowA: glow, ...look, badgeLabel: t(badge.label), badgeColor: badge.color })}
                       style={{ position: 'relative', zIndex: 2, width: 32, height: 32, borderRadius: 8 }}
                     >
                       <DownloadIcon />

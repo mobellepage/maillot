@@ -19,7 +19,7 @@ describe('pre-check (fraud heuristics)', () => {
   it('flags a label that confidently matches a different shirt as a possible fake', () => {
     const r = precheck(form({ scan: { status: 'done', ocrText: 'Netherlands 1988', confidence: 1, matchId: 'ned-88' } }));
     expect(r.status).toBe('fake');
-    expect(r.notes.join(' ')).toMatch(/anderen Katalogartikel/);
+    expect(r.notes).toContain('pc.otherItem');
   });
 
   it('asks for review when no text could be read or photos are blurry', () => {

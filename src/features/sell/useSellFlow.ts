@@ -13,11 +13,12 @@ import { analyzeAndCompress } from '../../utils/image.ts';
 import { readLabelText } from '../../utils/ocr.ts';
 import { getShirt, resolveSize } from '../catalog/model.ts';
 
+/** [condition value, description message key] */
 export const CONDITIONS: [string, string][] = [
-  ['New with tags', 'Never worn, original tags attached'],
-  ['Excellent', 'Worn lightly, no visible flaws'],
-  ['Very good', 'Minor signs of wear, print intact'],
-  ['Good', 'Visible wear, fading or small marks']
+  ['New with tags', 'sell.cond.New with tags'],
+  ['Excellent', 'sell.cond.Excellent'],
+  ['Very good', 'sell.cond.Very good'],
+  ['Good', 'sell.cond.Good']
 ];
 export const EDITIONS = ['Replica', 'Authentic', 'Player issue', 'Match-worn'];
 
@@ -67,11 +68,11 @@ export function useSellFlow() {
         img: photo.dataUrl,
         matchId: confident ? item!.id : null,
         confidence,
-        message: confident ? '' : text ? 'We couldn’t match that label confidently — search for the shirt instead.' : 'No readable text on that photo — try the inner wash/product label, or search instead.'
+        message: confident ? '' : text ? 'sell.scanUnsure' : 'sell.scanNoText'
       });
     } catch {
       if (scanToken.current === token) setScan({ status: 'idle' });
-      toast('Scanning failed — please search for the shirt instead.');
+      toast(t('sell.scanFailed'));
     }
   };
 

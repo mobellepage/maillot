@@ -105,7 +105,7 @@ export function useAddShirtForm(userId: string | undefined) {
       setRaw((s) => {
         if (s.verification.reviewId !== reviewId) return s;
         if (entry.status === 'approved') return { ...s, verification: { level: 'expert', status: 'verifiziert', reason: '', reviewId } };
-        if (entry.status === 'rejected') return { ...s, verification: { ...s.verification, status: 'abgelehnt', reason: entry.reason || 'Unstimmigkeiten konnten nicht ausgeräumt werden.' } };
+        if (entry.status === 'rejected') return { ...s, verification: { ...s.verification, status: 'abgelehnt', reason: entry.reason || 'as.v.defaultReason' } };
         if (entry.status === 'in_review' && s.verification.status !== 'in Prüfung') return { ...s, verification: { ...s.verification, status: 'in Prüfung' } };
         return s;
       });

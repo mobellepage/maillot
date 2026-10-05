@@ -9,6 +9,7 @@ import { BY } from '../../data.ts';
 import type { CustomItem, Review, Valuation } from '../../types/domain.ts';
 import { useSession } from '../../lib/session.tsx';
 import { useToast } from '../../lib/toast.tsx';
+import { usePrefs } from '../../lib/prefs.tsx';
 import { useLive } from '../../lib/realtime.ts';
 
 export function currentValuation(c: CustomItem): Valuation | null {
@@ -50,6 +51,7 @@ export function useCollection() {
 }
 
 export function useCollectionActions() {
+  const { t } = usePrefs();
   const { user } = useSession();
   const uid = user?.id;
   const qc = useQueryClient();
@@ -67,7 +69,7 @@ export function useCollectionActions() {
       return full;
     },
     onSuccess: refresh,
-    onError: () => toast('Saving failed — please try again.')
+    onError: () => toast(t('vault.saveFailed'))
   });
 
   const retry = useMutation({
@@ -91,19 +93,19 @@ export function useCollectionActions() {
       await db.upsertCustomItem(uid!, { ...c, verification: { ...c.verification, status: 'angefragt', reason: '', reviewId }, updatedAt: Date.now() });
     },
     onSuccess: () => {
-      toast('Submitted for review again');
+      toast(t('vault.resubmitted'));
       refresh();
     },
-    onError: () => toast('Submission failed — please try again.')
+    onError: () => toast(t('vault.submitFailed'))
   });
 
   const remove = useMutation({
     mutationFn: (c: CustomItem) => db.deleteCustomItem(c),
     onSuccess: () => {
-      toast('Removed from your collection');
+      toast(t('vault.removed'));
       refresh();
     },
-    onError: (e) => toast((e as { code?: string }).code === '23503' ? 'This shirt has a listing or order — cancel the listing first.' : 'Couldn’t remove it — please try again.')
+    onError: (e) => toast((e as { code?: string }).code === '23503' ? t('vault.removeBlocked') : t('vault.removeFailed'))
   });
 
   return { add, retry, remove };

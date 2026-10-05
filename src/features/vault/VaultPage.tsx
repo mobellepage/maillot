@@ -1,4 +1,4 @@
-import { NavLink } from 'react-router';
+import { Link, NavLink } from 'react-router';
 import { useCatalog } from '../catalog/useCatalog.ts';
 import { usePageMeta } from '../../lib/meta.ts';
 import { usePrefs } from '../../lib/prefs.tsx';
@@ -18,13 +18,14 @@ import { VaultSummary } from './VaultSummary.tsx';
 import { PayoutsCard } from './PayoutsCard.tsx';
 
 type Tab = 'collection' | 'watchlist' | 'orders';
-const TITLES: Record<Tab, string> = { collection: 'My collection', watchlist: 'Watchlist', orders: 'Orders' };
+const TITLES = { collection: 'vault.title.collection', watchlist: 'vault.title.watchlist', orders: 'vault.title.orders' } as const;
 
 export default function VaultPage({ tab }: { tab: Tab }) {
   useCatalog(); // re-render when the live catalogue loads
-  usePageMeta(TITLES[tab]);
-  const { user } = useSession();
-  const { money } = usePrefs();
+  const { money, t, locale } = usePrefs();
+  usePageMeta(t(TITLES[tab]));
+  const { user, profile } = useSession();
+  const handle = profile?.handle ? '@' + profile.handle : null;
   const toast = useToast();
   const { items, loading, error, refetch } = useCollection();
   const watch = useWatchlist();
@@ -33,19 +34,20 @@ export default function VaultPage({ tab }: { tab: Tab }) {
 
   const share = () => {
     const payload = {
-      owner: (user?.email || '').split('@')[0],
-      handle: '@' + (user?.email || '').split('@')[0],
+      // Never the email address: the chosen username, or nothing.
+      owner: handle ?? t('vault.aCollector'),
+      handle: handle ?? '',
       totalFmt: money(items.reduce((a, c) => a + (valueOf(c) ?? 0), 0)),
       items: items.map((c) => {
         const b = badgeFor(c);
         const { look, glow } = itemLook(c);
         const v = valueOf(c);
-        return { id: c.id, name: itemName(c), size: c.size, priceFmt: v !== null ? money(v) : '—', ...look, glowA: glow, isCustom: true, badgeLabel: b.label, badgeColor: b.color, badgeBg: 'rgba(255,255,255,0.08)' };
+        return { id: c.id, name: itemName(c), size: c.size, priceFmt: v !== null ? money(v) : '—', ...look, glowA: glow, isCustom: true, badgeLabel: t(b.label), badgeColor: b.color, badgeBg: 'rgba(255,255,255,0.08)' };
       })
     };
     const url = location.origin + '/#/vault/' + encodeURIComponent(encodeShareData(payload));
     navigator.clipboard?.writeText(url).then(
-      () => toast('Public link copied · read-only'),
+      () => toast(t('vault.linkCopied')),
       () => toast(url)
     );
   };
@@ -54,19 +56,19 @@ export default function VaultPage({ tab }: { tab: Tab }) {
   if (!user) {
     return (
       <Page>
-        <h1 className="display display--lg">Watchlist</h1>
-        <p style={{ color: 'var(--muted)', marginTop: 10 }}>Saved on this device. Sign in to keep it across devices and get price alerts.</p>
-        <div style={{ marginTop: 24 }}>{watched.length ? <ShirtGrid shirts={watched} /> : <EmptyState title="Nothing watched yet">Tap the heart on any shirt to track its price.</EmptyState>}</div>
+        <h1 className="display display--lg">{t('vault.title.watchlist')}</h1>
+        <p style={{ color: 'var(--muted)', marginTop: 10 }}>{t('vault.guestBody')}</p>
+        <div style={{ marginTop: 24 }}>{watched.length ? <ShirtGrid shirts={watched} /> : <EmptyState title={t('vault.nothingWatched')}>{t('vault.tapHeart')}</EmptyState>}</div>
       </Page>
     );
   }
 
   const expert = items.filter((c) => c.verification.level === 'expert').length;
-  const since = user.created_at ? new Date(user.created_at).toLocaleDateString('en-GB', { month: 'long', year: 'numeric' }) : '';
+  const since = user.created_at ? new Date(user.created_at).toLocaleDateString(locale, { month: 'long', year: 'numeric' }) : '';
   const tabs: [Tab, string, number][] = [
-    ['collection', 'Collection', items.length],
-    ['watchlist', 'Watchlist', watch.ids.length],
-    ['orders', 'Orders', orders.data?.length ?? 0]
+    ['collection', t('vault.tab.collection'), items.length],
+    ['watchlist', t('vault.title.watchlist'), watch.ids.length],
+    ['orders', t('vault.title.orders'), orders.data?.length ?? 0]
   ];
   const path: Record<Tab, string> = { collection: '/vault', watchlist: '/watchlist', orders: '/orders' };
 
@@ -78,28 +80,28 @@ export default function VaultPage({ tab }: { tab: Tab }) {
         </div>
         <div style={{ flex: 1, minWidth: 220 }}>
           <h1 className="display" style={{ fontSize: 'clamp(32px,4vw,48px)', lineHeight: 1 }}>
-            My collection
+            {t('vault.title.collection')}
           </h1>
           <div style={{ fontSize: 14, color: 'var(--muted)', marginTop: 6 }}>
-            @{(user.email || '').split('@')[0]}
-            {since && ' · Member since ' + since}
+            {handle ?? <Link to="/welcome?step=username">{t('vault.chooseHandle')}</Link>}
+            {since && ' · ' + t('vault.memberSince', { date: since })}
           </div>
           {expert > 0 && (
             <Badge tone="warn" style={{ marginTop: 10, fontFamily: 'var(--font-sans)', fontSize: 12 }}>
-              ✓ {expert} expert-verified
+              {t('vault.expertCount', { n: expert })}
             </Badge>
           )}
         </div>
         <Button variant="ghost" onClick={share} disabled={!items.length}>
-          Share collection
+          {t('vault.share')}
         </Button>
-        <ButtonLink to="/vault/add">+ Add a shirt</ButtonLink>
+        <ButtonLink to="/vault/add">{t('vault.add')}</ButtonLink>
       </div>
 
       <VaultSummary items={items} watching={watch.ids.length} />
       <PayoutsCard />
 
-      <nav aria-label="Collection sections" style={{ display: 'flex', gap: 28, marginTop: 40, borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+      <nav aria-label={t('vault.sections')} style={{ display: 'flex', gap: 28, marginTop: 40, borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
         {tabs.map(([k, label, n]) => (
           <NavLink key={k} to={path[k]} aria-current={tab === k ? 'page' : undefined} style={{ padding: '0 0 14px', fontSize: 16, fontWeight: 700, color: tab === k ? 'var(--text)' : 'var(--muted)', borderBottom: `2px solid ${tab === k ? 'var(--accent)' : 'transparent'}`, marginBottom: -1, display: 'flex', gap: 8, alignItems: 'center' }}>
             {label}
@@ -111,7 +113,7 @@ export default function VaultPage({ tab }: { tab: Tab }) {
       </nav>
 
       {tab === 'collection' && <CollectionTab items={items} loading={loading} error={error} onRetry={refetch} />}
-      {tab === 'watchlist' && <div style={{ marginTop: 24 }}>{watched.length ? <ShirtGrid shirts={watched} /> : <EmptyState title="Your watchlist is empty">Tap the heart on any shirt to track its price.</EmptyState>}</div>}
+      {tab === 'watchlist' && <div style={{ marginTop: 24 }}>{watched.length ? <ShirtGrid shirts={watched} /> : <EmptyState title={t('vault.watchEmpty')}>{t('vault.tapHeart')}</EmptyState>}</div>}
       {tab === 'orders' && <OrdersTab />}
     </Page>
   );

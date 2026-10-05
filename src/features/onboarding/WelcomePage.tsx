@@ -3,7 +3,7 @@
 // be skipped; answering personalises "Recommended for you" and where we send
 // you next.
 import { useEffect, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router';
+import { useLocation, useNavigate, useSearchParams } from 'react-router';
 import { useQueryClient } from '@tanstack/react-query';
 import { SHIRTS } from '../../data.ts';
 import { usePageMeta } from '../../lib/meta.ts';
@@ -48,7 +48,9 @@ export default function WelcomePage() {
   const toast = useToast();
   const nav = useNavigate();
   const from = ((useLocation().state || {}) as { from?: string }).from;
-  const [step, setStep] = useState(0);
+  // ?step=username jumps straight to the username (from "Choose a username").
+  const [params] = useSearchParams();
+  const [step, setStep] = useState(params.get('step') === 'username' ? 2 : 0);
   const [goals, setGoals] = useState<string[]>([]);
   const [leagues, setLeagues] = useState<string[]>([]);
   const [types, setTypes] = useState<string[]>([]);

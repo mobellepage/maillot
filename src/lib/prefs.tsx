@@ -18,8 +18,8 @@ interface Prefs {
   locale: string;
   /** Plural: picks `${base}.one` for n = 1, else `${base}.other`; {n} is filled in. */
   tp: (base: string, n: number, vars?: Vars) => string;
-  /** Display name for a catalogue value (type, league, condition, edition); unknown values pass through. */
-  label: (kind: 'type' | 'league' | 'cond' | 'edition', value: string) => string;
+  /** Display name for a stored value (catalogue type/league/condition/edition, add-shirt options); unknown values pass through. */
+  label: (kind: 'type' | 'league' | 'cond' | 'edition' | 'opt', value: string) => string;
   currencies: readonly Currency[];
   langs: readonly Lang[];
 }

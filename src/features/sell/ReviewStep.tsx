@@ -7,7 +7,7 @@ import type { SellFlow } from './useSellFlow.ts';
 
 export function ReviewStep({ f }: { f: SellFlow }) {
   const s = f.shirt!;
-  const { money } = usePrefs();
+  const { money, t, label } = usePrefs();
   const payouts = usePayoutStatus();
   const needsPayouts = f.signedIn && payouts.data && !payouts.data.payouts_enabled;
   return (
@@ -17,35 +17,35 @@ export function ReviewStep({ f }: { f: SellFlow }) {
       </div>
       <Card style={{ flex: '1 1 340px', minWidth: 0, display: 'flex', flexDirection: 'column' }}>
         <h2 className="display" style={{ fontSize: 22, fontStretch: '78%', marginBottom: 10 }}>
-          Review listing
+          {t('sell.reviewListing')}
         </h2>
         <KeyValueList
           rows={[
-            ['Shirt', s.name],
-            ['Size', f.size],
-            ['Condition', f.condition],
-            ['Edition', f.edition],
-            ['Player print', f.player || 'None'],
-            ['Asking price', money(f.amount)],
-            ['You earn', money(sellerPayout(f.amount).payout)]
+            [t('sell.shirt'), s.name],
+            [t('sell.size'), f.size],
+            [t('sell.condition'), label('cond', f.condition)],
+            [t('sell.edition'), label('edition', f.edition)],
+            [t('sell.playerPrint'), f.player || t('sell.none')],
+            [t('sell.asking'), money(f.amount)],
+            [t('sell.youEarn'), money(sellerPayout(f.amount).payout)]
           ]}
         />
         <div style={{ flex: 1, minHeight: 16 }} />
         {needsPayouts && (
           <Notice tone="info" style={{ marginTop: 14 }}>
-            You can list now. To get paid when it sells, <Link to="/vault">set up payouts</Link> — it takes about two minutes with Stripe.
+            {t('sell.payoutsNotice')} <Link to="/vault">{t('sell.setupPayouts')}</Link>
           </Notice>
         )}
         {f.signedIn ? (
-          <Button size="lg" block busy={f.busy} busyLabel="Publishing…" onClick={f.publish} style={{ marginTop: 18 }}>
-            Publish listing
+          <Button size="lg" block busy={f.busy} busyLabel={t('sell.publishing')} onClick={f.publish} style={{ marginTop: 18 }}>
+            {t('sell.publish')}
           </Button>
         ) : (
           <Link to="/signin" state={{ from: `/sell?shirt=${s.id}&size=${f.size}`, notice: 'auth.signInToSell' }} className="btn btn--primary btn--lg btn--block" style={{ marginTop: 18 }}>
-            Sign in to publish
+            {t('sell.signIn')}
           </Link>
         )}
-        <p style={{ fontSize: 12, color: 'var(--muted)', textAlign: 'center', margin: '10px 0 0' }}>You’ll ship to our Zürich vault with a prepaid label once it sells.</p>
+        <p style={{ fontSize: 12, color: 'var(--muted)', textAlign: 'center', margin: '10px 0 0' }}>{t('sell.shipNote')}</p>
       </Card>
     </div>
   );

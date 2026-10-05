@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router';
 import { estimateValue } from '../../addShirtData.js';
 import { BY } from '../../data.ts';
 import { usePageMeta } from '../../lib/meta.ts';
+import { usePrefs } from '../../lib/prefs.tsx';
 import { useSession } from '../../lib/session.tsx';
 import { useToast } from '../../lib/toast.tsx';
 import type { Valuation } from '../../types/domain.ts';
@@ -19,11 +20,12 @@ import { useAddShirtForm } from './addshirt/useAddShirtForm.ts';
 import { buildPhotoSpecs } from '../../addShirtData.js';
 import { useCollectionActions } from './useCollection.ts';
 
-const STEPS = ['Scan', 'Trikot', 'Details', 'Fotos', 'Vorprüfung', 'Verifizierung', 'Wert & Abschluss'];
+const STEPS = ['as.step.scan', 'as.step.shirt', 'as.step.details', 'as.step.photos', 'as.step.precheck', 'as.step.verify', 'as.step.finish'] as const;
 
 export default function AddShirtPage() {
   useCatalog(); // re-render when the live catalogue loads
-  usePageMeta('Add a shirt');
+  const { t } = usePrefs();
+  usePageMeta(t('as.meta'));
   const { user } = useSession();
   const w = useAddShirtForm(user?.id);
   const { f, set } = w;
@@ -34,7 +36,7 @@ export default function AddShirtPage() {
 
   const catalogItem = f.catalogId ? BY[f.catalogId] ?? null : null;
   const valuation = estimateValue({ catalogItem, version: f.version, conditionGrade: f.condition.grade, flock: f.flock, patches: f.patches, signature: f.signature, verificationLevel: f.verification.level }) as Valuation;
-  const specs = buildPhotoSpecs(f) as { key: string }[];
+  const specs = buildPhotoSpecs(f, t) as { key: string }[];
   const canNext = [f.scan.status !== 'scanning', !!f.catalogId || (f.proposed && !!f.proposedClub.trim() && !!f.proposedSeason.trim()), !!f.version, specs.every((s) => f.photos[s.key]), !!f.precheck, true, false][f.step];
 
   // Compress on the device (strips EXIF/GPS), upload the full image and a
@@ -46,7 +48,7 @@ export default function AddShirtPage() {
       const { path, thumbPath } = await uploadPhoto(user!.id, 'items/' + f.draftId, key, blob, thumb);
       return { ...meta, label, path, thumbPath };
     } catch {
-      toast('Upload failed — please try again.');
+      toast(t('as.uploadFailed'));
       return null;
     } finally {
       setBusyKey(null);
@@ -81,7 +83,7 @@ export default function AddShirtPage() {
       {
         onSuccess: (item) => {
           w.reset();
-          toast('Shirt saved to your collection');
+          toast(t('as.saved'));
           navigate('/vault/item/' + item.id);
         }
       }
@@ -94,13 +96,13 @@ export default function AddShirtPage() {
 
   return (
     <Page style={{ maxWidth: 860 }}>
-      <div className="eyebrow">Trikot hinzufügen</div>
+      <div className="eyebrow">{t('as.eyebrow')}</div>
       <h1 className="display" style={{ marginTop: 8, fontSize: 'clamp(30px,4.2vw,48px)' }}>
-        {STEPS[f.step]}
+        {t(STEPS[f.step] ?? STEPS[0])}
       </h1>
-      <ol aria-label="Schritte" style={{ listStyle: 'none', padding: 0, display: 'flex', alignItems: 'center', gap: 8, margin: '24px 0 32px', overflowX: 'auto', paddingBottom: 4 }}>
+      <ol aria-label={t('as.steps')} style={{ listStyle: 'none', padding: 0, display: 'flex', alignItems: 'center', gap: 8, margin: '24px 0 32px', overflowX: 'auto', paddingBottom: 4 }}>
         {STEPS.map((l, i) => (
-          <li key={l} aria-current={i === f.step ? 'step' : undefined} aria-label={l} style={{ display: 'flex', alignItems: 'center', gap: 8, flex: 'none' }}>
+          <li key={l} aria-current={i === f.step ? 'step' : undefined} aria-label={t(l)} style={{ display: 'flex', alignItems: 'center', gap: 8, flex: 'none' }}>
             <span className="mono" style={{ width: 26, height: 26, borderRadius: '50%', background: i < f.step ? 'var(--accent)' : i === f.step ? 'var(--text)' : 'var(--step-idle)', color: i <= f.step ? 'var(--bg)' : 'var(--muted)', display: 'grid', placeItems: 'center', fontSize: 11, fontWeight: 700 }}>
               {i < f.step ? <CheckIcon size={12} /> : i + 1}
             </span>
@@ -110,7 +112,7 @@ export default function AddShirtPage() {
       </ol>
 
       {f.step === 0 && <ScanStep w={w} busy={busyKey === 'product_code'} valuation={valuation} onScanFile={async (file) => {
-            const p = await capture('product_code', file, 'Etikett mit Artikelnummer');
+            const p = await capture('product_code', file, t('as.photo.product_code'));
             if (p) w.runScan(p);
           }} />}
       {f.step === 1 && <IdentifyStep w={w} />}
@@ -133,11 +135,11 @@ export default function AddShirtPage() {
             } else go(f.step - 1);
           }}
         >
-          {f.step === 0 ? 'Abbrechen' : '← Zurück'}
+          {f.step === 0 ? t('as.cancel') : t('as.back')}
         </Button>
         {f.step < 6 && (
           <Button variant="light" disabled={!canNext} onClick={() => go(f.step + 1)}>
-            Weiter →
+            {t('as.next')}
           </Button>
         )}
       </div>

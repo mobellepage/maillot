@@ -1,5 +1,6 @@
 import type { ChangeEvent, ReactNode } from 'react';
 import type { Photo } from '../../../types/domain.ts';
+import { usePrefs } from '../../../lib/prefs.tsx';
 import { usePhotoUrls } from '../../../lib/usePhotoUrls.ts';
 
 export function Section({ title, hint, children }: { title: ReactNode; hint?: ReactNode; children: ReactNode }) {
@@ -62,6 +63,7 @@ export function PhotoInput({ data, busy, onFile, size = 84, label }: { data: Pho
 }
 
 export function PhotoSlot({ spec, data, busy, onFile, onRemove }: { spec: { key: string; label: string; hint?: string }; data: Photo | undefined; busy: boolean; onFile: (f: File) => void; onRemove: () => void }) {
+  const { t } = usePrefs();
   return (
     <div style={{ display: 'flex', gap: 14, alignItems: 'flex-start', padding: 14, borderRadius: 16, background: 'var(--surface)', border: '1px solid var(--line)' }}>
       <PhotoInput data={data} busy={busy} onFile={onFile} label={spec.label} />
@@ -70,11 +72,11 @@ export function PhotoSlot({ spec, data, busy, onFile, onRemove }: { spec: { key:
         {spec.hint && <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 2, lineHeight: 1.4 }}>{spec.hint}</div>}
         {data && (
           <div style={{ display: 'flex', gap: 8, marginTop: 6, flexWrap: 'wrap', alignItems: 'center' }}>
-            <span className="badge badge--accent">✓ Hochgeladen</span>
-            {data.lowRes && <span className="badge badge--warn">Niedrige Auflösung</span>}
-            {data.blurry && <span className="badge badge--warn">Evtl. unscharf</span>}
+            <span className="badge badge--accent">{t('as.p.uploaded')}</span>
+            {data.lowRes && <span className="badge badge--warn">{t('as.p.lowRes')}</span>}
+            {data.blurry && <span className="badge badge--warn">{t('as.p.blurry')}</span>}
             <button type="button" className="link-btn link-btn--muted" onClick={onRemove} style={{ fontSize: 11, textDecoration: 'underline' }}>
-              Neu aufnehmen
+              {t('as.p.retake')}
             </button>
           </div>
         )}

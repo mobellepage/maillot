@@ -46,16 +46,21 @@ export interface Photo {
 
 export interface Valuation {
   blocked: boolean;
+  /** Message key (older items: German text, shown as is). */
   reason?: string;
   low?: number;
   mid: number;
   high?: number;
   confidence?: string;
+  /** What the estimate rests on, as a message. */
+  basis?: { key: string; vars?: Record<string, string | number> };
+  /** Older items: the same, as German text. */
   basisText?: string;
 }
 
 export interface Precheck {
   status: 'ok' | 'review' | 'fake';
+  /** Message keys (older items: German text, shown as is). */
   notes: string[];
 }
 
