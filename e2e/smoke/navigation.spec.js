@@ -11,12 +11,13 @@ test('search leads to a shareable product URL and Back works', async ({ page }) 
   await page.goto('/');
   await page.getByPlaceholder('Search any shirt…').fill('maradona');
   await page.getByRole('button', { name: 'Search', exact: true }).click();
-  await expect(page).toHaveURL(/\/market$/);
-  await page.getByText('Boca Juniors 1981 Home').first().click();
+  // The search lives in the URL, so results are shareable.
+  await expect(page).toHaveURL(/\/market\?q=maradona$/);
+  await page.getByRole('link', { name: 'Boca Juniors 1981 Home' }).click();
   await expect(page).toHaveURL(/\/shirt\/boc-81$/);
   await expect(page).toHaveTitle(/^Boca Juniors 1981 Home/);
   await page.goBack();
-  await expect(page).toHaveURL(/\/market$/);
+  await expect(page).toHaveURL(/\/market\?q=maradona$/);
 });
 
 test('deep link to a product shows market value and an honest empty order book', async ({ page }) => {
@@ -31,8 +32,8 @@ test('deep link to a product shows market value and an honest empty order book',
 
 test('"Sell yours" opens the sell flow with the shirt preselected', async ({ page }) => {
   await page.goto('/shirt/rma-2627');
-  await page.getByRole('button', { name: 'Sell yours' }).click();
-  await expect(page).toHaveURL(/\/sell$/);
+  await page.getByRole('link', { name: 'Sell yours' }).click();
+  await expect(page).toHaveURL(/\/sell\?shirt=rma-2627&size=M$/);
   await expect(page.getByText('Real Madrid 2026/27 Home').first()).toBeVisible();
   await expect(page.getByText('Condition', { exact: true })).toBeVisible();
 
@@ -46,7 +47,7 @@ test('"Sell yours" opens the sell flow with the shirt preselected', async ({ pag
 test('private pages redirect signed-out visitors to sign-in', async ({ page }) => {
   await page.goto('/orders');
   await expect(page).toHaveURL(/\/signin$/);
-  await expect(page.getByText('Bitte zuerst anmelden.')).toBeVisible();
+  await expect(page.getByText('Please sign in first.')).toBeVisible();
 });
 
 test('a malformed share link shows an error page instead of crashing @mobile', async ({ page }) => {
@@ -64,7 +65,7 @@ test('unknown URLs fall back to the home page', async ({ page }) => {
 
 test('product pages link to the authentication explainer', async ({ page }) => {
   await page.goto('/shirt/fra-98');
-  await page.getByRole('button', { name: 'How it works →' }).click();
+  await page.getByRole('link', { name: 'How it works →' }).click();
   await expect(page).toHaveURL(/\/authentication$/);
   await expect(page.getByRole('heading', { level: 1 })).toContainText(/How authentication works/i);
   await expect(page.getByText('The 14-point checklist')).toBeVisible();
@@ -81,7 +82,7 @@ test('footer reaches every legal page and no fonts are fetched from Google @mobi
     ['Imprint', /Imprint/i, /\/legal\/imprint$/],
     ['Help & contact', /Help & contact/i, /\/help$/]
   ]) {
-    await page.locator('footer').getByRole('button', { name: link }).click();
+    await page.locator('footer').getByRole('link', { name: link }).click();
     await expect(page).toHaveURL(path);
     await expect(page.getByRole('heading', { level: 1 })).toContainText(heading);
   }

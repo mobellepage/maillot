@@ -33,6 +33,9 @@ const DICT: Record<string, Partial<Record<Lang, string>> & { en: string }> = {
   'auth.noAccount': { en: 'No account yet? Sign up', de: 'Noch kein Konto? Jetzt registrieren' },
   'auth.haveAccount': { en: 'Already have an account? Sign in', de: 'Bereits ein Konto? Jetzt anmelden' },
   'auth.back': { en: '\u2190 Back', de: '\u2190 Zur\u00fcck' },
+  'auth.signInFirst': { en: 'Please sign in first.', de: 'Bitte zuerst anmelden.' },
+  'auth.signInToTrade': { en: 'Sign in to buy or bid.', de: 'Bitte anmelden, um zu kaufen oder zu bieten.' },
+  'auth.signInToSell': { en: 'Sign in to publish your listing.', de: 'Bitte anmelden, um dein Inserat zu veröffentlichen.' },
   'auth.required': { en: 'Email and password required.', de: 'E-Mail und Passwort erforderlich.' },
 
   'order.pending_payment': { en: 'Payment pending', de: 'Zahlung ausstehend' },

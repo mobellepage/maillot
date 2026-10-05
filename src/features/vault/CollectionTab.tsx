@@ -1,0 +1,84 @@
+import { Link } from 'react-router';
+import { usePrefs } from '../../lib/prefs.tsx';
+import type { CustomItem } from '../../types/domain.ts';
+import { downloadVaultCard } from '../../utils/cardExport.js';
+import { ButtonLink, DownloadIcon, EmptyState, Notice, ShirtGraphic, HEX } from '../../ui/index.ts';
+import { badgeFor, itemLook, itemName, valueOf } from './model.ts';
+
+export function CollectionTab({ items }: { items: CustomItem[] }) {
+  const { money } = usePrefs();
+  const rejected = items.filter((c) => c.verification.status === 'abgelehnt');
+  if (!items.length) {
+    return (
+      <div style={{ marginTop: 24 }}>
+        <EmptyState accent title="Start your collection" action={<ButtonLink to="/vault/add">+ Add your first shirt</ButtonLink>}>
+          Add the shirts you own to track their value, get them expert-verified and share your collection.
+        </EmptyState>
+      </div>
+    );
+  }
+  return (
+    <>
+      {rejected.length > 0 && (
+        <Notice tone="neg" style={{ marginTop: 24 }}>
+          <strong>{rejected.length === 1 ? '1 submission rejected' : rejected.length + ' submissions rejected'}</strong>
+          {rejected.map((c) => (
+            <div key={c.id} style={{ marginTop: 6, color: 'var(--text-2)' }}>
+              <Link to={'/vault/item/' + c.id} style={{ color: 'inherit', fontWeight: 600 }}>
+                {itemName(c)}
+              </Link>{' '}
+              — {c.verification.reason}
+            </div>
+          ))}
+        </Notice>
+      )}
+      <ul className="grid-cards" style={{ listStyle: 'none', padding: 0, margin: '24px 0 0', gridTemplateColumns: 'repeat(auto-fill,minmax(min(100%,200px),1fr))' }}>
+        {items.map((c) => {
+          const badge = badgeFor(c);
+          const { look, glow } = itemLook(c);
+          const value = valueOf(c);
+          const name = itemName(c);
+          return (
+            <li key={c.id}>
+              <article className="card card--interactive" style={{ position: 'relative', padding: 0, borderRadius: 22, overflow: 'hidden' }}>
+                <div style={{ aspectRatio: '1/1.08', display: 'grid', placeItems: 'center', position: 'relative', background: `radial-gradient(circle at 50% 46%,${glow},rgba(0,0,0,0) 62%),var(--sunken)` }}>
+                  <span className="mono" style={{ position: 'absolute', top: 12, left: 12, fontSize: 10.5, color: 'var(--text-2)' }}>
+                    SIZE {c.size}
+                  </span>
+                  <span className={'badge badge--' + badge.tone} title={badge.desc} style={{ position: 'absolute', top: 12, right: 12, fontSize: 9.5 }}>
+                    {badge.label}
+                  </span>
+                  <ShirtGraphic {...look} style={{ width: '66%' }} />
+                </div>
+                <div style={{ padding: '14px 16px 16px' }}>
+                  <h3 style={{ margin: 0, fontSize: 14.5, fontWeight: 600, lineHeight: 1.25, height: '2.5em', overflow: 'hidden' }}>
+                    <Link to={'/vault/item/' + c.id} className="stretched-link" style={{ color: 'inherit' }}>
+                      {name}
+                    </Link>
+                  </h3>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginTop: 10 }}>
+                    <div>
+                      <div style={{ fontSize: 11, color: 'var(--muted)' }}>Estimated value</div>
+                      <div className="mono" style={{ fontSize: 16, fontWeight: 600, marginTop: 2 }}>
+                        {value !== null ? money(value) : 'Pending'}
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      className="icon-btn"
+                      aria-label={'Export ' + name + ' as an image'}
+                      onClick={() => downloadVaultCard({ name, size: c.size, priceFmt: value !== null ? money(value) : '—', paid: 'Estimated value', gain: '', gainC: HEX.muted, glowA: glow, ...look, badgeLabel: badge.label, badgeColor: badge.color })}
+                      style={{ position: 'relative', zIndex: 2, width: 32, height: 32, borderRadius: 8 }}
+                    >
+                      <DownloadIcon />
+                    </button>
+                  </div>
+                </div>
+              </article>
+            </li>
+          );
+        })}
+      </ul>
+    </>
+  );
+}

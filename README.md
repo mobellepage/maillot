@@ -13,13 +13,32 @@ cp .env.example .env.local   # point at the hosted project or local stack
 npm run dev
 ```
 
-## TypeScript
+## Architecture
 
-Strict TypeScript (`noUncheckedIndexedAccess` included). The data layer —
-`src/utils/*.ts`, `src/data.ts`, `src/types/` — is fully typed against the
-generated schema in `src/types/database.ts` (regenerate with `npm run db:types`
-after a migration). Views and the engine are still `.jsx` and migrate as they
-are split into feature modules. `npm run typecheck` runs in CI.
+```
+src/
+  main.tsx            providers + router
+  app/                shell: router (lazy routes), layout, header, nav, footer, auth guard
+  lib/                session, preferences (currency/FX, language), toast, query client, page meta
+  ui/                 design system: tokens.ts + ui.css, Button, Card, Badge, Dialog, fields, ShirtCard…
+  features/
+    catalog/          pure catalogue logic (search, filters, value) + ShirtGrid
+    home/ browse/     pages
+    market/           product page, live order book, buy/bid dialog
+    sell/             four-step listing flow
+    vault/            collection, item page, add-shirt wizard, public share page
+    orders/           escrow actions and dialogs
+    admin/ auth/ trust/ notifications/ watchlist/
+  utils/db/           the only code that talks to Supabase, split by domain
+  types/              generated schema types + domain types
+```
+
+- Server state lives in TanStack Query (one query key per resource); there is
+  no global app-state object.
+- URLs are the state for navigation and browsing (`/market?league=Serie+A&sort=gain`).
+- Every colour, radius and font comes from `src/ui/tokens.ts` / `ui.css`.
+- Strict TypeScript (`noUncheckedIndexedAccess` included); `npm run typecheck` runs in CI.
+- No source file over 300 lines (generated types excepted).
 
 ## Tests
 

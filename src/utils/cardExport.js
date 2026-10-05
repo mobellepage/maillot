@@ -2,6 +2,8 @@
 // with the Canvas 2D API (no server round-trip, no screenshot library). The result
 // is a genuine PNG, pixel-identical in content (not styling) to what gets downloaded.
 
+import { HEX } from '../ui/tokens.ts';
+
 const W = 800;
 const H = 960;
 
@@ -15,11 +17,11 @@ function roundRectPath(ctx, x, y, w, h, r) {
   ctx.closePath();
 }
 
-// CSS gradient strings in data.js (e.g. "linear-gradient(180deg,#F4F4F1 0 31%,...)")
+// CSS gradient strings in data.ts (e.g. "linear-gradient(180deg,<hex> 0 31%,...)")
 // are too varied to parse exactly; we extract the hex stops and build a close
 // top-to-bottom approximation with the real Canvas gradient API.
 function extractHexStops(pat) {
-  const hexes = (pat.match(/#[0-9a-fA-F]{3,6}/g) || ['#2A302D', '#1A1F1C']);
+  const hexes = (pat.match(/#[0-9a-fA-F]{3,6}/g) || [HEX.placeholderFill, HEX.stepIdle]);
   return hexes.length > 1 ? [hexes[0], hexes[hexes.length - 1]] : [hexes[0], hexes[0]];
 }
 
@@ -50,7 +52,7 @@ export function renderVaultCard(data) {
   roundRectPath(ctx, 0, 0, W, H, 32);
   ctx.clip();
 
-  ctx.fillStyle = '#0A0C0B';
+  ctx.fillStyle = HEX.bg;
   ctx.fillRect(0, 0, W, H);
 
   const photoH = W * 0.78;
@@ -59,7 +61,7 @@ export function renderVaultCard(data) {
   glow.addColorStop(1, 'rgba(0,0,0,0)');
   ctx.fillStyle = glow;
   ctx.fillRect(0, 0, W, photoH);
-  ctx.fillStyle = '#0D100F';
+  ctx.fillStyle = HEX.sunken;
   ctx.globalCompositeOperation = 'destination-over';
   ctx.fillRect(0, 0, W, photoH);
   ctx.globalCompositeOperation = 'source-over';
@@ -76,19 +78,19 @@ export function renderVaultCard(data) {
   roundRectPath(ctx, sx, sy, shirtW, shirtH, 36);
   ctx.fill();
 
-  ctx.strokeStyle = data.trim || '#FFFFFF';
+  ctx.strokeStyle = data.trim || HEX.white;
   ctx.lineWidth = 6;
   ctx.beginPath();
   ctx.arc(W / 2, sy + shirtH * 0.07, shirtW * 0.115, 0.15 * Math.PI, 0.85 * Math.PI);
   ctx.stroke();
 
-  ctx.fillStyle = data.crest || '#FFFFFF';
+  ctx.fillStyle = data.crest || HEX.white;
   ctx.beginPath();
   ctx.ellipse(sx + shirtW * 0.61, sy + shirtH * 0.23, shirtW * 0.045, shirtW * 0.055, 0, 0, Math.PI * 2);
   ctx.fill();
 
   ctx.font = '600 24px "JetBrains Mono Variable","JetBrains Mono",monospace';
-  ctx.fillStyle = '#C9D0CB';
+  ctx.fillStyle = HEX.text2;
   ctx.fillText('SIZE ' + data.size, 28, 44);
 
   if (data.badgeLabel) {
@@ -99,14 +101,14 @@ export function renderVaultCard(data) {
     const pillW = textW + padX * 2;
     const pillX = W - 28 - pillW;
     roundRectPath(ctx, pillX, 24, pillW, 40, 20);
-    ctx.fillStyle = (data.badgeColor || '#C9D0CB') + '22';
+    ctx.fillStyle = (data.badgeColor || HEX.text2) + '22';
     ctx.fill();
-    ctx.fillStyle = data.badgeColor || '#C9D0CB';
+    ctx.fillStyle = data.badgeColor || HEX.text2;
     ctx.fillText(label, pillX + padX, 51);
   }
 
   ctx.textBaseline = 'alphabetic';
-  ctx.fillStyle = '#F2F4F1';
+  ctx.fillStyle = HEX.text;
   ctx.font = '700 36px "Archivo Variable",Archivo,system-ui,sans-serif';
   const nameLines = wrapText(ctx, data.name || '', W - 56);
   let ny = photoH + 56;
@@ -116,25 +118,25 @@ export function renderVaultCard(data) {
   });
 
   ctx.font = '500 20px "JetBrains Mono Variable","JetBrains Mono",monospace';
-  ctx.fillStyle = '#8C958F';
+  ctx.fillStyle = HEX.muted;
   ctx.fillText(data.paid || '', 28, ny + 26);
 
   ctx.font = '700 46px "JetBrains Mono Variable","JetBrains Mono",monospace';
-  ctx.fillStyle = '#F2F4F1';
+  ctx.fillStyle = HEX.text;
   ctx.fillText(data.priceFmt || '\u2014', 28, ny + 76);
 
   if (data.gain) {
     ctx.font = '700 26px "JetBrains Mono Variable","JetBrains Mono",monospace';
-    ctx.fillStyle = data.gainC || '#8C958F';
+    ctx.fillStyle = data.gainC || HEX.muted;
     const w = ctx.measureText(data.gain).width;
     ctx.fillText(data.gain, W - 28 - w, ny + 76);
   }
 
   ctx.font = '700 22px "Archivo Variable",Archivo,system-ui,sans-serif';
-  ctx.fillStyle = '#4BFF8B';
+  ctx.fillStyle = HEX.accent;
   ctx.fillText('MAILLOT', 28, H - 32);
   ctx.font = '500 16px "JetBrains Mono Variable","JetBrains Mono",monospace';
-  ctx.fillStyle = '#6F7872';
+  ctx.fillStyle = HEX.faint;
   ctx.fillText('maillot.app', W - 28 - ctx.measureText('maillot.app').width, H - 32);
 
   return canvas;
