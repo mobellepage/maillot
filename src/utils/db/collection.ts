@@ -3,7 +3,7 @@ import { supabase } from '../supabase.ts';
 import type { Tables } from '../../types/database.ts';
 import type { CustomItem, Review, ReviewSnapshot } from '../../types/domain.ts';
 import { fromJson, toJson } from './json.ts';
-import { persistablePhotos } from './photos.ts';
+import { persistablePhotos, removePhotos } from './photos.ts';
 
 // ---------------------------------------------------------------------------
 // Custom (self-added) vault items
@@ -77,6 +77,17 @@ export async function loadCustomItems(userId: string): Promise<CustomItem[]> {
 export async function upsertCustomItem(userId: string, item: CustomItem): Promise<void> {
   const { error } = await supabase.from('custom_items').upsert(customItemToRow(userId, item));
   if (error) throw error;
+}
+
+/**
+ * Removes an item and its photos. Fails with code 23503 while a listing or
+ * order still refers to it — those are records the other party relies on.
+ */
+export async function deleteCustomItem(item: CustomItem): Promise<void> {
+  const { error } = await supabase.from('custom_items').delete().eq('id', item.id);
+  if (error) throw error;
+  const paths = Object.values(item.photos).flatMap((p) => [p.path, p.thumbPath].filter((x): x is string => !!x));
+  await removePhotos(paths).catch(() => {}); // orphaned files are harmless; the row is gone
 }
 
 // ---------------------------------------------------------------------------

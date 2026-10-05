@@ -6,7 +6,7 @@ import { BY } from '../../data.ts';
 import { formatDate } from '../../lib/format.ts';
 import { usePrefs } from '../../lib/prefs.tsx';
 import type { Inspection } from '../../utils/db.ts';
-import { Badge, Button, Card, SectionHeader, TextField } from '../../ui/index.ts';
+import { Badge, Button, Card, SectionHeader, TextField, useConfirm } from '../../ui/index.ts';
 import { carrierName, detectCarrier, trackingUrl } from '../orders/shipping.ts';
 import { useInspections, useRecordInspection, useOutboundLabel } from './queries.ts';
 
@@ -27,6 +27,7 @@ function InspectionCard({ i }: { i: Inspection }) {
   const record = useRecordInspection();
   const outLabel = useOutboundLabel();
   const [note, setNote] = useState('');
+  const confirm = useConfirm();
   const [outbound, setOutbound] = useState(i.outbound_tracking ?? '');
   const arrived = !!i.shipped_at;
   const inUrl = trackingUrl(i.carrier, i.tracking_code);
@@ -79,7 +80,7 @@ function InspectionCard({ i }: { i: Inspection }) {
             <Button size="sm" disabled={record.isPending} onClick={() => record.mutate({ id: i.order_id, passed: true, note, outbound, carrier: detectCarrier(outbound) })}>
               Passed — forward to buyer
             </Button>
-            <Button size="sm" variant="danger" disabled={record.isPending} onClick={() => record.mutate({ id: i.order_id, passed: false, note, outbound: '', carrier: null })}>
+            <Button size="sm" variant="danger" disabled={record.isPending} onClick={async () => (await confirm({ title: 'Fail this shirt?', body: 'The buyer is refunded in full and the seller is told it didn’t pass' + (note ? ` (“${note}”)` : '') + '. This can’t be undone.', confirmLabel: 'Fail and refund', tone: 'danger' })) && record.mutate({ id: i.order_id, passed: false, note, outbound: '', carrier: null })}>
               Failed — refund buyer
             </Button>
           </div>

@@ -2,6 +2,8 @@
 export { Button, ButtonLink, LinkButton } from './Button.tsx';
 export type { ButtonProps, ButtonVariant } from './Button.tsx';
 export { Dialog } from './Dialog.tsx';
+export { useConfirm } from './Confirm.tsx';
+export type { ConfirmOptions } from './Confirm.tsx';
 export { TextField, SearchField } from './Field.tsx';
 export * from './icons.tsx';
 export { Page, Card, Badge, Notice, SectionHeader, Segmented, KeyValueList, EmptyState, Skeleton, StatTile } from './primitives.tsx';

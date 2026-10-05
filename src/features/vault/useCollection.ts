@@ -97,5 +97,14 @@ export function useCollectionActions() {
     onError: () => toast('Submission failed — please try again.')
   });
 
-  return { add, retry };
+  const remove = useMutation({
+    mutationFn: (c: CustomItem) => db.deleteCustomItem(c),
+    onSuccess: () => {
+      toast('Removed from your collection');
+      refresh();
+    },
+    onError: (e) => toast((e as { code?: string }).code === '23503' ? 'This shirt has a listing or order — cancel the listing first.' : 'Couldn’t remove it — please try again.')
+  });
+
+  return { add, retry, remove };
 }

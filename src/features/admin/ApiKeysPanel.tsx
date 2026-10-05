@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { formatDate } from '../../lib/format.ts';
 import { usePrefs } from '../../lib/prefs.tsx';
-import { Button, Notice, SectionHeader, TextField } from '../../ui/index.ts';
+import { Button, Notice, SectionHeader, TextField, useConfirm } from '../../ui/index.ts';
 import { useApiKeyActions, useApiKeys } from './queries.ts';
 
 export function ApiKeysPanel() {
@@ -10,6 +10,7 @@ export function ApiKeysPanel() {
   const { create, revoke } = useApiKeyActions();
   const [label, setLabel] = useState('');
   const [fresh, setFresh] = useState<string | null>(null);
+  const confirm = useConfirm();
   return (
     <section aria-labelledby="keys-title" style={{ marginTop: 48 }}>
       <SectionHeader id="keys-title" eyebrow="Data product" title="Price-index API keys" size="sm" />
@@ -54,7 +55,7 @@ export function ApiKeysPanel() {
                 Revoked
               </span>
             ) : (
-              <Button size="sm" variant="danger" disabled={revoke.isPending} onClick={() => revoke.mutate(k.id)}>
+              <Button size="sm" variant="danger" disabled={revoke.isPending} onClick={async () => (await confirm({ title: 'Revoke this API key?', body: `Requests with “${k.label}” stop working immediately. This can’t be undone — the customer needs a new key.`, confirmLabel: 'Revoke key', tone: 'danger' })) && revoke.mutate(k.id)}>
                 Revoke
               </Button>
             )}

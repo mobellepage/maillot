@@ -10,6 +10,7 @@ import { SessionProvider } from './lib/session.tsx';
 import { PrefsProvider } from './lib/prefs.tsx';
 import { ToastProvider } from './lib/toast.tsx';
 import { router } from './app/router.tsx';
+import { ConfirmProvider } from './ui/Confirm.tsx';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -17,7 +18,9 @@ createRoot(document.getElementById('root')!).render(
       <SessionProvider>
         <PrefsProvider>
           <ToastProvider>
-            <RouterProvider router={router} />
+            <ConfirmProvider>
+              <RouterProvider router={router} />
+            </ConfirmProvider>
           </ToastProvider>
         </PrefsProvider>
       </SessionProvider>

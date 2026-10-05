@@ -3,7 +3,7 @@ import { BY } from '../../data.ts';
 import { formatDate } from '../../lib/format.ts';
 import { usePrefs } from '../../lib/prefs.tsx';
 import type { AdminDispute } from '../../utils/db.ts';
-import { Button, Card, SectionHeader, TextField } from '../../ui/index.ts';
+import { Button, Card, SectionHeader, TextField, useConfirm } from '../../ui/index.ts';
 import { useAdminDisputes, useResolveDispute } from './queries.ts';
 
 const nameOf = (d: AdminDispute) => (d.shirt_id ? BY[d.shirt_id]?.name ?? d.shirt_id : 'Custom item (' + d.custom_item_id + ')');
@@ -12,6 +12,15 @@ function DisputeCard({ d }: { d: AdminDispute }) {
   const { money, lang } = usePrefs();
   const resolve = useResolveDispute();
   const [note, setNote] = useState('');
+  const confirm = useConfirm();
+  const decide = async (outcome: 'release' | 'refund') => {
+    const ok = await confirm(
+      outcome === 'refund'
+        ? { title: 'Refund the buyer?', body: `${money(Number(d.amount))} goes back to the buyer and the order closes. This can’t be undone.`, confirmLabel: 'Refund buyer', tone: 'danger' }
+        : { title: 'Release to the seller?', body: `${money(Number(d.amount))} is paid out to the seller and the order closes. This can’t be undone.`, confirmLabel: 'Release payment' }
+    );
+    if (ok) resolve.mutate({ id: d.dispute_id, outcome, note });
+  };
   return (
     <Card style={{ padding: 18, borderRadius: 16, borderColor: 'rgba(255,107,94,0.25)' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10, flexWrap: 'wrap' }}>
@@ -28,10 +37,10 @@ function DisputeCard({ d }: { d: AdminDispute }) {
       <p style={{ fontSize: 13, color: 'var(--text-2)', margin: '10px 0 0', lineHeight: 1.5 }}>Reason: {d.reason || '—'}</p>
       <TextField srLabel="Resolution note" value={note} onChange={(e) => setNote(e.target.value)} placeholder="Resolution note (optional)" style={{ marginTop: 12 }} />
       <div style={{ display: 'flex', gap: 10, marginTop: 10, flexWrap: 'wrap' }}>
-        <Button size="sm" disabled={resolve.isPending} onClick={() => resolve.mutate({ id: d.dispute_id, outcome: 'release', note })}>
+        <Button size="sm" disabled={resolve.isPending} onClick={() => decide('release')}>
           Release to seller
         </Button>
-        <Button size="sm" variant="danger" disabled={resolve.isPending} onClick={() => resolve.mutate({ id: d.dispute_id, outcome: 'refund', note })}>
+        <Button size="sm" variant="danger" disabled={resolve.isPending} onClick={() => decide('refund')}>
           Refund buyer
         </Button>
       </div>

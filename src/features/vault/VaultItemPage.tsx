@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { useCatalog } from '../catalog/useCatalog.ts';
-import { Link, Navigate, useParams } from 'react-router';
+import { Link, Navigate, useNavigate, useParams } from 'react-router';
 import { pct } from '../../data.ts';
 import { formatDate } from '../../lib/format.ts';
 import { usePageMeta } from '../../lib/meta.ts';
 import { usePrefs } from '../../lib/prefs.tsx';
 import { downloadVaultCard } from '../../utils/cardExport.js';
-import { Badge, Button, Card, KeyValueList, Notice, Page, ShirtGraphic, HEX } from '../../ui/index.ts';
+import { Badge, Button, Card, KeyValueList, Notice, Page, ShirtGraphic, HEX, useConfirm } from '../../ui/index.ts';
 import { badgeFor, itemLook, itemName, valueOf } from './model.ts';
 import { usePhotoUrls } from '../../lib/usePhotoUrls.ts';
 import { currentValuation, displayStatus, useCollection, useCollectionActions } from './useCollection.ts';
@@ -17,7 +17,9 @@ export default function VaultItemPage() {
   useCatalog(); // re-render when the live catalogue loads
   const { id } = useParams();
   const { items, reviews, loading } = useCollection();
-  const { retry } = useCollectionActions();
+  const { retry, remove } = useCollectionActions();
+  const confirm = useConfirm();
+  const nav = useNavigate();
   const { money, lang } = usePrefs();
   const [photoIdx, setPhotoIdx] = useState(0);
   const c = items.find((x) => x.id === id);
@@ -134,6 +136,21 @@ export default function VaultItemPage() {
             />
           </Card>
         </div>
+      </div>
+      <div style={{ marginTop: 40, paddingTop: 20, borderTop: '1px solid var(--line)' }}>
+        <Button
+          variant="ghost"
+          size="sm"
+          busy={remove.isPending}
+          busyLabel="Removing…"
+          onClick={async () => {
+            const ok = await confirm({ title: 'Remove this shirt?', body: `${name} and its photos are deleted from your collection. This can’t be undone.`, confirmLabel: 'Remove shirt', tone: 'danger' });
+            if (ok) remove.mutate(c, { onSuccess: () => nav('/vault') });
+          }}
+          style={{ color: 'var(--neg)' }}
+        >
+          Remove from collection
+        </Button>
       </div>
     </Page>
   );

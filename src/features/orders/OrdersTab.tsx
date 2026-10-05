@@ -7,7 +7,7 @@ import { useSession } from '../../lib/session.tsx';
 import { useToast } from '../../lib/toast.tsx';
 import type { OrderStatus } from '../../types/domain.ts';
 import type { Order } from '../../utils/db.ts';
-import { Badge, Button, EmptyState, ButtonLink, Skeleton } from '../../ui/index.ts';
+import { Badge, Button, EmptyState, ButtonLink, Skeleton, useConfirm } from '../../ui/index.ts';
 import { DisputeDialog, ReleaseDialog, ShipDialog } from './OrderDialogs.tsx';
 import { ORDER_TONE } from './status.ts';
 import { SettlementLine } from './SettlementLine.tsx';
@@ -26,6 +26,11 @@ export function OrdersTab() {
   const certs = useMyCertificates((orders.data ?? []).some((o) => o.inspection === 'passed'));
   const [open, setOpen] = useState<Open>(null);
   const [now] = useState(Date.now);
+  const confirm = useConfirm();
+  const cancelOrder = async (o: Order) => {
+    const ok = await confirm({ title: 'Cancel this order?', body: 'The shirt goes back on the market and your bid is closed. You haven’t been charged.', confirmLabel: 'Cancel order', cancelLabel: 'Keep it', tone: 'danger' });
+    if (ok) act.cancel.mutate(o.id);
+  };
   const [params, setParams] = useSearchParams();
 
   // Returning from Stripe Checkout: confirm once, then drop the query.
@@ -102,7 +107,7 @@ export function OrdersTab() {
                       <Button size="sm" busy={act.pay.isPending && act.pay.variables === o.id} busyLabel="Opening…" onClick={() => act.pay.mutate(o.id)}>
                         {t('order.action.payNow')}
                       </Button>
-                      <Button size="sm" variant="danger" busy={act.cancel.isPending && act.cancel.variables === o.id} onClick={() => act.cancel.mutate(o.id)}>
+                      <Button size="sm" variant="danger" busy={act.cancel.isPending && act.cancel.variables === o.id} onClick={() => cancelOrder(o)}>
                         {t('order.action.cancel')}
                       </Button>
                     </>
