@@ -16,6 +16,7 @@ import { Button, Card, Notice, Page, ShirtGraphic, Skeleton, TextField } from '.
 import { QrCode } from '../../ui/QrCode.tsx';
 
 function CodeForm({ initial = '' }: { initial?: string }) {
+  const { t } = usePrefs();
   const [code, setCode] = useState(initial);
   const nav = useNavigate();
   return (
@@ -26,9 +27,9 @@ function CodeForm({ initial = '' }: { initial?: string }) {
       }}
       style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'flex-end', marginTop: 24 }}
     >
-      <TextField label="Certificate code" placeholder="MLT-XXXX-XXXX-XXXX" value={code} onChange={(e) => setCode(e.target.value.slice(0, 30))} autoCapitalize="characters" spellCheck={false} style={{ flex: '1 1 260px' }} />
+      <TextField label={t('ver.code')} placeholder="MLT-XXXX-XXXX-XXXX" value={code} onChange={(e) => setCode(e.target.value.slice(0, 30))} autoCapitalize="characters" spellCheck={false} style={{ flex: '1 1 260px' }} />
       <Button type="submit" style={{ height: 50 }}>
-        Check
+        {t('ver.check')}
       </Button>
     </form>
   );
@@ -39,19 +40,19 @@ export default function VerifyPage() {
   const { code = '' } = useParams();
   const [params] = useSearchParams();
   const tag = params.get('tag');
-  const { lang } = usePrefs();
-  usePageMeta(code ? `Certificate ${code.toUpperCase()}` : 'Verify a certificate', 'Check a Maillot certificate of authenticity by its code.');
+  const { lang, t } = usePrefs();
+  usePageMeta(code ? t('ver.meta', { code: code.toUpperCase() }) : t('ver.metaTitle'), t('ver.metaDesc'));
   const q = useQuery({ queryKey: ['certificate', code, tag], enabled: !!code, queryFn: () => db.verifyCertificate(code, tag), staleTime: 60_000 });
 
   if (!code)
     return (
       <Page style={{ maxWidth: 640 }}>
-        <div className="eyebrow">Authenticity</div>
+        <div className="eyebrow">{t('ver.eyebrow')}</div>
         <h1 className="display" style={{ marginTop: 8, fontSize: 'clamp(28px,4vw,42px)' }}>
-          Verify a certificate
+          {t('ver.title')}
         </h1>
         <p style={{ fontSize: 15, color: 'var(--text-2)', lineHeight: 1.6, margin: '12px 0 0' }}>
-          Every shirt that passes our Zürich inspection carries a tamper-evident tag with a certificate code. Scan its QR code or type the code to see what we checked.
+          {t('ver.intro')}
         </p>
         <CodeForm />
       </Page>
@@ -65,21 +66,20 @@ export default function VerifyPage() {
 
   return (
     <Page style={{ maxWidth: 820 }}>
-      <div className="eyebrow">Certificate of authenticity</div>
+      <div className="eyebrow">{t('ver.cert')}</div>
       {q.isLoading && <Skeleton height={320} radius={20} style={{ marginTop: 20 }} />}
       {q.isError && (
         <Notice tone="neg" style={{ marginTop: 20 }}>
-          We couldn’t check this code right now. Please try again in a moment.
+          {t('ver.error')}
         </Notice>
       )}
       {q.isSuccess && !c && (
         <>
           <h1 className="display" style={{ marginTop: 8, fontSize: 'clamp(26px,3.6vw,38px)' }}>
-            No certificate found
+            {t('ver.none')}
           </h1>
           <Notice tone="warn" style={{ marginTop: 16 }}>
-            There is no Maillot certificate with the code <span className="mono">{code}</span>. Check for typos — if the code came from a tag on a shirt, that tag may not be
-            genuine. <Link to="/help">Contact support</Link> and we’ll look into it.
+            {t('ver.noneBody', { code })} <Link to="/help">{t('ver.support')}</Link>
           </Notice>
           <CodeForm initial={code} />
         </>
@@ -87,35 +87,35 @@ export default function VerifyPage() {
       {c && (
         <>
           <h1 className="display" style={{ marginTop: 8, fontSize: 'clamp(26px,3.6vw,38px)', color: c.revoked ? 'var(--neg)' : undefined }}>
-            {c.revoked ? 'Certificate revoked' : '✓ Authenticated by Maillot'}
+            {c.revoked ? t('ver.revokedTitle') : t('ver.ok')}
           </h1>
           {c.revoked && (
             <Notice tone="neg" style={{ marginTop: 14 }}>
-              This certificate is no longer valid{c.revoked_reason ? `: ${c.revoked_reason}` : ''}. Don’t buy this shirt on the strength of it.
+              {t('ver.revokedBody')} {c.revoked_reason && t('ver.revokedReason', { reason: c.revoked_reason })}
             </Notice>
           )}
           {c.tag_match === false && (
             <Notice tone="neg" style={{ marginTop: 14 }}>
-              The chip you scanned isn’t the one sealed with this certificate. The tag may have been moved to another shirt.
+              {t('ver.tagMismatch')}
             </Notice>
           )}
           {c.tag_match === true && !c.revoked && (
             <Notice tone="info" style={{ marginTop: 14 }}>
-              The chip you scanned is the one we sealed onto this shirt.
+              {t('ver.tagMatch')}
             </Notice>
           )}
           <Card style={{ marginTop: 20, display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(240px,1fr))', gap: 24, alignItems: 'center' }}>
             <div style={{ display: 'grid', placeItems: 'center', minHeight: 220 }}>
-              {shirt ? <ShirtGraphic pat={shirt.pat} trim={shirt.trim} crest={shirt.crest} title={shirt.name} style={{ width: '70%' }} /> : <div style={{ color: 'var(--muted)' }}>Custom item</div>}
+              {shirt ? <ShirtGraphic pat={shirt.pat} trim={shirt.trim} crest={shirt.crest} title={shirt.name} style={{ width: '70%' }} /> : <div style={{ color: 'var(--muted)' }}>{t('ver.custom')}</div>}
             </div>
             <dl style={{ margin: 0, display: 'grid', gridTemplateColumns: 'auto 1fr', gap: '10px 16px', fontSize: 14 }}>
-              <dt style={{ color: 'var(--muted)' }}>Shirt</dt>
+              <dt style={{ color: 'var(--muted)' }}>{t('ver.shirt')}</dt>
               <dd style={{ margin: 0, fontWeight: 600 }}>{shirt ? <Link to={'/shirt/' + shirt.id}>{shirt.name}</Link> : (c.shirt_id ?? '—')}</dd>
-              <dt style={{ color: 'var(--muted)' }}>Size</dt>
+              <dt style={{ color: 'var(--muted)' }}>{t('ver.size')}</dt>
               <dd style={{ margin: 0 }}>{c.size ?? '—'}</dd>
-              <dt style={{ color: 'var(--muted)' }}>Inspected</dt>
-              <dd style={{ margin: 0 }}>{formatDate(c.issued_at, lang)} · Zürich</dd>
-              <dt style={{ color: 'var(--muted)' }}>Code</dt>
+              <dt style={{ color: 'var(--muted)' }}>{t('ver.inspected')}</dt>
+              <dd style={{ margin: 0 }}>{t('ver.zurich', { date: formatDate(c.issued_at, lang) })}</dd>
+              <dt style={{ color: 'var(--muted)' }}>{t('ver.codeLabel')}</dt>
               <dd className="mono" style={{ margin: 0 }}>
                 {c.code}
               </dd>
@@ -124,7 +124,7 @@ export default function VerifyPage() {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(260px,1fr))', gap: 24, marginTop: 24, alignItems: 'start' }}>
             <Card>
               <h2 className="title" style={{ margin: 0 }}>
-                {checklist.length}-point inspection
+                {t('ver.points', { n: checklist.length })}
               </h2>
               <ul style={{ margin: '12px 0 0', padding: 0, listStyle: 'none', display: 'grid', gap: 8, fontSize: 13.5, color: 'var(--text-2)' }}>
                 {checklist.map((p) => (
@@ -132,21 +132,21 @@ export default function VerifyPage() {
                     <span aria-hidden="true" style={{ color: 'var(--accent)' }}>
                       ✓
                     </span>
-                    {p}
+                    {t(p)}
                   </li>
                 ))}
               </ul>
             </Card>
             <Card style={{ display: 'grid', justifyItems: 'center', gap: 12, textAlign: 'center' }}>
-              <QrCode value={url} size={168} label={'QR code linking to certificate ' + c.code} />
-              <p style={{ margin: 0, fontSize: 13, color: 'var(--muted)', lineHeight: 1.5 }}>Scan to open this page. Selling the shirt on? Share this link with the buyer.</p>
+              <QrCode value={url} size={168} label={t('ver.qr', { code: c.code })} />
+              <p style={{ margin: 0, fontSize: 13, color: 'var(--muted)', lineHeight: 1.5 }}>{t('ver.scan')}</p>
               <Button variant="ghost" size="sm" onClick={() => window.print()}>
-                Print certificate
+                {t('ver.print')}
               </Button>
             </Card>
           </div>
           <p style={{ fontSize: 13, color: 'var(--muted)', marginTop: 24 }}>
-            <Link to="/authentication">How our authentication works</Link> · <Link to="/verify">Check another code</Link>
+            <Link to="/authentication">{t('ver.how')}</Link> · <Link to="/verify">{t('ver.another')}</Link>
           </p>
         </>
       )}

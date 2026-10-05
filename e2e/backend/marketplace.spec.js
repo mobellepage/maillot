@@ -8,6 +8,15 @@ test.describe.configure({ mode: 'serial' });
 
 const PASSWORD = 'maillot-dev-pw';
 
+/** Like expect(locator).toBeVisible(), but a failure says what the page showed instead. */
+async function seen(page, locator, timeout = 10000) {
+  try {
+    await expect(locator).toBeVisible({ timeout });
+  } catch {
+    throw new Error('Not visible: ' + locator + '\nPage: ' + (await page.locator('main').innerText()).replace(/\s+/g, ' ').slice(0, 600));
+  }
+}
+
 async function signIn(page, email) {
   await page.goto('/signin');
   await page.getByLabel(/email/i).fill(email);
@@ -51,7 +60,7 @@ test('seller: listing at the top bid sells instantly', async ({ page }) => {
   await page.getByText('France 1998 Home').first().click();
   await page.getByRole('button', { name: 'M', exact: true }).click();
   await page.getByRole('button', { name: /Continue/ }).click();
-  await expect(page.getByText('Sell now to top bid')).toBeVisible();
+  await seen(page, page.getByText('Sell now to top bid'));
   await page.getByText('Sell now to top bid').click();
   await page.getByRole('button', { name: /Review listing/ }).click();
   await page.getByRole('button', { name: 'Publish listing' }).click();
@@ -84,8 +93,8 @@ test('new member: sign up, answer the welcome questions, land on the first step'
   await page.getByRole('button', { name: 'Continue' }).click();
   await page.getByRole('button', { name: 'Serie A' }).click();
   await page.getByRole('button', { name: 'Continue' }).click();
-  await page.getByLabel('Username').fill('new_member_' + String(Date.now()).slice(-6));
-  await expect(page.getByText('✓ Available')).toBeVisible();
+  await page.getByRole('textbox', { name: 'Username' }).fill('new_member_' + String(Date.now()).slice(-6));
+  await seen(page, page.getByText('✓ Available'));
   await page.getByRole('button', { name: 'Add your first shirt' }).click();
   await expect(page).toHaveURL(/\/vault\/add$/);
 

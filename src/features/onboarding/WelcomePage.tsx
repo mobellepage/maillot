@@ -7,32 +7,29 @@ import { useLocation, useNavigate, useSearchParams } from 'react-router';
 import { useQueryClient } from '@tanstack/react-query';
 import { SHIRTS } from '../../data.ts';
 import { usePageMeta } from '../../lib/meta.ts';
+import { usePrefs } from '../../lib/prefs.tsx';
 import { useSession } from '../../lib/session.tsx';
 import { useToast } from '../../lib/toast.tsx';
 import * as db from '../../utils/db.ts';
 import { useCatalog } from '../catalog/useCatalog.ts';
 import { Button, TextField } from '../../ui/index.ts';
 
-const GOALS = [
-  { id: 'collect', title: 'Track my collection', body: 'See what my shirts are worth and get them verified.' },
-  { id: 'buy', title: 'Buy shirts', body: 'Find authenticated shirts at fair, transparent prices.' },
-  { id: 'sell', title: 'Sell shirts', body: 'Reach collectors and get paid safely through escrow.' }
-] as const;
+const GOALS = ['collect', 'buy', 'sell'] as const;
 
 const NEXT: Record<string, { to: string; label: string }> = {
-  collect: { to: '/vault/add', label: 'Add your first shirt' },
-  sell: { to: '/sell', label: 'List a shirt' },
-  buy: { to: '/market', label: 'Browse the market' }
+  collect: { to: '/vault/add', label: 'wel.next.collect' },
+  sell: { to: '/sell', label: 'wel.next.sell' },
+  buy: { to: '/market', label: 'wel.next.buy' }
 };
 
-function Chips({ options, value, onChange, label }: { options: string[]; value: string[]; onChange: (v: string[]) => void; label: string }) {
+function Chips({ options, value, onChange, label, display }: { options: string[]; value: string[]; onChange: (v: string[]) => void; label: string; display: (v: string) => string }) {
   return (
     <div role="group" aria-label={label} style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
       {options.map((o) => {
         const on = value.includes(o);
         return (
           <button key={o} type="button" className="option-btn" aria-pressed={on} onClick={() => onChange(on ? value.filter((x) => x !== o) : [...value, o])} style={{ padding: '9px 14px', fontSize: 13.5 }}>
-            {o}
+            {display(o)}
           </button>
         );
       })}
@@ -42,7 +39,8 @@ function Chips({ options, value, onChange, label }: { options: string[]; value: 
 
 export default function WelcomePage() {
   useCatalog();
-  usePageMeta('Welcome');
+  const { t, label } = usePrefs();
+  usePageMeta(t('wel.meta'));
   const { user, profile } = useSession();
   const qc = useQueryClient();
   const toast = useToast();
@@ -89,7 +87,7 @@ export default function WelcomePage() {
         handle: !skipAll && handleState === 'ok' ? handle.trim() : null
       });
     } catch {
-      toast('Couldn’t save that — you can set it later.');
+      toast(t('wel.saveFailed'));
     }
     await qc.invalidateQueries({ queryKey: ['profile', user.id] });
     setBusy(false);
@@ -97,12 +95,12 @@ export default function WelcomePage() {
     nav(skipAll ? from || '/' : first ? NEXT[first]!.to : from || '/', { replace: true });
   };
 
-  const handleHint = { idle: 'Shown on your public collection and seller profile. 3–20 characters: a–z, 0–9, _', checking: 'Checking…', ok: '✓ Available', taken: 'That one’s taken.', invalid: 'Use 3–20 lowercase letters, digits or _.' }[handleState];
+  const handleHint = t('wel.h.' + handleState);
 
   return (
     <main id="main" style={{ maxWidth: 620, margin: '0 auto', padding: 'clamp(40px,7vw,72px) var(--gutter) 100px', animation: 'kvIn .4s ease both' }}>
       <div className="eyebrow">
-        Welcome to Maillot · {step + 1} of 3
+        {t('wel.step', { n: step + 1 })}
       </div>
       <div aria-hidden="true" style={{ display: 'flex', gap: 6, marginTop: 12 }}>
         {[0, 1, 2].map((i) => (
@@ -113,16 +111,16 @@ export default function WelcomePage() {
       {step === 0 && (
         <section aria-labelledby="w-goals">
           <h1 id="w-goals" className="display" style={{ marginTop: 22, fontSize: 'clamp(26px,4vw,36px)' }}>
-            What brings you here?
+            {t('wel.q1')}
           </h1>
-          <p style={{ color: 'var(--text-2)', fontSize: 15, margin: '10px 0 20px' }}>Pick any that fit.</p>
+          <p style={{ color: 'var(--text-2)', fontSize: 15, margin: '10px 0 20px' }}>{t('wel.q1b')}</p>
           <div style={{ display: 'grid', gap: 10 }}>
             {GOALS.map((g) => {
-              const on = goals.includes(g.id);
+              const on = goals.includes(g);
               return (
-                <button key={g.id} type="button" className="option-btn" aria-pressed={on} onClick={() => setGoals(on ? goals.filter((x) => x !== g.id) : [...goals, g.id])} style={{ textAlign: 'left', padding: '16px 18px' }}>
-                  <div style={{ fontWeight: 700, fontSize: 15.5 }}>{g.title}</div>
-                  <div style={{ fontSize: 13.5, color: 'var(--text-2)', marginTop: 4 }}>{g.body}</div>
+                <button key={g} type="button" className="option-btn" aria-pressed={on} onClick={() => setGoals(on ? goals.filter((x) => x !== g) : [...goals, g])} style={{ textAlign: 'left', padding: '16px 18px' }}>
+                  <div style={{ fontWeight: 700, fontSize: 15.5 }}>{t('wel.goal.' + g)}</div>
+                  <div style={{ fontSize: 13.5, color: 'var(--text-2)', marginTop: 4 }}>{t('wel.goal.' + g + '.b')}</div>
                 </button>
               );
             })}
@@ -133,24 +131,24 @@ export default function WelcomePage() {
       {step === 1 && (
         <section aria-labelledby="w-interests">
           <h1 id="w-interests" className="display" style={{ marginTop: 22, fontSize: 'clamp(26px,4vw,36px)' }}>
-            What do you collect?
+            {t('wel.q2')}
           </h1>
-          <p style={{ color: 'var(--text-2)', fontSize: 15, margin: '10px 0 20px' }}>We’ll show you these first.</p>
-          <h2 style={{ fontSize: 14, fontWeight: 600, margin: '0 0 10px' }}>Kind of shirt</h2>
-          <Chips label="Kind of shirt" options={typeOptions} value={types} onChange={setTypes} />
-          <h2 style={{ fontSize: 14, fontWeight: 600, margin: '22px 0 10px' }}>Leagues and teams</h2>
-          <Chips label="Leagues" options={leagueOptions} value={leagues} onChange={setLeagues} />
+          <p style={{ color: 'var(--text-2)', fontSize: 15, margin: '10px 0 20px' }}>{t('wel.q2b')}</p>
+          <h2 style={{ fontSize: 14, fontWeight: 600, margin: '0 0 10px' }}>{t('wel.kind')}</h2>
+          <Chips label={t('wel.kind')} options={typeOptions} value={types} onChange={setTypes} display={(v) => label('type', v)} />
+          <h2 style={{ fontSize: 14, fontWeight: 600, margin: '22px 0 10px' }}>{t('wel.leagues')}</h2>
+          <Chips label={t('wel.leagues')} options={leagueOptions} value={leagues} onChange={setLeagues} display={(v) => label('league', v)} />
         </section>
       )}
 
       {step === 2 && (
         <section aria-labelledby="w-handle">
           <h1 id="w-handle" className="display" style={{ marginTop: 22, fontSize: 'clamp(26px,4vw,36px)' }}>
-            Pick a username
+            {t('wel.q3')}
           </h1>
-          <p style={{ color: 'var(--text-2)', fontSize: 15, margin: '10px 0 20px' }}>Optional — you can add one later. Your email is never shown.</p>
+          <p style={{ color: 'var(--text-2)', fontSize: 15, margin: '10px 0 20px' }}>{t('wel.q3b')}</p>
           <TextField
-            label="Username"
+            label={t('wel.username')}
             value={handle}
             onChange={(e) => {
               const v = e.target.value.toLowerCase().slice(0, 20);
@@ -162,7 +160,7 @@ export default function WelcomePage() {
             error={handleState === 'taken' || handleState === 'invalid' ? handleHint : undefined}
             autoCapitalize="none"
             spellCheck={false}
-            placeholder={profile?.handle ?? 'e.g. curva_sud'}
+            placeholder={profile?.handle ?? t('wel.ph')}
           />
         </section>
       )}
@@ -170,18 +168,18 @@ export default function WelcomePage() {
       <div style={{ display: 'flex', gap: 10, marginTop: 30, flexWrap: 'wrap' }}>
         {step > 0 && (
           <Button variant="ghost" onClick={() => setStep(step - 1)}>
-            Back
+            {t('wel.back')}
           </Button>
         )}
         <div style={{ flex: 1 }} />
         <Button variant="ghost" disabled={busy} onClick={() => finish(true)}>
-          Skip for now
+          {t('wel.skip')}
         </Button>
         {step < 2 ? (
-          <Button onClick={() => setStep(step + 1)}>Continue</Button>
+          <Button onClick={() => setStep(step + 1)}>{t('wel.continue')}</Button>
         ) : (
-          <Button busy={busy} busyLabel="Saving…" disabled={handleState === 'checking' || handleState === 'taken' || handleState === 'invalid'} onClick={() => finish()}>
-            {goals.find((g) => NEXT[g]) ? NEXT[goals.find((g) => NEXT[g])!]!.label : 'Start exploring'}
+          <Button busy={busy} busyLabel={t('wel.saving')} disabled={handleState === 'checking' || handleState === 'taken' || handleState === 'invalid'} onClick={() => finish()}>
+            {goals.find((g) => NEXT[g]) ? t(NEXT[goals.find((g) => NEXT[g])!]!.label) : t('wel.start')}
           </Button>
         )}
       </div>

@@ -5,6 +5,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import * as db from '../../utils/db.ts';
 import { loadJSON, saveJSON } from '../../utils/storage.ts';
 import { useSession } from '../../lib/session.tsx';
+import { usePrefs } from '../../lib/prefs.tsx';
 import { useToast } from '../../lib/toast.tsx';
 
 const GUEST_KEY = 'kv_guest_watch';
@@ -14,6 +15,7 @@ export function useWatchlist() {
   const uid = user?.id;
   const qc = useQueryClient();
   const toast = useToast();
+  const { t } = usePrefs();
   const [guest, setGuest] = useState<string[]>(() => loadJSON<string[]>(GUEST_KEY, []));
 
   const q = useQuery({ queryKey: ['watchlist', uid], enabled: !!uid, queryFn: () => db.loadWatchlist(uid!) });
@@ -44,7 +46,7 @@ export function useWatchlist() {
     },
     onError: (_e, _v, ctx) => {
       qc.setQueryData(['watchlist', uid], ctx?.prev);
-      toast('Couldn’t update your watchlist — please try again.');
+      toast(t('watch.failed'));
     },
     onSettled: (_d, _e, { id }) => {
       qc.invalidateQueries({ queryKey: ['watchlist', uid] });

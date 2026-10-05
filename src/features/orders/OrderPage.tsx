@@ -40,7 +40,7 @@ export default function OrderPage() {
   const certs = useMyCertificates(!!o && isBuyer && o.inspection === 'passed');
   const disputes = useQuery({ queryKey: ['disputes', id], enabled: !!o && (o.status === 'disputed' || o.status === 'refunded' || o.status === 'released'), queryFn: () => db.loadDisputesForOrder(id) });
   const shirt = o?.shirt_id ? BY[o.shirt_id] : undefined;
-  usePageMeta(shirt ? `Order · ${shirt.name}` : 'Order');
+  usePageMeta(shirt ? t('ord.meta', { name: shirt.name }) : t('ord.metaFallback'));
 
   if (orders.isLoading)
     return (
@@ -62,21 +62,21 @@ export default function OrderPage() {
   const certificate = isBuyer ? certs.data?.[o.id] : undefined;
   const breakdown: [ReactNode, ReactNode][] = isBuyer
     ? [
-        ['Shirt', money(Number(o.amount))],
-        ['Authentication', money(Number(o.auth_fee))],
-        ['Insured shipping', money(Number(o.shipping_fee))],
-        ['Total', <strong key="t">{money(db.orderTotal(o))}</strong>]
+        [t('ord.shirt'), money(Number(o.amount))],
+        [t('ord.auth'), money(Number(o.auth_fee))],
+        [t('ord.shipping'), money(Number(o.shipping_fee))],
+        [t('ord.total'), <strong key="t">{money(db.orderTotal(o))}</strong>]
       ]
     : [
-        ['Sale price', money(Number(o.amount))],
-        [`Seller fee (${Math.round(SELLER_FEE_RATE * 100)}%)`, '− ' + money(Number(o.commission))],
-        ['Your payout', <strong key="p">{money(Number(o.amount) - Number(o.commission))}</strong>]
+        [t('ord.salePrice'), money(Number(o.amount))],
+        [t('ord.fee', { pct: Math.round(SELLER_FEE_RATE * 100) }), '− ' + money(Number(o.commission))],
+        [t('ord.payout'), <strong key="p">{money(Number(o.amount) - Number(o.commission))}</strong>]
       ];
 
   return (
     <Page narrow>
       <Link to="/orders" className="btn btn--ghost btn--sm" style={{ marginBottom: 20 }}>
-        ← All orders
+        {t('ord.all')}
       </Link>
       <Card style={{ display: 'flex', gap: 20, alignItems: 'center', flexWrap: 'wrap' }}>
         <div style={{ width: 96, flex: 'none' }}>{shirt && <ShirtGraphic pat={shirt.pat} trim={shirt.trim} crest={shirt.crest} flat />}</div>
@@ -89,7 +89,7 @@ export default function OrderPage() {
             {shirt ? <Link to={'/shirt/' + shirt.id} style={{ color: 'var(--text)' }}>{shirt.name}</Link> : o.shirt_id}
           </h1>
           <div className="mono" style={{ fontSize: 12, color: 'var(--muted)', marginTop: 6 }}>
-            Size {o.size} · Order {o.id.slice(0, 8).toUpperCase()}
+            {t('ord.number', { size: o.size ?? '', id: o.id.slice(0, 8).toUpperCase() })}
           </div>
           <ShipmentLine order={o} isBuyer={isBuyer} certificate={certificate} />
           <SettlementLine order={o} isBuyer={isBuyer} amountFmt={money(Number(o.amount) - Number(o.commission))} />
@@ -103,7 +103,7 @@ export default function OrderPage() {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(280px,1fr))', gap: 16, marginTop: 16, alignItems: 'start' }}>
         <Card>
           <h2 className="title" style={{ margin: '0 0 16px' }}>
-            Timeline
+            {t('ord.timeline')}
           </h2>
           <ol style={{ listStyle: 'none', margin: 0, padding: 0 }}>
             {steps.map((s, i) => (
@@ -112,11 +112,11 @@ export default function OrderPage() {
                 <span aria-hidden="true" style={{ width: 18, height: 18, borderRadius: 9, marginTop: 1, background: DOT[s.state].bg, border: `2px solid ${DOT[s.state].border}`, boxShadow: s.state === 'current' ? '0 0 0 4px var(--accent-soft)' : undefined }} />
                 <div>
                   <div style={{ fontWeight: 600, fontSize: 14.5, color: s.state === 'upcoming' ? 'var(--muted)' : s.state === 'failed' ? 'var(--neg)' : 'var(--text)' }}>
-                    {s.title}
-                    <span className="sr-only">{s.state === 'done' ? ' (done)' : s.state === 'current' ? ' (current step)' : s.state === 'failed' ? '' : ' (not yet)'}</span>
+                    {t(s.title)}
+                    <span className="sr-only">{s.state === 'done' ? t('tl.done') : s.state === 'current' ? t('tl.current') : s.state === 'failed' ? '' : t('tl.notYet')}</span>
                   </div>
                   {s.at && s.state !== 'upcoming' && <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 2 }}>{formatDate(s.at, lang, true)}</div>}
-                  {s.detail && s.state !== 'upcoming' && <div style={{ fontSize: 13, color: 'var(--text-2)', marginTop: 4, lineHeight: 1.5 }}>{s.detail}</div>}
+                  {s.detail && s.state !== 'upcoming' && <div style={{ fontSize: 13, color: 'var(--text-2)', marginTop: 4, lineHeight: 1.5 }}>{t(s.detail, s.detailVars)}</div>}
                 </div>
               </li>
             ))}
@@ -124,12 +124,12 @@ export default function OrderPage() {
         </Card>
         <Card>
           <h2 className="title" style={{ margin: '0 0 12px' }}>
-            {isBuyer ? 'What you pay' : 'What you get'}
+            {isBuyer ? t('ord.youPay') : t('ord.youGet')}
           </h2>
           <KeyValueList rows={breakdown} />
           <p style={{ fontSize: 12.5, color: 'var(--muted)', lineHeight: 1.5, margin: '14px 0 0' }}>
-            {isBuyer ? 'Held in escrow until you confirm delivery or the confirmation window ends.' : 'Paid to your bank via Stripe once the buyer confirms delivery.'}{' '}
-            <Link to="/authentication">How it works</Link>
+            {isBuyer ? t('ord.buyerNote') : t('ord.sellerNote')}{' '}
+            <Link to="/authentication">{t('ord.howItWorks')}</Link>
           </p>
         </Card>
       </div>

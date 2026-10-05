@@ -14,7 +14,7 @@ const pct = (n: number) => (n > 0 ? '+' : '') + n.toFixed(1) + '%';
 const tone = (n: number) => (n > 0 ? 'var(--accent)' : n < 0 ? 'var(--neg)' : 'var(--muted)');
 
 function SegmentTable({ title, rows }: { title: string; rows: Segment[] }) {
-  const { money } = usePrefs();
+  const { money, t, label } = usePrefs();
   return (
     <Card>
       <h3 className="title" style={{ margin: '0 0 12px' }}>
@@ -23,16 +23,16 @@ function SegmentTable({ title, rows }: { title: string; rows: Segment[] }) {
       <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13.5 }}>
         <thead>
           <tr style={{ color: 'var(--muted)', textAlign: 'left' }}>
-            <th style={{ fontWeight: 500, padding: '6px 0' }}>Segment</th>
-            <th style={{ fontWeight: 500, textAlign: 'right' }}>Shirts</th>
-            <th style={{ fontWeight: 500, textAlign: 'right' }}>Avg. price</th>
-            <th style={{ fontWeight: 500, textAlign: 'right' }}>30 days</th>
+            <th style={{ fontWeight: 500, padding: '6px 0' }}>{t('idx.segment')}</th>
+            <th style={{ fontWeight: 500, textAlign: 'right' }}>{t('idx.shirts')}</th>
+            <th style={{ fontWeight: 500, textAlign: 'right' }}>{t('idx.avgPrice')}</th>
+            <th style={{ fontWeight: 500, textAlign: 'right' }}>{t('idx.30d')}</th>
           </tr>
         </thead>
         <tbody>
           {rows.map((s) => (
             <tr key={s.name} style={{ borderTop: '1px solid var(--line)' }}>
-              <td style={{ padding: '8px 0' }}>{s.name}</td>
+              <td style={{ padding: '8px 0' }}>{label(title === t('idx.byType') ? 'type' : 'league', s.name)}</td>
               <td className="mono" style={{ textAlign: 'right' }}>
                 {s.count}
               </td>
@@ -52,15 +52,15 @@ function SegmentTable({ title, rows }: { title: string; rows: Segment[] }) {
 
 export default function IndexReportPage() {
   const { shirts } = useCatalog(); // re-renders when the live catalogue loads
-  const { money, lang } = usePrefs();
+  const { money, t, label, locale } = usePrefs();
   const [today] = useState(() => new Date());
-  usePageMeta('Maillot Shirt Index', 'Monthly price index for collectable football shirts: composite, segments, biggest movers and methodology.');
+  usePageMeta(t('idx.meta'), t('idx.metaDesc'));
   const rows: IndexInput[] = shirts.map((s) => ({ id: s.id, name: s.name, league: s.league, type: s.type, price: s.price, ch: s.ch, priceSource: s.priceSource }));
   const c = composite(rows);
   const byType = segments(rows, 'type');
   const byLeague = segments(rows, 'league');
   const sorted = [...rows].sort((a, b) => b.ch - a.ch);
-  const month = today.toLocaleDateString(lang === 'de' ? 'de-CH' : 'en-GB', { month: 'long', year: 'numeric' });
+  const month = today.toLocaleDateString(locale, { month: 'long', year: 'numeric' });
 
   const download = () => {
     const blob = new Blob([toCsv(rows)], { type: 'text/csv;charset=utf-8' });
@@ -71,27 +71,27 @@ export default function IndexReportPage() {
 
   return (
     <Page>
-      <SectionHeader level={1} size="lg" eyebrow={`Report · ${month}`} title="Maillot Shirt Index" />
+      <SectionHeader level={1} size="lg" eyebrow={t('idx.eyebrow', { month })} title={t('idx.title')} />
       <p style={{ maxWidth: 640, fontSize: 15, lineHeight: 1.6, color: 'var(--text-2)', margin: '-8px 0 0' }}>
-        How the market for collectable football shirts moved over the last 30 days, across the {c.count} shirts we track. Prices in your display currency.
+        {t('idx.lede', { n: c.count })}
       </p>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(180px,1fr))', gap: 12, marginTop: 28 }}>
-        <StatTile highlight label="Index, 30 days" value={<span style={{ color: tone(c.change) }}>{pct(c.change)}</span>} sub="value-weighted" />
-        <StatTile label="Average shirt" value={money(c.avgPrice)} />
-        <StatTile label="Tracked shirts" value={c.count} />
-        <StatTile label="Priced from real sales" value={`${c.fromTrades} of ${c.count}`} sub="the rest are estimates" />
+        <StatTile highlight label={t('idx.change')} value={<span style={{ color: tone(c.change) }}>{pct(c.change)}</span>} sub={t('idx.weighted')} />
+        <StatTile label={t('idx.avg')} value={money(c.avgPrice)} />
+        <StatTile label={t('idx.tracked')} value={c.count} />
+        <StatTile label={t('idx.fromSales')} value={t('idx.ofN', { a: c.fromTrades, b: c.count })} sub={t('idx.restEstimates')} />
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(300px,1fr))', gap: 16, marginTop: 32 }}>
-        <SegmentTable title="By type" rows={byType} />
-        <SegmentTable title="By league" rows={byLeague} />
+        <SegmentTable title={t('idx.byType')} rows={byType} />
+        <SegmentTable title={t('idx.byLeague')} rows={byLeague} />
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(300px,1fr))', gap: 16, marginTop: 16 }}>
         {[
-          ['Biggest risers', sorted.slice(0, 5)],
-          ['Biggest fallers', sorted.slice(-5).reverse()]
+          [t('idx.risers'), sorted.slice(0, 5)],
+          [t('idx.fallers'), sorted.slice(-5).reverse()]
         ].map(([title, list]) => (
           <Card key={title as string}>
             <h3 className="title" style={{ margin: '0 0 12px' }}>
@@ -117,10 +117,10 @@ export default function IndexReportPage() {
         <SectionHeader
           id="all-title"
           size="sm"
-          title="All tracked shirts"
+          title={t('idx.all')}
           action={
             <Button size="sm" variant="ghost" onClick={download}>
-              Download CSV
+              {t('idx.csv')}
             </Button>
           }
         />
@@ -128,11 +128,11 @@ export default function IndexReportPage() {
           <table style={{ width: '100%', minWidth: 560, borderCollapse: 'collapse', fontSize: 13.5 }}>
             <thead>
               <tr style={{ color: 'var(--muted)', textAlign: 'left' }}>
-                <th style={{ fontWeight: 500, padding: '6px 0' }}>Shirt</th>
-                <th style={{ fontWeight: 500 }}>Type</th>
-                <th style={{ fontWeight: 500, textAlign: 'right' }}>Market price</th>
-                <th style={{ fontWeight: 500, textAlign: 'right' }}>30 days</th>
-                <th style={{ fontWeight: 500, textAlign: 'right' }}>Source</th>
+                <th style={{ fontWeight: 500, padding: '6px 0' }}>{t('idx.shirt')}</th>
+                <th style={{ fontWeight: 500 }}>{t('idx.type')}</th>
+                <th style={{ fontWeight: 500, textAlign: 'right' }}>{t('idx.market')}</th>
+                <th style={{ fontWeight: 500, textAlign: 'right' }}>{t('idx.30d')}</th>
+                <th style={{ fontWeight: 500, textAlign: 'right' }}>{t('idx.source')}</th>
               </tr>
             </thead>
             <tbody>
@@ -143,14 +143,14 @@ export default function IndexReportPage() {
                       {r.name}
                     </Link>
                   </td>
-                  <td style={{ color: 'var(--text-2)' }}>{r.type}</td>
+                  <td style={{ color: 'var(--text-2)' }}>{label('type', r.type)}</td>
                   <td className="mono" style={{ textAlign: 'right' }}>
                     {money(r.price)}
                   </td>
                   <td className="mono" style={{ textAlign: 'right', color: tone(r.ch) }}>
                     {pct(r.ch)}
                   </td>
-                  <td style={{ textAlign: 'right', color: 'var(--muted)', fontSize: 12.5 }}>{r.priceSource === 'trades' ? 'Sales' : 'Estimate'}</td>
+                  <td style={{ textAlign: 'right', color: 'var(--muted)', fontSize: 12.5 }}>{r.priceSource === 'trades' ? t('idx.sales') : t('idx.estimate')}</td>
                 </tr>
               ))}
             </tbody>
@@ -160,24 +160,15 @@ export default function IndexReportPage() {
 
       <section aria-labelledby="method-title" style={{ marginTop: 40, maxWidth: 720 }}>
         <h2 id="method-title" className="title">
-          Methodology
+          {t('idx.method')}
         </h2>
         <div style={{ fontSize: 14, lineHeight: 1.65, color: 'var(--text-2)' }}>
-          <p>
-            Each shirt’s market price is the average of its recent completed sales on Maillot. Where a shirt hasn’t sold yet, we use our catalogue estimate, based on
-            comparable sales elsewhere — those rows are marked “Estimate”, and the share priced from real sales is shown above.
-          </p>
-          <p>
-            The index change is value-weighted: a CHF 400 match-worn shirt moving 5% counts four times as much as a CHF 100 replica moving 5%. Segments use the same
-            weighting within the segment.
-          </p>
-          <p style={{ marginBottom: 0 }}>
-            Need the numbers in your own tools? The <Link to="/developers">Maillot data API</Link> serves the same index per shirt, with completed sales and the live order
-            book.
-          </p>
+          <p>{t('idx.m1')}</p>
+          <p>{t('idx.m2')}</p>
+          <p style={{ marginBottom: 0 }}>{t('idx.m3')}</p>
         </div>
         <ButtonLink to="/developers" size="sm" style={{ marginTop: 18 }}>
-          Data API
+          {t('idx.api')}
         </ButtonLink>
       </section>
     </Page>

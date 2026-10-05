@@ -28,9 +28,9 @@ export function OrdersTab() {
   useEffect(() => {
     const outcome = params.get('checkout');
     if (!outcome) return;
-    toast(outcome === 'success' ? 'Payment received — it’s held in escrow until you confirm delivery.' : 'Payment cancelled.');
+    toast(outcome === 'success' ? t('ord.checkoutSuccess') : t('ord.checkoutCancel'));
     setParams({}, { replace: true });
-  }, [params, setParams, toast]);
+  }, [params, setParams, toast, t]);
 
 
   if (orders.isLoading) {
@@ -52,8 +52,8 @@ export function OrdersTab() {
   if (!list.length) {
     return (
       <div style={{ marginTop: 24 }}>
-        <EmptyState title="No orders yet" action={<ButtonLink to="/market" size="sm">Browse the market</ButtonLink>}>
-          Buy or sell a shirt and it shows up here, with every step from payment to delivery.
+        <EmptyState title={t('ord.empty')} action={<ButtonLink to="/market" size="sm">{t('ord.browse')}</ButtonLink>}>
+          {t('ord.emptyBody')}
         </EmptyState>
       </div>
     );
@@ -79,7 +79,7 @@ export function OrdersTab() {
                     <span style={{ fontSize: 14.5, fontWeight: 600 }}>{o.shirt_id}</span>
                   )}
                   <span className="mono" style={{ fontSize: 12, color: 'var(--muted)' }}>
-                    Size {o.size}
+                    {t('common.size', { size: o.size ?? '' })}
                   </span>
                 </div>
                 <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 6 }}>
@@ -98,7 +98,7 @@ export function OrdersTab() {
                 </Badge>
                 <OrderActions order={o} isBuyer={isBuyer} />
                 <Link to={'/orders/' + o.id} className="btn btn--ghost btn--sm">
-                  Details
+                  {t('ord.details')}
                 </Link>
               </div>
             </li>

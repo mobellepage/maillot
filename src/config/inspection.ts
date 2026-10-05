@@ -1,23 +1,9 @@
 // The inspection checklist, versioned: a certificate stores the version it
 // was inspected against ({"checklist":"v1"}), so later edits to the list
-// never change what an old certificate claims.
+// never change what an old certificate claims. Entries are message keys
+// (chk.v1.0 … chk.v1.13); the English text lives in src/i18n/en.ts.
 export const INSPECTION_CHECKLIST = {
-  v1: [
-    'Product code on the wash tag matches the season and edition',
-    'Wash-tag print, font and layout',
-    'Neck and jock tags: placement, stitching, materials',
-    'Club crest: embroidery or heat-press method and density',
-    'Manufacturer logo: application method and alignment',
-    'Fabric weight and weave pattern for the edition',
-    'Seams, hems and overlock stitching',
-    'Sponsor print: material, finish and placement',
-    'Name and number printing: font, material, era-correct supplier',
-    'Sleeve and league patches: correct for the season and competition',
-    'Colours against reference photos under calibrated light',
-    'Condition matches the listing (wear, marks, fading, repairs)',
-    'Match-worn: provenance documents and use marks consistent with the claim',
-    'Signatures: certificate of authenticity checked with the issuer'
-  ]
+  v1: Array.from({ length: 14 }, (_, i) => `chk.v1.${i}`)
 } as const;
 
 export type ChecklistVersion = keyof typeof INSPECTION_CHECKLIST;

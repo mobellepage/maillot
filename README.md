@@ -145,6 +145,21 @@ idempotency key, so retries are safe.
    before onboarding wait as `awaiting_onboarding` and are sent automatically
    once Stripe reports `payouts_enabled`.
 
+## Languages (EN / DE / FR)
+
+All visitor-facing text lives in `src/i18n/{en,de,fr}.ts`. English is the
+source and is bundled; German and French load on demand. `de`/`fr` are typed
+against the English keys, so a missing translation fails `npm run typecheck`,
+and `src/__tests__/i18n.test.js` checks placeholders and that every `t('…')`
+key exists. Use `t('key', { name })` for text, `tp('base', n)` for plurals
+(`base.one` / `base.other`) and `label(kind, value)` for stored values
+(catalogue types, add-shirt options). Server notifications are localised on
+display by their known titles (`features/notifications/localize.ts`).
+
+Deliberately English-only for now: the admin tools (internal), the developer
+API docs, and the terms/privacy/imprint texts — those show a note in DE/FR
+that the binding translation follows after legal review.
+
 ## Environments
 
 Environment-specific values live in `private.app_settings`, never in code:

@@ -73,7 +73,7 @@ export default function SignInPage() {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           placeholder="••••••••"
-          hint={signingIn ? undefined : 'At least 8 characters.'}
+          hint={signingIn ? undefined : t('auth.minLength')}
         />
         <Button type="submit" block busy={busy} busyLabel={t('auth.pleaseWait')} style={{ marginTop: 8 }}>
           {signingIn ? t('auth.signin') : t('auth.createAccount')}

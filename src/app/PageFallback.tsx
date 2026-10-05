@@ -1,9 +1,11 @@
+import { usePrefs } from '../lib/prefs.tsx';
 import { Page, Skeleton } from '../ui/index.ts';
 
 /** Shown while a lazily-loaded page's code arrives. */
 export function PageFallback() {
+  const { t } = usePrefs();
   return (
-    <Page aria-busy="true" aria-label="Loading">
+    <Page aria-busy="true" aria-label={t('common.loadingPage')}>
       <Skeleton width={120} height={12} />
       <Skeleton width="min(520px, 80%)" height={48} style={{ marginTop: 14 }} />
       <div className="grid-cards" style={{ marginTop: 32 }}>

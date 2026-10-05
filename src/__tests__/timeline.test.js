@@ -22,13 +22,13 @@ describe('buildTimeline', () => {
     const o = { ...base, status: 'refunded', paid_at: 'x', shipped_at: 'x', inspection: 'failed', inspected_at: 'y', inspection_note: 'crest' };
     const t = buildTimeline(o, false);
     expect(states(t)).toEqual(['matched:done', 'paid:done', 'shipped:done', 'inspected:failed', 'refunded:failed']);
-    expect(t[3].detail).toBe('Reason: crest');
+    expect(t[3]).toMatchObject({ detail: 'tl.failed.reason', detailVars: { reason: 'crest' } });
   });
 
   it('explains an unshipped refund', () => {
     const t = buildTimeline({ ...base, status: 'refunded', paid_at: 'x' }, true);
     expect(states(t)).toEqual(['matched:done', 'paid:done', 'refunded:failed']);
-    expect(t[2].detail).toMatch(/didn’t ship in time/);
+    expect(t[2].detail).toBe('tl.refunded.unshipped');
   });
 
   it('inserts an open dispute where the order stopped', () => {

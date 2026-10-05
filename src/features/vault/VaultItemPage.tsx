@@ -23,7 +23,7 @@ export default function VaultItemPage() {
   const { money, lang, t, label } = usePrefs();
   const [photoIdx, setPhotoIdx] = useState(0);
   const c = items.find((x) => x.id === id);
-  usePageMeta(c ? itemName(c) : 'My collection');
+  usePageMeta(c ? itemName(c) : t('vault.title.collection'));
   const entries = Object.entries(c?.photos || {});
   const fullUrl = usePhotoUrls(entries.map(([, p]) => p));
   const thumbUrl = usePhotoUrls(entries.map(([, p]) => p), true);

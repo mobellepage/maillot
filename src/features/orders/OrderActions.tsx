@@ -17,7 +17,7 @@ export function OrderActions({ order: o, isBuyer }: { order: Order; isBuyer: boo
   const status = o.status;
 
   const cancel = async () => {
-    const ok = await confirm({ title: 'Cancel this order?', body: 'The shirt goes back on the market and your bid is closed. You haven’t been charged.', confirmLabel: 'Cancel order', cancelLabel: 'Keep it', tone: 'danger' });
+    const ok = await confirm({ title: t('ord.cancelTitle'), body: t('ord.cancelBody'), confirmLabel: t('ord.cancelConfirm'), cancelLabel: t('ord.keep'), tone: 'danger' });
     if (ok) act.cancel.mutate(o.id);
   };
 
@@ -25,7 +25,7 @@ export function OrderActions({ order: o, isBuyer }: { order: Order; isBuyer: boo
     <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
       {isBuyer && status === 'pending_payment' && (
         <>
-          <Button size="sm" busy={act.pay.isPending} busyLabel="Opening…" onClick={() => act.pay.mutate(o.id)}>
+          <Button size="sm" busy={act.pay.isPending} busyLabel={t('ord.opening')} onClick={() => act.pay.mutate(o.id)}>
             {t('order.action.payNow')}
           </Button>
           <Button size="sm" variant="danger" busy={act.cancel.isPending} onClick={cancel}>
