@@ -6,7 +6,7 @@
 // captured (payment_status === "paid") AND the captured amount/currency
 // match what the order says is owed. Notifications are emitted by the
 // on_order_status_change DB trigger — never inserted here, so nobody is
-// notified twice.
+// notified twice. A payment that lands after the order expired is refunded.
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import Stripe from "npm:stripe@17.0.0";
 
@@ -67,16 +67,29 @@ Deno.serve(async (req: Request) => {
     return json({ received: true, error: "amount mismatch" });
   }
 
-  await service
+  const paymentIntent = typeof session.payment_intent === "string" ? session.payment_intent : session.payment_intent?.id ?? null;
+
+  const { data: updated } = await service
     .from("orders")
     .update({
       status: "paid_escrow",
       paid_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
-      stripe_payment_intent_id: typeof session.payment_intent === "string" ? session.payment_intent : session.payment_intent?.id ?? null,
+      stripe_payment_intent_id: paymentIntent,
     })
     .eq("id", orderId)
-    .eq("status", "pending_payment");
+    .eq("status", "pending_payment")
+    .select("id");
+  if (updated?.length) return json({ received: true });
 
-  return json({ received: true });
+  // Not payable any more. If the order expired (run_order_lifecycle cancelled
+  // it, possibly a moment ago) the shirt may be gone, so the money goes back.
+  // Any other status means this event is a duplicate of one already applied.
+  const { data: now } = await service.from("orders").select("status").eq("id", orderId).maybeSingle();
+  if (now?.status === "cancelled" && paymentIntent) {
+    await stripe.refunds.create({ payment_intent: paymentIntent, metadata: { order_id: orderId, reason: "late_payment" } }, { idempotencyKey: `late-payment-${session.id}` });
+    console.warn(`[stripe-webhook] late payment for cancelled order ${orderId} refunded`);
+    return json({ received: true, refunded: true });
+  }
+  return json({ received: true, duplicate: true });
 });

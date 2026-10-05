@@ -97,6 +97,15 @@ npx supabase secrets set STRIPE_SECRET_KEY=... # see .env.example for the full l
 All payment/email functions are inert (respond `configured: false`) until
 their secrets are set.
 
+### Order deadlines (pg_cron)
+
+`run_order_lifecycle()` runs every 5 minutes (`cron.job` "order-lifecycle"):
+unpaid orders expire after 24 h, unshipped paid orders are refunded after
+5 days, and shipped orders without a dispute release after 14 days — each
+with one reminder first. Expired bids are closed and lost settlement calls
+retried. The windows are in `public.order_policy()` and mirrored in
+`src/features/orders/policy.ts` (a pgTAP test keeps them in sync).
+
 ### Payouts (Stripe Connect)
 
 Buyers pay the platform; money is held until the buyer confirms receipt

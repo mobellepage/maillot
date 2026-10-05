@@ -5,6 +5,7 @@ import { COMPANY } from '../../config/company.ts';
 import type { LegalDoc } from '../../config/legal.ts';
 import { Mail, P, UL } from './legalParts.tsx';
 import { BUYER_AUTH_FEE_CHF, BUYER_SHIPPING_CHF, SELLER_FEE_RATE } from '../../fees.ts';
+import { ORDER_POLICY } from '../orders/policy.ts';
 
 interface Section {
   h: string;
@@ -109,6 +110,9 @@ export const DOCS: Record<LegalDoc, { title: string; intro?: string; sections: S
           <P>
             After a match, the buyer pays through our payment provider. The money is held and only released to the seller after the shirt has passed authentication and
             the buyer has confirmed delivery, or after a dispute has been resolved in the seller’s favour. Buyers may cancel a matched order at no cost until they have paid.
+            Automatic deadlines keep every order moving: a matched order that isn’t paid within {ORDER_POLICY.paymentHours} hours is cancelled; an order that isn’t
+            shipped within {ORDER_POLICY.shipDays} days of payment is refunded to the buyer; and if the buyer neither confirms delivery nor opens a dispute within{' '}
+            {ORDER_POLICY.releaseDays} days of shipment, the payment is released to the seller. We send a reminder before each deadline.
           </P>
         )
       },

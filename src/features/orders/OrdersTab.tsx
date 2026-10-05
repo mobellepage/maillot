@@ -11,6 +11,7 @@ import { Badge, Button, EmptyState, ButtonLink, Skeleton } from '../../ui/index.
 import { DisputeDialog, ReleaseDialog, ShipDialog } from './OrderDialogs.tsx';
 import { ORDER_TONE } from './status.ts';
 import { SettlementLine } from './SettlementLine.tsx';
+import { nextDeadline } from './policy.ts';
 import { useOrderActions, useOrders } from './useOrders.ts';
 
 type Open = { kind: 'ship' | 'release' | 'dispute'; order: Order } | null;
@@ -22,6 +23,7 @@ export function OrdersTab() {
   const orders = useOrders();
   const act = useOrderActions();
   const [open, setOpen] = useState<Open>(null);
+  const [now] = useState(Date.now);
   const [params, setParams] = useSearchParams();
 
   // Returning from Stripe Checkout: confirm once, then drop the query.
@@ -83,6 +85,7 @@ export function OrdersTab() {
                   {o.tracking_code ? ' · Tracking: ' + o.tracking_code : ''}
                 </div>
                 <SettlementLine order={o} isBuyer={isBuyer} amountFmt={money(Number(o.amount) - Number(o.commission))} />
+                <DeadlineLine order={o} isBuyer={isBuyer} lang={lang} now={now} />
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap' }}>
                 <div className="mono" style={{ fontSize: 16, fontWeight: 700 }}>
@@ -127,5 +130,16 @@ export function OrdersTab() {
       <ReleaseDialog open={open?.kind === 'release'} onClose={close} busy={act.release.isPending} amountFmt={open ? money(Number(open.order.amount)) : ''} onConfirm={() => open && act.release.mutate(open.order.id, { onSuccess: close })} />
       <DisputeDialog key={'d' + open?.order.id} open={open?.kind === 'dispute'} onClose={close} busy={act.dispute.isPending} onSubmit={(reason) => open && act.dispute.mutate({ id: open.order.id, reason }, { onSuccess: close })} />
     </>
+  );
+}
+
+function DeadlineLine({ order, isBuyer, lang, now }: { order: Order; isBuyer: boolean; lang: string; now: number }) {
+  const d = nextDeadline(order, isBuyer);
+  if (!d || Number.isNaN(d.at.getTime())) return null;
+  const soon = d.at.getTime() - now < 48 * 3600_000;
+  return (
+    <div style={{ fontSize: 12.5, marginTop: 6, color: soon ? 'var(--warn)' : 'var(--text-2)' }}>
+      {d.text(formatDate(d.at.toISOString(), lang, true))}
+    </div>
   );
 }
