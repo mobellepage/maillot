@@ -66,7 +66,7 @@ export function PricePanel({ s, size, setSize, book, myUserId, stats, watched, t
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,minmax(0,1fr))', gap: 8, marginTop: 20 }}>
         <StatTile label="Lowest ask" live={!!liveAsk} highlight={!!liveAsk} value={liveAsk ? money(Number(liveAsk.amount)) : '—'} sub={liveAsk ? book.asks.length + (book.asks.length === 1 ? ' listing' : ' listings') : 'No sellers yet'} />
         <StatTile label="Highest bid" value={liveBid ? money(Number(liveBid.amount)) : '—'} sub={liveBid ? book.bids.length + (book.bids.length === 1 ? ' bid' : ' bids') : 'No bids yet'} />
-        <StatTile label="Market value" value={money(marketValue(s, size))} sub="Index estimate" />
+        <StatTile label="Market value" value={money(marketValue(s, size))} sub={s.priceSource === 'trades' ? 'From ' + s.trades.count + (s.trades.count === 1 ? ' sale' : ' sales') + ' on Maillot' : 'Index estimate'} />
       </div>
       {myAsk && (
         <div style={{ marginTop: 10, fontSize: 13, color: 'var(--text-2)' }}>

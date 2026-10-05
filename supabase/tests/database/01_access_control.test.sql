@@ -34,7 +34,7 @@ select tests.create_user('00000000-0000-4000-a000-00000000a11c', 'alice@test.loc
 select tests.create_user('00000000-0000-4000-a000-000000000b0b', 'bob@test.local');
 select tests.create_user('00000000-0000-4000-a000-0000000ad111', 'admin@test.local', true);
 
-select plan(27);
+select plan(30);
 
 -- ---- profiles: no privilege escalation -----------------------------------
 select tests.login('00000000-0000-4000-a000-00000000a11c');
@@ -77,6 +77,9 @@ select throws_ok($$ insert into events (user_id, shirt_id, type) values (null, '
 select lives_ok($$ select * from trending_scores(14) $$, 'anon can read trending');
 select lives_ok($$ select * from public_stats() $$, 'anon can read aggregate market stats');
 select lives_ok($$ select * from shirt_stats('ger-26') $$, 'anon can read per-shirt stats');
+select ok((select count(*) from catalog_shirts) > 0, 'anon can read the catalogue');
+select throws_ok($$ insert into catalog_shirts (id, club, name, season, year, brand, league, type, cond, edition, index_price, pattern, trim_color, crest_color, glow_color, sku) values ('x-1','x','x','x',2000,'x','x','New','x','x',1,'#000','#000','#000','#000','KV-X') $$, '42501', null, 'anon cannot edit the catalogue');
+select lives_ok($$ select * from catalog_market() $$, 'anon can read real-trade market data');
 reset role;
 
 -- ---- admin ----------------------------------------------------------------

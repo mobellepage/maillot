@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useCatalog } from '../catalog/useCatalog.ts';
 import { Link, Navigate, useParams, useSearchParams } from 'react-router';
 import { usePageMeta } from '../../lib/meta.ts';
 import { useSession } from '../../lib/session.tsx';
@@ -15,6 +16,7 @@ import { PricePanel } from './detail/PricePanel.tsx';
 import { useOrderBook, useShirtStats } from './queries.ts';
 
 export default function DetailPage() {
+  useCatalog(); // re-render when the live catalogue loads
   const { id } = useParams();
   const s = getShirt(id);
   const [params, setParams] = useSearchParams();

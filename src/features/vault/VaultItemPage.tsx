@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useCatalog } from '../catalog/useCatalog.ts';
 import { Link, Navigate, useParams } from 'react-router';
 import { pct } from '../../data.ts';
 import { formatDate } from '../../lib/format.ts';
@@ -13,6 +14,7 @@ import { currentValuation, displayStatus, useCollection, useCollectionActions } 
 const VISIBILITY: Record<string, string> = { private: 'Private', public: 'In public collection', offers: 'Open to offers', forsale: 'For sale' };
 
 export default function VaultItemPage() {
+  useCatalog(); // re-render when the live catalogue loads
   const { id } = useParams();
   const { items, reviews, loading } = useCollection();
   const { retry } = useCollectionActions();

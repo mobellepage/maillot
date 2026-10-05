@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useCatalog } from '../catalog/useCatalog.ts';
 import { usePageMeta } from '../../lib/meta.ts';
 import { usePrefs } from '../../lib/prefs.tsx';
 import { Button, ButtonLink, EmptyState, Page, SearchField } from '../../ui/index.ts';
@@ -9,6 +10,7 @@ import { FilterPanel } from './FilterPanel.tsx';
 import { useBrowseParams } from './useBrowseParams.ts';
 
 export default function BrowsePage() {
+  useCatalog(); // re-render when the live catalogue loads
   const { query, setQ, setSort, toggle, setRange, clear } = useBrowseParams();
   const { money } = usePrefs();
   const [showFilters, setShowFilters] = useState(false);

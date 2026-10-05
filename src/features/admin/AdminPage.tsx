@@ -1,10 +1,12 @@
 import { usePageMeta } from '../../lib/meta.ts';
+import { useCatalog } from '../catalog/useCatalog.ts';
 import { Page } from '../../ui/index.ts';
 import { ApiKeysPanel } from './ApiKeysPanel.tsx';
 import { DisputesPanel } from './DisputesPanel.tsx';
 import { ReviewQueue } from './ReviewQueue.tsx';
 
 export default function AdminPage() {
+  useCatalog(); // re-render when the live catalogue loads
   usePageMeta('Admin');
   return (
     <Page style={{ maxWidth: 860 }}>

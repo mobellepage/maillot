@@ -1,4 +1,5 @@
 import { NavLink } from 'react-router';
+import { useCatalog } from '../catalog/useCatalog.ts';
 import { usePageMeta } from '../../lib/meta.ts';
 import { usePrefs } from '../../lib/prefs.tsx';
 import { useSession } from '../../lib/session.tsx';
@@ -19,6 +20,7 @@ type Tab = 'collection' | 'watchlist' | 'orders';
 const TITLES: Record<Tab, string> = { collection: 'My collection', watchlist: 'Watchlist', orders: 'Orders' };
 
 export default function VaultPage({ tab }: { tab: Tab }) {
+  useCatalog(); // re-render when the live catalogue loads
   usePageMeta(TITLES[tab]);
   const { user } = useSession();
   const { money } = usePrefs();

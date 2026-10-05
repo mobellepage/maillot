@@ -9,6 +9,37 @@ export type Database = {
   };
   public: {
     Tables: {
+      catalog_shirts: {
+        Row: {
+          active: boolean;
+          added_at: string;
+          brand: string;
+          club: string;
+          cond: string;
+          created_at: string;
+          crest_color: string;
+          edition: string;
+          glow_color: string;
+          id: string;
+          index_change_30d: number;
+          index_price: number;
+          league: string;
+          name: string;
+          number_color: string | null;
+          pattern: string;
+          player: string | null;
+          season: string;
+          sizes: string[];
+          sku: string;
+          trim_color: string;
+          type: string;
+          updated_at: string;
+          year: number;
+        };
+        Insert: Partial<Database['public']['Tables']['catalog_shirts']['Row']> & { id: string; club: string; name: string; season: string; year: number; brand: string; league: string; type: string; cond: string; edition: string; index_price: number; pattern: string; trim_color: string; crest_color: string; glow_color: string; sku: string };
+        Update: Partial<Database['public']['Tables']['catalog_shirts']['Row']>;
+        Relationships: [];
+      };
       api_keys: {
         Row: {
           created_at: string;
@@ -498,6 +529,16 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
+      catalog_market: {
+        Args: never;
+        Returns: {
+          shirt_id: string;
+          completed_sales: number;
+          last_price: number | null;
+          last_sold_at: string | null;
+          avg_recent: number | null;
+        }[];
+      };
       create_api_key: {
         Args: { p_label: string };
         Returns: {

@@ -6,8 +6,10 @@ import Footer from './Footer.tsx';
 import { PageFallback } from './PageFallback.tsx';
 import { parseShareHash } from '../utils/share.ts';
 import PublicVaultPage from '../features/vault/PublicVaultPage.tsx';
+import { useCatalogSync } from '../features/catalog/useCatalog.ts';
 
 export default function RootLayout() {
+  useCatalogSync();
   const { hash } = useLocation();
   // Self-contained share links (#/vault/<data>) render a standalone page.
   const shared = parseShareHash(hash);

@@ -28,8 +28,23 @@ export interface RawShirt {
   added: number;
 }
 
-/** A catalogue entry plus its (synthetic) market data and derived fields. */
+/** Real-trade figures for a shirt (from released orders). */
+export interface Trades {
+  count: number;
+  lastPrice: number | null;
+  lastSoldAt: string | null;
+  avgRecent: number | null;
+}
+
+/**
+ * A catalogue entry plus its market data and derived fields. `price` is the
+ * market value: the average of recent real sales once there are any
+ * (priceSource 'trades'), otherwise the catalogue index estimate.
+ */
 export interface Shirt extends RawShirt, MarketData {
+  indexPrice: number;
+  priceSource: 'trades' | 'estimate';
+  trades: Trades;
   pName: string;
   pNum: string;
   spark: string;
@@ -115,34 +130,60 @@ export function linePath(pairs: Point[], W: number, H: number, pad: number): { d
 export const SIZES = ['S', 'M', 'L', 'XL', 'XXL'];
 export const MULT: Record<string, number> = { S: 0.96, M: 1, L: 1.05, XL: 1.03, XXL: 0.93 };
 export const CONDS = ['New with tags', 'Excellent', 'Very good', 'Good', 'Match-worn'];
-export const SHIRTS: Shirt[] = RAW.map((s): Shirt => {
-  const r = rng(s.id);
-  // See marketData.js — hist/sizes/avail/owners/wants/decade/sales are all placeholder
-  // synthetic data pending a real transactions integration (Phase 4.11 audit).
-  const { L, hist, sizes, avail, owners, wants, decade, sales } = generateSyntheticMarketData(s, r);
-  const parts = (s.player || '').split(' ');
+const NO_TRADES: Trades = { count: 0, lastPrice: null, lastSoldAt: null, avgRecent: null };
+
+/** Builds a full Shirt from a catalogue row (bundled snapshot or database). */
+export function buildShirt(raw: RawShirt & { sizes?: string[]; sku?: string }, trades: Trades = NO_TRADES): Shirt {
+  const r = rng(raw.id);
+  // Price history, owner/want counts and "recent sales" are synthetic index
+  // data (see marketData.ts) and are labelled as such in the UI.
+  const m = generateSyntheticMarketData(raw, r);
+  const parts = (raw.player || '').split(' ');
   const num = parts.length > 1 ? parts.pop() || '' : '';
+  const sku = 'KV-' + (10000 + Math.floor(r() * 89999));
+  const fromTrades = trades.count > 0 && trades.avgRecent !== null;
   return {
-    ...s,
-    L,
-    hist,
-    sizes,
-    avail,
-    owners,
-    wants,
-    decade,
-    sales,
+    ...raw,
+    ...m,
+    sizes: raw.sizes && raw.sizes.length ? raw.sizes : m.sizes,
+    indexPrice: raw.price,
+    price: fromTrades ? Math.round(trades.avgRecent!) : raw.price,
+    priceSource: fromTrades ? 'trades' : 'estimate',
+    trades,
     pName: parts.join(' ').toUpperCase(),
     pNum: num,
-    spark: linePath(down(hist.slice(-90), 32), 100, 32, 3).d,
-    hay: [s.club, s.name, s.season, s.brand, s.league, s.player, s.type].join(' ').toLowerCase(),
-    sku: 'KV-' + (10000 + Math.floor(r() * 89999)),
-    trend: s.ch * 1.6 + wants / 900
+    spark: linePath(down(m.hist.slice(-90), 32), 100, 32, 3).d,
+    hay: [raw.club, raw.name, raw.season, raw.brand, raw.league, raw.player, raw.type].join(' ').toLowerCase(),
+    sku: raw.sku || sku,
+    trend: raw.ch * 1.6 + m.wants / 900
   };
-});
+}
 
+// ---------------------------------------------------------------------------
+// The live catalogue. Starts as the bundled snapshot below (instant first
+// paint, offline fallback) and is replaced in place by the database version
+// once it loads (features/catalog/useCatalog.ts). Pages subscribe through
+// useCatalog() so they re-render when it changes.
+// ---------------------------------------------------------------------------
+export const SHIRTS: Shirt[] = RAW.map((s) => buildShirt(s));
 export const BY: Record<string, Shirt> = {};
 SHIRTS.forEach((s) => (BY[s.id] = s));
+
+let catalogVersion = 0;
+const listeners = new Set<() => void>();
+
+export function replaceCatalog(next: Shirt[]): void {
+  SHIRTS.splice(0, SHIRTS.length, ...next);
+  for (const k of Object.keys(BY)) delete BY[k];
+  next.forEach((s) => (BY[s.id] = s));
+  catalogVersion++;
+  listeners.forEach((l) => l());
+}
+export function subscribeCatalog(l: () => void): () => void {
+  listeners.add(l);
+  return () => listeners.delete(l);
+}
+export const getCatalogVersion = (): number => catalogVersion;
 
 export interface Filters {
   type: string[];

@@ -1,4 +1,5 @@
 import { Link } from 'react-router';
+import { useCatalog } from '../catalog/useCatalog.ts';
 import { BY } from '../../data.ts';
 import { usePageMeta } from '../../lib/meta.ts';
 import { SectionHeader } from '../../ui/index.ts';
@@ -13,6 +14,7 @@ import { useHomeLists } from './useHomeLists.ts';
 const section = { maxWidth: 1360, margin: '0 auto', padding: 'clamp(48px,6vw,88px) var(--gutter) 0' } as const;
 
 export default function HomePage() {
+  useCatalog(); // re-render when the live catalogue loads
   usePageMeta(null);
   const { items } = useCollection();
   const { trending, recommended } = useHomeLists(items.map((c) => c.catalogId).filter((x): x is string => !!x));

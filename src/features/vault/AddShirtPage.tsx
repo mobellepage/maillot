@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useCatalog } from '../catalog/useCatalog.ts';
 import { useNavigate } from 'react-router';
 import { estimateValue } from '../../addShirtData.js';
 import { BY } from '../../data.ts';
@@ -21,6 +22,7 @@ import { useCollectionActions } from './useCollection.ts';
 const STEPS = ['Scan', 'Trikot', 'Details', 'Fotos', 'Vorprüfung', 'Verifizierung', 'Wert & Abschluss'];
 
 export default function AddShirtPage() {
+  useCatalog(); // re-render when the live catalogue loads
   usePageMeta('Add a shirt');
   const { user } = useSession();
   const w = useAddShirtForm(user?.id);

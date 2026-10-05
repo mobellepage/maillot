@@ -1,4 +1,5 @@
 import { usePageMeta } from '../../lib/meta.ts';
+import { useCatalog } from '../catalog/useCatalog.ts';
 import { usePrefs } from '../../lib/prefs.tsx';
 import { Button, ButtonLink, CheckIcon, Page } from '../../ui/index.ts';
 import { DetailsStep } from './DetailsStep.tsx';
@@ -10,6 +11,7 @@ import { useSellFlow } from './useSellFlow.ts';
 const STEPS = ['Identify', 'Details', 'Price', 'Review'];
 
 export default function SellPage() {
+  useCatalog(); // re-render when the live catalogue loads
   usePageMeta('Sell a football shirt', 'List a football shirt in under a minute. Authenticated in Zürich, paid out after delivery.');
   const f = useSellFlow();
   const { money } = usePrefs();
