@@ -43,7 +43,7 @@ export function useOrderActions() {
       },
       onError: fail('toast.paymentStartFailed')
     }),
-    ship: useMutation({ mutationFn: ({ id, tracking }: { id: string; tracking: string }) => db.markOrderShipped(id, tracking), onSuccess: done('toast.markedShipped'), onError: fail('toast.actionFailed') }),
+    ship: useMutation({ mutationFn: ({ id, tracking, carrier }: { id: string; tracking: string; carrier: string | null }) => db.markOrderShipped(id, tracking, carrier), onSuccess: done('toast.markedShipped'), onError: fail('toast.actionFailed') }),
     release: useMutation({ mutationFn: (id: string) => db.confirmOrderReceipt(id), onSuccess: done('toast.releaseConfirmed'), onError: fail('toast.actionFailed') }),
     cancel: useMutation({ mutationFn: (id: string) => db.cancelOrder(id), onSuccess: done('toast.orderCancelled'), onError: fail('toast.cancelFailed') }),
     dispute: useMutation({ mutationFn: ({ id, reason }: { id: string; reason: string }) => db.openDispute(id, reason), onSuccess: done('toast.disputeFiled'), onError: fail('toast.disputeFailed') })

@@ -14,11 +14,22 @@ export async function loadMyOrders(userId: string): Promise<Order[]> {
   return data || [];
 }
 
-export async function markOrderShipped(orderId: string, tracking?: string | null): Promise<void> {
-  const args: { p_order_id: string; p_tracking?: string } = { p_order_id: orderId };
+export async function markOrderShipped(orderId: string, tracking?: string | null, carrier?: string | null): Promise<void> {
+  const args: { p_order_id: string; p_tracking?: string; p_carrier?: string } = { p_order_id: orderId };
   if (tracking) args.p_tracking = tracking;
+  if (carrier) args.p_carrier = carrier;
   const { error } = await supabase.rpc('order_mark_shipped', args);
   if (error) throw error;
+}
+
+export type LabelResult = { configured: false; message?: string } | { configured: true; url?: string; tracking?: string; error?: string };
+
+/** Prepaid Swiss Post label: inbound (seller -> centre) or outbound (centre -> buyer, admins). */
+export async function requestShippingLabel(orderId: string, leg: 'inbound' | 'outbound' = 'inbound'): Promise<LabelResult> {
+  const { data, error } = await supabase.functions.invoke<LabelResult>('shipping-label', { body: { orderId, leg } });
+  if (error) throw error;
+  if (!data) throw new Error('empty response');
+  return data;
 }
 
 export async function confirmOrderReceipt(orderId: string): Promise<void> {
@@ -73,6 +84,27 @@ export async function resolveDispute(disputeId: string, outcome: 'release' | 're
   if (error) throw error;
 }
 
+// ---------------------------------------------------------------------------
+// Authentication centre (admins). Both RPCs re-check is_admin server-side.
+// ---------------------------------------------------------------------------
+export type Inspection = RpcReturns<'list_inspections_for_admin'>[number];
+
+export async function loadInspections(): Promise<Inspection[]> {
+  const { data, error } = await supabase.rpc('list_inspections_for_admin');
+  if (error) throw error;
+  return data || [];
+}
+
+export async function recordInspection(orderId: string, passed: boolean, note: string, outboundTracking: string, outboundCarrier: string | null): Promise<void> {
+  const { error } = await supabase.rpc('admin_record_inspection', {
+    p_order_id: orderId,
+    p_passed: passed,
+    p_note: note || undefined,
+    p_outbound_tracking: outboundTracking || undefined,
+    p_outbound_carrier: outboundCarrier || undefined
+  });
+  if (error) throw error;
+}
 
 // ---------------------------------------------------------------------------
 // Seller payouts (Stripe Connect)

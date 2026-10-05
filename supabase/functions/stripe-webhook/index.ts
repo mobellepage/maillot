@@ -80,7 +80,13 @@ Deno.serve(async (req: Request) => {
     .eq("id", orderId)
     .eq("status", "pending_payment")
     .select("id");
-  if (updated?.length) return json({ received: true });
+  if (updated?.length) {
+    // Delivery address for the centre's outbound label. Stored apart from the
+    // order so the seller never sees it.
+    const shipTo = (session as { shipping_details?: unknown }).shipping_details ?? (session as { collected_information?: { shipping_details?: unknown } }).collected_information?.shipping_details;
+    if (shipTo) await service.from("order_addresses").upsert({ order_id: orderId, ship_to: shipTo });
+    return json({ received: true });
+  }
 
   // Not payable any more. If the order expired (run_order_lifecycle cancelled
   // it, possibly a moment ago) the shirt may be gone, so the money goes back.

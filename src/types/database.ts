@@ -308,6 +308,12 @@ export type Database = {
         };
         Relationships: [];
       };
+      order_addresses: {
+        Row: { order_id: string; ship_to: Json; created_at: string };
+        Insert: { order_id: string; ship_to: Json; created_at?: string };
+        Update: { order_id?: string; ship_to?: Json; created_at?: string };
+        Relationships: [];
+      };
       notifications: {
         Row: {
           body: string | null;
@@ -373,6 +379,14 @@ export type Database = {
           refund_id: string | null;
           settlement_error: string | null;
           settled_at: string | null;
+          carrier: string | null;
+          label_path: string | null;
+          inspection: 'pending' | 'passed' | 'failed';
+          inspection_note: string | null;
+          inspected_at: string | null;
+          outbound_carrier: string | null;
+          outbound_tracking: string | null;
+          forwarded_at: string | null;
         };
         Insert: {
           amount: number;
@@ -578,6 +592,26 @@ export type Database = {
         Args: { p_shirt_id: string; p_size: string };
         Returns: undefined;
       };
+      list_inspections_for_admin: {
+        Args: never;
+        Returns: {
+          order_id: string;
+          shirt_id: string | null;
+          custom_item_id: string | null;
+          size: string | null;
+          amount: number;
+          carrier: string | null;
+          tracking_code: string | null;
+          shipped_at: string | null;
+          inspection: string;
+          outbound_tracking: string | null;
+          ship_to: Json | null;
+        }[];
+      };
+      admin_record_inspection: {
+        Args: { p_order_id: string; p_passed: boolean; p_note?: string; p_outbound_tracking?: string; p_outbound_carrier?: string };
+        Returns: undefined;
+      };
       my_payout_status: { Args: never; Returns: { connected: boolean; payouts_enabled: boolean }[] };
       order_cancel: { Args: { p_order_id: string }; Returns: undefined };
       order_confirm_receipt: {
@@ -585,7 +619,7 @@ export type Database = {
         Returns: undefined;
       };
       order_mark_shipped: {
-        Args: { p_order_id: string; p_tracking?: string };
+        Args: { p_order_id: string; p_tracking?: string; p_carrier?: string };
         Returns: undefined;
       };
       order_open_dispute: {

@@ -11,7 +11,7 @@ const DAY = 24 * HOUR;
 export type Deadline = { at: Date; text: (when: string) => string };
 
 /** The next automatic step for an order, from the viewer's side. */
-export function nextDeadline(o: Pick<Order, 'status' | 'created_at' | 'paid_at' | 'shipped_at'>, isBuyer: boolean): Deadline | null {
+export function nextDeadline(o: Pick<Order, 'status' | 'created_at' | 'paid_at' | 'inspection' | 'forwarded_at'>, isBuyer: boolean): Deadline | null {
   const t = (iso: string | null) => (iso ? new Date(iso).getTime() : NaN);
   if (o.status === 'pending_payment') {
     const at = new Date(t(o.created_at) + ORDER_POLICY.paymentHours * HOUR);
@@ -21,8 +21,9 @@ export function nextDeadline(o: Pick<Order, 'status' | 'created_at' | 'paid_at' 
     const at = new Date(t(o.paid_at) + ORDER_POLICY.shipDays * DAY);
     return { at, text: (w) => (isBuyer ? `Seller ships by ${w}, or you’re refunded automatically` : `Ship by ${w} — otherwise the buyer is refunded`) };
   }
-  if (o.status === 'shipped' && o.shipped_at) {
-    const at = new Date(t(o.shipped_at) + ORDER_POLICY.releaseDays * DAY);
+  // While the shirt is at the authentication centre nothing is on a clock.
+  if (o.status === 'shipped' && o.inspection === 'passed' && o.forwarded_at) {
+    const at = new Date(t(o.forwarded_at) + ORDER_POLICY.releaseDays * DAY);
     return { at, text: (w) => (isBuyer ? `Confirm or report a problem by ${w}` : `Payment releases automatically on ${w}`) };
   }
   return null;

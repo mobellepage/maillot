@@ -52,6 +52,36 @@ export function useResolveDispute() {
   });
 }
 
+export function useInspections() {
+  const { isAdmin } = useSession();
+  useLive([{ table: 'orders' }], [['inspections']], isAdmin);
+  return useQuery({ queryKey: ['inspections'], enabled: isAdmin, queryFn: db.loadInspections });
+}
+
+export function useRecordInspection() {
+  const qc = useQueryClient();
+  const toast = useToast();
+  return useMutation({
+    mutationFn: ({ id, passed, note, outbound, carrier }: { id: string; passed: boolean; note: string; outbound: string; carrier: string | null }) => db.recordInspection(id, passed, note, outbound, carrier),
+    onSuccess: (_d, { passed }) => toast(passed ? 'Passed — buyer notified' : 'Failed — buyer refunded'),
+    onError: (e) => toast('Error: ' + (e as Error).message),
+    onSettled: () => qc.invalidateQueries({ queryKey: ['inspections'] })
+  });
+}
+
+export function useOutboundLabel() {
+  const toast = useToast();
+  return useMutation({
+    mutationFn: (orderId: string) => db.requestShippingLabel(orderId, 'outbound'),
+    onSuccess: (r) => {
+      if (!r.configured) toast(r.message || 'Prepaid labels aren’t switched on.');
+      else if (r.url) window.open(r.url, '_blank', 'noopener');
+      else toast(r.error || 'Couldn’t create the label.');
+    },
+    onError: (e) => toast('Error: ' + (e as Error).message)
+  });
+}
+
 export function useApiKeys() {
   const { isAdmin } = useSession();
   return useQuery({ queryKey: ['apiKeys'], enabled: isAdmin, queryFn: db.loadApiKeys });

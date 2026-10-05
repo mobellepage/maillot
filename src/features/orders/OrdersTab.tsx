@@ -11,6 +11,7 @@ import { Badge, Button, EmptyState, ButtonLink, Skeleton } from '../../ui/index.
 import { DisputeDialog, ReleaseDialog, ShipDialog } from './OrderDialogs.tsx';
 import { ORDER_TONE } from './status.ts';
 import { SettlementLine } from './SettlementLine.tsx';
+import { ShipmentLine } from './ShipmentLine.tsx';
 import { nextDeadline } from './policy.ts';
 import { useOrderActions, useOrders } from './useOrders.ts';
 
@@ -82,8 +83,8 @@ export function OrdersTab() {
                 </div>
                 <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 6 }}>
                   {formatDate(o.created_at, lang)}
-                  {o.tracking_code ? ' · Tracking: ' + o.tracking_code : ''}
                 </div>
+                <ShipmentLine order={o} isBuyer={isBuyer} />
                 <SettlementLine order={o} isBuyer={isBuyer} amountFmt={money(Number(o.amount) - Number(o.commission))} />
                 <DeadlineLine order={o} isBuyer={isBuyer} lang={lang} now={now} />
               </div>
@@ -110,7 +111,7 @@ export function OrdersTab() {
                       {t('order.action.markShipped')}
                     </Button>
                   )}
-                  {isBuyer && status === 'shipped' && (
+                  {isBuyer && status === 'shipped' && o.inspection === 'passed' && (
                     <Button size="sm" onClick={() => setOpen({ kind: 'release', order: o })}>
                       {t('order.action.confirmRelease')}
                     </Button>
@@ -126,7 +127,13 @@ export function OrdersTab() {
           );
         })}
       </ul>
-      <ShipDialog key={'s' + open?.order.id} open={open?.kind === 'ship'} onClose={close} busy={act.ship.isPending} onSubmit={(tracking) => open && act.ship.mutate({ id: open.order.id, tracking }, { onSuccess: close })} />
+      <ShipDialog
+        key={'s' + open?.order.id}
+        orderId={open?.kind === 'ship' ? open.order.id : null}
+        onClose={close}
+        busy={act.ship.isPending}
+        onSubmit={(tracking, carrier) => open && act.ship.mutate({ id: open.order.id, tracking, carrier }, { onSuccess: close })}
+      />
       <ReleaseDialog open={open?.kind === 'release'} onClose={close} busy={act.release.isPending} amountFmt={open ? money(Number(open.order.amount)) : ''} onConfirm={() => open && act.release.mutate(open.order.id, { onSuccess: close })} />
       <DisputeDialog key={'d' + open?.order.id} open={open?.kind === 'dispute'} onClose={close} busy={act.dispute.isPending} onSubmit={(reason) => open && act.dispute.mutate({ id: open.order.id, reason }, { onSuccess: close })} />
     </>

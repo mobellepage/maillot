@@ -90,6 +90,8 @@ Deno.serve(async (req: Request) => {
       payment_method_types: ["card", "twint"],
       currency: "chf",
       customer_email: user.email ?? undefined,
+      // The centre forwards the shirt here after authentication.
+      shipping_address_collection: { allowed_countries: ["CH", "LI"] },
       line_items: [{
         price_data: {
           currency: "chf",

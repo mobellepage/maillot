@@ -1,19 +1,75 @@
 // Designed replacements for the old window.prompt / window.confirm flows.
 import { useState } from 'react';
+import { useMutation } from '@tanstack/react-query';
+import { COMPANY } from '../../config/company.ts';
+import * as db from '../../utils/db.ts';
 import { Button, Dialog, Notice, TextField } from '../../ui/index.ts';
+import { CARRIERS, CARRIER_IDS, carrierName, detectCarrier, type Carrier } from './shipping.ts';
 
-export function ShipDialog({ open, onClose, onSubmit, busy }: { open: boolean; onClose: () => void; onSubmit: (tracking: string) => void; busy: boolean }) {
+export function ShipDialog({ orderId, onClose, onSubmit, busy }: { orderId: string | null; onClose: () => void; onSubmit: (tracking: string, carrier: Carrier | null) => void; busy: boolean }) {
   const [tracking, setTracking] = useState('');
+  const [picked, setPicked] = useState<Carrier | ''>('');
+  const label = useMutation({ mutationFn: () => db.requestShippingLabel(orderId!) });
+  const detected = detectCarrier(tracking);
+  const carrier = picked || detected;
+  const result = label.data;
+
+  const getLabel = () =>
+    label.mutate(undefined, {
+      onSuccess: (r) => {
+        if (r.configured && r.url) {
+          window.open(r.url, '_blank', 'noopener');
+          if (r.tracking) {
+            setTracking(r.tracking);
+            setPicked('post');
+          }
+        }
+      }
+    });
+
   return (
-    <Dialog open={open} onClose={onClose} title="Mark as shipped">
+    <Dialog open={!!orderId} onClose={onClose} title="Ship to authentication">
       <form
         onSubmit={(e) => {
           e.preventDefault();
-          onSubmit(tracking.trim());
+          onSubmit(tracking.trim(), carrier || null);
         }}
       >
-        <p style={{ margin: '0 0 16px', fontSize: 14, lineHeight: 1.55, color: 'var(--text-2)' }}>Ship the shirt to our Zürich authentication centre with the prepaid label, then add the tracking number so the buyer can follow it.</p>
-        <TextField label="Tracking number" placeholder="e.g. 99.00.123456.12345678" value={tracking} onChange={(e) => setTracking(e.target.value.slice(0, 60))} hint="Optional, but it speeds up disputes if something goes missing." autoFocus />
+        <p style={{ margin: '0 0 14px', fontSize: 14, lineHeight: 1.55, color: 'var(--text-2)' }}>Every sale goes through our Zürich centre first. Send the shirt here — we inspect it and forward it to the buyer:</p>
+        <address style={{ fontStyle: 'normal', fontSize: 14, lineHeight: 1.6, padding: '12px 14px', borderRadius: 12, background: 'var(--sunken)', border: '1px solid var(--line)' }}>
+          {COMPANY.authCentre.map((l) => (
+            <div key={l}>{l}</div>
+          ))}
+        </address>
+        <div style={{ margin: '14px 0 18px' }}>
+          <Button variant="ghost" size="sm" busy={label.isPending} busyLabel="Creating label…" onClick={getLabel}>
+            {result?.configured && result.url ? 'Open label again' : 'Get prepaid Swiss Post label'}
+          </Button>
+          {result && !result.configured && <Notice style={{ marginTop: 10 }}>Prepaid labels aren’t switched on yet — please ship with any tracked service to the address above.</Notice>}
+          {result?.configured && result.error && <Notice tone="neg" style={{ marginTop: 10 }}>{result.error}</Notice>}
+          {label.isError && <Notice tone="neg" style={{ marginTop: 10 }}>Couldn’t create the label — please try again or ship with any tracked service.</Notice>}
+        </div>
+        <TextField
+          label="Tracking number"
+          placeholder="e.g. 99.00.123456.12345678"
+          value={tracking}
+          onChange={(e) => setTracking(e.target.value.slice(0, 60))}
+          hint={detected && !picked ? `Looks like ${carrierName(detected)}.` : 'Optional, but it speeds up disputes if something goes missing.'}
+          autoFocus
+        />
+        <label htmlFor="ship-carrier" style={{ display: 'block', fontSize: 14, fontWeight: 600, margin: '16px 0 10px' }}>
+          Carrier
+        </label>
+        <div className="field">
+          <select id="ship-carrier" value={picked || detected || ''} onChange={(e) => setPicked(e.target.value as Carrier | '')}>
+            <option value="">Choose…</option>
+            {CARRIER_IDS.map((c) => (
+              <option key={c} value={c}>
+                {CARRIERS[c].name}
+              </option>
+            ))}
+          </select>
+        </div>
         <div style={{ display: 'flex', gap: 10, marginTop: 22 }}>
           <Button variant="ghost" onClick={onClose} style={{ flex: 1 }}>
             Cancel

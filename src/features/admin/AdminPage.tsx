@@ -3,6 +3,7 @@ import { useCatalog } from '../catalog/useCatalog.ts';
 import { Page } from '../../ui/index.ts';
 import { ApiKeysPanel } from './ApiKeysPanel.tsx';
 import { DisputesPanel } from './DisputesPanel.tsx';
+import { InspectionPanel } from './InspectionPanel.tsx';
 import { ReviewQueue } from './ReviewQueue.tsx';
 
 export default function AdminPage() {
@@ -16,6 +17,7 @@ export default function AdminPage() {
       </h1>
       <p style={{ fontSize: 13.5, color: 'var(--muted)', margin: '10px 0 0', lineHeight: 1.5, maxWidth: 560 }}>Shirts land here when an owner requests expert verification. Nothing resolves by itself — a person has to verify or reject each one.</p>
       <ReviewQueue />
+      <InspectionPanel />
       <DisputesPanel />
       <ApiKeysPanel />
     </Page>

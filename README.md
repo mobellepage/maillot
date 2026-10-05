@@ -97,11 +97,23 @@ npx supabase secrets set STRIPE_SECRET_KEY=... # see .env.example for the full l
 All payment/email functions are inert (respond `configured: false`) until
 their secrets are set.
 
+### Shipping and authentication
+
+Sellers ship to the Zürich centre (prepaid Swiss Post label from the
+`shipping-label` function, or any tracked carrier). Admins record the
+inspection in *Admin → Inspections*: a pass forwards the shirt (outbound
+label to the address Stripe Checkout collected, kept in `order_addresses`
+which sellers can't read) and starts the buyer's confirmation window; a fail
+refunds the buyer. Labels need `SWISSPOST_CLIENT_ID`, `SWISSPOST_CLIENT_SECRET`,
+`SWISSPOST_FRANKING_LICENSE` and `AUTH_CENTRE_ADDRESS`
+(`{"name1","street","zip","city"}`) — verify the request against the current
+Swiss Post Digital Commerce API docs when you get credentials.
+
 ### Order deadlines (pg_cron)
 
 `run_order_lifecycle()` runs every 5 minutes (`cron.job` "order-lifecycle"):
 unpaid orders expire after 24 h, unshipped paid orders are refunded after
-5 days, and shipped orders without a dispute release after 14 days — each
+5 days, and authenticated, forwarded orders without a dispute release after 14 days — each
 with one reminder first. Expired bids are closed and lost settlement calls
 retried. The windows are in `public.order_policy()` and mirrored in
 `src/features/orders/policy.ts` (a pgTAP test keeps them in sync).

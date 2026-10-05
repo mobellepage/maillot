@@ -44,7 +44,7 @@ create or replace function tests.last_dispute()
 returns uuid language sql security definer as $$ select id from public.disputes order by created_at desc limit 1 $$;
 grant execute on function tests.last_dispute() to authenticated;
 
-select plan(34);
+select plan(42);
 
 -- ======================= matching engine ==================================
 -- self-trade: one user's crossing bid and ask must never match
@@ -98,6 +98,16 @@ select lives_ok(format('select order_mark_shipped(%L, %L)', (tests.order_for('li
 select is((tests.order_for('liv-2526', 'L')).tracking_code, '99.00.123456', 'tracking code stored');
 select throws_ok(format('select order_confirm_receipt(%L)', (tests.order_for('liv-2526', 'L')).id), null, 'order cannot be released', 'seller cannot release their own escrow');
 select tests.login('00000000-0000-4000-a000-00000000a11c');
+select throws_ok(format('select order_confirm_receipt(%L)', (tests.order_for('liv-2526', 'L')).id), null, 'order cannot be released', 'buyer cannot confirm before authentication');
+select throws_ok(format('select admin_record_inspection(%L, true)', (tests.order_for('liv-2526', 'L')).id), null, 'not authorized', 'only admins record inspections');
+select tests.login('00000000-0000-4000-a000-0000000ad111');
+select lives_ok(format('select admin_record_inspection(%L, true, null, %L)', (tests.order_for('liv-2526', 'L')).id, '99.00.654321'), 'centre passes and forwards the shirt');
+select tests.logout();
+insert into order_addresses (order_id, ship_to) values ((tests.order_for('liv-2526', 'L')).id, '{"name": "Alice", "city": "Bern"}');
+select tests.login('00000000-0000-4000-a000-000000000b0b');
+select is((select count(*)::int from order_addresses), 0, 'seller never sees the buyer''s address');
+select tests.login('00000000-0000-4000-a000-00000000a11c');
+select is((select count(*)::int from order_addresses), 1, 'buyer sees their own delivery address');
 select lives_ok(format('select order_confirm_receipt(%L)', (tests.order_for('liv-2526', 'L')).id), 'buyer confirms receipt');
 select tests.logout();
 select is((tests.order_for('liv-2526', 'L')).status, 'released', 'order released');
@@ -134,6 +144,21 @@ select throws_ok(format('select resolve_dispute(%L, %L, null)', tests.last_dispu
 select tests.logout();
 select is((tests.order_for('psg-2526', 'M')).status, 'refunded', 'order refunded');
 select is((tests.order_for('psg-2526', 'M')).payout_status, 'refund_pending', 'refund queues the buyer refund');
+
+-- ======================= failed authentication ============================
+select tests.login('00000000-0000-4000-a000-000000000b0b');
+insert into asks (user_id, shirt_id, size, amount) values ('00000000-0000-4000-a000-000000000b0b', 'bas-2526', 'M', 80);
+select tests.login('00000000-0000-4000-a000-00000000a11c');
+insert into bids (user_id, shirt_id, size, amount) values ('00000000-0000-4000-a000-00000000a11c', 'bas-2526', 'M', 80);
+select tests.logout();
+update orders set status = 'paid_escrow' where id = (tests.order_for('bas-2526', 'M')).id;
+select tests.login('00000000-0000-4000-a000-000000000b0b');
+select order_mark_shipped((tests.order_for('bas-2526', 'M')).id, 'RR123456789CH', 'post');
+select tests.login('00000000-0000-4000-a000-0000000ad111');
+select lives_ok(format('select admin_record_inspection(%L, false, %L)', (tests.order_for('bas-2526', 'M')).id, 'crest stitching'), 'centre rejects a fake');
+select tests.logout();
+select is((tests.order_for('bas-2526', 'M')).status, 'refunded', 'failed authentication refunds the buyer');
+select is((tests.order_for('bas-2526', 'M')).carrier, 'post', 'carrier is recorded');
 
 -- ======================= expert verification ==============================
 select tests.login('00000000-0000-4000-a000-00000000a11c');

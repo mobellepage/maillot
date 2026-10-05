@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { ORDER_POLICY, nextDeadline } from '../features/orders/policy.ts';
 
-const base = { created_at: '2026-10-01T10:00:00Z', paid_at: null, shipped_at: null };
+const base = { created_at: '2026-10-01T10:00:00Z', paid_at: null, inspection: 'pending', forwarded_at: null };
 
 describe('nextDeadline', () => {
   it('gives the buyer the payment window', () => {
@@ -14,8 +14,9 @@ describe('nextDeadline', () => {
     expect(d.at.toISOString()).toBe('2026-10-07T00:00:00.000Z');
     expect(d.text('X')).toMatch(/^Ship by X/);
   });
-  it('shows auto-release after shipping', () => {
-    const d = nextDeadline({ ...base, status: 'shipped', shipped_at: '2026-10-02T00:00:00Z' }, false);
+  it('starts the release clock when the centre forwards the shirt', () => {
+    expect(nextDeadline({ ...base, status: 'shipped' }, false)).toBeNull();
+    const d = nextDeadline({ ...base, status: 'shipped', inspection: 'passed', forwarded_at: '2026-10-02T00:00:00Z' }, false);
     expect(d.at.toISOString()).toBe('2026-10-16T00:00:00.000Z');
   });
   it('has nothing pending for finished or disputed orders', () => {

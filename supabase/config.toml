@@ -45,3 +45,6 @@ verify_jwt = false
 
 [functions.connect-onboarding]
 verify_jwt = true
+
+[functions.shipping-label]
+verify_jwt = true
