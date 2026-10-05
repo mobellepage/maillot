@@ -8,6 +8,7 @@ import { parseShareHash } from '../utils/share.ts';
 import PublicVaultPage from '../features/vault/PublicVaultPage.tsx';
 import { useCatalogSync } from '../features/catalog/useCatalog.ts';
 import { useOnboardingRedirect } from './useOnboardingRedirect.ts';
+import { OfflineBar } from './OfflineBar.tsx';
 
 export default function RootLayout() {
   useCatalogSync();
@@ -19,6 +20,7 @@ export default function RootLayout() {
 
   return (
     <div className="app-shell" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+      <OfflineBar />
       <Header />
       <div style={{ flex: 1 }}>
         <Suspense fallback={<PageFallback />}>

@@ -14,5 +14,5 @@ export function useNotifications() {
     onMutate: (id) => qc.setQueryData<db.Notification[]>(key, (xs = []) => xs.map((n) => (n.id === id ? { ...n, read: true } : n)))
   });
   const items = q.data ?? [];
-  return { items, unread: items.filter((n) => !n.read).length, markRead: (id: string) => markRead.mutate(id) };
+  return { items, loading: q.isLoading, error: q.isError, retry: () => q.refetch(), unread: items.filter((n) => !n.read).length, markRead: (id: string) => markRead.mutate(id) };
 }

@@ -6,7 +6,7 @@ import { formatDate } from '../../lib/format.ts';
 import { usePageMeta } from '../../lib/meta.ts';
 import { usePrefs } from '../../lib/prefs.tsx';
 import { downloadVaultCard } from '../../utils/cardExport.js';
-import { Badge, Button, Card, KeyValueList, Notice, Page, ShirtGraphic, HEX, useConfirm } from '../../ui/index.ts';
+import { Badge, Button, Card, ErrorState, KeyValueList, Notice, Page, ShirtGraphic, Skeleton, HEX, useConfirm } from '../../ui/index.ts';
 import { badgeFor, itemLook, itemName, valueOf } from './model.ts';
 import { usePhotoUrls } from '../../lib/usePhotoUrls.ts';
 import { currentValuation, displayStatus, useCollection, useCollectionActions } from './useCollection.ts';
@@ -16,7 +16,7 @@ const VISIBILITY: Record<string, string> = { private: 'Private', public: 'In pub
 export default function VaultItemPage() {
   useCatalog(); // re-render when the live catalogue loads
   const { id } = useParams();
-  const { items, reviews, loading } = useCollection();
+  const { items, reviews, loading, error, refetch } = useCollection();
   const { retry, remove } = useCollectionActions();
   const confirm = useConfirm();
   const nav = useNavigate();
@@ -27,7 +27,18 @@ export default function VaultItemPage() {
   const entries = Object.entries(c?.photos || {});
   const fullUrl = usePhotoUrls(entries.map(([, p]) => p));
   const thumbUrl = usePhotoUrls(entries.map(([, p]) => p), true);
-  if (loading) return <Page />;
+  if (loading)
+    return (
+      <Page narrow aria-busy="true">
+        <Skeleton height={420} radius={24} />
+      </Page>
+    );
+  if (error)
+    return (
+      <Page narrow>
+        <ErrorState what="this shirt" onRetry={refetch} />
+      </Page>
+    );
   if (!c) return <Navigate to="/vault" replace />;
 
   const name = itemName(c);

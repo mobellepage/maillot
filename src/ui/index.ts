@@ -6,7 +6,7 @@ export { useConfirm } from './Confirm.tsx';
 export type { ConfirmOptions } from './Confirm.tsx';
 export { TextField, SearchField } from './Field.tsx';
 export * from './icons.tsx';
-export { Page, Card, Badge, Notice, SectionHeader, Segmented, KeyValueList, EmptyState, Skeleton, StatTile } from './primitives.tsx';
+export { Page, Card, Badge, Notice, SectionHeader, Segmented, KeyValueList, EmptyState, ErrorState, Skeleton, StatTile } from './primitives.tsx';
 export type { Tone, SegmentOption } from './primitives.tsx';
 export { ShirtGraphic } from './ShirtGraphic.tsx';
 export type { ShirtLook } from './ShirtGraphic.tsx';

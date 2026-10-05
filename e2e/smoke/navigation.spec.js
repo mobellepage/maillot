@@ -111,3 +111,14 @@ test('index report and data API are reachable and the report offers a CSV', asyn
   await expect(page).toHaveURL(/\/developers$/);
   await expect(page.getByRole('heading', { level: 1 })).toContainText(/Shirt prices as data/i);
 });
+
+test('failed loads say so instead of looking empty, and offline is announced', async ({ page, context }) => {
+  // The smoke backend is unreachable, so the live order book can't load.
+  await page.goto('/shirt/ger-26');
+  await expect(page.getByText(/Live bids and asks couldn’t load/)).toBeVisible({ timeout: 15000 });
+
+  await context.setOffline(true);
+  await expect(page.getByText(/You’re offline/)).toBeVisible();
+  await context.setOffline(false);
+  await expect(page.getByText(/You’re offline/)).toBeHidden();
+});

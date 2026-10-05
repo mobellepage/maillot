@@ -26,7 +26,7 @@ export default function VaultPage({ tab }: { tab: Tab }) {
   const { user } = useSession();
   const { money } = usePrefs();
   const toast = useToast();
-  const { items } = useCollection();
+  const { items, loading, error, refetch } = useCollection();
   const watch = useWatchlist();
   const orders = useOrders(!!user);
   const watched = watch.ids.map((id) => getShirt(id)).filter((s) => !!s);
@@ -110,7 +110,7 @@ export default function VaultPage({ tab }: { tab: Tab }) {
         ))}
       </nav>
 
-      {tab === 'collection' && <CollectionTab items={items} />}
+      {tab === 'collection' && <CollectionTab items={items} loading={loading} error={error} onRetry={refetch} />}
       {tab === 'watchlist' && <div style={{ marginTop: 24 }}>{watched.length ? <ShirtGrid shirts={watched} /> : <EmptyState title="Your watchlist is empty">Tap the heart on any shirt to track its price.</EmptyState>}</div>}
       {tab === 'orders' && <OrdersTab />}
     </Page>

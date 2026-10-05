@@ -46,7 +46,7 @@ export function useCollection() {
     [['customItems', uid], ['myReviews', uid]],
     !!uid
   );
-  return { items: items.data ?? [], reviews: reviews.data ?? [], loading: items.isLoading };
+  return { items: items.data ?? [], reviews: reviews.data ?? [], loading: items.isLoading, error: items.isError, refetch: () => items.refetch() };
 }
 
 export function useCollectionActions() {

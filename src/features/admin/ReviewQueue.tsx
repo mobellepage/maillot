@@ -3,7 +3,7 @@ import { BY } from '../../data.ts';
 import { formatDate } from '../../lib/format.ts';
 import { usePrefs } from '../../lib/prefs.tsx';
 import type { Review } from '../../types/domain.ts';
-import { Badge, Button, Card, Notice, TextField } from '../../ui/index.ts';
+import { Badge, Button, Card, Notice, TextField, ErrorState } from '../../ui/index.ts';
 import { useResolveReview, useReviewQueue } from './queries.ts';
 import { usePhotoUrls } from '../../lib/usePhotoUrls.ts';
 
@@ -112,7 +112,8 @@ export function ReviewQueue() {
         ))}
       </dl>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 14, marginTop: 28 }}>
-        {!q.isLoading && !open.length && <p style={{ fontSize: 14, color: 'var(--muted)', padding: '32px 0', margin: 0 }}>No open reviews.</p>}
+        {q.isError && <ErrorState compact what="the review queue" onRetry={() => q.refetch()} />}
+        {q.isSuccess && !open.length && <p style={{ fontSize: 14, color: 'var(--muted)', padding: '32px 0', margin: 0 }}>No open reviews.</p>}
         {open.map((r) => (
           <ReviewCard key={r.id} r={r} />
         ))}

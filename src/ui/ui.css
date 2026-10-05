@@ -551,6 +551,21 @@ textarea::placeholder {
 .empty--accent {
   border-color: rgba(75, 255, 139, 0.35);
 }
+.empty--compact {
+  padding: 18px;
+  border-radius: var(--r-lg);
+}
+.offline-bar {
+  position: sticky;
+  top: 0;
+  z-index: 70;
+  padding: 8px var(--gutter);
+  text-align: center;
+  font-size: 13px;
+  background: var(--warn-soft);
+  color: var(--warn);
+  border-bottom: 1px solid rgba(232, 176, 75, 0.3);
+}
 .notice {
   padding: 12px 14px;
   border-radius: var(--r-md);

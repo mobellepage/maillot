@@ -7,7 +7,7 @@ import { timeAgo } from '../lib/format.ts';
 
 export default function NotificationBell() {
   const { t, lang } = usePrefs();
-  const { items, unread, markRead } = useNotifications();
+  const { items, loading, error, retry, unread, markRead } = useNotifications();
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
 
@@ -30,7 +30,16 @@ export default function NotificationBell() {
             onKeyDown={(e) => e.key === 'Escape' && setOpen(false)}
             style={{ position: 'absolute', top: 48, right: 0, width: 'min(340px, calc(100vw - 32px))', maxHeight: 420, overflowY: 'auto', background: 'var(--elevated)', border: '1px solid rgba(255,255,255,0.09)', borderRadius: 16, boxShadow: '0 16px 40px rgba(0,0,0,0.4)', zIndex: 70, padding: 8 }}
           >
-            {items.length === 0 && <div style={{ padding: '24px 14px', textAlign: 'center', color: 'var(--muted)', fontSize: 13 }}>{t('header.noNotifications')}</div>}
+            {error && (
+              <div role="alert" style={{ padding: '20px 14px', textAlign: 'center', fontSize: 13, color: 'var(--text-2)' }}>
+                Couldn’t load notifications.{' '}
+                <button type="button" className="link-btn" onClick={retry}>
+                  Try again
+                </button>
+              </div>
+            )}
+            {loading && <div style={{ padding: '24px 14px', textAlign: 'center', color: 'var(--muted)', fontSize: 13 }}>Loading…</div>}
+            {!error && !loading && items.length === 0 && <div style={{ padding: '24px 14px', textAlign: 'center', color: 'var(--muted)', fontSize: 13 }}>{t('header.noNotifications')}</div>}
             {items.map((n) => {
               const data = (n.data || {}) as { order_id?: string; shirt_id?: string };
               return (

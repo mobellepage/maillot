@@ -2,14 +2,28 @@ import { Link } from 'react-router';
 import { usePrefs } from '../../lib/prefs.tsx';
 import type { CustomItem } from '../../types/domain.ts';
 import { downloadVaultCard } from '../../utils/cardExport.js';
-import { ButtonLink, DownloadIcon, EmptyState, Notice, ShirtGraphic, HEX } from '../../ui/index.ts';
+import { ButtonLink, DownloadIcon, EmptyState, ErrorState, Notice, ShirtGraphic, Skeleton, HEX } from '../../ui/index.ts';
 import { badgeFor, itemLook, itemName, valueOf } from './model.ts';
 import { usePhotoUrls } from '../../lib/usePhotoUrls.ts';
 
-export function CollectionTab({ items }: { items: CustomItem[] }) {
+export function CollectionTab({ items, loading, error, onRetry }: { items: CustomItem[]; loading?: boolean; error?: boolean; onRetry?: () => void }) {
   const { money } = usePrefs();
   const rejected = items.filter((c) => c.verification.status === 'abgelehnt');
   const cover = usePhotoUrls(items.map((c) => c.photos?.front), true);
+  if (loading)
+    return (
+      <div className="grid-cards" style={{ marginTop: 24 }} aria-busy="true" aria-label="Loading your collection">
+        {[0, 1, 2, 3].map((i) => (
+          <Skeleton key={i} height={280} radius={20} />
+        ))}
+      </div>
+    );
+  if (error)
+    return (
+      <div style={{ marginTop: 24 }}>
+        <ErrorState what="your collection" onRetry={onRetry} />
+      </div>
+    );
   if (!items.length) {
     return (
       <div style={{ marginTop: 24 }}>

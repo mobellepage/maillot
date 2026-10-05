@@ -1,7 +1,7 @@
 import { Link } from 'react-router';
 import { pct, type Shirt } from '../../../data.ts';
 import { usePrefs } from '../../../lib/prefs.tsx';
-import { Button, ButtonLink, ShieldIcon, StatTile, WatchButton } from '../../../ui/index.ts';
+import { Button, ButtonLink, Notice, ShieldIcon, StatTile, WatchButton } from '../../../ui/index.ts';
 import type { OrderBook, ShirtStats } from '../../../utils/db.ts';
 import { marketValue } from '../../catalog/model.ts';
 
@@ -16,9 +16,12 @@ export interface PricePanelProps {
   toggleWatch: () => void;
   openBuy: () => void;
   openBid: () => void;
+  /** The live order book failed to load: say so instead of showing "no asks". */
+  bookError?: boolean;
+  retryBook?: () => void;
 }
 
-export function PricePanel({ s, size, setSize, book, myUserId, stats, watched, toggleWatch, openBuy, openBid }: PricePanelProps) {
+export function PricePanel({ s, size, setSize, book, myUserId, stats, watched, toggleWatch, openBuy, openBid, bookError, retryBook }: PricePanelProps) {
   const { money } = usePrefs();
   const liveAsk = book.asks.find((a) => a.user_id !== myUserId) ?? null;
   const myAsk = myUserId ? book.asks.find((a) => a.user_id === myUserId) : undefined;
@@ -74,6 +77,14 @@ export function PricePanel({ s, size, setSize, book, myUserId, stats, watched, t
         </div>
       )}
 
+      {bookError && (
+        <Notice tone="warn" style={{ marginTop: 14 }}>
+          Live bids and asks couldn’t load, so “Buy now” may be missing.{' '}
+          <button type="button" className="link-btn" onClick={retryBook}>
+            Try again
+          </button>
+        </Notice>
+      )}
       <div style={{ display: 'flex', gap: 10, marginTop: 16 }}>
         {liveAsk ? (
           <Button size="lg" onClick={openBuy} style={{ flex: 1.3 }}>

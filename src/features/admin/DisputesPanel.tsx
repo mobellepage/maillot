@@ -3,7 +3,7 @@ import { BY } from '../../data.ts';
 import { formatDate } from '../../lib/format.ts';
 import { usePrefs } from '../../lib/prefs.tsx';
 import type { AdminDispute } from '../../utils/db.ts';
-import { Button, Card, SectionHeader, TextField, useConfirm } from '../../ui/index.ts';
+import { Button, Card, SectionHeader, TextField, useConfirm, ErrorState } from '../../ui/index.ts';
 import { useAdminDisputes, useResolveDispute } from './queries.ts';
 
 const nameOf = (d: AdminDispute) => (d.shirt_id ? BY[d.shirt_id]?.name ?? d.shirt_id : 'Custom item (' + d.custom_item_id + ')');
@@ -49,7 +49,8 @@ function DisputeCard({ d }: { d: AdminDispute }) {
 }
 
 export function DisputesPanel() {
-  const all = useAdminDisputes().data ?? [];
+  const q = useAdminDisputes();
+  const all = q.data ?? [];
   const open = all.filter((d) => d.dispute_status === 'open');
   const done = all.filter((d) => d.dispute_status !== 'open').slice(0, 20);
   return (
@@ -57,7 +58,8 @@ export function DisputesPanel() {
       <SectionHeader id="disputes-title" eyebrow="Disputes" title="Returns & disputes" size="sm" />
       <p style={{ fontSize: 13, color: 'var(--muted)', margin: '-12px 0 0', lineHeight: 1.5, maxWidth: 560 }}>A decision releases the escrowed payment to the seller or refunds the buyer. Both are notified automatically.</p>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 14, marginTop: 20 }}>
-        {!open.length && <p style={{ fontSize: 14, color: 'var(--muted)', margin: 0 }}>No open disputes.</p>}
+        {q.isError && <ErrorState compact what="disputes" onRetry={() => q.refetch()} />}
+        {q.isSuccess && !open.length && <p style={{ fontSize: 14, color: 'var(--muted)', margin: 0 }}>No open disputes.</p>}
         {open.map((d) => (
           <DisputeCard key={d.dispute_id} d={d} />
         ))}

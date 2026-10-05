@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { formatDate } from '../../lib/format.ts';
 import { usePrefs } from '../../lib/prefs.tsx';
-import { Button, Notice, SectionHeader, TextField, useConfirm } from '../../ui/index.ts';
+import { Button, Notice, SectionHeader, TextField, useConfirm, ErrorState } from '../../ui/index.ts';
 import { useApiKeyActions, useApiKeys } from './queries.ts';
 
 export function ApiKeysPanel() {
   const { lang } = usePrefs();
-  const keys = useApiKeys().data ?? [];
+  const keysQuery = useApiKeys();
+  const keys = keysQuery.data ?? [];
   const { create, revoke } = useApiKeyActions();
   const [label, setLabel] = useState('');
   const [fresh, setFresh] = useState<string | null>(null);
@@ -41,7 +42,12 @@ export function ApiKeysPanel() {
         </Button>
       </form>
       <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: 8, margin: '16px 0 0' }}>
-        {!keys.length && <li style={{ fontSize: 13, color: 'var(--muted)' }}>No keys issued yet.</li>}
+        {keysQuery.isError && (
+          <li>
+            <ErrorState compact what="API keys" onRetry={() => keysQuery.refetch()} />
+          </li>
+        )}
+        {keysQuery.isSuccess && !keys.length && <li style={{ fontSize: 13, color: 'var(--muted)' }}>No keys issued yet.</li>}
         {keys.map((k) => (
           <li key={k.id} className="card card--tight" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10, padding: '12px 14px', borderRadius: 10, flexWrap: 'wrap' }}>
             <div>

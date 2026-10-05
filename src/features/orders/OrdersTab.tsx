@@ -7,7 +7,7 @@ import { useSession } from '../../lib/session.tsx';
 import { useToast } from '../../lib/toast.tsx';
 import type { OrderStatus } from '../../types/domain.ts';
 import { orderTotal } from '../../utils/db.ts';
-import { Badge, EmptyState, ButtonLink, Skeleton } from '../../ui/index.ts';
+import { Badge, EmptyState, ErrorState, ButtonLink, Skeleton } from '../../ui/index.ts';
 import { DeadlineLine } from './DeadlineLine.tsx';
 import { OrderActions } from './OrderActions.tsx';
 import { ORDER_TONE } from './status.ts';
@@ -42,6 +42,12 @@ export function OrdersTab() {
       </div>
     );
   }
+  if (orders.isError)
+    return (
+      <div style={{ marginTop: 24 }}>
+        <ErrorState what="your orders" onRetry={() => orders.refetch()} />
+      </div>
+    );
   const list = orders.data ?? [];
   if (!list.length) {
     return (

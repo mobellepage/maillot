@@ -24,7 +24,8 @@ export default function DetailPage() {
   const watch = useWatchlist();
   const [dialog, setDialog] = useState<'buy' | 'bid' | null>(null);
   const size = s ? resolveSize(s, params.get('size')) : 'M';
-  const book = useOrderBook(s?.id, size).data ?? { bids: [], asks: [] };
+  const bookQuery = useOrderBook(s?.id, size);
+  const book = bookQuery.data ?? { bids: [], asks: [] };
   const stats = useShirtStats(s?.id).data;
   usePageMeta(s ? s.name + ' — price, bids & sales' : null, s ? `Live bids, asks and price history for the ${s.name} (${s.brand}). Every sale authenticated in Zürich.` : undefined);
 
@@ -64,6 +65,8 @@ export default function DetailPage() {
           toggleWatch={() => watch.toggle(s.id)}
           openBuy={() => setDialog('buy')}
           openBid={() => setDialog('bid')}
+          bookError={bookQuery.isError}
+          retryBook={() => bookQuery.refetch()}
         />
       </div>
 

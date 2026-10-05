@@ -6,7 +6,7 @@ import { BY } from '../../data.ts';
 import { formatDate } from '../../lib/format.ts';
 import { usePrefs } from '../../lib/prefs.tsx';
 import type { Inspection } from '../../utils/db.ts';
-import { Badge, Button, Card, SectionHeader, TextField, useConfirm } from '../../ui/index.ts';
+import { Badge, Button, Card, SectionHeader, TextField, useConfirm, ErrorState } from '../../ui/index.ts';
 import { carrierName, detectCarrier, trackingUrl } from '../orders/shipping.ts';
 import { useInspections, useRecordInspection, useOutboundLabel } from './queries.ts';
 
@@ -91,7 +91,8 @@ function InspectionCard({ i }: { i: Inspection }) {
 }
 
 export function InspectionPanel() {
-  const list = useInspections().data ?? [];
+  const q = useInspections();
+  const list = q.data ?? [];
   const arrived = list.filter((i) => i.shipped_at);
   const incoming = list.filter((i) => !i.shipped_at);
   return (
@@ -101,7 +102,8 @@ export function InspectionPanel() {
         A pass forwards the shirt and starts the buyer’s confirmation window; a fail refunds the buyer. Both sides are notified.
       </p>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 14, marginTop: 20 }}>
-        {!list.length && <p style={{ fontSize: 14, color: 'var(--muted)', margin: 0 }}>Nothing on its way in.</p>}
+        {q.isError && <ErrorState compact what="inspections" onRetry={() => q.refetch()} />}
+        {q.isSuccess && !list.length && <p style={{ fontSize: 14, color: 'var(--muted)', margin: 0 }}>Nothing on its way in.</p>}
         {[...arrived, ...incoming].map((i) => (
           <InspectionCard key={i.order_id} i={i} />
         ))}

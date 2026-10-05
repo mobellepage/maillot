@@ -12,7 +12,7 @@ import { useSession } from '../../lib/session.tsx';
 import * as db from '../../utils/db.ts';
 import type { OrderStatus } from '../../types/domain.ts';
 import { useCatalog } from '../catalog/useCatalog.ts';
-import { Badge, Card, KeyValueList, Page, ShirtGraphic, Skeleton } from '../../ui/index.ts';
+import { Badge, Card, ErrorState, KeyValueList, Page, ShirtGraphic, Skeleton } from '../../ui/index.ts';
 import { DeadlineLine } from './DeadlineLine.tsx';
 import { OrderActions } from './OrderActions.tsx';
 import { SettlementLine } from './SettlementLine.tsx';
@@ -46,6 +46,12 @@ export default function OrderPage() {
     return (
       <Page narrow>
         <Skeleton height={420} radius={20} />
+      </Page>
+    );
+  if (orders.isError)
+    return (
+      <Page narrow>
+        <ErrorState what="this order" onRetry={() => orders.refetch()} />
       </Page>
     );
   if (!o) return <Navigate to="/orders" replace />;

@@ -78,6 +78,29 @@ export function EmptyState({ title, children, action, accent }: { title: ReactNo
   );
 }
 
+/**
+ * A load that failed — never shown as "empty". Says what didn't load and
+ * offers a retry; offline is called out because it's the usual cause.
+ */
+export function ErrorState({ what, onRetry, compact }: { what: string; onRetry?: () => void; compact?: boolean }) {
+  const offline = typeof navigator !== 'undefined' && navigator.onLine === false;
+  return (
+    <div role="alert" className={cx('empty', compact && 'empty--compact')} style={{ borderColor: 'rgba(255,107,94,0.3)' }}>
+      <div className={compact ? 'title' : 'display display--sm'}>Couldn’t load {what}</div>
+      <p style={{ maxWidth: 460, margin: '8px auto 0', fontSize: 14, lineHeight: 1.55, color: 'var(--text-2)' }}>
+        {offline ? 'You seem to be offline. It’ll load again once you’re back online.' : 'Something went wrong on our side. Your data is safe — please try again.'}
+      </p>
+      {onRetry && (
+        <div style={{ marginTop: 16 }}>
+          <button type="button" className="btn btn--ghost btn--sm" onClick={onRetry}>
+            Try again
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function Skeleton({ width = '100%', height = 16, radius, style }: { width?: number | string; height?: number | string; radius?: number | string; style?: CSSProperties }) {
   return <div className="skeleton" aria-hidden="true" style={{ width, height, borderRadius: radius, ...style }} />;
 }
