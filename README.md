@@ -145,6 +145,23 @@ idempotency key, so retries are safe.
    before onboarding wait as `awaiting_onboarding` and are sent automatically
    once Stripe reports `payouts_enabled`.
 
+## Performance
+
+- **Prerendered public pages.** `npm run build` also renders the public routes
+  (home, market, every shirt, trust and legal pages — `src/entry-server.tsx`)
+  to static HTML via `scripts/prerender.mjs`, with per-page title, description
+  and Open Graph tags, plus `sitemap.xml` and `robots.txt` (set `SITE_URL`).
+  Those pages inline their CSS and load JS at low priority; React takes over
+  without a visible change. Signed-in routes fall back to the empty shell
+  `app.html` (also the service worker's navigation fallback).
+- **Supabase loads on demand** (`await sb()`), so it isn't in the first download.
+  Initial JS is ~148 kB gzipped.
+- **Subset fonts** in `src/assets/fonts/` (`scripts/subset-fonts.py`): 83 kB
+  instead of 130 kB.
+- Lighthouse (mobile, slow 4G, devtools throttling) on the production build:
+  Performance 100 on /, /market, /shirt/:id and /authentication; FCP 0.7 s,
+  LCP 0.8–1.1 s.
+
 ## Languages (EN / DE / FR)
 
 All visitor-facing text lives in `src/i18n/{en,de,fr}.ts`. English is the

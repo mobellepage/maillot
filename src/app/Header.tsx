@@ -1,3 +1,4 @@
+import { lazy, Suspense } from 'react';
 import { Link, NavLink, useLocation, useNavigate, useSearchParams } from 'react-router';
 import { HeartIcon, SearchIcon } from '../ui/index.ts';
 import { usePrefs } from '../lib/prefs.tsx';
@@ -6,7 +7,8 @@ import { useToast } from '../lib/toast.tsx';
 import { useWatchlist } from '../features/watchlist/useWatchlist.ts';
 import type { Currency } from '../utils/currency.ts';
 import type { Lang } from '../i18n/index.ts';
-import NotificationBell from './NotificationBell.tsx';
+// Signed-in only, so it isn't part of the first download for visitors.
+const NotificationBell = lazy(() => import('./NotificationBell.tsx'));
 import { useNavItems } from './nav.ts';
 
 export function Logo() {
@@ -91,7 +93,9 @@ export default function Header() {
         </Link>
         {user ? (
           <>
-            <NotificationBell />
+            <Suspense fallback={<span style={{ width: 40 }} />}>
+              <NotificationBell />
+            </Suspense>
             <Link to="/vault" title={user.email} aria-label={t('header.myCollection')} style={{ width: 40, height: 40, borderRadius: '50%', border: '2px solid var(--accent)', background: 'var(--avatar-grad)', color: 'var(--text)', fontWeight: 700, fontSize: 13, display: 'grid', placeItems: 'center', flex: 'none' }}>
               {(user.email || '?').slice(0, 2).toUpperCase()}
             </Link>

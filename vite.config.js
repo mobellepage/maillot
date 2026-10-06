@@ -13,6 +13,8 @@ export default defineConfig({
     // same as the web app today, so nobody ever sees stale escrow/price data.
     VitePWA({
       registerType: 'autoUpdate',
+      // Registering the service worker must never hold up the first paint.
+      injectRegister: 'script-defer',
       manifest: {
         name: 'MAILLOT — Football Shirt Marketplace',
         short_name: 'MAILLOT',
@@ -27,10 +29,19 @@ export default defineConfig({
         ]
       },
       workbox: {
-        globPatterns: ['**/*.{js,css,html,svg,woff2}']
+        globPatterns: ['**/*.{js,css,html,svg,woff2}'],
+        // Offline/repeat navigations get the empty shell; prerendered pages
+        // are for first visits, crawlers and link previews.
+        navigateFallback: '/app.html'
       }
     })
   ],
+  build: {
+    // app.html is the same shell as index.html, kept empty: index.html gets
+    // the prerendered home page (scripts/prerender.mjs), app.html is what
+    // every other route falls back to.
+    rollupOptions: { input: { main: 'index.html', app: 'app.html' } }
+  },
   test: {
     // Unit tests only; e2e/ is Playwright's.
     include: ['src/**/*.test.{js,jsx}']

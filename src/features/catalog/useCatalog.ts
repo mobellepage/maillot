@@ -58,6 +58,6 @@ export function useCatalogSync() {
 
 /** Subscribe a component to catalogue updates; returns the live list and map. */
 export function useCatalog() {
-  useSyncExternalStore(subscribeCatalog, getCatalogVersion);
+  useSyncExternalStore(subscribeCatalog, getCatalogVersion, getCatalogVersion);
   return { shirts: SHIRTS, by: BY };
 }

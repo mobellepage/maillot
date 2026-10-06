@@ -5,7 +5,7 @@ import MobileNav from './MobileNav.tsx';
 import Footer from './Footer.tsx';
 import { PageFallback } from './PageFallback.tsx';
 import { parseShareHash } from '../utils/share.ts';
-import PublicVaultPage from '../features/vault/PublicVaultPage.tsx';
+import { PublicVaultPage } from './pages.tsx';
 import { useCatalogSync } from '../features/catalog/useCatalog.ts';
 import { useOnboardingRedirect } from './useOnboardingRedirect.ts';
 import { OfflineBar } from './OfflineBar.tsx';
@@ -16,7 +16,12 @@ export default function RootLayout() {
   const { hash } = useLocation();
   // Self-contained share links (#/vault/<data>) render a standalone page.
   const shared = parseShareHash(hash);
-  if (shared !== undefined) return <PublicVaultPage data={shared} />;
+  if (shared !== undefined)
+    return (
+      <Suspense fallback={<PageFallback />}>
+        <PublicVaultPage data={shared} />
+      </Suspense>
+    );
 
   return (
     <div className="app-shell" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>

@@ -3,7 +3,16 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import type { User } from '@supabase/supabase-js';
-import { supabase } from '../utils/supabase.ts';
+import { sb } from '../utils/supabase.ts';
+
+/** Is a Supabase session stored in this browser? Guests don't wait for the auth client. */
+function hasStoredSession(): boolean {
+  try {
+    return Object.keys(localStorage).some((k) => k.startsWith('sb-') && k.endsWith('-auth-token'));
+  } catch {
+    return false;
+  }
+}
 
 export interface AuthResult {
   error: string | null;
@@ -34,26 +43,33 @@ const SessionContext = createContext<Session | null>(null);
 
 export function SessionProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(hasStoredSession);
   const qc = useQueryClient();
 
   useEffect(() => {
-    supabase.auth
-      .getSession()
-      .then(({ data }) => setUser(data.session ? data.session.user : null))
-      .catch(() => setUser(null))
-      .finally(() => setLoading(false));
-    const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session ? session.user : null);
-    });
-    return () => sub.subscription.unsubscribe();
+    let cancelled = false;
+    let unsubscribe = () => {};
+    sb()
+      .then(async (client) => {
+        if (cancelled) return;
+        const { data: sub } = client.auth.onAuthStateChange((_event, session) => setUser(session ? session.user : null));
+        unsubscribe = () => sub.subscription.unsubscribe();
+        const { data } = await client.auth.getSession();
+        if (!cancelled) setUser(data.session ? data.session.user : null);
+      })
+      .catch(() => !cancelled && setUser(null))
+      .finally(() => !cancelled && setLoading(false));
+    return () => {
+      cancelled = true;
+      unsubscribe();
+    };
   }, []);
 
   const profile = useQuery({
     queryKey: ['profile', user?.id],
     enabled: !!user,
     queryFn: async () => {
-      const { data, error } = await supabase.from('profiles').select('is_admin,handle,goals,interests,onboarded_at').eq('id', user!.id).maybeSingle();
+      const { data, error } = await (await sb()).from('profiles').select('is_admin,handle,goals,interests,onboarded_at').eq('id', user!.id).maybeSingle();
       if (error) throw error;
       return data;
     }
@@ -65,15 +81,15 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     isAdmin: !!profile.data?.is_admin,
     profile: !user ? null : profile.data === undefined ? undefined : profile.data && { handle: profile.data.handle, goals: profile.data.goals ?? [], interests: (profile.data.interests ?? {}) as Profile['interests'], onboardedAt: profile.data.onboarded_at },
     signIn: async (email, password) => {
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      const { error } = await (await sb()).auth.signInWithPassword({ email, password });
       return { error: error ? error.message : null };
     },
     signUp: async (email, password) => {
-      const { data, error } = await supabase.auth.signUp({ email, password });
+      const { data, error } = await (await sb()).auth.signUp({ email, password });
       return { error: error ? error.message : null, signedIn: !!data.session };
     },
     signOut: async () => {
-      await supabase.auth.signOut();
+      await (await sb()).auth.signOut();
       qc.clear(); // never show the previous account's data to the next one
     }
   };

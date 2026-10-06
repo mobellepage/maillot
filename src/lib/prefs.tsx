@@ -26,13 +26,19 @@ interface Prefs {
 
 const PrefsContext = createContext<Prefs | null>(null);
 
-export function PrefsProvider({ children }: { children: ReactNode }) {
+/** The saved language, else the browser's, else English. */
+// eslint-disable-next-line react/only-export-components
+export function initialLang(): Lang {
+  const saved = loadJSON<string | null>('kv_lang', null);
+  return (LANGS as readonly string[]).includes(saved ?? '') ? (saved as Lang) : detectLang();
+}
+
+export function PrefsProvider({ children, initialMessages }: { children: ReactNode; initialMessages?: { lang: Lang; dict: Messages } }) {
   const [currency, setCurrencyState] = useState<Currency>(() => loadJSON<Currency>('kv_currency', 'CHF'));
-  const [lang, setLangState] = useState<Lang>(() => {
-    const saved = loadJSON<string | null>('kv_lang', null);
-    return (LANGS as readonly string[]).includes(saved ?? '') ? (saved as Lang) : detectLang();
-  });
-  const [messages, setMessages] = useState<{ lang: Lang; dict: Messages }>({ lang: 'en', dict: EN });
+  const [lang, setLangState] = useState<Lang>(() => initialMessages?.lang ?? initialLang());
+  // main.tsx loads the starting language before the first render, so German
+  // and French visitors never see English flash past.
+  const [messages, setMessages] = useState<{ lang: Lang; dict: Messages }>(initialMessages ?? { lang: 'en', dict: EN });
   const [rates, setRates] = useState<Rates>(loadCachedRates);
 
   useEffect(() => {

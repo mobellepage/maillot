@@ -1,6 +1,7 @@
 // Route table. Every page is a lazy chunk, so the first visit only downloads
-// the shell plus the page being opened.
-import { createBrowserRouter, Navigate } from 'react-router';
+// the shell plus the page being opened. The browser router is created in
+// main.tsx; scripts/prerender.mjs renders the same routes to static HTML.
+import { Navigate, type RouteObject } from 'react-router';
 import RootLayout from './RootLayout.tsx';
 import RouteError from './RouteError.tsx';
 import { RequireAuth } from './RequireAuth.tsx';
@@ -24,7 +25,7 @@ import {
   SellerPage
 } from './pages.tsx';
 
-export const router = createBrowserRouter([
+export const routes: RouteObject[] = [
   {
     element: <RootLayout />,
     errorElement: <RouteError />,
@@ -108,4 +109,4 @@ export const router = createBrowserRouter([
       }
     ]
   }
-]);
+];

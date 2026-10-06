@@ -1,5 +1,5 @@
 // Custom vault items, the expert review queue and the watchlist.
-import { supabase } from '../supabase.ts';
+import { sb } from '../supabase.ts';
 import type { Tables } from '../../types/database.ts';
 import type { CustomItem, Review, ReviewSnapshot } from '../../types/domain.ts';
 import { fromJson, toJson } from './json.ts';
@@ -69,13 +69,13 @@ function customItemToRow(userId: string, c: CustomItem) {
 }
 
 export async function loadCustomItems(userId: string): Promise<CustomItem[]> {
-  const { data, error } = await supabase.from('custom_items').select('*').eq('user_id', userId).order('created_at', { ascending: true });
+  const { data, error } = await (await sb()).from('custom_items').select('*').eq('user_id', userId).order('created_at', { ascending: true });
   if (error) throw error;
   return (data || []).map(rowToCustomItem);
 }
 
 export async function upsertCustomItem(userId: string, item: CustomItem): Promise<void> {
-  const { error } = await supabase.from('custom_items').upsert(customItemToRow(userId, item));
+  const { error } = await (await sb()).from('custom_items').upsert(customItemToRow(userId, item));
   if (error) throw error;
 }
 
@@ -84,7 +84,7 @@ export async function upsertCustomItem(userId: string, item: CustomItem): Promis
  * order still refers to it — those are records the other party relies on.
  */
 export async function deleteCustomItem(item: CustomItem): Promise<void> {
-  const { error } = await supabase.from('custom_items').delete().eq('id', item.id);
+  const { error } = await (await sb()).from('custom_items').delete().eq('id', item.id);
   if (error) throw error;
   const paths = Object.values(item.photos).flatMap((p) => [p.path, p.thumbPath].filter((x): x is string => !!x));
   await removePhotos(paths).catch(() => {}); // orphaned files are harmless; the row is gone
@@ -106,26 +106,26 @@ function rowToReview(r: Tables<'review_queue'>): Review {
 }
 
 export async function loadReviewQueue(): Promise<Review[]> {
-  const { data, error } = await supabase.from('review_queue').select('*').order('submitted_at', { ascending: false });
+  const { data, error } = await (await sb()).from('review_queue').select('*').order('submitted_at', { ascending: false });
   if (error) throw error;
   return (data || []).map(rowToReview);
 }
 
 export async function findReview(id: string): Promise<Review | null> {
-  const { data, error } = await supabase.from('review_queue').select('*').eq('id', id).maybeSingle();
+  const { data, error } = await (await sb()).from('review_queue').select('*').eq('id', id).maybeSingle();
   if (error) throw error;
   return data ? rowToReview(data) : null;
 }
 
 export async function enqueueReview(userId: string, customItemId: string | null, snapshot: ReviewSnapshot): Promise<string> {
   const id = 'rev-' + Date.now() + '-' + Math.random().toString(36).slice(2, 7);
-  const { error } = await supabase.from('review_queue').insert({ id, user_id: userId, custom_item_id: customItemId, snapshot: toJson({ ...snapshot, photos: snapshot.photos ? persistablePhotos(snapshot.photos) : undefined }), status: 'pending' });
+  const { error } = await (await sb()).from('review_queue').insert({ id, user_id: userId, custom_item_id: customItemId, snapshot: toJson({ ...snapshot, photos: snapshot.photos ? persistablePhotos(snapshot.photos) : undefined }), status: 'pending' });
   if (error) throw error;
   return id;
 }
 
 export async function markInReview(id: string): Promise<void> {
-  const { error } = await supabase.from('review_queue').update({ status: 'in_review' }).eq('id', id).eq('status', 'pending');
+  const { error } = await (await sb()).from('review_queue').update({ status: 'in_review' }).eq('id', id).eq('status', 'pending');
   if (error) throw error;
 }
 
@@ -135,7 +135,7 @@ export async function markInReview(id: string): Promise<void> {
 export async function resolveReview(id: string, approved: boolean, reason?: string): Promise<void> {
   const args: { p_id: string; p_approved: boolean; p_reason?: string } = { p_id: id, p_approved: approved };
   if (reason) args.p_reason = reason;
-  const { error } = await supabase.rpc('resolve_review', args);
+  const { error } = await (await sb()).rpc('resolve_review', args);
   if (error) throw error;
 }
 
@@ -143,18 +143,18 @@ export async function resolveReview(id: string, approved: boolean, reason?: stri
 // Watchlist
 // ---------------------------------------------------------------------------
 export async function loadWatchlist(userId: string): Promise<string[]> {
-  const { data, error } = await supabase.from('watchlist').select('shirt_id').eq('user_id', userId);
+  const { data, error } = await (await sb()).from('watchlist').select('shirt_id').eq('user_id', userId);
   if (error) throw error;
   return (data || []).map((r) => r.shirt_id);
 }
 
 export async function addWatch(userId: string, shirtId: string): Promise<void> {
-  const { error } = await supabase.from('watchlist').upsert({ user_id: userId, shirt_id: shirtId });
+  const { error } = await (await sb()).from('watchlist').upsert({ user_id: userId, shirt_id: shirtId });
   if (error) throw error;
 }
 
 export async function removeWatch(userId: string, shirtId: string): Promise<void> {
-  const { error } = await supabase.from('watchlist').delete().eq('user_id', userId).eq('shirt_id', shirtId);
+  const { error } = await (await sb()).from('watchlist').delete().eq('user_id', userId).eq('shirt_id', shirtId);
   if (error) throw error;
 }
 

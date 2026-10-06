@@ -1,5 +1,5 @@
 // The order book (bids & asks). Matching runs server-side in the insert trigger.
-import { supabase } from '../supabase.ts';
+import { sb } from '../supabase.ts';
 import type { Ask, Bid, OrderBook, OrderRef } from './types.ts';
 
 // ---------------------------------------------------------------------------
@@ -7,7 +7,7 @@ import type { Ask, Bid, OrderBook, OrderRef } from './types.ts';
 // trigger (match_order_book), so an insert may already have filled.
 // ---------------------------------------------------------------------------
 export async function placeBid(userId: string, shirtId: string, size: string, amount: number, expiresAt?: string | null): Promise<Bid> {
-  const { data, error } = await supabase.from('bids').insert({ user_id: userId, shirt_id: shirtId, size, amount, expires_at: expiresAt ?? null }).select().single();
+  const { data, error } = await (await sb()).from('bids').insert({ user_id: userId, shirt_id: shirtId, size, amount, expires_at: expiresAt ?? null }).select().single();
   if (error) throw error;
   return data;
 }
@@ -23,7 +23,7 @@ export interface AskInput {
 }
 
 export async function placeAsk(userId: string, a: AskInput): Promise<Ask> {
-  const { data, error } = await supabase
+  const { data, error } = await (await sb())
     .from('asks')
     .insert({
       user_id: userId,
@@ -42,13 +42,13 @@ export async function placeAsk(userId: string, a: AskInput): Promise<Ask> {
 }
 
 export async function findOrderForAsk(askId: string): Promise<OrderRef | null> {
-  const { data, error } = await supabase.from('orders').select('id,amount,status').eq('ask_id', askId).maybeSingle();
+  const { data, error } = await (await sb()).from('orders').select('id,amount,status').eq('ask_id', askId).maybeSingle();
   if (error) throw error;
   return data;
 }
 
 export async function findOrderForBid(bidId: string): Promise<OrderRef | null> {
-  const { data, error } = await supabase.from('orders').select('id,amount,status').eq('bid_id', bidId).maybeSingle();
+  const { data, error } = await (await sb()).from('orders').select('id,amount,status').eq('bid_id', bidId).maybeSingle();
   if (error) throw error;
   return data;
 }
@@ -57,6 +57,7 @@ export async function findOrderForBid(bidId: string): Promise<OrderRef | null> {
 // "highest bid" would advertise a price nobody can actually sell at.
 export async function loadOrderBook(shirtId: string, size: string): Promise<OrderBook> {
   const now = new Date().toISOString();
+  const supabase = await sb();
   const [{ data: bids, error: be }, { data: asks, error: ae }] = await Promise.all([
     supabase
       .from('bids')
@@ -66,7 +67,7 @@ export async function loadOrderBook(shirtId: string, size: string): Promise<Orde
       .eq('status', 'open')
       .or(`expires_at.is.null,expires_at.gt.${now}`)
       .order('amount', { ascending: false }),
-    supabase.from('asks').select('*').eq('shirt_id', shirtId).eq('size', size).eq('status', 'open').order('amount', { ascending: true })
+    (await sb()).from('asks').select('*').eq('shirt_id', shirtId).eq('size', size).eq('status', 'open').order('amount', { ascending: true })
   ]);
   if (be) throw be;
   if (ae) throw ae;
