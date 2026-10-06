@@ -145,6 +145,19 @@ idempotency key, so retries are safe.
    before onboarding wait as `awaiting_onboarding` and are sent automatically
    once Stripe reports `payouts_enabled`.
 
+## Observability
+
+- **Browser errors** (uncaught errors, failed queries/mutations, page
+  crashes) are reported to `public.client_errors` via `report_client_error`
+  (`src/lib/monitoring.ts`): capped per page and per fingerprint, tagged with
+  the release (commit) and page, network blips and extensions filtered out.
+- **Health check** (`run_health_check`, pg_cron every 15 min) alerts every
+  admin — in-app and by email through the notification relay — on error
+  spikes, failed or stuck payouts/refunds and overdue inspections, at most
+  once per problem per 6 hours.
+- **Admin → Health** shows those numbers and the grouped error reports.
+- Edge-function logs are in the Supabase dashboard (Functions → Logs).
+
 ## Performance
 
 - **Prerendered public pages.** `npm run build` also renders the public routes

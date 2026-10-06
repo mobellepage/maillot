@@ -6,6 +6,7 @@ import { useEffect } from 'react';
 import { isRouteErrorResponse, Link, useRouteError } from 'react-router';
 import { usePrefs } from '../lib/prefs.tsx';
 import { isChunkError } from './chunkError.ts';
+import { reportError } from '../lib/monitoring.ts';
 
 const RELOADED = 'maillot:chunk-reload';
 
@@ -26,7 +27,10 @@ export default function RouteError() {
   }, [chunk]);
 
   useEffect(() => {
-    if (!chunk) console.error('[route error]', error);
+    if (!chunk) {
+      console.error('[route error]', error);
+      reportError(error, 'route');
+    }
   }, [chunk, error]);
 
   const notFound = isRouteErrorResponse(error) && error.status === 404;

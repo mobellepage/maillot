@@ -95,3 +95,21 @@ export async function saveOnboarding(userId: string, answers: { goals: string[];
   const { error } = await (await sb()).from('profiles').update(patch).eq('id', userId);
   if (error) throw error;
 }
+
+// ---------------------------------------------------------------------------
+// Operations health (admins)
+// ---------------------------------------------------------------------------
+export type Health = RpcReturns<'admin_health'>[number];
+export type ErrorGroup = RpcReturns<'admin_recent_errors'>[number];
+
+export async function loadHealth(): Promise<Health | null> {
+  const { data, error } = await (await sb()).rpc('admin_health');
+  if (error) throw error;
+  return data?.[0] ?? null;
+}
+
+export async function loadRecentErrors(): Promise<ErrorGroup[]> {
+  const { data, error } = await (await sb()).rpc('admin_recent_errors');
+  if (error) throw error;
+  return data ?? [];
+}

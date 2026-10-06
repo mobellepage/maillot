@@ -4,6 +4,8 @@ import { VitePWA } from 'vite-plugin-pwa'
 
 // https://vite.dev/config/
 export default defineConfig({
+  // Which build an error report came from (Vercel and GitHub set the commit).
+  define: { __RELEASE__: JSON.stringify((process.env.VERCEL_GIT_COMMIT_SHA || process.env.GITHUB_SHA || 'dev').slice(0, 12)) },
   plugins: [
     react(),
     // Installable PWA shell: precaches the built app (JS/CSS/HTML/icons) so

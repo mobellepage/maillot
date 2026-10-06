@@ -7,6 +7,9 @@ import { initialLang } from './lib/prefs.tsx';
 import { loadMessages, type Lang } from './i18n/index.ts';
 import { routes } from './app/router.tsx';
 import { AppProviders } from './app/AppProviders.tsx';
+import { installErrorReporting } from './lib/monitoring.ts';
+
+installErrorReporting();
 
 const router = createBrowserRouter(routes);
 // Entrance animations resume with the first in-app navigation (see ui.css).

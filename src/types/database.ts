@@ -655,6 +655,12 @@ export type Database = {
       seller_listings: { Args: { p_handle: string }; Returns: { ask_id: string; shirt_id: string; size: string; amount: number; condition: string | null; created_at: string }[] };
       seller_review_list: { Args: { p_handle: string }; Returns: { rating: number; comment: string | null; shirt_id: string | null; created_at: string }[] };
       seller_cards: { Args: { p_user_ids: string[] }; Returns: { user_id: string; handle: string | null; rating: number | null; reviews: number; sales: number }[] };
+      report_client_error: { Args: { p_message: string; p_stack?: string; p_url?: string; p_release?: string; p_user_agent?: string }; Returns: undefined };
+      admin_health: {
+        Args: never;
+        Returns: { errors_1h: number; errors_24h: number; failed_payouts: number; failed_refunds: number; stuck_settlements: number; overdue_inspections: number; open_disputes: number; pending_reviews: number }[];
+      };
+      admin_recent_errors: { Args: never; Returns: { fingerprint: string; message: string; count: number; last_seen: string; url: string | null; release: string | null; stack: string | null }[] };
       my_payout_status: { Args: never; Returns: { connected: boolean; payouts_enabled: boolean }[] };
       order_cancel: { Args: { p_order_id: string }; Returns: undefined };
       order_confirm_receipt: {
