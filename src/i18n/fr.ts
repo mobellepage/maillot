@@ -1050,5 +1050,6 @@ export const fr: Messages = {
   'gc.issue.lowRes': 'La résolution est faible — rapprochez-vous ou utilisez l’appareil principal.',
   'as.p.dark': 'Trop sombre',
   'as.p.bright': 'Surexposée',
+  'auth.captcha': 'Veuillez d’abord confirmer que vous êtes humain.',
   // @@end
 };

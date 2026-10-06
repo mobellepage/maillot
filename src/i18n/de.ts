@@ -1050,5 +1050,6 @@ export const de: Messages = {
   'gc.issue.lowRes': 'Die Auflösung ist niedrig — geh näher ran oder nutze die Hauptkamera.',
   'as.p.dark': 'Zu dunkel',
   'as.p.bright': 'Überbelichtet',
+  'auth.captcha': 'Bitte bestätige zuerst, dass du ein Mensch bist.',
   // @@end
 };

@@ -7,10 +7,24 @@ import { InspectionPanel } from './InspectionPanel.tsx';
 import { CertificatesPanel } from './CertificatesPanel.tsx';
 import { HealthPanel } from './HealthPanel.tsx';
 import { ReviewQueue } from './ReviewQueue.tsx';
+import { AuditPanel } from './AuditPanel.tsx';
+import { MfaGate } from './MfaGate.tsx';
+import { useSession } from '../../lib/session.tsx';
 
 export default function AdminPage() {
   useCatalog(); // re-render when the live catalogue loads
   usePageMeta('Admin');
+  const { isAdmin } = useSession();
+  if (!isAdmin)
+    return (
+      <Page style={{ maxWidth: 860 }}>
+        <div className="eyebrow">Internal</div>
+        <h1 className="display" style={{ margin: '8px 0 20px', fontSize: 'clamp(26px,3.6vw,38px)' }}>
+          Admin
+        </h1>
+        <MfaGate />
+      </Page>
+    );
   return (
     <Page style={{ maxWidth: 860 }}>
       <div className="eyebrow">Internal</div>
@@ -24,6 +38,7 @@ export default function AdminPage() {
       <CertificatesPanel />
       <DisputesPanel />
       <ApiKeysPanel />
+      <AuditPanel />
     </Page>
   );
 }

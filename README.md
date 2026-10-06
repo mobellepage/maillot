@@ -211,6 +211,9 @@ on conflict (key) do update set value = excluded.value;
 update public.profiles set is_admin = true where id = '<auth user id>';
 ```
 
+The new admin then opens `/admin` and enrols an authenticator app (TOTP).
+Admin rights only apply to sessions verified with that second factor (`aal2`).
+
 ## Security model (summary)
 
 - Clients can't write `orders`, `disputes` or `notifications`; every escrow
@@ -218,8 +221,23 @@ update public.profiles set is_admin = true where id = '<auth user id>';
 - `profiles.is_admin` is not client-writable.
 - An item can only claim expert verification if a matching approved review exists.
 - The matching engine forbids self-trades and row-locks both sides.
+- **Admin 2FA:** `is_admin()` is true only for an `aal2` session, so a stolen
+  password alone never reaches admin RPCs or tables.
+- **Rate limits:** `private.hit()` throttles bids, asks, items, review requests,
+  disputes, seller reviews, handle checks and client error reports per user
+  (errcode `P0429`). Supabase Auth limits sign-ins/sign-ups (`config.toml`).
+- **Captcha:** sign-in and sign-up send a Cloudflare Turnstile token when
+  `VITE_TURNSTILE_SITE_KEY` is set; enable Turnstile under Auth → Bot protection
+  with the matching secret.
+- **Audit log:** admin decisions, role changes, dispute outcomes, certificate
+  changes and API keys are written to `audit_log` (admin read-only, shown on `/admin`).
+- **Headers:** `vercel.json` sets a strict CSP (inline script allowed by hash —
+  a unit test fails if the hash drifts), HSTS, `nosniff`, `frame-ancestors 'none'`.
+- **Dependencies:** CI fails on high-severity `npm audit` findings in runtime
+  packages; Dependabot and CodeQL run weekly.
 
 ## Hosting
 
 Single-page app with path routing (`/shirt/:id`, `/orders`, …): the host must
-serve `index.html` for unknown paths. `vercel.json` does this on Vercel.
+serve `app.html` for unknown paths (prerendered pages are served as-is).
+`vercel.json` does this on Vercel.

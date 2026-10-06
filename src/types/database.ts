@@ -330,6 +330,12 @@ export type Database = {
         Update: { order_id?: string; seller_id?: string; buyer_id?: string; rating?: number; comment?: string | null; created_at?: string };
         Relationships: [];
       };
+      audit_log: {
+        Row: { id: number; at: string; actor: string | null; action: string; target: string; details: Json };
+        Insert: { id?: never; at?: string; actor?: string | null; action: string; target: string; details?: Json };
+        Update: { id?: never; at?: string; actor?: string | null; action?: string; target?: string; details?: Json };
+        Relationships: [];
+      };
       order_addresses: {
         Row: { order_id: string; ship_to: Json; created_at: string };
         Insert: { order_id: string; ship_to: Json; created_at?: string };

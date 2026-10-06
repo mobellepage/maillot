@@ -33,16 +33,32 @@ interface Session {
   profile: Profile | null | undefined;
   /** true until the stored session has been read on first load */
   loading: boolean;
+  /** Admin flag AND a session verified with the second factor — what the server checks. */
   isAdmin: boolean;
-  signIn: (email: string, password: string) => Promise<AuthResult>;
-  signUp: (email: string, password: string) => Promise<AuthResult>;
+  /** The account has admin rights, whether or not the second factor is verified yet. */
+  adminFlag: boolean;
+  /** Assurance level of the current session: aal2 once a TOTP code was verified. */
+  aal: 'aal1' | 'aal2' | null;
+  signIn: (email: string, password: string, captchaToken?: string) => Promise<AuthResult>;
+  signUp: (email: string, password: string, captchaToken?: string) => Promise<AuthResult>;
   signOut: () => Promise<void>;
 }
 
 const SessionContext = createContext<Session | null>(null);
 
+/** The `aal` claim of an access token (aal2 = second factor verified). */
+function aalOf(token: string): 'aal1' | 'aal2' {
+  try {
+    const claims = JSON.parse(atob(token.split('.')[1]!.replace(/-/g, '+').replace(/_/g, '/'))) as { aal?: string };
+    return claims.aal === 'aal2' ? 'aal2' : 'aal1';
+  } catch {
+    return 'aal1';
+  }
+}
+
 export function SessionProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
+  const [aal, setAal] = useState<'aal1' | 'aal2' | null>(null);
   const [loading, setLoading] = useState(hasStoredSession);
   const qc = useQueryClient();
 
@@ -52,10 +68,16 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     sb()
       .then(async (client) => {
         if (cancelled) return;
-        const { data: sub } = client.auth.onAuthStateChange((_event, session) => setUser(session ? session.user : null));
+        const { data: sub } = client.auth.onAuthStateChange((_event, session) => {
+          setUser(session ? session.user : null);
+          setAal(session ? aalOf(session.access_token) : null);
+        });
         unsubscribe = () => sub.subscription.unsubscribe();
         const { data } = await client.auth.getSession();
-        if (!cancelled) setUser(data.session ? data.session.user : null);
+        if (!cancelled) {
+          setUser(data.session ? data.session.user : null);
+          setAal(data.session ? aalOf(data.session.access_token) : null);
+        }
       })
       .catch(() => !cancelled && setUser(null))
       .finally(() => !cancelled && setLoading(false));
@@ -78,14 +100,16 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   const value: Session = {
     user,
     loading,
-    isAdmin: !!profile.data?.is_admin,
+    isAdmin: !!profile.data?.is_admin && aal === 'aal2',
+    adminFlag: !!profile.data?.is_admin,
+    aal,
     profile: !user ? null : profile.data === undefined ? undefined : profile.data && { handle: profile.data.handle, goals: profile.data.goals ?? [], interests: (profile.data.interests ?? {}) as Profile['interests'], onboardedAt: profile.data.onboarded_at },
-    signIn: async (email, password) => {
-      const { error } = await (await sb()).auth.signInWithPassword({ email, password });
+    signIn: async (email, password, captchaToken) => {
+      const { error } = await (await sb()).auth.signInWithPassword({ email, password, options: captchaToken ? { captchaToken } : undefined });
       return { error: error ? error.message : null };
     },
-    signUp: async (email, password) => {
-      const { data, error } = await (await sb()).auth.signUp({ email, password });
+    signUp: async (email, password, captchaToken) => {
+      const { data, error } = await (await sb()).auth.signUp({ email, password, options: captchaToken ? { captchaToken } : undefined });
       return { error: error ? error.message : null, signedIn: !!data.session };
     },
     signOut: async () => {

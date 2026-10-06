@@ -113,3 +113,12 @@ export async function loadRecentErrors(): Promise<ErrorGroup[]> {
   if (error) throw error;
   return data ?? [];
 }
+
+export type AuditEntry = Tables<'audit_log'>;
+
+/** Most recent admin actions (RLS: admins with a verified second factor only). */
+export async function loadAuditLog(): Promise<AuditEntry[]> {
+  const { data, error } = await (await sb()).from('audit_log').select('*').order('at', { ascending: false }).limit(50);
+  if (error) throw error;
+  return data ?? [];
+}

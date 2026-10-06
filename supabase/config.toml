@@ -26,6 +26,26 @@ enable_signup = true
 [auth.email]
 enable_confirmations = false
 
+# Admin rights require a TOTP second factor (is_admin() checks aal2).
+[auth.mfa]
+max_enrolled_factors = 10
+
+[auth.mfa.totp]
+enroll_enabled = true
+verify_enabled = true
+
+# Per-IP limits on the auth endpoints (per 5 minutes).
+[auth.rate_limit]
+sign_in_sign_ups = 30
+token_verifications = 30
+
+# Bot protection on sign-up/sign-in: off locally; in production enable
+# Cloudflare Turnstile under Auth → Bot and Abuse Protection and set
+# VITE_TURNSTILE_SITE_KEY for the app.
+[auth.captcha]
+enabled = false
+provider = "turnstile"
+
 # Edge functions. verify_jwt = false only where the function authenticates
 # callers itself (Stripe signature, API key, or id-only internal relay).
 [functions.checkout]

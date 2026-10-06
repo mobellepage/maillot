@@ -2,6 +2,7 @@
 // dist/. dist/app.html (built from app.html, same as index.html) stays an
 // empty shell: it's the fallback for every other route (signed-in pages) so
 // they never flash another page's content.
+import { createHash } from 'node:crypto';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname } from 'node:path';
 
@@ -15,6 +16,19 @@ const template = readFileSync('dist/index.html', 'utf8')
   .replaceAll('<script type="module" crossorigin src=', '<script type="module" crossorigin fetchpriority="low" src=');
 if (template.includes('rel="stylesheet"') || template.includes('modulepreload')) throw new Error('prerender: template changed shape; update the rewrites above');
 
+// vercel.json's Content-Security-Policy allows inline scripts only by hash.
+// React adds small inline scripts of its own (Suspense reveal); if a React
+// update changes them, fail the build here rather than ship pages the CSP blocks.
+const csp = JSON.parse(readFileSync('vercel.json', 'utf8'))
+  .headers.flatMap((h) => h.headers)
+  .find((h) => h.key === 'Content-Security-Policy').value;
+const checkInlineScripts = (page, path) => {
+  for (const [, body] of page.matchAll(/<script(?![^>]*\bsrc=)[^>]*>([\s\S]*?)<\/script>/g)) {
+    const hash = `'sha256-${createHash('sha256').update(body).digest('base64')}'`;
+    if (!csp.includes(hash)) throw new Error(`prerender: ${path} has an inline script the CSP blocks; add ${hash} to script-src in vercel.json`);
+  }
+};
+
 const esc = (s) => s.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
 let n = 0;
 for (const path of PATHS) {
@@ -27,6 +41,7 @@ for (const path of PATHS) {
     .replace(/(<meta property="og:description" content=")[^"]*"/, `$1${esc(description)}"`)
     .replace('<div id="root"></div>', `<div id="root">${html}</div>`);
   const out = path === '/' ? 'dist/index.html' : `dist${path}/index.html`;
+  checkInlineScripts(page, path);
   mkdirSync(dirname(out), { recursive: true });
   writeFileSync(out, page);
   n++;

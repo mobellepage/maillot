@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
+import { Captcha, CAPTCHA_SITE_KEY, type CaptchaHandle } from './Captcha.tsx';
 import { Link, useLocation, useNavigate } from 'react-router';
 import { usePageMeta } from '../../lib/meta.ts';
 import { usePrefs } from '../../lib/prefs.tsx';
@@ -7,7 +8,7 @@ import { useToast } from '../../lib/toast.tsx';
 import { Button, Notice, TextField } from '../../ui/index.ts';
 
 export default function SignInPage() {
-  const { t } = usePrefs();
+  const { t, lang } = usePrefs();
   const { signIn, signUp } = useSession();
   const toast = useToast();
   const navigate = useNavigate();
@@ -17,15 +18,21 @@ export default function SignInPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [captcha, setCaptcha] = useState<string | null>(null);
+  const captchaRef = useRef<CaptchaHandle>(null);
   const signingIn = mode === 'signin';
   usePageMeta(signingIn ? t('auth.signin') : t('auth.createAccount'));
 
   const submit = async () => {
     if (!email || !password) return setError(t('auth.required'));
+    if (CAPTCHA_SITE_KEY && !captcha) return setError(t('auth.captcha'));
     setBusy(true);
     setError(null);
-    const { error: err, signedIn } = await (signingIn ? signIn : signUp)(email, password);
+    const { error: err, signedIn } = await (signingIn ? signIn : signUp)(email, password, captcha ?? undefined);
     setBusy(false);
+    // Tokens are single-use: get a fresh one for the next attempt.
+    setCaptcha(null);
+    captchaRef.current?.reset();
     if (err) return setError(err);
     setPassword('');
     if (signingIn) {
@@ -75,6 +82,7 @@ export default function SignInPage() {
           placeholder="••••••••"
           hint={signingIn ? undefined : t('auth.minLength')}
         />
+        <Captcha ref={captchaRef} onToken={setCaptcha} lang={lang} />
         <Button type="submit" block busy={busy} busyLabel={t('auth.pleaseWait')} style={{ marginTop: 8 }}>
           {signingIn ? t('auth.signin') : t('auth.createAccount')}
         </Button>

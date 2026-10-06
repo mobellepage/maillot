@@ -1049,6 +1049,7 @@ export const en = {
   'gc.issue.lowRes': 'The resolution is low — move closer or use the main camera.',
   'as.p.dark': 'Too dark',
   'as.p.bright': 'Overexposed',
+  'auth.captcha': 'Please confirm you’re human first.',
   // @@end
 };
 

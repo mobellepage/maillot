@@ -16,7 +16,7 @@ end $$;
 create or replace function tests.login(p_user uuid)
 returns void language plpgsql as $$
 begin
-  perform set_config('request.jwt.claims', json_build_object('sub', p_user, 'role', 'authenticated')::text, true);
+  perform set_config('request.jwt.claims', json_build_object('sub', p_user, 'role', 'authenticated', 'aal', 'aal2')::text, true);
   execute 'set local role authenticated';
 end $$;
 -- Back to the superuser test runner.
