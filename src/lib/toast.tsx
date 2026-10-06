@@ -5,11 +5,14 @@ const ToastContext = createContext<((msg: string) => void) | null>(null);
 
 export function ToastProvider({ children }: { children: ReactNode }) {
   const [msg, setMsg] = useState<string | null>(null);
+  // The toast slides out before it's removed (the animation's end removes it).
+  const [leaving, setLeaving] = useState(false);
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const show = useCallback((m: string) => {
     clearTimeout(timer.current);
     setMsg(m);
-    timer.current = setTimeout(() => setMsg(null), 3200);
+    setLeaving(false);
+    timer.current = setTimeout(() => setLeaving(true), 3200);
   }, []);
   useEffect(() => () => clearTimeout(timer.current), []);
   return (
@@ -18,6 +21,8 @@ export function ToastProvider({ children }: { children: ReactNode }) {
       <div role="status" aria-live="polite" style={{ position: 'fixed', left: '50%', bottom: 'calc(32px + var(--mobile-nav, 0px))', transform: 'translateX(-50%)', zIndex: 120, pointerEvents: 'none' }}>
         {msg && (
           <div
+            key={msg}
+            onAnimationEnd={() => leaving && setMsg(null)}
             style={{
               display: 'flex',
               alignItems: 'center',
@@ -29,7 +34,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
               fontSize: 14,
               fontWeight: 600,
               boxShadow: '0 20px 50px rgba(0,0,0,0.5)',
-              animation: 'kvIn .3s ease both',
+              animation: leaving ? 'kvOut .2s ease both' : 'kvIn .3s var(--ease-spring) both',
               maxWidth: 'calc(100vw - 32px)'
             }}
           >

@@ -64,6 +64,11 @@
 
   --gutter: clamp(16px, 4vw, 40px);
   --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+  /* Motion: quick for feedback, slower for things entering the page. */
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --dur-press: 0.12s;
+  --dur-ui: 0.2s;
+  --dur-enter: 0.35s;
   color-scheme: dark;
 }
 
@@ -186,6 +191,71 @@ html[data-first-load] #root * {
     background-position: 200px 0;
   }
 }
+@keyframes kvOut {
+  to {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+}
+/* A heart that pops when something is saved. */
+@keyframes kvPop {
+  0% {
+    transform: scale(1);
+  }
+  35% {
+    transform: scale(1.35);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+/* A price that just changed glows in the direction it moved, then settles. */
+@keyframes kvFlashUp {
+  from {
+    background-color: var(--accent-soft);
+    color: var(--accent);
+  }
+}
+@keyframes kvFlashDown {
+  from {
+    background-color: var(--neg-soft);
+    color: var(--neg);
+  }
+}
+/* Success check: the circle scales in, then the tick draws itself. */
+@keyframes kvDraw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+.success-mark {
+  animation: kvPop 0.45s var(--ease-spring) both;
+}
+.success-mark path {
+  stroke-dasharray: 24;
+  stroke-dashoffset: 24;
+  animation: kvDraw 0.35s 0.2s var(--ease) forwards;
+}
+.flash-up,
+.flash-down {
+  border-radius: 6px;
+  animation: kvFlashUp 1.2s var(--ease);
+}
+.flash-down {
+  animation-name: kvFlashDown;
+}
+
+/* Page changes cross-fade; a shirt's picture travels from its card into the
+   product page (see ShirtCard / Gallery: view-transition-name). */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: var(--dur-ui);
+}
+::view-transition-group(*) {
+  animation-duration: var(--dur-enter);
+  animation-timing-function: var(--ease);
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -193,6 +263,14 @@ html[data-first-load] #root * {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+  .success-mark path {
+    stroke-dashoffset: 0;
   }
 }
 
@@ -306,8 +384,13 @@ html[data-first-load] #root * {
 .btn--primary:hover:not(:disabled) {
   box-shadow: 0 0 0 6px rgba(75, 255, 139, 0.16);
 }
-.btn--primary:active:not(:disabled) {
-  transform: scale(0.98);
+/* Every pressable thing gives a little under the finger. */
+.btn:active:not(:disabled),
+.icon-btn:active:not(:disabled),
+.option-btn:active:not(:disabled),
+.chip:active:not(:disabled) {
+  transform: scale(0.97);
+  transition-duration: var(--dur-press);
 }
 .btn--secondary {
   background: none;
@@ -558,7 +641,7 @@ html[data-first-load] #root * {
   border: 1.5px solid rgba(255, 255, 255, 0.08);
   background: var(--surface-2);
   cursor: pointer;
-  transition: border-color 0.2s, background 0.2s;
+  transition: border-color 0.2s, background 0.2s, transform 0.2s;
   text-align: left;
   color: var(--text);
 }
@@ -689,6 +772,9 @@ html[data-first-load] #root * {
 }
 .watch-btn:active {
   transform: scale(0.92);
+}
+.watch-btn--pop svg {
+  animation: kvPop 0.4s var(--ease-spring);
 }
 
 /* ---------- dialog as bottom sheet on phones ---------- */

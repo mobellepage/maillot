@@ -76,7 +76,7 @@ export function BidBuyDialog({ mode, onClose, shirt, size, lowestAsk, topBid, ma
     <Dialog open={!!mode} onClose={close} title={title}>
       {result ? (
         <div style={{ textAlign: 'center', padding: '4px 4px 0' }}>
-          <div aria-hidden="true" style={{ width: 72, height: 72, borderRadius: '50%', margin: '0 auto 18px', background: 'var(--accent-soft)', border: '2px solid var(--accent)', display: 'grid', placeItems: 'center', color: 'var(--accent)' }}>
+          <div aria-hidden="true" className="success-mark" style={{ width: 72, height: 72, borderRadius: '50%', margin: '0 auto 18px', background: 'var(--accent-soft)', border: '2px solid var(--accent)', display: 'grid', placeItems: 'center', color: 'var(--accent)' }}>
             <CheckIcon size={30} />
           </div>
           <p style={{ color: 'var(--text-2)', fontSize: 14.5, lineHeight: 1.55, margin: '0 0 24px', textWrap: 'pretty' }}>

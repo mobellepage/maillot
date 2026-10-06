@@ -1,6 +1,7 @@
 // Small layout and display primitives shared by every screen.
 import type { CSSProperties, HTMLAttributes, ReactNode } from 'react';
 import { usePrefs } from '../lib/prefs.tsx';
+import { useFlash } from './useFlash.ts';
 
 const cx = (...xs: (string | false | null | undefined)[]) => xs.filter(Boolean).join(' ');
 
@@ -108,7 +109,8 @@ export function Skeleton({ width = '100%', height = 16, radius, style }: { width
 }
 
 /** A labelled stat tile (price tiles, counts). */
-export function StatTile({ label, value, sub, highlight, live }: { label: ReactNode; value: ReactNode; sub?: ReactNode; highlight?: boolean; live?: boolean }) {
+export function StatTile({ label, value, sub, highlight, live, amount, scope = '' }: { label: ReactNode; value: ReactNode; sub?: ReactNode; highlight?: boolean; live?: boolean; amount?: number; scope?: string }) {
+  const flash = useFlash(amount, scope);
   return (
     <div
       style={{
@@ -122,7 +124,7 @@ export function StatTile({ label, value, sub, highlight, live }: { label: ReactN
         {label}
         {live && <span aria-hidden="true" style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--accent)', animation: 'kvPulse 1.8s ease-in-out infinite' }} />}
       </div>
-      <div className="mono" style={{ fontSize: 'clamp(16px,1.8vw,21px)', fontWeight: 700, marginTop: 4 }}>
+      <div key={flash?.n} className={flash ? 'mono flash-' + flash.dir : 'mono'} style={{ fontSize: 'clamp(16px,1.8vw,21px)', fontWeight: 700, marginTop: 4, marginInline: -4, paddingInline: 4, width: 'fit-content' }}>
         {value}
       </div>
       {sub && <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 2 }}>{sub}</div>}

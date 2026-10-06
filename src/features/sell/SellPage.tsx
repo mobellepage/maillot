@@ -20,7 +20,7 @@ export default function SellPage() {
     return (
       <Page>
         <div style={{ maxWidth: 560, margin: 'clamp(20px,6vw,60px) auto', textAlign: 'center' }}>
-          <div aria-hidden="true" style={{ width: 88, height: 88, borderRadius: '50%', margin: '0 auto 24px', background: 'var(--accent-soft)', border: '2px solid var(--accent)', display: 'grid', placeItems: 'center', color: 'var(--accent)', boxShadow: '0 0 60px rgba(75,255,139,0.25)' }}>
+          <div aria-hidden="true" className="success-mark" style={{ width: 88, height: 88, borderRadius: '50%', margin: '0 auto 24px', background: 'var(--accent-soft)', border: '2px solid var(--accent)', display: 'grid', placeItems: 'center', color: 'var(--accent)', boxShadow: '0 0 60px rgba(75,255,139,0.25)' }}>
             <CheckIcon size={36} />
           </div>
           <h1 className="display display--lg">{f.published.sold ? t('sell.sold') : t('sell.live')}</h1>
