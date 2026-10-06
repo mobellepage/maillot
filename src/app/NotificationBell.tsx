@@ -14,7 +14,7 @@ export default function NotificationBell() {
 
   return (
     <div style={{ position: 'relative', flex: 'none' }}>
-      <button type="button" className="icon-btn" onClick={() => setOpen(!open)} aria-expanded={open} aria-haspopup="true" aria-label={t('header.notifications') + (unread ? ` (${unread})` : '')}>
+      <button type="button" className="icon-btn" onClick={() => setOpen(!open)} aria-expanded={open} aria-haspopup="dialog" aria-label={t('header.notifications') + (unread ? ` (${unread})` : '')}>
         <BellIcon />
         {unread > 0 && (
           <span aria-hidden="true" style={{ position: 'absolute', top: 4, right: 4, minWidth: 15, height: 15, padding: '0 3px', borderRadius: 999, background: 'var(--neg)', color: 'var(--on-neg)', fontSize: 10, fontWeight: 700, display: 'grid', placeItems: 'center' }}>
@@ -26,7 +26,7 @@ export default function NotificationBell() {
         <>
           <div onClick={() => setOpen(false)} style={{ position: 'fixed', inset: 0, zIndex: 69 }} />
           <div
-            role="menu"
+            role="dialog"
             aria-label={t('header.notifications')}
             onKeyDown={(e) => e.key === 'Escape' && setOpen(false)}
             style={{ position: 'absolute', top: 48, right: 0, width: 'min(340px, calc(100vw - 32px))', maxHeight: 420, overflowY: 'auto', background: 'var(--elevated)', border: '1px solid rgba(255,255,255,0.09)', borderRadius: 16, boxShadow: '0 16px 40px rgba(0,0,0,0.4)', zIndex: 70, padding: 8 }}
@@ -47,7 +47,6 @@ export default function NotificationBell() {
               return (
                 <button
                   key={n.id}
-                  role="menuitem"
                   type="button"
                   className="row-btn"
                   onClick={() => {

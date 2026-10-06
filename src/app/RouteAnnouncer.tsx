@@ -9,13 +9,12 @@ import { focusMain } from './focusMain.ts';
 export function RouteAnnouncer() {
   const { pathname } = useLocation();
   const [message, setMessage] = useState('');
-  const first = useRef(true);
+  // Compare paths rather than counting runs: effects can run twice for one render.
+  const shown = useRef(pathname);
 
   useEffect(() => {
-    if (first.current) {
-      first.current = false;
-      return;
-    }
+    if (shown.current === pathname) return;
+    shown.current = pathname;
     // Lazy pages render (and set their title) a moment after the URL changes.
     const timer = window.setTimeout(() => {
       setMessage(document.title);

@@ -32,6 +32,7 @@ test('the bid dialog is accessible and keeps focus inside', async ({ page }) => 
 
 test('keyboard: the skip link jumps to the page, and navigation is announced', async ({ page }) => {
   await page.goto('/');
+  await expect(page.locator('#main')).toBeVisible();
   await page.keyboard.press('Tab');
   const skip = page.getByRole('link', { name: 'Skip to content' });
   await expect(skip).toBeFocused();
