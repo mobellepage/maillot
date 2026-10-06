@@ -175,6 +175,21 @@ idempotency key, so retries are safe.
   Performance 100 on /, /market, /shirt/:id and /authentication; FCP 0.7 s,
   LCP 0.8–1.1 s.
 
+## Brand assets
+
+`npm run build && npm run brand` regenerates every raster asset from one
+source — the mark in `scripts/brand-assets.mjs` plus the app's own fonts,
+styles and shirt illustrations:
+
+- `public/favicon.svg`, `public/icons/` (192/512, maskable, Apple touch icon)
+- `public/og/default.jpg` and one link-preview image per prerendered shirt
+  (`public/og/shirt/<id>.jpg`); `scripts/prerender.mjs` points each page's
+  `og:image` at it (shirts without one use the default) and adds `canonical`.
+
+Notification emails (`supabase/functions/send-notification/email.ts`) use the
+same mark and accent, link straight to the order or shirt, and include a
+plain-text part; `APP_URL` must be set for links and the logo.
+
 ## Accessibility
 
 Target: WCAG 2.2 AA. `e2e/smoke/a11y.spec.js` runs axe-core on every public

@@ -3,7 +3,7 @@
 // empty shell: it's the fallback for every other route (signed-in pages) so
 // they never flash another page's content.
 import { createHash } from 'node:crypto';
-import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname } from 'node:path';
 
 const { render, PATHS } = await import('../dist-ssr/entry-server.js');
@@ -30,6 +30,12 @@ const checkInlineScripts = (page, path) => {
 };
 
 const esc = (s) => s.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+const site = (process.env.SITE_URL || 'https://maillot.app').replace(/\/$/, '');
+// Link previews: each shirt has its own image (npm run brand), everything else the default.
+const ogImage = (path) => {
+  const own = path.startsWith('/shirt/') && `/og/shirt/${path.slice('/shirt/'.length)}.jpg`;
+  return site + (own && existsSync('public' + own) ? own : '/og/default.jpg');
+};
 let n = 0;
 for (const path of PATHS) {
   const { html, title, description } = await render(path);
@@ -39,6 +45,9 @@ for (const path of PATHS) {
     .replace(/(<meta name="description" content=")[^"]*"/, `$1${esc(description)}"`)
     .replace(/(<meta property="og:title" content=")[^"]*"/, `$1${esc(title)}"`)
     .replace(/(<meta property="og:description" content=")[^"]*"/, `$1${esc(description)}"`)
+    .replace(/(<meta property="og:image" content=")[^"]*"/, `$1${ogImage(path)}"`)
+    .replace(/(<meta property="og:image:alt" content=")[^"]*"/, `$1${esc(title)}"`)
+    .replace('</title>', `</title>\n    <link rel="canonical" href="${site}${path}" />\n    <meta property="og:url" content="${site}${path}" />`)
     .replace('<div id="root"></div>', `<div id="root">${html}</div>`);
   const out = path === '/' ? 'dist/index.html' : `dist${path}/index.html`;
   checkInlineScripts(page, path);
@@ -47,7 +56,6 @@ for (const path of PATHS) {
   n++;
 }
 // Search engines: every public page, plus where to find the list.
-const site = (process.env.SITE_URL || 'https://maillot.app').replace(/\/$/, '');
 const today = new Date().toISOString().slice(0, 10);
 writeFileSync(
   'dist/sitemap.xml',

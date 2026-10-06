@@ -6,15 +6,12 @@
 // and each row is emailed at most once (emailed_at is claimed atomically).
 // Inert-by-design until RESEND_API_KEY is set as a project secret.
 import { createClient } from "jsr:@supabase/supabase-js@2";
+import { renderEmail } from "./email.ts";
 
 const MAX_AGE_MS = 15 * 60 * 1000;
 
 function json(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json" } });
-}
-
-function escapeHtml(s: string) {
-  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 }
 
 Deno.serve(async (req: Request) => {
@@ -42,7 +39,7 @@ Deno.serve(async (req: Request) => {
     .eq("id", id)
     .is("emailed_at", null)
     .gte("created_at", freshSince)
-    .select("user_id, title, body")
+    .select("user_id, type, title, body, data")
     .maybeSingle();
   if (error) return json({ error: "lookup failed" }, 500);
   if (!n) return json({ skipped: true });
@@ -51,19 +48,12 @@ Deno.serve(async (req: Request) => {
   if (userErr || !userRes?.user?.email) return json({ error: "no recipient" }, 404);
 
   const fromEmail = Deno.env.get("NOTIFICATIONS_FROM_EMAIL") || "Maillot <notifications@maillot.app>";
-  const appUrl = Deno.env.get("APP_URL") || "";
-  const html =
-    `<div style="font-family:system-ui,sans-serif;max-width:520px;margin:0 auto;padding:24px;color:#111">` +
-    `<div style="font-weight:800;letter-spacing:.04em;font-size:18px">MAILLOT</div>` +
-    `<h1 style="font-size:20px;margin:24px 0 8px">${escapeHtml(n.title)}</h1>` +
-    `<p style="font-size:15px;line-height:1.5;color:#333">${escapeHtml(n.body ?? "")}</p>` +
-    (appUrl ? `<p><a href="${escapeHtml(appUrl)}/orders" style="display:inline-block;background:#4BFF8B;color:#06110A;padding:10px 18px;border-radius:10px;font-weight:700;text-decoration:none">Open Maillot</a></p>` : "") +
-    `</div>`;
+  const { subject, html, text } = renderEmail({ ...n, appUrl: Deno.env.get("APP_URL") || "" });
 
   const res = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: { Authorization: `Bearer ${resendApiKey}`, "Content-Type": "application/json" },
-    body: JSON.stringify({ from: fromEmail, to: userRes.user.email, subject: n.title, html }),
+    body: JSON.stringify({ from: fromEmail, to: userRes.user.email, subject, html, text }),
   });
   if (!res.ok) {
     // Release the claim so a retry can try again.

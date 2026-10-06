@@ -8,6 +8,7 @@
     "build": "vite build && vite build --ssr src/entry-server.tsx --outDir dist-ssr --emptyOutDir && node scripts/prerender.mjs",
     "lint": "oxlint",
     "preview": "vite preview",
+    "brand": "node scripts/brand-assets.mjs",
     "db:start": "supabase start",
     "db:stop": "supabase stop",
     "db:reset": "supabase db reset",
