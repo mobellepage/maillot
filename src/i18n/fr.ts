@@ -1051,5 +1051,6 @@ export const fr: Messages = {
   'as.p.dark': 'Trop sombre',
   'as.p.bright': 'Surexposée',
   'auth.captcha': 'Veuillez d’abord confirmer que vous êtes humain.',
+  'a11y.skip': 'Aller au contenu',
   // @@end
 };

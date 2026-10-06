@@ -12,7 +12,7 @@ export function CollectionTab({ items, loading, error, onRetry }: { items: Custo
   const cover = usePhotoUrls(items.map((c) => c.photos?.front), true);
   if (loading)
     return (
-      <div className="grid-cards" style={{ marginTop: 24 }} aria-busy="true" aria-label={t('vault.loading')}>
+      <div className="grid-cards" style={{ marginTop: 24 }} role="status" aria-busy="true" aria-label={t('vault.loading')}>
         {[0, 1, 2, 3].map((i) => (
           <Skeleton key={i} height={280} radius={20} />
         ))}

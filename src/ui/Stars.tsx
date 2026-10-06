@@ -14,7 +14,7 @@ export function Stars({ value, onChange, label, size = 16 }: { value: number; on
   return (
     <div role="radiogroup" aria-label={label} style={{ display: 'flex', gap: 4 }}>
       {[1, 2, 3, 4, 5].map((n) => (
-        <label key={n} style={{ cursor: 'pointer', fontSize: size, color: n <= value ? 'var(--warn)' : 'var(--faint-2)', lineHeight: 1 }}>
+        <label key={n} style={{ cursor: 'pointer', fontSize: size, color: n <= value ? 'var(--warn)' : 'var(--faint)', lineHeight: 1 }}>
           <input type="radio" name={name} value={n} checked={value === n} onChange={() => onChange(n)} className="sr-only" aria-label={String(n)} />
           ★
         </label>

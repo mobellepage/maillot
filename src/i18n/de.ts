@@ -1051,5 +1051,6 @@ export const de: Messages = {
   'as.p.dark': 'Zu dunkel',
   'as.p.bright': 'Überbelichtet',
   'auth.captcha': 'Bitte bestätige zuerst, dass du ein Mensch bist.',
+  'a11y.skip': 'Zum Inhalt springen',
   // @@end
 };

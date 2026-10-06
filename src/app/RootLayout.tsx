@@ -9,6 +9,7 @@ import { PublicVaultPage } from './pages.tsx';
 import { useCatalogSync } from '../features/catalog/useCatalog.ts';
 import { useOnboardingRedirect } from './useOnboardingRedirect.ts';
 import { OfflineBar } from './OfflineBar.tsx';
+import { RouteAnnouncer } from './RouteAnnouncer.tsx';
 
 export default function RootLayout() {
   useCatalogSync();
@@ -25,6 +26,7 @@ export default function RootLayout() {
 
   return (
     <div className="app-shell" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+      <RouteAnnouncer />
       <OfflineBar />
       <Header />
       <div style={{ flex: 1 }}>

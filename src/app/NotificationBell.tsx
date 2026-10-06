@@ -59,7 +59,7 @@ export default function NotificationBell() {
                   style={{ display: 'block', background: n.read ? 'none' : 'rgba(75,255,139,0.07)', marginBottom: 2 }}
                 >
                   <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    {!n.read && <span aria-label={t('header.unread')} style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--accent)', flex: 'none' }} />}
+                    {!n.read && <span role="img" aria-label={t('header.unread')} style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--accent)', flex: 'none' }} />}
                     <span style={{ fontSize: 13, fontWeight: 700 }}>{text.title}</span>
                   </span>
                   {text.body && <span style={{ display: 'block', fontSize: 12, color: 'var(--muted)', marginTop: 3 }}>{text.body}</span>}

@@ -35,7 +35,7 @@
   --text: #f2f4f1;
   --text-2: #c9d0cb;
   --muted: #8c958f;
-  --faint: #6f7872;
+  --faint: #808983; /* ≥4.5:1 on every surface (WCAG AA) */
 
   --accent: #4bff8b;
   --accent-ink: #06110a;
@@ -88,6 +88,16 @@ a {
 }
 a:hover {
   color: #9dffc0;
+}
+/* Links inside running text must not rely on colour alone (WCAG 1.4.1). */
+:where(p, li, dd, figcaption, td, span, small) > a:not([class]) {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  text-decoration-color: var(--accent-line);
+}
+:where(p, li, dd, figcaption, td, span, small) > a:not([class]):hover {
+  text-decoration-color: currentColor;
 }
 input,
 select,
@@ -715,6 +725,18 @@ html[data-first-load] #root * {
     display: none !important;
   }
 }
+/* Step bars fit one line on phones: only the current step keeps its visible label
+   (the others stay readable to screen readers). */
+@media (max-width: 560px) {
+  .step-label-other {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+  }
+}
 .skip-link {
   position: absolute;
   left: 12px;
@@ -728,6 +750,10 @@ html[data-first-load] #root * {
 }
 .skip-link:focus {
   top: 12px;
+}
+/* <main> takes focus after navigation (RouteAnnouncer); no ring around the page. */
+main:focus {
+  outline: none;
 }
 
 /* ---------- browse layout ---------- */

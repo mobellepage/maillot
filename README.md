@@ -175,6 +175,20 @@ idempotency key, so retries are safe.
   Performance 100 on /, /market, /shirt/:id and /authentication; FCP 0.7 s,
   LCP 0.8–1.1 s.
 
+## Accessibility
+
+Target: WCAG 2.2 AA. `e2e/smoke/a11y.spec.js` runs axe-core on every public
+page (desktop + mobile) and on the bid dialog; `e2e/backend/a11y.spec.js` does
+the same for signed-in pages. A violation fails CI with the rule and element.
+
+What axe can't see is built in and tested by hand-written e2e checks:
+- a translated skip link, and after every in-app navigation the new page title
+  is announced (`RouteAnnouncer`) and focus moves to `<main>`;
+- dialogs trap focus, close on Escape and return focus to their opener;
+- colour tokens meet 4.5:1 on every surface (`--faint` is the floor), links in
+  running text are underlined, sideways-scrolling regions are focusable;
+- `prefers-reduced-motion` turns animations off.
+
 ## Languages (EN / DE / FR)
 
 All visitor-facing text lives in `src/i18n/{en,de,fr}.ts`. English is the

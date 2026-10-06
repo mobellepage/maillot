@@ -48,7 +48,8 @@ export function ShirtCard({ s, watched, onToggleWatch, priceLabel }: { s: ShirtC
               {s.priceFmt}
             </div>
           </div>
-          <span className={'badge ' + (s.up ? 'badge--accent' : 'badge--neg')} style={{ borderRadius: 6, fontSize: 11.5 }} aria-label={'30-day change ' + s.chFmt}>
+          <span className={'badge ' + (s.up ? 'badge--accent' : 'badge--neg')} style={{ borderRadius: 6, fontSize: 11.5 }}>
+            <span className="sr-only">{t('home.movers.eyebrow')} </span>
             {s.chFmt}
           </span>
         </div>

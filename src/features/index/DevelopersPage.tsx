@@ -37,7 +37,8 @@ const SHIRT_EXAMPLE = `{
 
 function Code({ children, label }: { children: string; label: string }) {
   return (
-    <pre aria-label={label} className="mono" style={{ margin: 0, padding: 16, borderRadius: 12, background: 'var(--sunken)', border: '1px solid var(--line)', fontSize: 12.5, lineHeight: 1.55, overflowX: 'auto' }}>
+    // Wide code scrolls sideways, so it takes keyboard focus to be scrollable.
+    <pre role="region" aria-label={label} tabIndex={0} className="mono" style={{ margin: 0, padding: 16, borderRadius: 12, background: 'var(--sunken)', border: '1px solid var(--line)', fontSize: 12.5, lineHeight: 1.55, overflowX: 'auto' }}>
       {children}
     </pre>
   );

@@ -47,13 +47,15 @@ export default function SellPage() {
       <h1 className="display display--lg" style={{ marginTop: 8 }}>
         {t('sell.title')}
       </h1>
-      <ol aria-label={t('sell.steps')} style={{ listStyle: 'none', padding: 0, display: 'flex', alignItems: 'center', gap: 10, margin: '28px 0 32px', overflowX: 'auto', paddingBottom: 4 }}>
+      <ol aria-label={t('sell.steps')} style={{ listStyle: 'none', padding: 0, display: 'flex', alignItems: 'center', gap: 10, margin: '28px 0 32px' }}>
         {STEPS.map((l, i) => (
           <li key={l} aria-current={i === f.step ? 'step' : undefined} style={{ display: 'flex', alignItems: 'center', gap: 10, flex: 'none' }}>
             <span className="mono" style={{ width: 28, height: 28, borderRadius: '50%', background: i < f.step ? 'var(--accent)' : i === f.step ? 'var(--text)' : 'var(--step-idle)', color: i <= f.step ? 'var(--bg)' : 'var(--muted)', display: 'grid', placeItems: 'center', fontSize: 12, fontWeight: 700 }}>
               {i < f.step ? <CheckIcon size={13} /> : i + 1}
             </span>
-            <span style={{ fontSize: 14, fontWeight: 600, color: i <= f.step ? 'var(--text)' : 'var(--muted)', whiteSpace: 'nowrap' }}>{t(l)}</span>
+            <span className={i === f.step ? undefined : 'step-label-other'} style={{ fontSize: 14, fontWeight: 600, color: i <= f.step ? 'var(--text)' : 'var(--muted)', whiteSpace: 'nowrap' }}>
+              {t(l)}
+            </span>
             {i < STEPS.length - 1 && <span aria-hidden="true" style={{ width: 'clamp(20px,5vw,56px)', height: 2, borderRadius: 2, background: i < f.step ? 'var(--accent)' : 'rgba(255,255,255,0.1)' }} />}
           </li>
         ))}

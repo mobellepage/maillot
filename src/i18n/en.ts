@@ -1050,6 +1050,7 @@ export const en = {
   'as.p.dark': 'Too dark',
   'as.p.bright': 'Overexposed',
   'auth.captcha': 'Please confirm you’re human first.',
+  'a11y.skip': 'Skip to content',
   // @@end
 };
 

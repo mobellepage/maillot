@@ -10,6 +10,7 @@ import type { Lang } from '../i18n/index.ts';
 // Signed-in only, so it isn't part of the first download for visitors.
 const NotificationBell = lazy(() => import('./NotificationBell.tsx'));
 import { useNavItems } from './nav.ts';
+import { focusMain } from './focusMain.ts';
 
 export function Logo() {
   const { t } = usePrefs();
@@ -38,8 +39,8 @@ export default function Header() {
 
   return (
     <header style={{ position: 'sticky', top: 0, zIndex: 60, background: 'rgba(10,12,11,0.82)', backdropFilter: 'blur(18px)', WebkitBackdropFilter: 'blur(18px)', borderBottom: '1px solid var(--line)' }}>
-      <a href="#main" className="skip-link">
-        Skip to content
+      <a href="#main" className="skip-link" onClick={(e) => focusMain() && e.preventDefault()}>
+        {t('a11y.skip')}
       </a>
       <div style={{ maxWidth: 1360, margin: '0 auto', padding: '0 var(--gutter)', height: 68, display: 'flex', alignItems: 'center', gap: 'clamp(12px,2vw,28px)' }}>
         <Logo />
