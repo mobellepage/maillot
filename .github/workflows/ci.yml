@@ -71,7 +71,11 @@ jobs:
         run: |
           set -o pipefail
           npx playwright test --project=backend --reporter=list 2>&1 | tee e2e.log || {
-            grep -E "✘|Error:|expect\(" e2e.log | head -40 | while IFS= read -r l; do echo "::error title=e2e::$l"; done
+            # GitHub shows at most 10 annotations per step: one per failed test,
+            # each carrying that test's error lines (newlines encoded as %0A).
+            awk '/^  [0-9]+\) /{n++} n>0 && n<=10 && /^  [0-9]+\) |Error:|\((critical|serious|moderate|minor)\)| — |Not visible|Page:/{print n "\t" $0}' e2e.log \
+              | awk -F'\t' '{a[$1]=a[$1] $2 "%0A"} END {for (k in a) print a[k]}' \
+              | while IFS= read -r l; do echo "::error title=e2e::${l:0:4000}"; done
             exit 1
           }
       - uses: actions/upload-artifact@v4
