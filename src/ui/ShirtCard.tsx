@@ -4,6 +4,7 @@
 // a separate button layered above it, not nested inside the link.
 import { useState, type CSSProperties, type MouseEvent } from 'react';
 import { Link } from 'react-router';
+import { haptic } from '../lib/native.ts';
 import { HeartIcon } from './icons.tsx';
 import { usePrefs } from '../lib/prefs.tsx';
 import { ShirtGraphic, type ShirtLook } from './ShirtGraphic.tsx';
@@ -81,7 +82,10 @@ export function WatchButton({ watched, onToggle, name, style, size = 36 }: { wat
     <button
       type="button"
       onClick={() => {
-        if (!watched) setPop(true);
+        if (!watched) {
+          setPop(true);
+          haptic();
+        }
         onToggle();
       }}
       onAnimationEnd={() => setPop(false)}

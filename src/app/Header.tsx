@@ -38,7 +38,7 @@ export default function Header() {
   const onMarket = pathname.startsWith('/market');
 
   return (
-    <header style={{ position: 'sticky', top: 0, zIndex: 60, background: 'rgba(10,12,11,0.82)', backdropFilter: 'blur(18px)', WebkitBackdropFilter: 'blur(18px)', borderBottom: '1px solid var(--line)' }}>
+    <header className="app-header" style={{ position: 'sticky', top: 0, zIndex: 60, background: 'rgba(10,12,11,0.82)', backdropFilter: 'blur(18px)', WebkitBackdropFilter: 'blur(18px)', borderBottom: '1px solid var(--line)' }}>
       <a href="#main" className="skip-link" onClick={(e) => focusMain() && e.preventDefault()}>
         {t('a11y.skip')}
       </a>
@@ -97,7 +97,7 @@ export default function Header() {
             <Suspense fallback={<span style={{ width: 40 }} />}>
               <NotificationBell />
             </Suspense>
-            <Link to="/vault" title={user.email} aria-label={t('header.myCollection')} style={{ width: 40, height: 40, borderRadius: '50%', border: '2px solid var(--accent)', background: 'var(--avatar-grad)', color: 'var(--text)', fontWeight: 700, fontSize: 13, display: 'grid', placeItems: 'center', flex: 'none' }}>
+            <Link to="/account" title={user.email} aria-label={t('header.account')} style={{ width: 40, height: 40, borderRadius: '50%', border: '2px solid var(--accent)', background: 'var(--avatar-grad)', color: 'var(--text)', fontWeight: 700, fontSize: 13, display: 'grid', placeItems: 'center', flex: 'none' }}>
               {(user.email || '?').slice(0, 2).toUpperCase()}
             </Link>
             <button

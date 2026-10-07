@@ -66,5 +66,5 @@ writeFileSync(
     PATHS.map((p) => `  <url><loc>${site}${p === '/' ? '/' : p}</loc><lastmod>${today}</lastmod></url>`).join('\n') +
     `\n</urlset>\n`
 );
-writeFileSync('dist/robots.txt', `User-agent: *\nDisallow: /admin\nDisallow: /vault\nDisallow: /orders\nDisallow: /welcome\nAllow: /\n\nSitemap: ${site}/sitemap.xml\n`);
+writeFileSync('dist/robots.txt', `User-agent: *\nDisallow: /admin\nDisallow: /vault\nDisallow: /orders\nDisallow: /welcome\nDisallow: /return\nAllow: /\n\nSitemap: ${site}/sitemap.xml\n`);
 console.log(`prerendered ${n} pages, wrote sitemap.xml and robots.txt`);

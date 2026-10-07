@@ -1,6 +1,7 @@
 // Seller payout setup (Stripe Connect Express). Sales can be listed before
 // this is done; payouts for released orders wait until onboarding completes
 // and are then sent automatically.
+import { openExternal } from '../../lib/native.ts';
 import { useEffect } from 'react';
 import { useSearchParams } from 'react-router';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -32,7 +33,7 @@ export function PayoutsCard() {
     mutationFn: db.startPayoutOnboarding,
     onSuccess: (r) => {
       if (!r.configured) toast(t('pay.off'));
-      else if (r.url) window.location.href = r.url;
+      else if (r.url) void openExternal(r.url);
       else toast(t('pay.failed'));
     },
     onError: () => toast(t('pay.failed'))

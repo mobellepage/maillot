@@ -19,4 +19,6 @@ export const DevelopersPage = lazy(() => import('../features/index/DevelopersPag
 export const OrderPage = lazy(() => import('../features/orders/OrderPage.tsx'));
 export const WelcomePage = lazy(() => import('../features/onboarding/WelcomePage.tsx'));
 export const SellerPage = lazy(() => import('../features/seller/SellerPage.tsx'));
+export const AccountPage = lazy(() => import('../features/account/AccountPage.tsx'));
+export const ReturnPage = lazy(() => import('../features/native/ReturnPage.tsx'));
 export const PublicVaultPage = lazy(() => import('../features/vault/PublicVaultPage.tsx'));

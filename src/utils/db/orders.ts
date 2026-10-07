@@ -1,5 +1,6 @@
 // Orders, escrow transitions, checkout and disputes.
 import { sb } from '../supabase.ts';
+import { isNative } from '../../lib/native.ts';
 import type { RpcReturns } from '../../types/database.ts';
 import type { Dispute, Order } from './types.ts';
 
@@ -52,7 +53,7 @@ export type CheckoutResult = { configured: false; message?: string } | { configu
 // Starts (or resumes) a Stripe Checkout Session via the "checkout" edge
 // function. { configured: false } means payments aren't switched on yet.
 export async function createCheckoutSession(orderId: string): Promise<CheckoutResult> {
-  const { data, error } = await (await sb()).functions.invoke<CheckoutResult>('checkout', { body: { orderId } });
+  const { data, error } = await (await sb()).functions.invoke<CheckoutResult>('checkout', { body: { orderId, app: isNative() } });
   if (error) throw error;
   if (!data) throw new Error('empty checkout response');
   return data;
@@ -124,7 +125,7 @@ export type PayoutLinkResult = { configured: false; message?: string } | { confi
 
 /** Stripe-hosted onboarding (or dashboard) link for the signed-in seller. */
 export async function startPayoutOnboarding(): Promise<PayoutLinkResult> {
-  const { data, error } = await (await sb()).functions.invoke<PayoutLinkResult>('connect-onboarding', { body: {} });
+  const { data, error } = await (await sb()).functions.invoke<PayoutLinkResult>('connect-onboarding', { body: { app: isNative() } });
   if (error) throw error;
   if (!data) throw new Error('empty response');
   return data;

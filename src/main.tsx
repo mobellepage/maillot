@@ -9,6 +9,8 @@ import { loadMessages, type Lang } from './i18n/index.ts';
 import { routes } from './app/router.tsx';
 import { AppProviders } from './app/AppProviders.tsx';
 import { installErrorReporting } from './lib/monitoring.ts';
+import { installNative } from './lib/native.ts';
+import { SITE_URL } from './config/site.ts';
 
 installErrorReporting();
 
@@ -38,4 +40,6 @@ start(lang)
       </StrictMode>
     );
     document.documentElement.removeAttribute('data-lang-pending');
+    // iOS app only: deep links (maillot://…) and the native splash/status bar.
+    void installNative((to) => void router.navigate(to), SITE_URL);
   });

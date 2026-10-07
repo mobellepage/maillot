@@ -1,0 +1,2 @@
+NSCameraUsageDescription = "MAILLOT utilise l’appareil photo pour photographier tes maillots afin de les identifier, les estimer et les authentifier.";
+NSPhotoLibraryUsageDescription = "Choisis des photos de maillots déjà prises.";

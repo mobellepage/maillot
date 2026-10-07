@@ -584,6 +584,10 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
+      account_deletion_blockers: {
+        Args: never;
+        Returns: { open_orders: number }[];
+      };
       catalog_market: {
         Args: never;
         Returns: {
@@ -593,6 +597,10 @@ export type Database = {
           last_sold_at: string | null;
           avg_recent: number | null;
         }[];
+      };
+      prepare_account_deletion: {
+        Args: never;
+        Returns: undefined;
       };
       create_api_key: {
         Args: { p_label: string };

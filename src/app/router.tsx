@@ -22,7 +22,9 @@ import {
   DevelopersPage,
   OrderPage,
   WelcomePage,
-  SellerPage
+  SellerPage,
+  ReturnPage,
+  AccountPage
 } from './pages.tsx';
 
 export const routes: RouteObject[] = [
@@ -103,6 +105,8 @@ export const routes: RouteObject[] = [
           { path: 'verify', element: <VerifyPage /> },
           { path: 'verify/:code', element: <VerifyPage /> },
           { path: 'help', element: <LegalPage doc="help" /> },
+          { path: 'return', element: <ReturnPage /> },
+          { path: 'account', element: <AccountPage /> },
           { path: 'legal/:doc', element: <LegalPage /> },
           { path: '*', element: <Navigate to="/" replace /> }
         ]

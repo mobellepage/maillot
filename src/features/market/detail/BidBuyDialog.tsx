@@ -4,6 +4,7 @@
 import { useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router';
+import { haptic } from '../../../lib/native.ts';
 import type { Shirt } from '../../../data.ts';
 import { buyerCheckoutFees } from '../../../fees.ts';
 import { usePrefs } from '../../../lib/prefs.tsx';
@@ -53,6 +54,7 @@ export function BidBuyDialog({ mode, onClose, shirt, size, lowestAsk, topBid, ma
       db.logEvent(user.id, shirt.id, mode === 'buy' ? 'buy' : 'bid').catch(() => {});
       const order = await db.findOrderForBid(placed.id);
       setResult(order ? { kind: 'matched', orderId: order.id, amount: Number(order.amount) } : { kind: 'live', amount });
+      haptic(order ? 'success' : 'light');
       qc.invalidateQueries({ queryKey: ['orderBook', shirt.id] });
       qc.invalidateQueries({ queryKey: ['orders', user.id] });
     } catch {

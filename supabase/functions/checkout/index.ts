@@ -17,13 +17,15 @@ function json(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), { status, headers: { ...CORS_HEADERS, "Content-Type": "application/json" } });
 }
 
-// Redirect targets come from APP_URL when configured; otherwise the caller's
-// Origin, but only if it's an http(s) origin (never an arbitrary scheme).
-function appOrigin(req: Request) {
-  const configured = Deno.env.get("APP_URL");
-  if (configured) return configured.replace(/\/$/, "");
+// Where Stripe sends people back. On the web: the site they came from, but
+// only our own (or localhost) — never an arbitrary origin. In the iOS app:
+// the site's /return page, which hands over to the app via maillot://.
+function returnUrl(req: Request, path: string, app: boolean) {
+  const site = (Deno.env.get("APP_URL") || "https://maillot-two.vercel.app").replace(/\/$/, "");
+  if (app) return `${site}/return?to=${encodeURIComponent(path)}`;
   const origin = req.headers.get("origin") ?? "";
-  return /^https?:\/\/[^/]+$/.test(origin) ? origin : "http://localhost:5173";
+  const ours = origin === site || /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin) || /^https:\/\/maillot-[a-z0-9-]+\.vercel\.app$/.test(origin);
+  return (ours ? origin : site) + path;
 }
 
 Deno.serve(async (req: Request) => {
@@ -38,8 +40,11 @@ Deno.serve(async (req: Request) => {
   }
 
   let orderId: string | undefined;
+  let app = false;
   try {
-    orderId = (await req.json())?.orderId;
+    const body = await req.json();
+    orderId = body?.orderId;
+    app = body?.app === true;
   } catch {
     return json({ configured: true, error: "Invalid JSON body" }, 400);
   }
@@ -83,7 +88,6 @@ Deno.serve(async (req: Request) => {
   // derived from the hour bucket rather than from "now".
   const bucket = Math.floor(Date.now() / HOUR_MS) * HOUR_MS;
   const total = Number(order.amount) + Number(order.auth_fee) + Number(order.shipping_fee);
-  const origin = appOrigin(req);
   const session = await stripe.checkout.sessions.create(
     {
       mode: "payment",
@@ -107,8 +111,8 @@ Deno.serve(async (req: Request) => {
       metadata: { order_id: order.id },
       payment_intent_data: { metadata: { order_id: order.id } },
       expires_at: Math.floor(Math.min(bucket + 2 * HOUR_MS, deadline) / 1000),
-      success_url: `${origin}/orders?checkout=success&order=${order.id}`,
-      cancel_url: `${origin}/orders?checkout=cancel&order=${order.id}`,
+      success_url: returnUrl(req, `/orders?checkout=success&order=${order.id}`, app),
+      cancel_url: returnUrl(req, `/orders?checkout=cancel&order=${order.id}`, app),
     },
     { idempotencyKey: `checkout-${order.id}-${bucket}` },
   );

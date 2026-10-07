@@ -175,6 +175,25 @@ idempotency key, so retries are safe.
   Performance 100 on /, /market, /shirt/:id and /authentication; FCP 0.7 s,
   LCP 0.8–1.1 s.
 
+## iOS app
+
+The App Store app is this web app in a native shell ([Capacitor](https://capacitorjs.com), `ios/`).
+Native bits live behind `src/lib/native.ts` and load only inside the app.
+
+```
+npm run ios:sync    # build the app bundle (vite --mode native, no service worker) and copy it into ios/
+npm run ios:open    # open ios/App in Xcode → pick your team under Signing → Run / Archive
+```
+
+- Bundle id `ch.maillot.app` (capacitor.config.ts) — final once the first build is uploaded.
+- Stripe checkout and payout onboarding open in an in-app browser sheet; Stripe
+  returns to `<site>/return`, which hands over to the app via `maillot://…`
+  (`appPathFromUrl` only accepts plain in-app paths).
+- Account deletion (App Store guideline 5.1.1(v)): `/account` → edge function
+  `delete-account`. Refused while an order is open; completed orders stay for the
+  books with buyer/seller set to null.
+- Icon and launch screen come from `npm run brand`.
+
 ## Brand assets
 
 `npm run build && npm run brand` regenerates every raster asset from one

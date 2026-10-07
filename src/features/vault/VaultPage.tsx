@@ -16,6 +16,7 @@ import { badgeFor, itemLook, itemName, valueOf } from './model.ts';
 import { useCollection } from './useCollection.ts';
 import { VaultSummary } from './VaultSummary.tsx';
 import { PayoutsCard } from './PayoutsCard.tsx';
+import { shareOrigin } from '../../config/site.ts';
 
 type Tab = 'collection' | 'watchlist' | 'orders';
 const TITLES = { collection: 'vault.title.collection', watchlist: 'vault.title.watchlist', orders: 'vault.title.orders' } as const;
@@ -45,7 +46,12 @@ export default function VaultPage({ tab }: { tab: Tab }) {
         return { id: c.id, name: itemName(c), size: c.size, priceFmt: v !== null ? money(v) : '—', ...look, glowA: glow, isCustom: true, badgeLabel: t(b.label), badgeColor: b.color, badgeBg: 'rgba(255,255,255,0.08)' };
       })
     };
-    const url = location.origin + '/#/vault/' + encodeURIComponent(encodeShareData(payload));
+    const url = shareOrigin() + '/#/vault/' + encodeURIComponent(encodeShareData(payload));
+    // Phones (and the app) get the system share sheet; desktops copy the link.
+    if (navigator.share && matchMedia('(pointer: coarse)').matches) {
+      navigator.share({ title: t('vault.shareTitle', { owner: payload.owner }), url }).catch(() => {});
+      return;
+    }
     navigator.clipboard?.writeText(url).then(
       () => toast(t('vault.linkCopied')),
       () => toast(url)

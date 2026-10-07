@@ -57,6 +57,15 @@ await shoot(img(mark(), 512), 512, 512, 'public/icons/icon-512.png', { transpare
 await shoot(img(mark({ bleed: true, scale: 0.8 }), 512), 512, 512, 'public/icons/maskable-512.png');
 await shoot(img(mark({ bleed: true, scale: 0.9 }), 180), 180, 180, 'public/icons/apple-touch-icon.png');
 
+// iOS app (ios/): App Store icon — square, opaque, iOS rounds it — and the
+// launch screen (the mark centred on ink; one image serves every scale).
+if (existsSync('ios/App/App/Assets.xcassets')) {
+  await shoot(img(mark({ bleed: true, scale: 0.9 }), 1024), 1024, 1024, 'ios/App/App/Assets.xcassets/AppIcon.appiconset/AppIcon-512@2x.png');
+  const splash = 'ios/App/App/Assets.xcassets/Splash.imageset/splash-2732x2732.png';
+  await shoot(`<div style="width:2732px;height:2732px;display:grid;place-items:center">${img(mark(), 300)}</div>`, 2732, 2732, splash);
+  for (const n of [1, 2]) writeFileSync(splash.replace('.png', `-${n}.png`), readFileSync(splash));
+}
+
 // Link previews (1200×630).
 const { shirtArt, PATHS } = await import('../dist-ssr/entry-server.js');
 const logo = `<div style="display:flex;align-items:center;gap:16px">${img(mark(), 52)}<span style="font-weight:800;font-stretch:78%;font-size:40px;letter-spacing:.03em;color:var(--text)">MAILLOT</span></div>`;
@@ -103,4 +112,4 @@ for (const path of PATHS.filter((p) => p.startsWith('/shirt/'))) {
 
 await browser.close();
 server.close();
-console.log(`wrote favicon.svg, 4 icons, og/default.jpg and ${n} shirt previews`);
+console.log(`wrote favicon.svg, 4 icons (+ iOS icon and splash), og/default.jpg and ${n} shirt previews`);

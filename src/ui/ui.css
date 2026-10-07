@@ -785,7 +785,23 @@ html[data-first-load] #root * {
   }
   .dialog-panel {
     border-radius: 24px 24px 0 0 !important;
+    padding-bottom: calc(28px + env(safe-area-inset-bottom)) !important;
   }
+}
+
+/* ---------- notch and home indicator (iPhone app, full-screen web) ---------- */
+.app-header {
+  padding-top: env(safe-area-inset-top);
+}
+/* In the iOS app: feel like an app, not a web page. */
+html[data-native] {
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior-y: none;
+}
+html[data-native] :where(a, button, img, svg) {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 /* ---------- responsive helpers ---------- */
@@ -794,7 +810,7 @@ html[data-first-load] #root * {
 }
 @media (max-width: 759px) {
   :root {
-    --mobile-nav: 76px;
+    --mobile-nav: calc(76px + env(safe-area-inset-bottom));
   }
   .hide-mobile {
     display: none !important;

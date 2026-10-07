@@ -14,6 +14,7 @@ import { INSPECTION_CHECKLIST, type ChecklistVersion } from '../../config/inspec
 import { useCatalog } from '../catalog/useCatalog.ts';
 import { Button, Card, Notice, Page, ShirtGraphic, Skeleton, TextField } from '../../ui/index.ts';
 import { QrCode } from '../../ui/QrCode.tsx';
+import { shareOrigin } from '../../config/site.ts';
 
 function CodeForm({ initial = '' }: { initial?: string }) {
   const { t } = usePrefs();
@@ -62,7 +63,7 @@ export default function VerifyPage() {
   const shirt = c?.shirt_id ? BY[c.shirt_id] : undefined;
   const version = ((c?.checks as { checklist?: string } | null)?.checklist ?? 'v1') as ChecklistVersion;
   const checklist = INSPECTION_CHECKLIST[version] ?? INSPECTION_CHECKLIST.v1;
-  const url = typeof window !== 'undefined' ? `${window.location.origin}/verify/${c?.code ?? code}` : '';
+  const url = `${shareOrigin()}/verify/${c?.code ?? code}`;
 
   return (
     <Page style={{ maxWidth: 820 }}>

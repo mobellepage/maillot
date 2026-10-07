@@ -3,9 +3,11 @@ import { defineConfig } from 'vite'
 import { VitePWA } from 'vite-plugin-pwa'
 
 // https://vite.dev/config/
-export default defineConfig({
-  // Which build an error report came from (Vercel and GitHub set the commit).
-  define: { __RELEASE__: JSON.stringify((process.env.VERCEL_GIT_COMMIT_SHA || process.env.GITHUB_SHA || 'dev').slice(0, 12)) },
+// `vite build --mode native` builds the iOS app's bundle (npm run ios:sync).
+export default defineConfig(({ mode }) => ({
+  // Which build an error report came from (Vercel and GitHub set the commit;
+  // the app build passes its version).
+  define: { __RELEASE__: JSON.stringify((process.env.VERCEL_GIT_COMMIT_SHA || process.env.GITHUB_SHA || process.env.APP_RELEASE || 'dev').slice(0, 12)) },
   plugins: [
     react(),
     // Installable PWA shell: precaches the built app (JS/CSS/HTML/icons) so
@@ -14,6 +16,8 @@ export default defineConfig({
     // (auth, orders, prices etc.) — those must always hit the network live,
     // same as the web app today, so nobody ever sees stale escrow/price data.
     VitePWA({
+      // The iOS app ships its files inside the app; a service worker can't run there.
+      disable: mode === 'native',
       registerType: 'autoUpdate',
       // Registering the service worker must never hold up the first paint.
       injectRegister: 'script-defer',
@@ -50,4 +54,4 @@ export default defineConfig({
     // Unit tests only; e2e/ is Playwright's.
     include: ['src/**/*.test.{js,jsx}']
   }
-})
+}))

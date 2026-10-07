@@ -1,5 +1,6 @@
 // The signed-in user's orders (as buyer or seller) and the escrow actions.
 // Every action is a server RPC that re-checks role + status (see db.ts).
+import { openExternal } from '../../lib/native.ts';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import * as db from '../../utils/db.ts';
 import { useSession } from '../../lib/session.tsx';
@@ -44,7 +45,7 @@ export function useOrderActions() {
       mutationFn: (orderId: string) => db.createCheckoutSession(orderId),
       onSuccess: (res) => {
         if (!res.configured) toast(res.message || t('toast.paymentsNotConfigured'));
-        else if (res.url) window.location.href = res.url;
+        else if (res.url) void openExternal(res.url);
         else toast(res.error || t('toast.paymentStartFailed'));
       },
       onError: fail('toast.paymentStartFailed')

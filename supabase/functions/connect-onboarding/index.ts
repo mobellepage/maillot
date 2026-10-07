@@ -12,11 +12,15 @@ const CORS = {
 };
 const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status, headers: { ...CORS, "Content-Type": "application/json" } });
 
-function appOrigin(req: Request) {
-  const configured = Deno.env.get("APP_URL");
-  if (configured) return configured.replace(/\/$/, "");
+// Where Stripe sends people back. On the web: the site they came from, but
+// only our own (or localhost) — never an arbitrary origin. In the iOS app:
+// the site's /return page, which hands over to the app via maillot://.
+function returnUrl(req: Request, path: string, app: boolean) {
+  const site = (Deno.env.get("APP_URL") || "https://maillot-two.vercel.app").replace(/\/$/, "");
+  if (app) return `${site}/return?to=${encodeURIComponent(path)}`;
   const origin = req.headers.get("origin") ?? "";
-  return /^https?:\/\/[^/]+$/.test(origin) ? origin : "http://localhost:5173";
+  const ours = origin === site || /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin) || /^https:\/\/maillot-[a-z0-9-]+\.vercel\.app$/.test(origin);
+  return (ours ? origin : site) + path;
 }
 
 Deno.serve(async (req: Request) => {
@@ -46,7 +50,7 @@ Deno.serve(async (req: Request) => {
     const login = await stripe.accounts.createLoginLink(account);
     return json({ configured: true, url: login.url, kind: "dashboard" });
   }
-  const origin = appOrigin(req);
-  const link = await stripe.accountLinks.create({ account, type: "account_onboarding", refresh_url: origin + "/vault?payouts=retry", return_url: origin + "/vault?payouts=done" });
+  const app = (await req.json().catch(() => null))?.app === true;
+  const link = await stripe.accountLinks.create({ account, type: "account_onboarding", refresh_url: returnUrl(req, "/vault?payouts=retry", app), return_url: returnUrl(req, "/vault?payouts=done", app) });
   return json({ configured: true, url: link.url, kind: "onboarding" });
 });

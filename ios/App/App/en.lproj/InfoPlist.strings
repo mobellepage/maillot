@@ -1,0 +1,2 @@
+NSCameraUsageDescription = "MAILLOT uses the camera to photograph your shirts, so they can be identified, valued and authenticated.";
+NSPhotoLibraryUsageDescription = "Choose shirt photos you already took.";
