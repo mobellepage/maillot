@@ -30,7 +30,10 @@ const checkInlineScripts = (page, path) => {
 };
 
 const esc = (s) => s.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
-const site = (process.env.SITE_URL || 'https://maillot.app').replace(/\/$/, '');
+// Absolute URLs for link previews, canonical and sitemap: SITE_URL once there's
+// a custom domain, else the project's production address Vercel provides.
+const vercelUrl = process.env.VERCEL_PROJECT_PRODUCTION_URL && 'https://' + process.env.VERCEL_PROJECT_PRODUCTION_URL;
+const site = (process.env.SITE_URL || vercelUrl || 'https://maillot.app').replace(/\/$/, '');
 // Link previews: each shirt has its own image (npm run brand), everything else the default.
 const ogImage = (path) => {
   const own = path.startsWith('/shirt/') && `/og/shirt/${path.slice('/shirt/'.length)}.jpg`;

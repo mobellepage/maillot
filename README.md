@@ -163,7 +163,7 @@ idempotency key, so retries are safe.
 - **Prerendered public pages.** `npm run build` also renders the public routes
   (home, market, every shirt, trust and legal pages — `src/entry-server.tsx`)
   to static HTML via `scripts/prerender.mjs`, with per-page title, description
-  and Open Graph tags, plus `sitemap.xml` and `robots.txt` (set `SITE_URL`).
+  and Open Graph tags, plus `sitemap.xml` and `robots.txt` (`SITE_URL`, else the Vercel production URL).
   Those pages inline their CSS and load JS at low priority; React takes over
   without a visible change. Signed-in routes fall back to the empty shell
   `app.html` (also the service worker's navigation fallback).
@@ -266,6 +266,10 @@ Admin rights only apply to sessions verified with that second factor (`aal2`).
   packages; Dependabot and CodeQL run weekly.
 
 ## Hosting
+
+Production: https://maillot-two.vercel.app — Vercel project `maillot`, every
+push to `main` deploys. Build env: `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`
+(publishable key); optional `SITE_URL` once a custom domain is attached.
 
 Single-page app with path routing (`/shirt/:id`, `/orders`, …): the host must
 serve `app.html` for unknown paths (prerendered pages are served as-is).
