@@ -1124,6 +1124,21 @@ export const en = {
   'val.updated': 'Updated {date}',
   'val.askNote': 'Asking prices on other marketplaces; shirts usually sell for less.',
   'ver.addToWallet': 'Add to Apple Wallet',
+  'notif.moveUp.title': 'Your shirt went up',
+  'notif.moveUp.body': '{shirt} is up {pct}% this week — now worth about {amount}.',
+  'notif.moveDown.title': 'Your shirt went down',
+  'notif.moveDown.body': '{shirt} is down {pct}% this week — now worth about {amount}.',
+  'vault.thisWeek': '{amount} ({pct}) in 7 days',
+  'vault.movers': 'Biggest moves this week',
+  'vault.shareImage': 'Share as picture',
+  'vault.cardMine': 'My shirt collection',
+  'vault.cardOf': '@{handle}’s collection',
+  'vault.cardCount.one': '{n} shirt',
+  'vault.cardCount.other': '{n} shirts',
+  'vault.cardFooter': 'What are your shirts worth?',
+  'vault.cardText': 'My shirt collection on MAILLOT',
+  'vault.cardSaved': 'Picture saved — share it wherever you like.',
+  'vault.cardFailed': 'The picture couldn’t be created. Please try again.',
   // @@end
 };
 

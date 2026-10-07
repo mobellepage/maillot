@@ -209,6 +209,16 @@ sort them into exact / related / unrelated. Secrets: `EBAY_CLIENT_ID`,
 Sold prices (eBay Marketplace Insights) need eBay's approval; the table and
 valuation already accept `kind = 'sold'`.
 
+## Collection as a portfolio
+
+`shirt_value_history` keeps each shirt's market value per day (written by a
+trigger whenever `shirt_valuations` changes). The collection shows how it moved
+in the last 7 days and its biggest movers (`features/vault/moves.ts`); every
+Monday `notify_collection_movers` tells owners and watchers about shirts that
+moved 10 % or more (in-app and by email, once per shirt per week).
+"Share as picture" draws a 1080×1350 card (total value, count, top three) in
+the browser and hands it to the share sheet.
+
 ## Apple Wallet certificates
 
 `wallet-pass` turns a certificate (`/verify/MLT-…`) into a signed `.pkpass`:

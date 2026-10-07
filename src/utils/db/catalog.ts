@@ -41,3 +41,12 @@ export async function loadComps(shirtId: string): Promise<CompRow[]> {
   if (error) throw error;
   return data || [];
 }
+
+/** Daily market values of the given shirts since `days` ago (for collection moves). */
+export async function loadValueHistory(shirtIds: string[], days = 35): Promise<Tables<'shirt_value_history'>[]> {
+  if (!shirtIds.length) return [];
+  const since = new Date(Date.now() - days * 864e5).toISOString().slice(0, 10);
+  const { data, error } = await (await sb()).from('shirt_value_history').select('catalog_id, day, value').in('catalog_id', shirtIds).gte('day', since).order('day');
+  if (error) throw error;
+  return data || [];
+}

@@ -684,6 +684,24 @@ export type Database = {
         };
         Relationships: [];
       };
+      shirt_value_history: {
+        Row: {
+          catalog_id: string;
+          day: string;
+          value: number;
+        };
+        Insert: {
+          catalog_id?: string;
+          day?: string;
+          value?: number;
+        };
+        Update: {
+          catalog_id?: string;
+          day?: string;
+          value?: number;
+        };
+        Relationships: [];
+      };
       shirt_valuations: {
         Row: {
           catalog_id: string;

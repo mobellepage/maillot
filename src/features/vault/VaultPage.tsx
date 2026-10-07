@@ -16,14 +16,15 @@ import { badgeFor, itemLook, itemName, valueOf } from './model.ts';
 import { useCollection } from './useCollection.ts';
 import { VaultSummary } from './VaultSummary.tsx';
 import { PayoutsCard } from './PayoutsCard.tsx';
-import { shareOrigin } from '../../config/site.ts';
+import { SITE_URL, shareOrigin } from '../../config/site.ts';
+import { mainColor, renderCard, shareCard } from './shareCard.ts';
 
 type Tab = 'collection' | 'watchlist' | 'orders';
 const TITLES = { collection: 'vault.title.collection', watchlist: 'vault.title.watchlist', orders: 'vault.title.orders' } as const;
 
 export default function VaultPage({ tab }: { tab: Tab }) {
   useCatalog(); // re-render when the live catalogue loads
-  const { money, t, locale } = usePrefs();
+  const { money, t, tp, locale } = usePrefs();
   usePageMeta(t(TITLES[tab]));
   const { user, profile } = useSession();
   const handle = profile?.handle ? '@' + profile.handle : null;
@@ -56,6 +57,26 @@ export default function VaultPage({ tab }: { tab: Tab }) {
       () => toast(t('vault.linkCopied')),
       () => toast(url)
     );
+  };
+
+  // A picture for stories and chats: total value, count and the top three.
+  const shareImage = async () => {
+    const valued = items.map((c) => ({ c, v: valueOf(c) ?? 0 })).sort((a, b) => b.v - a.v);
+    const total = valued.reduce((a, x) => a + x.v, 0);
+    try {
+      const blob = await renderCard({
+        eyebrow: handle ? t('vault.cardOf', { handle }) : t('vault.cardMine'),
+        total: money(total),
+        count: tp('vault.cardCount', items.length),
+        shirts: valued.slice(0, 3).map(({ c, v }) => ({ name: itemName(c), valueText: money(v), color: mainColor(itemLook(c).look.pat) })),
+        footer: t('vault.cardFooter'),
+        site: SITE_URL.replace(/^https?:\/\//, '')
+      });
+      const how = await shareCard(blob, t('vault.cardText'));
+      if (how === 'downloaded') toast(t('vault.cardSaved'));
+    } catch (e) {
+      if ((e as Error)?.name !== 'AbortError') toast(t('vault.cardFailed'));
+    }
   };
 
   // Guests can keep a watchlist too (stored in this browser).
@@ -100,6 +121,9 @@ export default function VaultPage({ tab }: { tab: Tab }) {
         </div>
         <Button variant="ghost" onClick={share} disabled={!items.length}>
           {t('vault.share')}
+        </Button>
+        <Button variant="secondary" onClick={shareImage} disabled={!items.length}>
+          {t('vault.shareImage')}
         </Button>
         <ButtonLink to="/vault/add">{t('vault.add')}</ButtonLink>
       </div>

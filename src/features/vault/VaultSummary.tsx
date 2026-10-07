@@ -1,8 +1,11 @@
+import { useQuery } from '@tanstack/react-query';
 import { pct } from '../../data.ts';
 import { usePrefs } from '../../lib/prefs.tsx';
 import type { CustomItem } from '../../types/domain.ts';
+import * as db from '../../utils/db.ts';
 import { Card } from '../../ui/index.ts';
-import { valueOf } from './model.ts';
+import { itemName, valueOf } from './model.ts';
+import { weeklyMoves } from './moves.ts';
 
 export function VaultSummary({ items, watching }: { items: CustomItem[]; watching: number }) {
   const { money, t } = usePrefs();
@@ -18,6 +21,11 @@ export function VaultSummary({ items, watching }: { items: CustomItem[]; watchin
     [t('badge.self'), count((c) => c.verification.level === 'self' && !inReview(c)), 'var(--muted)']
   ];
   const total = Math.max(1, items.length);
+  // Like a portfolio: how the collection moved this week, and what moved most.
+  const ids = [...new Set(items.map((c) => c.catalogId).filter((x): x is string => !!x))].sort();
+  const history = useQuery({ queryKey: ['valueHistory', ids], queryFn: () => db.loadValueHistory(ids), enabled: ids.length > 0, staleTime: 30 * 60 * 1000 });
+  const week = history.data ? weeklyMoves(items.map((c) => ({ id: c.id, catalogId: c.catalogId, name: itemName(c), value: valueOf(c) })), history.data) : null;
+  const signed = (n: number) => (n >= 0 ? '+' : '−') + money(Math.abs(n));
 
   return (
     <div style={{ display: 'flex', flexWrap: 'wrap', gap: 16, marginTop: 32 }}>
@@ -32,8 +40,28 @@ export function VaultSummary({ items, watching }: { items: CustomItem[]; watchin
           <div className="mono" style={{ fontSize: 15, color: up ? 'var(--accent)' : 'var(--neg)', marginTop: 6 }}>
             {t('vault.sinceAdded', { amount: (up ? '+' : '−') + money(Math.abs(now - added)), pct: pct(added ? ((now - added) / added) * 100 : 0) })}
           </div>
+          {week && Math.abs(week.change) >= 1 && (
+            <div className="mono" style={{ fontSize: 15, color: week.change >= 0 ? 'var(--accent)' : 'var(--neg)', marginTop: 4 }}>
+              {t('vault.thisWeek', { amount: signed(week.change), pct: pct(week.pct) })}
+            </div>
+          )}
           <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 6 }}>{t('vault.estimateNote')}</div>
         </div>
+        {week && week.movers.length > 0 && (
+          <div>
+            <div style={{ fontSize: 12, color: 'var(--muted)', marginBottom: 6 }}>{t('vault.movers')}</div>
+            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'grid', gap: 6 }}>
+              {week.movers.map((m) => (
+                <li key={m.id} style={{ display: 'flex', justifyContent: 'space-between', gap: 10, fontSize: 13.5 }}>
+                  <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{m.name}</span>
+                  <span className="mono" style={{ color: m.pct >= 0 ? 'var(--accent)' : 'var(--neg)', flex: 'none' }}>
+                    {pct(m.pct)}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
           <div className="tile">
             <div className="mono" style={{ fontSize: 20, fontWeight: 700 }}>
