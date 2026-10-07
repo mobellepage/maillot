@@ -1124,5 +1124,6 @@ export const fr: Messages = {
   'val.view': 'Voir',
   'val.updated': 'Mis à jour {date}',
   'val.askNote': 'Prix demandés sur d’autres plateformes ; les maillots se vendent généralement moins cher.',
+  'ver.addToWallet': 'Ajouter à Apple Wallet',
   // @@end
 };

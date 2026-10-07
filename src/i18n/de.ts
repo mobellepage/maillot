@@ -1124,5 +1124,6 @@ export const de: Messages = {
   'val.view': 'Ansehen',
   'val.updated': 'Aktualisiert {date}',
   'val.askNote': 'Angebotspreise auf anderen Plattformen; verkauft wird meist günstiger.',
+  'ver.addToWallet': 'Zu Apple Wallet hinzufügen',
   // @@end
 };

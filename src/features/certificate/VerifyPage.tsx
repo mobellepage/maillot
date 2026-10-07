@@ -15,6 +15,7 @@ import { useCatalog } from '../catalog/useCatalog.ts';
 import { Button, Card, Notice, Page, ShirtGraphic, Skeleton, TextField } from '../../ui/index.ts';
 import { QrCode } from '../../ui/QrCode.tsx';
 import { shareOrigin } from '../../config/site.ts';
+import { WalletButton } from './WalletButton.tsx';
 
 function CodeForm({ initial = '' }: { initial?: string }) {
   const { t } = usePrefs();
@@ -104,6 +105,11 @@ export default function VerifyPage() {
             <Notice tone="info" style={{ marginTop: 14 }}>
               {t('ver.tagMatch')}
             </Notice>
+          )}
+          {!c.revoked && (
+            <div style={{ marginTop: 16 }}>
+              <WalletButton code={c.code} />
+            </div>
           )}
           <Card style={{ marginTop: 20, display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(240px,1fr))', gap: 24, alignItems: 'center' }}>
             <div style={{ display: 'grid', placeItems: 'center', minHeight: 220 }}>

@@ -1123,6 +1123,7 @@ export const en = {
   'val.view': 'View',
   'val.updated': 'Updated {date}',
   'val.askNote': 'Asking prices on other marketplaces; shirts usually sell for less.',
+  'ver.addToWallet': 'Add to Apple Wallet',
   // @@end
 };
 

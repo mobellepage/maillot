@@ -209,6 +209,20 @@ sort them into exact / related / unrelated. Secrets: `EBAY_CLIENT_ID`,
 Sold prices (eBay Marketplace Insights) need eBay's approval; the table and
 valuation already accept `kind = 'sold'`.
 
+## Apple Wallet certificates
+
+`wallet-pass` turns a certificate (`/verify/MLT-…`) into a signed `.pkpass`:
+shirt, club, season, size, inspection date and a QR code back to the public
+certificate page; a revoked certificate's pass is shown void. The button
+("Add to Apple Wallet") appears on Apple devices and in the iOS app once the
+function reports `configured` (`?probe=1`).
+
+Secrets (Apple Developer → Certificates → Pass Type IDs):
+`PASS_TYPE_ID` (e.g. `pass.ch.maillot.certificate`), `APPLE_TEAM_ID`,
+`PASS_CERT_PEM`, `PASS_KEY_PEM` (+ `PASS_KEY_PASSPHRASE` if encrypted),
+`APPLE_WWDR_PEM` (Apple's WWDR intermediate). The PKCS#7 signing is
+unit-tested end to end, verified with OpenSSL against a test CA.
+
 ## iOS app
 
 The App Store app is this web app in a native shell ([Capacitor](https://capacitorjs.com), `ios/`).
