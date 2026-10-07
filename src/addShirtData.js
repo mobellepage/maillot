@@ -3,8 +3,6 @@
 // translated for display through opt.<value> messages.
 // Kept separate from data.js (the market/catalogue data) since this is specific to
 // the self-cataloguing wizard.
-import { SHIRTS } from './data.ts';
-
 export const VERSIONS = ['Fan-Replica', 'Player-Issue / Authentic', 'Match-Issued', 'Match-Worn', 'Unbekannt'];
 
 export const SLEEVES = ['Kurzarm', 'Langarm'];
@@ -35,31 +33,6 @@ export const PATCH_LIBRARY = {
 export function patchOptionsFor(league) {
   const specific = (league && PATCH_LIBRARY[league]) || [];
   return [...specific, ...PATCH_LIBRARY._generic];
-}
-
-// Turns raw OCR text from the product-code label photo into a best-guess catalog
-// match, using the same word-overlap approach as the manual search box. This is a
-// real (if imperfect) text match against actual catalog data — not a simulated result.
-export function matchCatalogFromOcrText(text) {
-  const words = (text || '')
-    .toLowerCase()
-    .replace(/[^a-z0-9äöüéèê]+/g, ' ')
-    .split(/\s+/)
-    .filter((w) => w.length >= 3);
-  if (!words.length) return { item: null, confidence: 0, words };
-
-  let best = null;
-  let bestHits = 0;
-  for (const s of SHIRTS) {
-    const hits = words.filter((w) => s.hay.includes(w)).length;
-    if (hits > bestHits) {
-      bestHits = hits;
-      best = s;
-    }
-  }
-  if (!best || bestHits === 0) return { item: null, confidence: 0, words };
-  const confidence = Math.max(0, Math.min(1, bestHits / Math.max(2, words.length * 0.5)));
-  return { item: best, confidence, words };
 }
 
 // label/desc are message keys (as.grade.N / as.grade.N.desc).

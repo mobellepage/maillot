@@ -71,3 +71,6 @@ verify_jwt = true
 
 [functions.delete-account]
 verify_jwt = true
+
+[functions.identify-shirt]
+verify_jwt = true

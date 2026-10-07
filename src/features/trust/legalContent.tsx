@@ -201,14 +201,21 @@ export const DOCS: Record<LegalDoc, { title: string; intro?: string; sections: S
               'Supabase — database, authentication and server functions, hosted in Zürich (eu-central-2).',
               'Stripe — payment processing (card, TWINT, Apple Pay).',
               'Resend — sending transactional emails such as order updates.',
+              'Anthropic (Claude, USA) — recognising shirts from the photos you take for that purpose; see “Photo recognition”.',
               'Frankfurter (ECB reference rates) — currency conversion; your browser requests the rates, no account data is sent.'
             ]}
           />
         )
       },
       {
-        h: 'Label scans',
-        body: <P>When you scan a shirt label, the text recognition runs entirely in your browser. The scan photo is not uploaded unless you save it to your collection.</P>
+        h: 'Photo recognition',
+        body: (
+          <P>
+            When you photograph a shirt to have it recognised, the photo is sent from our server to Anthropic, which processes it for us to name the shirt, read the label and
+            describe the visible condition. Anthropic doesn’t use it to train its models. We keep the result (shirt, season, condition notes), not the photo — unless you save the
+            photo to your collection. Recognition is optional: you can always pick the shirt yourself. The transfer to the USA is covered by standard contractual clauses.
+          </P>
+        )
       },
       {
         h: 'Cookies and local storage',
@@ -223,8 +230,8 @@ export const DOCS: Record<LegalDoc, { title: string; intro?: string; sections: S
         h: 'Retention',
         body: (
           <P>
-            Account and collection data are kept while your account exists. Order records are kept for 10 years as required for accounting. You can ask us to delete your account at
-            any time.
+            Account and collection data are kept while your account exists. Order records are kept for 10 years as required for accounting. You can delete your account at any
+            time under Account → Delete account: your profile, collection, photos, bids and listings are erased; completed orders stay for the books without your name.
           </P>
         )
       },

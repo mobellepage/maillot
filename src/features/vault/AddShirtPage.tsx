@@ -24,7 +24,7 @@ const STEPS = ['as.step.scan', 'as.step.shirt', 'as.step.details', 'as.step.phot
 
 export default function AddShirtPage() {
   useCatalog(); // re-render when the live catalogue loads
-  const { t } = usePrefs();
+  const { t, lang } = usePrefs();
   usePageMeta(t('as.meta'));
   const { user } = useSession();
   const w = useAddShirtForm(user?.id);
@@ -111,10 +111,17 @@ export default function AddShirtPage() {
         ))}
       </ol>
 
-      {f.step === 0 && <ScanStep w={w} busy={busyKey === 'product_code'} valuation={valuation} onScanFile={async (file) => {
-            const p = await capture('product_code', file, t('as.photo.product_code'));
-            if (p) w.runScan(p);
-          }} />}
+      {f.step === 0 && (
+        <ScanStep
+          w={w}
+          busyKey={busyKey}
+          valuation={valuation}
+          onScanFile={async (key, file) => {
+            const p = await capture(key, file, t('as.photo.' + key));
+            if (p) void w.runScan(key, p, lang, (k) => t('kit.' + k));
+          }}
+        />
+      )}
       {f.step === 1 && <IdentifyStep w={w} />}
       {f.step === 2 && <DetailsStep w={w} />}
       {f.step === 3 && <PhotosStep w={w} busyKey={busyKey} onPhoto={async (spec, file) => {

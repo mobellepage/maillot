@@ -175,6 +175,20 @@ idempotency key, so retries are safe.
   Performance 100 on /, /market, /shirt/:id and /authentication; FCP 0.7 s,
   LCP 0.8–1.1 s.
 
+## Photo recognition
+
+`identify-shirt` (edge function) sends the member's front and inner-label photos
+to Claude (`claude-opus-5-5`, structured JSON output, server-side refusal
+fallback) together with the catalogue, and returns club, season, kit, article
+code, print, edition, visible condition and authenticity notes. The add-shirt
+wizard and the sell flow prefill from it (`src/features/identify/prefill.ts`) —
+only confident matches (≥ 0.6) pick a catalogue shirt, and nothing the member
+already chose is overwritten. Notes it raises feed the pre-check.
+
+- Secret: `ANTHROPIC_API_KEY` (until it's set the flows fall back to search).
+- 20 recognitions per member per hour, 2,000 overall (`consume_identify_quota`).
+- Photos aren't stored by the function; results go to `shirt_identifications`.
+
 ## iOS app
 
 The App Store app is this web app in a native shell ([Capacitor](https://capacitorjs.com), `ios/`).

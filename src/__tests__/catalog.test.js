@@ -1,19 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { matchCatalogFromOcrText, estimateValue } from '../addShirtData.js';
+import { estimateValue } from '../addShirtData.js';
 import { BY } from '../data.ts';
-
-describe('matchCatalogFromOcrText', () => {
-  it('matches label text to the right catalogue item', () => {
-    expect(matchCatalogFromOcrText('Germany 2026 Home Adidas').item.id).toBe('ger-26');
-    expect(matchCatalogFromOcrText('NETHERLANDS 1988 HOME adidas').item.id).toBe('ned-88');
-  });
-
-  it('reports full confidence for a clean label and none for noise', () => {
-    expect(matchCatalogFromOcrText('Germany 2026 Home Adidas').confidence).toBe(1);
-    expect(matchCatalogFromOcrText('qq zz 12')).toMatchObject({ item: null, confidence: 0 });
-    expect(matchCatalogFromOcrText('')).toMatchObject({ item: null, confidence: 0 });
-  });
-});
 
 describe('estimateValue', () => {
   const base = { catalogItem: BY['ger-26'], version: 'Fan-Replica', conditionGrade: 10, flock: { source: 'Keine' }, patches: [], signature: { signed: false } };

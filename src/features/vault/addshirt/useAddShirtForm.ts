@@ -2,22 +2,23 @@
 // stays out of server state; only the finished item is saved. The draft
 // (minus photos) survives reloads in localStorage.
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { matchCatalogFromOcrText } from '../../../addShirtData.js';
-import { enqueueReview, findReview, removePhotos } from '../../../utils/db.ts';
+import { SIZE_GROUPS } from '../../../addShirtData.js';
+import { enqueueReview, findReview, identifyShirt, removePhotos, type Identification } from '../../../utils/db.ts';
 import { loadJSON, saveJSON } from '../../../utils/storage.ts';
-import { readLabelText } from '../../../utils/ocr.ts';
 import { useLive } from '../../../lib/realtime.ts';
-import { precheck, SCAN_AUTO_MATCH_THRESHOLD } from './precheck.ts';
+import { precheck } from './precheck.ts';
+import { wizardPatch } from '../../identify/prefill.ts';
 import type { Condition, Flock, Photo, Precheck, Review, Signature, Verification, Visibility } from '../../../types/domain.ts';
 export { precheck } from './precheck.ts';
 
 const DRAFT_KEY = 'kv_add_shirt_draft_v1';
 
 export interface ScanState {
-  status: 'idle' | 'scanning' | 'done' | 'error';
-  ocrText: string;
+  /** off: recognition isn't switched on; limited: too many tries this hour. */
+  status: 'idle' | 'scanning' | 'done' | 'error' | 'off' | 'limited';
   confidence: number;
   matchId: string | null;
+  result: Identification | null;
 }
 
 export interface AddShirtForm {
@@ -52,7 +53,7 @@ function emptyForm(): AddShirtForm {
   return {
     step: 0,
     draftId: 'draft-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7),
-    scan: { status: 'idle', ocrText: '', confidence: 0, matchId: null },
+    scan: { status: 'idle', confidence: 0, matchId: null, result: null },
     catalogId: null,
     proposed: false,
     proposedClub: '',
@@ -80,7 +81,7 @@ function emptyForm(): AddShirtForm {
 export function useAddShirtForm(userId: string | undefined) {
   const [f, setRaw] = useState<AddShirtForm>(() => {
     const draft = loadJSON<Partial<AddShirtForm> | null>(DRAFT_KEY, null);
-    // Uploaded photos persist as storage paths; the OCR scan result doesn't,
+    // Uploaded photos persist as storage paths; the recognition result doesn't,
     // so a resumed draft rewinds to the scan step.
     return draft ? { ...emptyForm(), ...draft, precheck: null, scan: emptyForm().scan, step: 0 } : emptyForm();
   });
@@ -136,22 +137,31 @@ export function useAddShirtForm(userId: string | undefined) {
         return { photos: p };
       }),
     togglePatch: (p: string) => set((s) => ({ patches: s.patches.includes(p) ? s.patches.filter((x) => x !== p) : [...s.patches, p] })),
-    runScan: async (photo: Photo & { dataUrl: string }) => {
+    /**
+     * Stores a front or label photo and recognises the shirt from every photo
+     * taken so far (front + inner label together work best). The result
+     * prefills the wizard without overriding what the member already chose.
+     */
+    runScan: async (key: 'front' | 'product_code', photo: Photo & { dataUrl: string }, lang: string, kitLabel: (kit: string) => string) => {
       const token = ++scanToken.current;
-      set((s) => ({ photos: { ...s.photos, product_code: photo }, scan: { status: 'scanning', ocrText: '', confidence: 0, matchId: null } }));
+      const photos = { ...f.photos, [key]: photo };
+      set((s) => ({ photos: { ...s.photos, [key]: photo }, scan: { ...s.scan, status: 'scanning' } }));
+      const images = (['front', 'product_code'] as const)
+        .filter((k) => photos[k]?.dataUrl)
+        .map((k) => ({ kind: k === 'front' ? ('front' as const) : ('label' as const), dataUrl: photos[k]!.dataUrl! }));
       try {
-        const text = await readLabelText(photo.dataUrl);
+        const r = await identifyShirt(images, lang);
         if (scanToken.current !== token) return;
-        const { item, confidence } = matchCatalogFromOcrText(text);
-        const confident = !!item && confidence >= SCAN_AUTO_MATCH_THRESHOLD;
+        if (!r.ok) {
+          set((s) => ({ scan: { ...s.scan, status: r.reason === 'off' ? 'off' : r.reason === 'rate_limited' ? 'limited' : 'error' } }));
+          return;
+        }
         set((s) => ({
-          scan: { status: 'done', ocrText: text, confidence, matchId: item ? item.id : null },
-          catalogId: confident ? item!.id : s.catalogId,
-          proposed: confident ? false : s.proposed,
-          searchQ: confident ? item!.name : s.searchQ
+          ...wizardPatch(r.result, s, kitLabel, (g) => SIZE_GROUPS[g as keyof typeof SIZE_GROUPS] ?? []),
+          scan: { status: 'done', confidence: r.result.confidence, matchId: r.result.catalogId, result: r.result }
         }));
       } catch {
-        if (scanToken.current === token) set({ scan: { status: 'error', ocrText: '', confidence: 0, matchId: null } });
+        if (scanToken.current === token) set((s) => ({ scan: { ...s.scan, status: 'error' } }));
       }
     },
     runPrecheck: () =>

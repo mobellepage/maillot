@@ -2,12 +2,11 @@
 import type { Precheck } from '../../../types/domain.ts';
 import type { AddShirtForm } from './useAddShirtForm.ts';
 
-// Below this word-overlap confidence a scan is "found some text" rather than a match.
-export const SCAN_AUTO_MATCH_THRESHOLD = 0.34;
+import { AI_MATCH_THRESHOLD } from '../../identify/prefill.ts';
 
 type Input = Pick<AddShirtForm, 'photos' | 'scan' | 'catalogId' | 'version' | 'proposed'>;
 
-/** Pure pre-check from real signals (OCR match, photo sharpness, plausibility). Notes are message keys. */
+/** Pure pre-check from real signals (photo recognition, photo sharpness, plausibility). Notes are message keys. */
 export function precheck(s: Input): Precheck {
   const notes: string[] = [];
   let status: Precheck['status'] = 'ok';
@@ -20,17 +19,26 @@ export function precheck(s: Input): Precheck {
     notes.push('pc.codeBlurry');
     status = 'review';
   }
-  if (!s.scan.ocrText) {
+  const seen = s.scan.result;
+  if (!seen) {
     notes.push('pc.noText');
     status = 'review';
-  } else if (s.catalogId && s.scan.matchId === s.catalogId && s.scan.confidence < SCAN_AUTO_MATCH_THRESHOLD) {
+  } else if (!seen.isShirt) {
+    notes.push('pc.notShirt');
+    status = 'review';
+  } else if (s.catalogId && s.scan.matchId === s.catalogId && s.scan.confidence < AI_MATCH_THRESHOLD) {
     notes.push('pc.weakMatch');
     status = 'review';
-  } else if (s.catalogId && s.scan.matchId && s.scan.matchId !== s.catalogId && s.scan.confidence >= SCAN_AUTO_MATCH_THRESHOLD) {
+  } else if (s.catalogId && s.scan.matchId && s.scan.matchId !== s.catalogId && s.scan.confidence >= AI_MATCH_THRESHOLD) {
     // Strongest single fraud signal: the label confidently matches a *different*
     // catalogue item than the one selected (mislabelled or swapped label).
     notes.push('pc.otherItem');
     status = 'fake';
+  }
+  // Visible inconsistencies the recognition pointed out (label layout, code, crest quality).
+  if (seen?.authenticityConcerns.length) {
+    notes.push('pc.aiConcerns');
+    if (status === 'ok') status = 'review';
   }
   if (Object.values(s.photos).some((p) => p.blurry) && status === 'ok') {
     notes.push('pc.blurry');

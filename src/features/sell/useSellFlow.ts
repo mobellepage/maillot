@@ -3,14 +3,13 @@
 import { useRef, useState } from 'react';
 import { useSearchParams } from 'react-router';
 import { useQueryClient } from '@tanstack/react-query';
-import { matchCatalogFromOcrText } from '../../addShirtData.js';
 import type { Shirt } from '../../data.ts';
 import { useSession } from '../../lib/session.tsx';
 import { useToast } from '../../lib/toast.tsx';
 import { usePrefs } from '../../lib/prefs.tsx';
 import * as db from '../../utils/db.ts';
 import { analyzeAndCompress } from '../../utils/image.ts';
-import { readLabelText } from '../../utils/ocr.ts';
+import { confidentMatch, sellPrefill } from '../identify/prefill.ts';
 import { getShirt, resolveSize } from '../catalog/model.ts';
 
 /** [condition value, description message key] */
@@ -29,7 +28,7 @@ export function useSellFlow() {
   const preset = getShirt(params.get('shirt') || undefined);
   const { user } = useSession();
   const toast = useToast();
-  const { t } = usePrefs();
+  const { t, lang } = usePrefs();
   const qc = useQueryClient();
 
   const [step, setStep] = useState(preset ? 1 : 0);
@@ -59,16 +58,28 @@ export function useSellFlow() {
       const photo = await analyzeAndCompress(file, { maxDim: 1400 });
       if (scanToken.current !== token) return;
       setScan({ status: 'reading', img: photo.dataUrl });
-      const text = await readLabelText(photo.dataUrl);
+      if (!user) {
+        setScan({ status: 'done', img: photo.dataUrl, matchId: null, confidence: 0, message: 'sell.scanSignIn' });
+        return;
+      }
+      const r = await db.identifyShirt([{ kind: 'label', dataUrl: photo.dataUrl }], lang);
       if (scanToken.current !== token) return;
-      const { item, confidence } = matchCatalogFromOcrText(text);
-      const confident = !!item && confidence >= 0.34;
+      if (!r.ok) {
+        setScan({ status: 'done', img: photo.dataUrl, matchId: null, confidence: 0, message: r.reason === 'off' ? 'sell.scanOff' : r.reason === 'rate_limited' ? 'as.scan.limited' : 'sell.scanFailed' });
+        return;
+      }
+      const match = confidentMatch(r.result);
+      // Suggest what the photo shows; the member can change it in the next step.
+      const pre = sellPrefill(r.result);
+      if (pre.condition) setCondition(pre.condition);
+      if (pre.edition) setEdition(pre.edition);
+      if (pre.player) setPlayer(pre.player);
       setScan({
         status: 'done',
         img: photo.dataUrl,
-        matchId: confident ? item!.id : null,
-        confidence,
-        message: confident ? '' : text ? 'sell.scanUnsure' : 'sell.scanNoText'
+        matchId: match,
+        confidence: r.result.confidence,
+        message: match ? '' : r.result.isShirt ? 'sell.scanUnsure' : 'sell.scanNoText'
       });
     } catch {
       if (scanToken.current === token) setScan({ status: 'idle' });
