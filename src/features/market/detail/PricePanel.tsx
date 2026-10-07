@@ -72,7 +72,7 @@ export function PricePanel({ s, size, setSize, book, myUserId, stats, watched, t
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,minmax(0,1fr))', gap: 8, marginTop: 20 }}>
         <StatTile label={t('pp.lowestAsk')} live={!!liveAsk} highlight={!!liveAsk} amount={liveAsk ? Number(liveAsk.amount) : undefined} scope={s.id + size} value={liveAsk ? money(Number(liveAsk.amount)) : '—'} sub={liveAsk ? tp('pp.listings', book.asks.length) : t('pp.noSellers')} />
         <StatTile label={t('pp.highestBid')} amount={liveBid ? Number(liveBid.amount) : undefined} scope={s.id + size} value={liveBid ? money(Number(liveBid.amount)) : '—'} sub={liveBid ? tp('pp.bids', book.bids.length) : t('pp.noBids')} />
-        <StatTile label={t('common.marketValue')} value={money(marketValue(s, size))} sub={s.priceSource === 'trades' ? tp('pp.fromSales', s.trades.count) : t('pp.estimate')} />
+        <StatTile label={t('common.marketValue')} value={money(marketValue(s, size))} sub={s.priceSource === 'market' && s.valuation ? tp('pp.fromMarket', s.valuation.nTrades + s.valuation.nExact + s.valuation.nSimilar) : s.priceSource === 'trades' ? tp('pp.fromSales', s.trades.count) : t('pp.estimate')} />
       </div>
       {liveAsk && sellers?.[liveAsk.user_id ?? ''] && <SoldBy card={sellers[liveAsk.user_id ?? '']!} />}
       {myAsk && (

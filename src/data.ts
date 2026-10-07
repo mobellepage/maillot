@@ -37,14 +37,31 @@ export interface Trades {
 }
 
 /**
+ * Market value from the valuation model (shirt_valuations): MAILLOT sales,
+ * comparables on other marketplaces and the index, blended server-side.
+ */
+export interface MarketValuation {
+  value: number;
+  low: number;
+  high: number;
+  confidence: 'high' | 'medium' | 'low';
+  nTrades: number;
+  nExact: number;
+  nSimilar: number;
+  computedAt: string;
+}
+
+/**
  * A catalogue entry plus its market data and derived fields. `price` is the
  * market value: the average of recent real sales once there are any
  * (priceSource 'trades'), otherwise the catalogue index estimate.
  */
 export interface Shirt extends RawShirt, MarketData {
   indexPrice: number;
-  priceSource: 'trades' | 'estimate';
+  /** market: the valuation model has evidence; trades: MAILLOT sales only (no model yet); estimate: index. */
+  priceSource: 'market' | 'trades' | 'estimate';
   trades: Trades;
+  valuation: MarketValuation | null;
   pName: string;
   pNum: string;
   spark: string;
@@ -133,7 +150,7 @@ export const CONDS = ['New with tags', 'Excellent', 'Very good', 'Good', 'Match-
 const NO_TRADES: Trades = { count: 0, lastPrice: null, lastSoldAt: null, avgRecent: null };
 
 /** Builds a full Shirt from a catalogue row (bundled snapshot or database). */
-export function buildShirt(raw: RawShirt & { sizes?: string[]; sku?: string }, trades: Trades = NO_TRADES): Shirt {
+export function buildShirt(raw: RawShirt & { sizes?: string[]; sku?: string }, trades: Trades = NO_TRADES, valuation: MarketValuation | null = null): Shirt {
   const r = rng(raw.id);
   // Price history, owner/want counts and "recent sales" are synthetic index
   // data (see marketData.ts) and are labelled as such in the UI.
@@ -142,14 +159,16 @@ export function buildShirt(raw: RawShirt & { sizes?: string[]; sku?: string }, t
   const num = parts.length > 1 ? parts.pop() || '' : '';
   const sku = 'KV-' + (10000 + Math.floor(r() * 89999));
   const fromTrades = trades.count > 0 && trades.avgRecent !== null;
+  const fromModel = !!valuation && valuation.nTrades + valuation.nExact + valuation.nSimilar > 0;
   return {
     ...raw,
     ...m,
     sizes: raw.sizes && raw.sizes.length ? raw.sizes : m.sizes,
     indexPrice: raw.price,
-    price: fromTrades ? Math.round(trades.avgRecent!) : raw.price,
-    priceSource: fromTrades ? 'trades' : 'estimate',
+    price: fromModel ? valuation!.value : fromTrades ? Math.round(trades.avgRecent!) : raw.price,
+    priceSource: fromModel ? 'market' : fromTrades ? 'trades' : 'estimate',
     trades,
+    valuation,
     pName: parts.join(' ').toUpperCase(),
     pNum: num,
     spark: linePath(down(m.hist.slice(-90), 32), 100, 32, 3).d,

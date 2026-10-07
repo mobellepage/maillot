@@ -13,7 +13,7 @@ describe('Shirt Index', () => {
     expect(weightedChange([])).toBe(0);
   });
   it('summarises the composite', () => {
-    expect(composite(rows)).toMatchObject({ count: 3, value: 500, fromTrades: 1 });
+    expect(composite(rows)).toMatchObject({ count: 3, value: 500, fromMarket: 1 });
   });
   it('groups segments, best first', () => {
     const s = segments(rows, 'type');

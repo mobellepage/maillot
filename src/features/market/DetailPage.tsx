@@ -15,6 +15,7 @@ import { Gallery } from './detail/Gallery.tsx';
 import { InfoCards } from './detail/InfoCards.tsx';
 import { PriceHistory } from './detail/PriceHistory.tsx';
 import { PricePanel } from './detail/PricePanel.tsx';
+import { ValuationCard } from './detail/ValuationCard.tsx';
 import { useOrderBook, useShirtStats } from './queries.ts';
 
 export default function DetailPage() {
@@ -76,6 +77,7 @@ export default function DetailPage() {
         />
       </div>
 
+      <ValuationCard s={s} />
       <PriceHistory key={s.id} s={s} />
       <InfoCards s={s} stats={stats} watched={watch.has(s.id)} toggleWatch={() => watch.toggle(s.id)} />
 

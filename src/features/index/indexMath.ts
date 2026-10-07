@@ -1,7 +1,8 @@
 // The Maillot Shirt Index: a value-weighted composite of every catalogue
-// shirt's market price (real sales where there are any, otherwise the
-// catalogue estimate), with segment breakdowns and a CSV export.
-export type IndexInput = { id: string; name: string; league: string; type: string; price: number; ch: number; priceSource: 'trades' | 'estimate' };
+// shirt's market price (the valuation model where it has evidence — sales and
+// comparables — otherwise the catalogue estimate), with segment breakdowns and
+// a CSV export.
+export type IndexInput = { id: string; name: string; league: string; type: string; price: number; ch: number; priceSource: 'market' | 'trades' | 'estimate' };
 
 export type Segment = { name: string; count: number; avgPrice: number; change: number };
 
@@ -19,7 +20,8 @@ export function composite(rows: IndexInput[]) {
     value,
     avgPrice: rows.length ? value / rows.length : 0,
     change: weightedChange(rows),
-    fromTrades: rows.filter((r) => r.priceSource === 'trades').length
+    /** Shirts priced from evidence (sales or comparables) rather than the estimate. */
+    fromMarket: rows.filter((r) => r.priceSource !== 'estimate').length
   };
 }
 

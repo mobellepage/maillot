@@ -2,12 +2,23 @@
 // for the bundled snapshot. Pages call useCatalog() to re-render when it lands.
 import { useEffect, useSyncExternalStore } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { buildShirt, BY, getCatalogVersion, replaceCatalog, SHIRTS, subscribeCatalog, type ShirtType, type Trades } from '../../data.ts';
-import { loadCatalog, loadCatalogMarket, type CatalogMarketRow, type CatalogRow } from '../../utils/db.ts';
+import { buildShirt, BY, getCatalogVersion, replaceCatalog, SHIRTS, subscribeCatalog, type MarketValuation, type ShirtType, type Trades } from '../../data.ts';
+import { loadCatalog, loadCatalogMarket, loadValuations, type CatalogMarketRow, type CatalogRow, type ValuationRow } from '../../utils/db.ts';
 
 const DAY = 864e5;
 
-export function toShirt(r: CatalogRow, m?: CatalogMarketRow) {
+const toValuation = (v: ValuationRow): MarketValuation => ({
+  value: Number(v.value),
+  low: Number(v.low),
+  high: Number(v.high),
+  confidence: v.confidence as MarketValuation['confidence'],
+  nTrades: v.n_trades,
+  nExact: v.n_exact,
+  nSimilar: v.n_similar,
+  computedAt: v.computed_at
+});
+
+export function toShirt(r: CatalogRow, m?: CatalogMarketRow, v?: ValuationRow) {
   const trades: Trades = m
     ? { count: Number(m.completed_sales), lastPrice: m.last_price === null ? null : Number(m.last_price), lastSoldAt: m.last_sold_at, avgRecent: m.avg_recent === null ? null : Number(m.avg_recent) }
     : { count: 0, lastPrice: null, lastSoldAt: null, avgRecent: null };
@@ -35,7 +46,8 @@ export function toShirt(r: CatalogRow, m?: CatalogMarketRow) {
       sizes: r.sizes,
       sku: r.sku
     },
-    trades
+    trades,
+    v ? toValuation(v) : null
   );
 }
 
@@ -44,9 +56,10 @@ export function useCatalogSync() {
   const q = useQuery({
     queryKey: ['catalog'],
     queryFn: async () => {
-      const [rows, market] = await Promise.all([loadCatalog(), loadCatalogMarket().catch(() => [])]);
+      const [rows, market, values] = await Promise.all([loadCatalog(), loadCatalogMarket().catch(() => []), loadValuations().catch(() => [])]);
       const byId = new Map(market.map((m) => [m.shirt_id, m]));
-      return rows.map((r) => toShirt(r, byId.get(r.id)));
+      const valueById = new Map(values.map((v) => [v.catalog_id, v]));
+      return rows.map((r) => toShirt(r, byId.get(r.id), valueById.get(r.id)));
     },
     staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false

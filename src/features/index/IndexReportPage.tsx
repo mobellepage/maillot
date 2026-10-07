@@ -80,7 +80,7 @@ export default function IndexReportPage() {
         <StatTile highlight label={t('idx.change')} value={<span style={{ color: tone(c.change) }}>{pct(c.change)}</span>} sub={t('idx.weighted')} />
         <StatTile label={t('idx.avg')} value={money(c.avgPrice)} />
         <StatTile label={t('idx.tracked')} value={c.count} />
-        <StatTile label={t('idx.fromSales')} value={t('idx.ofN', { a: c.fromTrades, b: c.count })} sub={t('idx.restEstimates')} />
+        <StatTile label={t('idx.fromSales')} value={t('idx.ofN', { a: c.fromMarket, b: c.count })} sub={t('idx.restEstimates')} />
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(300px,1fr))', gap: 16, marginTop: 32 }}>
@@ -150,7 +150,7 @@ export default function IndexReportPage() {
                   <td className="mono" style={{ textAlign: 'right', color: tone(r.ch) }}>
                     {pct(r.ch)}
                   </td>
-                  <td style={{ textAlign: 'right', color: 'var(--muted)', fontSize: 12.5 }}>{r.priceSource === 'trades' ? t('idx.sales') : t('idx.estimate')}</td>
+                  <td style={{ textAlign: 'right', color: 'var(--muted)', fontSize: 12.5 }}>{r.priceSource === 'estimate' ? t('idx.estimate') : r.priceSource === 'market' ? t('idx.srcMarket') : t('idx.sales')}</td>
                 </tr>
               ))}
             </tbody>

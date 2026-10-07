@@ -189,6 +189,26 @@ already chose is overwritten. Notes it raises feed the pre-check.
 - 20 recognitions per member per hour, 2,000 overall (`consume_identify_quota`).
 - Photos aren't stored by the function; results go to `shirt_identifications`.
 
+## Market value
+
+Every catalogue shirt has a market value from `refresh_shirt_valuation`
+(`shirt_valuations`, public): MAILLOT sales weigh most (recent ones more),
+then comparable offers for this exact shirt, then related shirts; the
+catalogue index anchors it. Prices are normalised to a very good replica,
+asking prices discounted 15 %, outliers dropped; value = weighted median,
+range = weighted 25th–75th percentile. Recomputed nightly, after each comps
+run and whenever an order is released. The product page shows value, range,
+confidence and the comparables (`ValuationCard`).
+
+**Comparables** — `fetch-comps` (daily via pg_cron, at most once per 20 h)
+reads eBay's Browse API (`EBAY_DE`, `EBAY_GB`, `EBAY_FR`, `EBAY_IT`; set
+`EBAY_MARKETPLACES` to change), keeps titles that name the club (with its
+aliases) and season and aren't kids' sizes or accessories, then lets Claude
+sort them into exact / related / unrelated. Secrets: `EBAY_CLIENT_ID`,
+`EBAY_CLIENT_SECRET` (and `ANTHROPIC_API_KEY` for the classification).
+Sold prices (eBay Marketplace Insights) need eBay's approval; the table and
+valuation already accept `kind = 'sold'`.
+
 ## iOS app
 
 The App Store app is this web app in a native shell ([Capacitor](https://capacitorjs.com), `ios/`).

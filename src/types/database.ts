@@ -342,6 +342,99 @@ export type Database = {
         Update: { order_id?: string; ship_to?: Json; created_at?: string };
         Relationships: [];
       };
+      market_comp_runs: {
+        Row: {
+          error: string | null;
+          finished_at: string | null;
+          id: number;
+          kept: number;
+          listings: number;
+          shirts: number;
+          started_at: string;
+        };
+        Insert: {
+          error?: string | null;
+          finished_at?: string | null;
+          id?: number;
+          kept?: number;
+          listings?: number;
+          shirts?: number;
+          started_at?: string;
+        };
+        Update: {
+          error?: string | null;
+          finished_at?: string | null;
+          id?: number;
+          kept?: number;
+          listings?: number;
+          shirts?: number;
+          started_at?: string;
+        };
+        Relationships: [];
+      };
+      market_comps: {
+        Row: {
+          catalog_id: string;
+          condition: string;
+          currency: string;
+          edition: string;
+          external_id: string;
+          first_seen_at: string;
+          image_url: string | null;
+          kind: string;
+          listed_at: string | null;
+          marketplace: string;
+          match: string;
+          price: number;
+          price_chf: number;
+          seen_at: string;
+          sold_at: string | null;
+          source: string;
+          title: string;
+          url: string | null;
+        };
+        Insert: {
+          catalog_id?: string;
+          condition?: string;
+          currency?: string;
+          edition?: string;
+          external_id?: string;
+          first_seen_at?: string;
+          image_url?: string | null;
+          kind?: string;
+          listed_at?: string | null;
+          marketplace?: string;
+          match?: string;
+          price?: number;
+          price_chf?: number;
+          seen_at?: string;
+          sold_at?: string | null;
+          source?: string;
+          title?: string;
+          url?: string | null;
+        };
+        Update: {
+          catalog_id?: string;
+          condition?: string;
+          currency?: string;
+          edition?: string;
+          external_id?: string;
+          first_seen_at?: string;
+          image_url?: string | null;
+          kind?: string;
+          listed_at?: string | null;
+          marketplace?: string;
+          match?: string;
+          price?: number;
+          price_chf?: number;
+          seen_at?: string;
+          sold_at?: string | null;
+          source?: string;
+          title?: string;
+          url?: string | null;
+        };
+        Relationships: [];
+      };
       notifications: {
         Row: {
           body: string | null;
@@ -561,6 +654,72 @@ export type Database = {
           }
         ];
       };
+      shirt_identifications: {
+        Row: {
+          catalog_id: string | null;
+          confidence: number | null;
+          created_at: string;
+          id: string;
+          model: string;
+          result: Json;
+          user_id: string;
+        };
+        Insert: {
+          catalog_id?: string | null;
+          confidence?: number | null;
+          created_at?: string;
+          id?: string;
+          model?: string;
+          result?: Json;
+          user_id?: string;
+        };
+        Update: {
+          catalog_id?: string | null;
+          confidence?: number | null;
+          created_at?: string;
+          id?: string;
+          model?: string;
+          result?: Json;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
+      shirt_valuations: {
+        Row: {
+          catalog_id: string;
+          computed_at: string;
+          confidence: string;
+          high: number;
+          low: number;
+          n_exact: number;
+          n_similar: number;
+          n_trades: number;
+          value: number;
+        };
+        Insert: {
+          catalog_id?: string;
+          computed_at?: string;
+          confidence?: string;
+          high?: number;
+          low?: number;
+          n_exact?: number;
+          n_similar?: number;
+          n_trades?: number;
+          value?: number;
+        };
+        Update: {
+          catalog_id?: string;
+          computed_at?: string;
+          confidence?: string;
+          high?: number;
+          low?: number;
+          n_exact?: number;
+          n_similar?: number;
+          n_trades?: number;
+          value?: number;
+        };
+        Relationships: [];
+      };
       watchlist: {
         Row: {
           created_at: string;
@@ -597,6 +756,18 @@ export type Database = {
           last_sold_at: string | null;
           avg_recent: number | null;
         }[];
+      };
+      consume_identify_quota: {
+        Args: never;
+        Returns: undefined;
+      };
+      refresh_shirt_valuations: {
+        Args: never;
+        Returns: number;
+      };
+      start_market_comp_run: {
+        Args: never;
+        Returns: number | null;
       };
       prepare_account_deletion: {
         Args: never;
