@@ -54,7 +54,7 @@
     "node-forge": "^1.4.0",
     "oxlint": "^1.81.0",
     "supabase": "^2.119.0",
-    "typescript": "^5.9.3",
+    "typescript": "^7.0.2",
     "vite": "^8.3.0",
     "vite-plugin-pwa": "^2.0.0",
     "vitest": "^3.2.7"
