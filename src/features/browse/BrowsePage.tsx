@@ -8,6 +8,8 @@ import { browse, FILTER_KEYS, PRICE_MAX, SORTS, type SortKey } from '../catalog/
 import { ShirtGrid } from '../catalog/ShirtGrid.tsx';
 import { FilterPanel } from './FilterPanel.tsx';
 import { useBrowseParams } from './useBrowseParams.ts';
+import { CollectorResults } from '../collectors/CollectorResults.tsx';
+import { useCollectorSearch } from '../collectors/useCollectorSearch.ts';
 
 export default function BrowsePage() {
   useCatalog(); // re-render when the live catalogue loads
@@ -15,6 +17,7 @@ export default function BrowsePage() {
   const { money, t, label } = usePrefs();
   const [showFilters, setShowFilters] = useState(false);
   const results = browse(query);
+  const collectors = useCollectorSearch(query.q);
   usePageMeta(query.q ? t('browse.metaSearch', { q: query.q }) : t('browse.metaTitle'), t('browse.metaDesc', { n: SHIRTS.length }));
 
   const chips: { label: string; rm: () => void }[] = [];
@@ -70,8 +73,11 @@ export default function BrowsePage() {
           <FilterPanel query={query} toggle={toggle} setRange={setRange} />
         </aside>
         <div style={{ flex: 1, minWidth: 0, width: '100%' }}>
+          <CollectorResults hits={collectors} />
           {results.length ? (
             <ShirtGrid shirts={results} label={t('browse.results')} />
+          ) : collectors.length ? (
+            <p style={{ color: 'var(--muted)', fontSize: 14 }}>{t('browse.noShirtsForQuery', { q: query.q })}</p>
           ) : (
             <EmptyState
               title={t('browse.empty')}

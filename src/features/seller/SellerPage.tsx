@@ -1,6 +1,6 @@
-// /u/:handle — a seller's public page: track record, reviews and live
-// listings. Only what the seller chose to make public (their handle) plus
-// facts from completed orders.
+// /u/:handle — a member's public page: the shirts they show (visibility other
+// than private), track record, reviews and live listings. Only what the
+// member chose to make public plus facts from completed orders.
 import { Link, useParams } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
 import { BY } from '../../data.ts';
@@ -11,6 +11,7 @@ import * as db from '../../utils/db.ts';
 import { useCatalog } from '../catalog/useCatalog.ts';
 import { Card, EmptyState, ErrorState, Page, ShirtGraphic, Skeleton, StatTile } from '../../ui/index.ts';
 import { Stars } from '../../ui/Stars.tsx';
+import { PublicCollection } from '../collectors/PublicCollection.tsx';
 
 export default function SellerPage() {
   useCatalog();
@@ -19,6 +20,7 @@ export default function SellerPage() {
   const profile = useQuery({ queryKey: ['seller', handle], queryFn: () => db.loadSellerProfile(handle) });
   const listings = useQuery({ queryKey: ['sellerListings', handle], queryFn: () => db.loadSellerListings(handle), enabled: !!profile.data });
   const reviews = useQuery({ queryKey: ['sellerReviews', handle], queryFn: () => db.loadSellerReviews(handle), enabled: !!profile.data });
+  const collection = useQuery({ queryKey: ['publicCollection', handle], queryFn: () => db.loadPublicCollection(handle), enabled: !!profile.data });
   usePageMeta(t('seller.meta', { handle }), t('seller.metaDesc', { handle }));
 
   if (profile.isLoading)
@@ -64,10 +66,21 @@ export default function SellerPage() {
           value={p.rating !== null ? <Stars value={Number(p.rating)} label={t('seller.stars', { n: Number(p.rating).toFixed(1) })} size={18} /> : t('seller.na')}
           sub={p.reviews ? tp('seller.reviews', p.reviews) : t('seller.noReviews')}
         />
+        <StatTile label={t('coll.statShirts')} value={collection.data?.length ?? '–'} />
         <StatTile label={t('seller.sales')} value={p.sales} />
         <StatTile label={t('seller.passRate')} value={pct(p.pass_rate === null ? null : Number(p.pass_rate))} />
         <StatTile label={t('seller.shipTime')} value={p.avg_ship_days === null ? t('seller.na') : t('seller.days', { n: Math.max(1, Math.ceil(Number(p.avg_ship_days))) })} />
       </div>
+
+      <section aria-labelledby="collection-title" style={{ marginTop: 40 }}>
+        <h2 id="collection-title" className="title">
+          {t('coll.title')} <span className="mono" style={{ color: 'var(--muted)', fontSize: 13 }}>{collection.data?.length ?? ''}</span>
+        </h2>
+        {collection.isLoading && <Skeleton height={220} radius={20} style={{ marginTop: 14 }} />}
+        {collection.isError && <ErrorState compact what={t('coll.title')} onRetry={() => collection.refetch()} />}
+        {collection.data && !collection.data.length && <p style={{ color: 'var(--muted)', fontSize: 14 }}>{t('coll.empty')}</p>}
+        {!!collection.data?.length && <PublicCollection shirts={collection.data} />}
+      </section>
 
       <section aria-labelledby="listings-title" style={{ marginTop: 40 }}>
         <h2 id="listings-title" className="title">

@@ -1,5 +1,6 @@
-// Public seller profiles (by handle) and buyer reviews. Nothing here returns
-// an email or account id to the browser except the seller ids it was given.
+// Public seller and collector profiles (by handle), collector search and
+// buyer reviews. Nothing here returns an email or account id to the browser
+// except the seller ids it was given.
 import { sb } from '../supabase.ts';
 import type { RpcReturns } from '../../types/database.ts';
 
@@ -7,6 +8,8 @@ export type SellerProfile = RpcReturns<'seller_profile'>[number];
 export type SellerListing = RpcReturns<'seller_listings'>[number];
 export type SellerReview = RpcReturns<'seller_review_list'>[number];
 export type SellerCard = RpcReturns<'seller_cards'>[number];
+export type CollectorHit = RpcReturns<'search_collectors'>[number];
+export type PublicShirt = RpcReturns<'public_collection'>[number];
 
 export async function loadSellerProfile(handle: string): Promise<SellerProfile | null> {
   const { data, error } = await (await sb()).rpc('seller_profile', { p_handle: handle });
@@ -31,6 +34,20 @@ export async function loadSellerCards(userIds: string[]): Promise<Record<string,
   const { data, error } = await (await sb()).rpc('seller_cards', { p_user_ids: userIds });
   if (error) throw error;
   return Object.fromEntries((data ?? []).map((c) => [c.user_id, c]));
+}
+
+/** Members whose handle contains the query (2+ characters) and who show at least one shirt or listing. */
+export async function searchCollectors(q: string): Promise<CollectorHit[]> {
+  const { data, error } = await (await sb()).rpc('search_collectors', { p_q: q });
+  if (error) throw error;
+  return data ?? [];
+}
+
+/** A collector's shirts that aren't private, newest first (no values, no label photos). */
+export async function loadPublicCollection(handle: string): Promise<PublicShirt[]> {
+  const { data, error } = await (await sb()).rpc('public_collection', { p_handle: handle });
+  if (error) throw error;
+  return data ?? [];
 }
 
 export async function reviewSeller(orderId: string, rating: number, comment: string): Promise<void> {

@@ -858,6 +858,28 @@ export type Database = {
       seller_listings: { Args: { p_handle: string }; Returns: { ask_id: string; shirt_id: string; size: string; amount: number; condition: string | null; created_at: string }[] };
       seller_review_list: { Args: { p_handle: string }; Returns: { rating: number; comment: string | null; shirt_id: string | null; created_at: string }[] };
       seller_cards: { Args: { p_user_ids: string[] }; Returns: { user_id: string; handle: string | null; rating: number | null; reviews: number; sales: number }[] };
+      search_collectors: { Args: { p_q: string }; Returns: { handle: string; member_since: string; shirts: number; listings: number; preview: string[] }[] };
+      public_collection: {
+        Args: { p_handle: string };
+        Returns: {
+          id: string;
+          catalog_id: string | null;
+          club: string | null;
+          season: string | null;
+          variant: string | null;
+          version: string | null;
+          size: string | null;
+          player_name: string | null;
+          player_number: string | null;
+          grade: number | null;
+          visibility: string;
+          verified: boolean;
+          photo_path: string | null;
+          thumb_path: string | null;
+          added_at: string;
+        }[];
+      };
+      is_visible_vault_photo: { Args: { p_name: string }; Returns: boolean };
       report_client_error: { Args: { p_message: string; p_stack?: string; p_url?: string; p_release?: string; p_user_agent?: string }; Returns: undefined };
       admin_health: {
         Args: never;
