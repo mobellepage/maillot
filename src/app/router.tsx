@@ -24,7 +24,8 @@ import {
   WelcomePage,
   SellerPage,
   ReturnPage,
-  AccountPage
+  AccountPage,
+  ResetPasswordPage
 } from './pages.tsx';
 
 export const routes: RouteObject[] = [
@@ -107,6 +108,7 @@ export const routes: RouteObject[] = [
           { path: 'help', element: <LegalPage doc="help" /> },
           { path: 'return', element: <ReturnPage /> },
           { path: 'account', element: <AccountPage /> },
+          { path: 'reset-password', element: <ResetPasswordPage /> },
           { path: 'legal/:doc', element: <LegalPage /> },
           { path: '*', element: <Navigate to="/" replace /> }
         ]

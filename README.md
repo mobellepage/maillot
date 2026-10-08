@@ -189,6 +189,25 @@ already chose is overwritten. Notes it raises feed the pre-check.
 - 20 recognitions per member per hour, 2,000 overall (`consume_identify_quota`).
 - Photos aren't stored by the function; results go to `shirt_identifications`.
 
+## Auth emails
+
+Sign-up sends people to `/welcome`, password resets to `/reset-password`
+(`emailRedirectTo` / `redirectTo` = this site, or the public site from the iOS
+app). Branded templates in `supabase/templates/` pick the reader's language from
+user metadata (`lang`, stored at sign-up), English otherwise; `config.toml`
+wires them up locally. In production (Supabase dashboard):
+
+1. **Authentication → URL Configuration**: Site URL `https://maillot-two.vercel.app`;
+   Redirect URLs `https://maillot-two.vercel.app/**` and `http://localhost:5173/**`.
+2. **Authentication → Emails → SMTP**: a custom sender (e.g. Resend:
+   `smtp.resend.com`, port 465, user `resend`, password = Resend API key,
+   sender name `MAILLOT`, a verified domain). Supabase's built-in sender is for
+   testing only — it's rate-limited, shows "Supabase Auth" and doesn't reach
+   ordinary sign-ups.
+3. **Authentication → Emails → Templates**: for Confirm sign up, Reset password
+   and Change email address paste the subject from `config.toml` and the HTML
+   from the matching file.
+
 ## Market value
 
 Every catalogue shirt has a market value from `refresh_shirt_valuation`

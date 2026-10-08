@@ -1,0 +1,29 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>MAILLOT</title></head>
+<body style="margin:0;padding:0;background:#F2F4F1">
+{{ $lang := or .Data.lang "en" }}
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#F2F4F1"><tr><td align="center" style="padding:32px 16px">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#FFFFFF;border-radius:16px;overflow:hidden;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif">
+<tr><td style="background:#0A0C0B;padding:20px 28px"><img src="{{ .SiteURL }}/icons/icon-192.png" width="28" height="28" alt="" style="vertical-align:middle;border:0;border-radius:7px"><span style="vertical-align:middle;margin-left:10px;color:#F2F4F1;font-weight:800;font-size:18px;letter-spacing:.06em">MAILLOT</span></td></tr>
+{{ if eq $lang "de" }}
+<tr><td style="padding:28px 28px 8px"><h1 style="margin:0 0 10px;font-size:22px;line-height:1.25;color:#0A0C0B">Bestätige deine E-Mail-Adresse</h1>
+<p style="margin:0;font-size:15px;line-height:1.55;color:#3A403C">Willkommen bei MAILLOT! Tippe auf den Knopf, um dein Konto zu aktivieren.</p></td></tr>
+<tr><td style="padding:22px 28px 8px"><a href="{{ .ConfirmationURL }}" style="display:inline-block;background:#4BFF8B;color:#06110A;padding:13px 24px;border-radius:10px;font-weight:700;font-size:15px;text-decoration:none">E-Mail bestätigen</a></td></tr>
+<tr><td style="padding:18px 28px 0;font-size:12.5px;line-height:1.5;color:#6B726D">Funktioniert der Knopf nicht? Kopiere diesen Link in deinen Browser:<br><a href="{{ .ConfirmationURL }}" style="color:#3A403C;word-break:break-all">{{ .ConfirmationURL }}</a></td></tr>
+<tr><td style="padding:22px 28px 28px;font-size:12px;line-height:1.5;color:#6B726D">Du erhältst diese E-Mail, weil sich jemand mit dieser Adresse bei MAILLOT registriert hat. Warst du das nicht? Dann ignoriere sie einfach.</td></tr>
+{{ else if eq $lang "fr" }}
+<tr><td style="padding:28px 28px 8px"><h1 style="margin:0 0 10px;font-size:22px;line-height:1.25;color:#0A0C0B">Confirme ton adresse e-mail</h1>
+<p style="margin:0;font-size:15px;line-height:1.55;color:#3A403C">Bienvenue sur MAILLOT ! Touche le bouton pour activer ton compte.</p></td></tr>
+<tr><td style="padding:22px 28px 8px"><a href="{{ .ConfirmationURL }}" style="display:inline-block;background:#4BFF8B;color:#06110A;padding:13px 24px;border-radius:10px;font-weight:700;font-size:15px;text-decoration:none">Confirmer l’e-mail</a></td></tr>
+<tr><td style="padding:18px 28px 0;font-size:12.5px;line-height:1.5;color:#6B726D">Le bouton ne fonctionne pas ? Copie ce lien dans ton navigateur :<br><a href="{{ .ConfirmationURL }}" style="color:#3A403C;word-break:break-all">{{ .ConfirmationURL }}</a></td></tr>
+<tr><td style="padding:22px 28px 28px;font-size:12px;line-height:1.5;color:#6B726D">Tu reçois cet e-mail car cette adresse a été utilisée pour s’inscrire sur MAILLOT. Ce n’était pas toi ? Ignore-le simplement.</td></tr>
+{{ else }}
+<tr><td style="padding:28px 28px 8px"><h1 style="margin:0 0 10px;font-size:22px;line-height:1.25;color:#0A0C0B">Confirm your email</h1>
+<p style="margin:0;font-size:15px;line-height:1.55;color:#3A403C">Welcome to MAILLOT! Tap the button to activate your account.</p></td></tr>
+<tr><td style="padding:22px 28px 8px"><a href="{{ .ConfirmationURL }}" style="display:inline-block;background:#4BFF8B;color:#06110A;padding:13px 24px;border-radius:10px;font-weight:700;font-size:15px;text-decoration:none">Confirm email</a></td></tr>
+<tr><td style="padding:18px 28px 0;font-size:12.5px;line-height:1.5;color:#6B726D">Button not working? Copy this link into your browser:<br><a href="{{ .ConfirmationURL }}" style="color:#3A403C;word-break:break-all">{{ .ConfirmationURL }}</a></td></tr>
+<tr><td style="padding:22px 28px 28px;font-size:12px;line-height:1.5;color:#6B726D">You get this email because this address was used to sign up for MAILLOT. Wasn’t you? Just ignore it.</td></tr>
+{{ end }}
+</table>
+</td></tr></table>
+</body></html>

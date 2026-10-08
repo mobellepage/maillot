@@ -3,7 +3,7 @@ import { expectAccessible } from '../axe.js';
 
 // WCAG 2.2 AA on every public page, desktop and mobile. Signed-in pages are
 // covered by e2e/backend/a11y.spec.js.
-const PAGES = ['/', '/market', '/shirt/sui-26', '/price-index', '/sell', '/signin', '/authentication', '/developers', '/help', '/legal/terms', '/verify', '/verify/MLT-0000-0000', '/u/nobody', '/account', '/return?to=/orders'];
+const PAGES = ['/', '/market', '/shirt/sui-26', '/price-index', '/sell', '/signin', '/authentication', '/developers', '/help', '/legal/terms', '/verify', '/verify/MLT-0000-0000', '/u/nobody', '/account', '/return?to=/orders', '/reset-password'];
 
 for (const path of PAGES) {
   test(`a11y ${path} @mobile`, async ({ page }) => {

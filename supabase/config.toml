@@ -26,6 +26,21 @@ enable_signup = true
 [auth.email]
 enable_confirmations = false
 
+# Branded, localised auth emails (language from the sign-up's user metadata).
+# Production: paste the same subject and file content under Authentication →
+# Emails in the Supabase dashboard (see README → Auth emails).
+[auth.email.template.confirmation]
+subject = '{{ if eq (or .Data.lang "en") "de" }}MAILLOT: Bestätige deine E-Mail-Adresse{{ else if eq (or .Data.lang "en") "fr" }}MAILLOT : confirme ton adresse e-mail{{ else }}MAILLOT: Confirm your email{{ end }}'
+content_path = "./supabase/templates/confirmation.html"
+
+[auth.email.template.recovery]
+subject = '{{ if eq (or .Data.lang "en") "de" }}MAILLOT: Neues Passwort wählen{{ else if eq (or .Data.lang "en") "fr" }}MAILLOT : choisis un nouveau mot de passe{{ else }}MAILLOT: Choose a new password{{ end }}'
+content_path = "./supabase/templates/recovery.html"
+
+[auth.email.template.email_change]
+subject = '{{ if eq (or .Data.lang "en") "de" }}MAILLOT: Bestätige deine neue E-Mail-Adresse{{ else if eq (or .Data.lang "en") "fr" }}MAILLOT : confirme ta nouvelle adresse{{ else }}MAILLOT: Confirm your new email{{ end }}'
+content_path = "./supabase/templates/email_change.html"
+
 # Admin rights require a TOTP second factor (is_admin() checks aal2).
 [auth.mfa]
 max_enrolled_factors = 10

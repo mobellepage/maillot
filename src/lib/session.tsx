@@ -4,6 +4,7 @@ import { createContext, useContext, useEffect, useState, type ReactNode } from '
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import type { User } from '@supabase/supabase-js';
 import { sb } from '../utils/supabase.ts';
+import { shareOrigin } from '../config/site.ts';
 
 /** Is a Supabase session stored in this browser? Guests don't wait for the auth client. */
 function hasStoredSession(): boolean {
@@ -40,9 +41,17 @@ interface Session {
   /** Assurance level of the current session: aal2 once a TOTP code was verified. */
   aal: 'aal1' | 'aal2' | null;
   signIn: (email: string, password: string, captchaToken?: string) => Promise<AuthResult>;
-  signUp: (email: string, password: string, captchaToken?: string) => Promise<AuthResult>;
+  /** lang picks the language of the confirmation email (it reads user metadata). */
+  signUp: (email: string, password: string, captchaToken?: string, lang?: string) => Promise<AuthResult>;
+  /** Emails a link to /reset-password. */
+  requestPasswordReset: (email: string, captchaToken?: string) => Promise<AuthResult>;
+  /** Sets a new password for the signed-in (or just-recovered) account. */
+  updatePassword: (password: string) => Promise<AuthResult>;
   signOut: () => Promise<void>;
 }
+
+/** Where links in sign-up and password emails lead: this site in a browser, the public website from the app. */
+const authRedirect = (path: string) => shareOrigin() + path;
 
 const SessionContext = createContext<Session | null>(null);
 
@@ -108,9 +117,21 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       const { error } = await (await sb()).auth.signInWithPassword({ email, password, options: captchaToken ? { captchaToken } : undefined });
       return { error: error ? error.message : null };
     },
-    signUp: async (email, password, captchaToken) => {
-      const { data, error } = await (await sb()).auth.signUp({ email, password, options: captchaToken ? { captchaToken } : undefined });
+    signUp: async (email, password, captchaToken, lang) => {
+      const { data, error } = await (await sb()).auth.signUp({
+        email,
+        password,
+        options: { emailRedirectTo: authRedirect('/welcome'), data: lang ? { lang } : undefined, ...(captchaToken ? { captchaToken } : {}) }
+      });
       return { error: error ? error.message : null, signedIn: !!data.session };
+    },
+    requestPasswordReset: async (email, captchaToken) => {
+      const { error } = await (await sb()).auth.resetPasswordForEmail(email, { redirectTo: authRedirect('/reset-password'), ...(captchaToken ? { captchaToken } : {}) });
+      return { error: error ? error.message : null };
+    },
+    updatePassword: async (password) => {
+      const { error } = await (await sb()).auth.updateUser({ password });
+      return { error: error ? error.message : null };
     },
     signOut: async () => {
       await (await sb()).auth.signOut();

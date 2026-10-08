@@ -122,3 +122,18 @@ test('failed loads say so instead of looking empty, and offline is announced', a
   await context.setOffline(false);
   await expect(page.getByText(/You’re offline/)).toBeHidden();
 });
+
+test('forgotten password: the sign-in page offers a reset link @mobile', async ({ page }) => {
+  await page.goto('/signin');
+  await page.getByRole('button', { name: 'Forgot password?' }).click();
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Reset password');
+  await expect(page.getByLabel('Password')).toHaveCount(0);
+  await page.getByRole('button', { name: 'Back to sign in' }).click();
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Sign in');
+});
+
+test('an expired email link is explained, not silently ignored', async ({ page }) => {
+  await page.goto('/#error=access_denied&error_code=otp_expired&error_description=Email+link+is+invalid+or+has+expired');
+  await expect(page.getByText('That link has expired or was already used. Please request a new one.')).toBeVisible();
+  await expect(page).toHaveURL(/\/$/);
+});
