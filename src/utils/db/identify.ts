@@ -15,7 +15,7 @@ export async function identifyShirt(images: { kind: IdentifyKind; dataUrl: strin
     })
     .filter((x) => !!x);
   if (!payload.length) return { ok: false, reason: 'failed' };
-  const { data, error } = await (await sb()).functions.invoke<{ configured?: boolean; result?: Identification }>('identify-shirt', { body: { images: payload, lang } });
+  const { data, error } = await (await sb()).functions.invoke<{ configured?: boolean; result?: Identification }>('identify-shirt', { body: { images: payload, lang }, timeout: 120_000 });
   if (error) {
     const status = (error as { context?: Response }).context?.status;
     return { ok: false, reason: status === 429 ? 'rate_limited' : 'failed' };

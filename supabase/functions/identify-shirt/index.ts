@@ -39,15 +39,16 @@ Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
   if (req.method !== "POST") return json({ error: "POST only" }, 405);
 
-  const apiKey = Deno.env.get("ANTHROPIC_API_KEY");
-  if (!apiKey) return json({ configured: false });
-
+  // Read the body before any early answer: responding while a large upload is
+  // still streaming in stalls the runtime until its wall-clock limit (503).
   let body: unknown;
   try {
     body = await req.json();
   } catch {
     return json({ error: "invalid_json" }, 400);
   }
+  const apiKey = Deno.env.get("ANTHROPIC_API_KEY");
+  if (!apiKey) return json({ configured: false });
   const images = parseImages(body);
   if (!images) return json({ error: "invalid_images" }, 400);
   const lang: Lang = ["de", "fr"].includes((body as { lang?: string }).lang ?? "") ? ((body as { lang: Lang }).lang) : "en";
@@ -65,7 +66,8 @@ Deno.serve(async (req: Request) => {
   if (catErr) return json({ error: "catalog_failed" }, 500);
   const catalog = (rows ?? []) as CatalogEntry[];
 
-  const client = new Anthropic({ apiKey });
+  // Answer well inside the runtime's 150 s wall clock, with a clear error instead of a stall.
+  const client = new Anthropic({ apiKey, timeout: 100_000, maxRetries: 0 });
   const content: Anthropic.Beta.BetaContentBlockParam[] = [];
   for (const img of images) {
     content.push({ type: "text", text: KIND_LABEL[img.kind] + ":" });
@@ -82,7 +84,7 @@ Deno.serve(async (req: Request) => {
       fallbacks: "default",
       // The catalogue changes rarely: cache the system prompt across members.
       system: [{ type: "text", text: systemPrompt(catalog, lang) + (structured ? "" : `\n\nAnswer with only a JSON object matching this JSON schema:\n${JSON.stringify(IDENTIFY_SCHEMA)}`), cache_control: { type: "ephemeral" } }],
-      output_config: structured ? { effort: "medium", format: { type: "json_schema", schema: IDENTIFY_SCHEMA } } : { effort: "medium" },
+      output_config: structured ? { effort: "low", format: { type: "json_schema", schema: IDENTIFY_SCHEMA } } : { effort: "low" },
       messages: [{ role: "user", content }],
     });
 

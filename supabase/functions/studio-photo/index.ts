@@ -18,15 +18,16 @@ const MAX_BASE64 = 2_000_000;
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
   if (req.method !== "POST") return json({ error: "POST only" }, 405);
-  const apiKey = Deno.env.get("PHOTOROOM_API_KEY");
-  if (!apiKey) return json({ configured: false });
-
+  // Read the body before any early answer: responding while a large upload is
+  // still streaming in stalls the runtime until its wall-clock limit (503).
   let image: string | undefined;
   try {
     image = (await req.json())?.image;
   } catch {
     return json({ error: "invalid_json" }, 400);
   }
+  const apiKey = Deno.env.get("PHOTOROOM_API_KEY");
+  if (!apiKey) return json({ configured: false });
   if (typeof image !== "string" || image.length < 100 || image.length > MAX_BASE64 || !/^[A-Za-z0-9+/=]+$/.test(image)) return json({ error: "invalid_image" }, 400);
 
   const asUser = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_ANON_KEY")!, {
@@ -42,7 +43,11 @@ Deno.serve(async (req: Request) => {
   form.append("format", "png");
   form.append("size", "medium");
   form.append("crop", "true");
-  const res = await fetch("https://sdk.photoroom.com/v1/segment", { method: "POST", headers: { "x-api-key": apiKey }, body: form });
+  const res = await fetch("https://sdk.photoroom.com/v1/segment", { method: "POST", headers: { "x-api-key": apiKey }, body: form, signal: AbortSignal.timeout(45_000) }).catch((e) => {
+    console.error("studio-photo: Photoroom unreachable", e);
+    return null;
+  });
+  if (!res) return json({ error: "cutout_failed" }, 502);
   if (!res.ok) {
     console.error("studio-photo: Photoroom", res.status, (await res.text()).slice(0, 300));
     return json({ error: "cutout_failed" }, 502);
