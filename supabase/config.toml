@@ -95,3 +95,6 @@ verify_jwt = false
 
 [functions.wallet-pass]
 verify_jwt = false
+
+[functions.studio-photo]
+verify_jwt = true

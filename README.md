@@ -208,6 +208,16 @@ wires them up locally. In production (Supabase dashboard):
    and Change email address paste the subject from `config.toml` and the HTML
    from the matching file.
 
+## Studio photos
+
+Each shirt's main photo is cut out (edge function `studio-photo` →
+Photoroom Remove Background API, `crop=true`) and placed on MAILLOT's dark
+background with a soft spotlight and shadow (`addshirt/studio.ts`), stored as
+`photos.front_studio` next to the untouched original (which authentication
+uses). Collections and item pages show the studio photo first
+(`mainPhoto`); members can turn it off per shirt. Secret: `PHOTOROOM_API_KEY`
+(US$0.02 per photo); 30 per member per hour, 1,500 overall.
+
 ## Market value
 
 Every catalogue shirt has a market value from `refresh_shirt_valuation`

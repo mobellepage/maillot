@@ -45,7 +45,6 @@ export function IdentifyStep({ f }: { f: SellFlow }) {
           <input
             type="file"
             accept="image/*"
-            capture="environment"
             className="sr-only"
             disabled={reading}
             onChange={(e) => {

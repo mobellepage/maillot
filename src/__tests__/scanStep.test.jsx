@@ -16,13 +16,13 @@ const recognised = (over = {}) => ({
   authenticityConcerns: [], confidence: 0.93, summary: 'Netherlands 1988 home shirt.', ...over
 });
 
-function setup(scan, form = {}) {
+function setup(scan, form = {}, studio = 'idle', onStudioOff = () => {}) {
   const set = vi.fn();
-  const w = { f: { photos: {}, catalogId: null, proposed: false, scan, ...form }, set };
+  const w = { f: { photos: {}, catalogId: null, proposed: false, studioOff: false, scan, ...form }, set };
   render(
     <QueryClientProvider client={new QueryClient()}>
       <PrefsProvider>
-        <ScanStep w={w} busyKey={null} onScanFile={() => {}} valuation={{ blocked: false, low: 240, high: 320 }} />
+        <ScanStep w={w} busyKey={null} onScanFile={() => {}} valuation={{ blocked: false, low: 240, high: 320 }} studio={studio} onStudioOff={onStudioOff} />
       </PrefsProvider>
     </QueryClientProvider>
   );
@@ -60,6 +60,25 @@ describe('ScanStep (photo recognition)', () => {
     expect(screen.getByText('FC Thun 2005-06 Home')).toBeTruthy();
     expect(screen.getByText('Label font unusual')).toBeTruthy();
     expect(screen.getByText(/Not a verdict/)).toBeTruthy();
+  });
+
+  it('offers the studio look once there is a main photo, and lets you turn it off', () => {
+    const off = vi.fn();
+    const front = { dataUrl: 'data:image/jpeg;base64,AAAA' };
+    setup({ status: 'idle', confidence: 0, matchId: null, result: null }, { photos: { front } }, 'working', off);
+    expect(screen.getByText('Studio look')).toBeTruthy();
+    expect(screen.getByText('Cutting out your shirt…')).toBeTruthy();
+    fireEvent.click(screen.getByRole('checkbox', { name: 'Use studio look' }));
+    expect(off).toHaveBeenCalledWith(true);
+    cleanup();
+    setup({ status: 'idle', confidence: 0, matchId: null, result: null }, { photos: { front } }, 'off');
+    expect(screen.getByText(/isn’t switched on yet — your photo is shown as taken/)).toBeTruthy();
+  });
+
+  it('lets you replace a photo (and pick one from the library)', () => {
+    setup({ status: 'idle', confidence: 0, matchId: null, result: null }, { photos: { front: { dataUrl: 'data:image/jpeg;base64,AAAA' } } });
+    const input = screen.getByLabelText('Replace: Front');
+    expect(input.getAttribute('capture')).toBe(null);
   });
 
   it('explains when recognition is off or the photo is not a shirt', () => {

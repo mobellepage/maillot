@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useCatalog } from '../catalog/useCatalog.ts';
 import { useNavigate } from 'react-router';
 import { estimateValue } from '../../addShirtData.js';
@@ -9,7 +9,9 @@ import { useSession } from '../../lib/session.tsx';
 import { useToast } from '../../lib/toast.tsx';
 import type { Valuation } from '../../types/domain.ts';
 import { analyzeAndCompress } from '../../utils/image.ts';
-import { uploadPhoto } from '../../utils/db.ts';
+import { cutoutShirt, removePhotos, uploadPhoto } from '../../utils/db.ts';
+import type { Photo } from '../../types/domain.ts';
+import { composeStudio, type StudioState } from './addshirt/studio.ts';
 import { Button, CheckIcon, Page } from '../../ui/index.ts';
 import { PhotosStep, PrecheckStep, VerifyStep } from './addshirt/CheckSteps.tsx';
 import { DetailsStep } from './addshirt/DetailsStep.tsx';
@@ -33,6 +35,37 @@ export default function AddShirtPage() {
   const navigate = useNavigate();
   const toast = useToast();
   const [busyKey, setBusyKey] = useState<string | null>(null);
+  const [studio, setStudio] = useState<StudioState>(f.photos.front_studio ? 'done' : 'idle');
+  const studioToken = useRef(0);
+
+  // The studio look: cut the shirt out of the main photo and put it on the dark
+  // background (see addshirt/studio.ts). Runs again whenever the photo changes.
+  const makeStudio = async (front: Photo & { dataUrl?: string }, off = f.studioOff) => {
+    const token = ++studioToken.current;
+    const old = f.photos.front_studio;
+    if (old) {
+      w.removePhoto('front_studio');
+      removePhotos([old.path, old.thumbPath].filter((x): x is string => !!x)).catch(() => {});
+    }
+    if (off || !front.dataUrl || !user) return setStudio('idle');
+    setStudio('working');
+    try {
+      const r = await cutoutShirt(front.dataUrl);
+      if (token !== studioToken.current) return;
+      if (!r.ok) return setStudio(r.reason === 'off' ? 'off' : r.reason === 'rate_limited' ? 'limited' : 'failed');
+      const { blob, thumb, dataUrl } = await composeStudio(r.png);
+      const { path, thumbPath } = await uploadPhoto(user.id, 'items/' + f.draftId, 'front_studio', blob, thumb);
+      if (token !== studioToken.current) return;
+      w.setPhoto('front_studio', { path, thumbPath, dataUrl, label: t('as.photo.studio'), width: 1200, height: 1200 });
+      setStudio('done');
+    } catch {
+      if (token === studioToken.current) setStudio('failed');
+    }
+  };
+  const setStudioOff = (off: boolean) => {
+    w.set({ studioOff: off });
+    if (f.photos.front) void makeStudio(f.photos.front, off);
+  };
 
   const catalogItem = f.catalogId ? BY[f.catalogId] ?? null : null;
   const valuation = estimateValue({ catalogItem, version: f.version, conditionGrade: f.condition.grade, flock: f.flock, patches: f.patches, signature: f.signature, verificationLevel: f.verification.level }) as Valuation;
@@ -116,9 +149,13 @@ export default function AddShirtPage() {
           w={w}
           busyKey={busyKey}
           valuation={valuation}
+          studio={studio}
+          onStudioOff={setStudioOff}
           onScanFile={async (key, file) => {
             const p = await capture(key, file, t('as.photo.' + key));
-            if (p) void w.runScan(key, p, lang, (k) => t('kit.' + k));
+            if (!p) return;
+            void w.runScan(key, p, lang, (k) => t('kit.' + k));
+            if (key === 'front') void makeStudio(p);
           }}
         />
       )}
@@ -127,6 +164,7 @@ export default function AddShirtPage() {
       {f.step === 3 && <PhotosStep w={w} busyKey={busyKey} onPhoto={async (spec, file) => {
             const p = await capture(spec.key, file, spec.label);
             if (p) w.setPhoto(spec.key, p);
+            if (p && spec.key === 'front') void makeStudio(p);
             return p;
           }} />}
       {f.step === 4 && <PrecheckStep w={w} />}

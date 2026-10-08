@@ -1158,5 +1158,15 @@ export const de: Messages = {
   'auth.linkInvalid': 'Dieser Link ist abgelaufen oder wurde schon benutzt. Fordere auf der Anmeldeseite einen neuen an.',
   'auth.linkExpired': 'Dieser Link ist abgelaufen oder wurde schon benutzt. Bitte fordere einen neuen an.',
   'auth.linkFailed': 'Dieser Link hat nicht funktioniert. Bitte versuche es erneut oder fordere einen neuen an.',
+  'as.photo.studio': 'Studio-Foto',
+  'as.studio.title': 'Studio-Look',
+  'as.studio.body': 'Dein Trikot, freigestellt auf dem MAILLOT-Hintergrund – so sieht jede Sammlung einheitlich aus. Das Originalfoto bleibt für die Echtheitsprüfung erhalten.',
+  'as.studio.use': 'Studio-Look verwenden',
+  'as.studio.working': 'Dein Trikot wird freigestellt…',
+  'as.studio.off': 'Der Studio-Look ist noch nicht eingeschaltet – dein Foto wird so gezeigt, wie es ist.',
+  'as.studio.limited': 'Zu viele Freistellungen in dieser Stunde – dein Foto wird vorerst so gezeigt, wie es ist.',
+  'as.studio.failed': 'Das Trikot konnte auf diesem Foto nicht freigestellt werden. Versuche eines auf ruhigem Untergrund – oder behalte es so.',
+  'as.studio.retry': 'Erneut versuchen',
+  'as.photo.replace': 'Ersetzen',
   // @@end
 };

@@ -1158,5 +1158,15 @@ export const fr: Messages = {
   'auth.linkInvalid': 'Ce lien a expiré ou a déjà été utilisé. Demandes-en un nouveau sur la page de connexion.',
   'auth.linkExpired': 'Ce lien a expiré ou a déjà été utilisé. Demandes-en un nouveau.',
   'auth.linkFailed': 'Ce lien n’a pas fonctionné. Réessaie ou demandes-en un nouveau.',
+  'as.photo.studio': 'Photo studio',
+  'as.studio.title': 'Look studio',
+  'as.studio.body': 'Ton maillot détouré sur le fond MAILLOT – pour que chaque collection ait le même look. La photo d’origine est conservée pour l’authentification.',
+  'as.studio.use': 'Utiliser le look studio',
+  'as.studio.working': 'Détourage du maillot…',
+  'as.studio.off': 'Le look studio n’est pas encore activé – ta photo est affichée telle quelle.',
+  'as.studio.limited': 'Trop de détourages cette heure-ci – ta photo est affichée telle quelle pour l’instant.',
+  'as.studio.failed': 'Le maillot n’a pas pu être détouré sur cette photo. Essaie sur un fond uni – ou garde-la telle quelle.',
+  'as.studio.retry': 'Réessayer',
+  'as.photo.replace': 'Remplacer',
   // @@end
 };

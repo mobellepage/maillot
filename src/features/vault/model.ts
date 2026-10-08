@@ -1,6 +1,6 @@
 // Display logic for collection items (badges, names, share payload).
 import { BY } from '../../data.ts';
-import type { CustomItem } from '../../types/domain.ts';
+import type { CustomItem, Photo } from '../../types/domain.ts';
 import { HEX, alpha, type Tone } from '../../ui/index.ts';
 import { currentValuation } from './useCollection.ts';
 
@@ -35,6 +35,11 @@ export function itemLook(c: CustomItem) {
     look: { pat: cat ? cat.pat : HEX.placeholderPat, trim: cat ? cat.trim : HEX.muted, crest: cat ? cat.crest : HEX.muted },
     glow: alpha(cat ? cat.glow : HEX.muted, 0.3)
   };
+}
+
+/** The picture that represents an item: its studio photo (cut out, dark background) when there is one. */
+export function mainPhoto(c: CustomItem): Photo | undefined {
+  return c.photos?.front_studio ?? c.photos?.front;
 }
 
 export function valueOf(c: CustomItem): number | null {

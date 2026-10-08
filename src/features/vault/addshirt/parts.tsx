@@ -26,6 +26,7 @@ export function Pills({ children }: { children: ReactNode }) {
 }
 
 export function PhotoInput({ data, busy, onFile, size = 84, label }: { data: Photo | undefined; busy: boolean; onFile: (file: File) => void; size?: number; label: string }) {
+  const { t } = usePrefs();
   const warn = data && (data.lowRes || data.blurry || data.tooDark || data.tooBright);
   const src = usePhotoUrls([data], true)(data);
   return (
@@ -44,12 +45,12 @@ export function PhotoInput({ data, busy, onFile, size = 84, label }: { data: Pho
         overflow: 'hidden'
       }}
     >
+      {/* No capture attribute: phones offer camera *and* photo library. */}
       <input
         type="file"
         accept="image/*"
-        capture="environment"
         className="sr-only"
-        aria-label={label}
+        aria-label={data ? `${t('as.photo.replace')}: ${label}` : label}
         onChange={(e: ChangeEvent<HTMLInputElement>) => {
           const file = e.target.files?.[0];
           e.target.value = '';
@@ -58,6 +59,13 @@ export function PhotoInput({ data, busy, onFile, size = 84, label }: { data: Pho
       />
       {!data && !busy && <span aria-hidden="true" style={{ fontSize: 22, color: 'var(--faint)' }}>+</span>}
       {busy && <span className="mono" style={{ fontSize: 10, color: 'var(--muted)' }}>…</span>}
+      {data && !busy && (
+        <span aria-hidden="true" title={t('as.photo.replace')} style={{ position: 'absolute', right: 6, bottom: 6, width: 26, height: 26, borderRadius: '50%', background: 'rgba(10,12,11,0.78)', border: '1px solid rgba(255,255,255,0.25)', display: 'grid', placeItems: 'center', color: '#F2F4F1' }}>
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M3 12a9 9 0 0 1 15.5-6.2L21 8M21 3v5h-5M21 12a9 9 0 0 1-15.5 6.2L3 16M3 21v-5h5" />
+          </svg>
+        </span>
+      )}
     </label>
   );
 }

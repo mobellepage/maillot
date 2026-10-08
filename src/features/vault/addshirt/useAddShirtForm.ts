@@ -47,6 +47,8 @@ export interface AddShirtForm {
   verification: Verification;
   visibility: Visibility;
   salePrice: string;
+  /** The member turned the studio look off for this shirt. */
+  studioOff: boolean;
 }
 
 function emptyForm(): AddShirtForm {
@@ -74,7 +76,8 @@ function emptyForm(): AddShirtForm {
     precheck: null,
     verification: { level: 'self', status: 'none', reason: '', reviewId: null },
     visibility: 'private',
-    salePrice: ''
+    salePrice: '',
+    studioOff: false
   };
 }
 

@@ -24,7 +24,8 @@ export default function VaultItemPage() {
   const [photoIdx, setPhotoIdx] = useState(0);
   const c = items.find((x) => x.id === id);
   usePageMeta(c ? itemName(c) : t('vault.title.collection'));
-  const entries = Object.entries(c?.photos || {});
+  // The studio photo (if any) leads; the originals follow for the details.
+  const entries = Object.entries(c?.photos || {}).sort(([a], [b]) => Number(b === 'front_studio') - Number(a === 'front_studio'));
   const fullUrl = usePhotoUrls(entries.map(([, p]) => p));
   const thumbUrl = usePhotoUrls(entries.map(([, p]) => p), true);
   if (loading)

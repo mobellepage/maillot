@@ -1157,6 +1157,16 @@ export const en = {
   'auth.linkInvalid': 'This link has expired or was already used. Request a new one from the sign-in page.',
   'auth.linkExpired': 'That link has expired or was already used. Please request a new one.',
   'auth.linkFailed': 'That link didn’t work. Please try again or request a new one.',
+  'as.photo.studio': 'Studio photo',
+  'as.studio.title': 'Studio look',
+  'as.studio.body': 'Your shirt, cut out and placed on the MAILLOT background — so every collection looks like one. The original photo is kept for authentication.',
+  'as.studio.use': 'Use studio look',
+  'as.studio.working': 'Cutting out your shirt…',
+  'as.studio.off': 'The studio look isn’t switched on yet — your photo is shown as taken.',
+  'as.studio.limited': 'Too many cut-outs this hour — your photo is shown as taken for now.',
+  'as.studio.failed': 'The shirt couldn’t be cut out of this photo. Try one on a plain surface, or keep it as it is.',
+  'as.studio.retry': 'Try again',
+  'as.photo.replace': 'Replace',
   // @@end
 };
 

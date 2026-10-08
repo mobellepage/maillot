@@ -3,13 +3,13 @@ import { usePrefs } from '../../lib/prefs.tsx';
 import type { CustomItem } from '../../types/domain.ts';
 import { downloadVaultCard } from '../../utils/cardExport.js';
 import { ButtonLink, DownloadIcon, EmptyState, ErrorState, Notice, ShirtGraphic, Skeleton, HEX } from '../../ui/index.ts';
-import { badgeFor, itemLook, itemName, valueOf } from './model.ts';
+import { badgeFor, itemLook, itemName, mainPhoto, valueOf } from './model.ts';
 import { usePhotoUrls } from '../../lib/usePhotoUrls.ts';
 
 export function CollectionTab({ items, loading, error, onRetry }: { items: CustomItem[]; loading?: boolean; error?: boolean; onRetry?: () => void }) {
   const { money, t, tp } = usePrefs();
   const rejected = items.filter((c) => c.verification.status === 'abgelehnt');
-  const cover = usePhotoUrls(items.map((c) => c.photos?.front), true);
+  const cover = usePhotoUrls(items.map(mainPhoto), true);
   if (loading)
     return (
       <div className="grid-cards" style={{ marginTop: 24 }} role="status" aria-busy="true" aria-label={t('vault.loading')}>
@@ -54,7 +54,7 @@ export function CollectionTab({ items, loading, error, onRetry }: { items: Custo
           const { look, glow } = itemLook(c);
           const value = valueOf(c);
           const name = itemName(c);
-          const photo = cover(c.photos?.front);
+          const photo = cover(mainPhoto(c));
           return (
             <li key={c.id}>
               <article className="card card--interactive" style={{ position: 'relative', padding: 0, borderRadius: 22, overflow: 'hidden' }}>

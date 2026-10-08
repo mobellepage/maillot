@@ -8,10 +8,52 @@ import { PhotoInput, Section } from './parts.tsx';
 import type { Wizard } from './useAddShirtForm.ts';
 import type { Valuation } from '../../../types/domain.ts';
 import { AI_MATCH_THRESHOLD, proposedName } from '../../identify/prefill.ts';
+import { usePhotoUrls } from '../../../lib/usePhotoUrls.ts';
+import type { StudioState } from './studio.ts';
 
 type Key = 'front' | 'product_code';
 
-export function ScanStep({ w, busyKey, onScanFile, valuation }: { w: Wizard; busyKey: string | null; onScanFile: (key: Key, f: File) => void; valuation: Valuation }) {
+function StudioPreview({ w, studio, onStudioOff }: { w: Wizard; studio: StudioState; onStudioOff: (off: boolean) => void }) {
+  const { t } = usePrefs();
+  const { f } = w;
+  const src = usePhotoUrls([f.photos.front_studio])(f.photos.front_studio);
+  if (!f.photos.front) return null;
+  const note = { off: 'as.studio.off', limited: 'as.studio.limited', failed: 'as.studio.failed' }[studio as 'off' | 'limited' | 'failed'];
+  return (
+    <Section title={t('as.studio.title')} hint={t('as.studio.body')}>
+      <div style={{ display: 'flex', gap: 16, alignItems: 'center', flexWrap: 'wrap' }}>
+        <div style={{ width: 160, height: 160, borderRadius: 16, overflow: 'hidden', background: '#0A0C0B', border: '1px solid var(--line)', display: 'grid', placeItems: 'center', flex: 'none' }}>
+          {studio === 'working' ? (
+            <span aria-hidden="true" style={{ width: 10, height: 10, borderRadius: '50%', background: 'var(--accent)', animation: 'kvPulse 1.2s ease-in-out infinite' }} />
+          ) : src && !f.studioOff ? (
+            <img src={src} alt={t('as.photo.studio')} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          ) : (
+            <span style={{ fontSize: 12, color: 'var(--muted)', padding: 12, textAlign: 'center' }}>—</span>
+          )}
+        </div>
+        <div style={{ flex: '1 1 200px', minWidth: 0 }} aria-live="polite">
+          <label style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 14, cursor: 'pointer' }}>
+            <input type="checkbox" checked={!f.studioOff} onChange={(e) => onStudioOff(!e.target.checked)} style={{ width: 20, height: 20, accentColor: 'var(--accent)' }} />
+            {t('as.studio.use')}
+          </label>
+          {studio === 'working' && <p style={{ fontSize: 13, color: 'var(--text-2)', marginTop: 8 }}>{t('as.studio.working')}</p>}
+          {note && !f.studioOff && (
+            <p style={{ fontSize: 13, color: 'var(--muted)', marginTop: 8, lineHeight: 1.45 }}>
+              {t(note)}{' '}
+              {studio === 'failed' && (
+                <button type="button" className="link-btn" onClick={() => onStudioOff(false)}>
+                  {t('as.studio.retry')}
+                </button>
+              )}
+            </p>
+          )}
+        </div>
+      </div>
+    </Section>
+  );
+}
+
+export function ScanStep({ w, busyKey, onScanFile, valuation, studio, onStudioOff }: { w: Wizard; busyKey: string | null; onScanFile: (key: Key, f: File) => void; valuation: Valuation; studio: StudioState; onStudioOff: (off: boolean) => void }) {
   const { money, t } = usePrefs();
   const { f } = w;
   const r = f.scan.result;
@@ -44,6 +86,8 @@ export function ScanStep({ w, busyKey, onScanFile, valuation }: { w: Wizard; bus
           {f.scan.status === 'limited' && <Notice tone="info">{t('as.scan.limited')}</Notice>}
         </div>
       </Section>
+
+      <StudioPreview w={w} studio={studio} onStudioOff={onStudioOff} />
 
       {f.scan.status === 'done' && r && !r.isShirt && <Notice tone="warn">{t('as.scan.notShirt')}</Notice>}
 
