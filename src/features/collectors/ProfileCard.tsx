@@ -14,24 +14,34 @@ export function ProfileCard() {
   const toast = useToast();
   const qc = useQueryClient();
   const following = useQuery({ queryKey: ['myFollowing', user?.id], queryFn: db.loadMyFollowing, enabled: !!user });
+  const profileKey = ['profile', user?.id];
   const showValue = useMutation({
     mutationFn: (show: boolean) => db.setShowCollectionValue(user!.id, show),
+    // The switch moves at once; a failure puts it back.
+    onMutate: async (show) => {
+      await qc.cancelQueries({ queryKey: profileKey });
+      const before = qc.getQueryData<Record<string, unknown> | null>(profileKey);
+      if (before) qc.setQueryData(profileKey, { ...before, show_collection_value: show });
+      return { before };
+    },
     onSuccess: (_r, show) => {
       toast(show ? t('coll.valueShown') : t('coll.valueHidden'));
-      qc.invalidateQueries({ queryKey: ['profile', user?.id] });
       qc.invalidateQueries({ queryKey: ['collectorStats'] });
       qc.invalidateQueries({ queryKey: ['publicCollection'] });
     },
-    onError: () => toast(t('coll.saveFailed'))
+    onError: (_e, _show, ctx) => {
+      qc.setQueryData(profileKey, ctx?.before);
+      toast(t('coll.saveFailed'));
+    },
+    onSettled: () => qc.invalidateQueries({ queryKey: profileKey })
   });
   if (!user || !profile) return null;
-  const checked = showValue.isPending ? !!showValue.variables : profile.showCollectionValue;
 
   return (
     <Card>
       <h2 style={{ fontSize: 17, marginBottom: 6 }}>{t('coll.profileCard')}</h2>
       <label style={{ display: 'flex', alignItems: 'flex-start', gap: 12, padding: '14px 0', borderTop: '1px solid var(--line)', cursor: 'pointer' }}>
-        <input type="checkbox" checked={checked} disabled={showValue.isPending || !profile.handle} onChange={(e) => showValue.mutate(e.target.checked)} style={{ width: 20, height: 20, marginTop: 2, accentColor: 'var(--accent)', flex: 'none' }} />
+        <input type="checkbox" checked={profile.showCollectionValue} disabled={!profile.handle} onChange={(e) => showValue.mutate(e.target.checked)} style={{ width: 20, height: 20, marginTop: 2, accentColor: 'var(--accent)', flex: 'none' }} />
         <span>
           <span style={{ display: 'block', fontSize: 14.5 }}>{t('coll.showValue')}</span>
           <span style={{ display: 'block', fontSize: 12.5, color: 'var(--muted)', marginTop: 3, lineHeight: 1.45 }}>{t('coll.showValueHint')}</span>

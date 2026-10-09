@@ -50,6 +50,7 @@ test('the collection value setting is saved and can be turned off again', async 
   await page.reload();
   await expect(toggle).toBeChecked();
   await toggle.uncheck();
+  await expect(page.getByText('Collection value hidden.')).toBeVisible();
   await page.reload();
   await expect(toggle).not.toBeChecked();
 });
