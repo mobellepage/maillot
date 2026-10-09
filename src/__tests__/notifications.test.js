@@ -18,6 +18,11 @@ describe('localizeNotification', () => {
     const n = { title: 'Your bid was matched', body: 'Your bid on ger-26 (M) matched at CHF 139 — …', data: { shirt_id: 'ger-26', size: 'M', amount: 139 } };
     expect(localizeNotification(n, t, money).body).toContain('CHF 139');
   });
+  it('names the collector in follow notifications', () => {
+    expect(localizeNotification({ title: 'New follower', body: '@fan_one now follows your collection', data: { handle: 'fan_one' } }, t, money)).toEqual({ title: 'Neuer Follower', body: '@fan_one folgt jetzt deiner Sammlung.' });
+    const listing = { title: 'New listing from a collector you follow', body: '…', data: { handle: 'star', shirt_id: 'sui-26', size: 'L', amount: 180 } };
+    expect(localizeNotification(listing, t, money).body).toBe('@star bietet Switzerland 2026 Home (L) für CHF 180 an.');
+  });
   it('shows free text and unknown titles as sent', () => {
     expect(localizeNotification({ title: 'Dispute opened against your order', body: 'Never arrived', data: {} }, t, money)).toEqual({ title: 'Reklamation zu deiner Bestellung eröffnet', body: 'Never arrived' });
     expect(localizeNotification({ title: 'Something new', body: 'x', data: {} }, t, money)).toEqual({ title: 'Something new', body: 'x' });

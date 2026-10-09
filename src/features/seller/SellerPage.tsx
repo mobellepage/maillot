@@ -12,6 +12,9 @@ import { useCatalog } from '../catalog/useCatalog.ts';
 import { Card, EmptyState, ErrorState, Page, ShirtGraphic, Skeleton, StatTile } from '../../ui/index.ts';
 import { Stars } from '../../ui/Stars.tsx';
 import { PublicCollection } from '../collectors/PublicCollection.tsx';
+import { FollowButton } from '../collectors/FollowButton.tsx';
+import { publicCollectionValue } from '../collectors/collectionValue.ts';
+import { useSession } from '../../lib/session.tsx';
 
 export default function SellerPage() {
   useCatalog();
@@ -21,6 +24,9 @@ export default function SellerPage() {
   const listings = useQuery({ queryKey: ['sellerListings', handle], queryFn: () => db.loadSellerListings(handle), enabled: !!profile.data });
   const reviews = useQuery({ queryKey: ['sellerReviews', handle], queryFn: () => db.loadSellerReviews(handle), enabled: !!profile.data });
   const collection = useQuery({ queryKey: ['publicCollection', handle], queryFn: () => db.loadPublicCollection(handle), enabled: !!profile.data });
+  const { user } = useSession();
+  const stats = useQuery({ queryKey: ['collectorStats', handle.toLowerCase(), user?.id], queryFn: () => db.loadCollectorStats(handle), enabled: !!profile.data });
+  const value = stats.data?.show_value && collection.data ? publicCollectionValue(collection.data) : null;
   usePageMeta(t('seller.meta', { handle }), t('seller.metaDesc', { handle }));
 
   if (profile.isLoading)
@@ -50,13 +56,19 @@ export default function SellerPage() {
         <div aria-hidden="true" style={{ width: 80, height: 80, borderRadius: '50%', border: '3px solid var(--accent)', padding: 4, flex: 'none' }}>
           <div style={{ width: '100%', height: '100%', borderRadius: '50%', background: 'var(--avatar-grad)', display: 'grid', placeItems: 'center', fontSize: 24, fontWeight: 800 }}>{p.handle.slice(0, 2).toUpperCase()}</div>
         </div>
-        <div>
+        <div style={{ flex: '1 1 200px', minWidth: 0 }}>
           <div className="eyebrow">{t('seller.eyebrow')}</div>
           <h1 className="display" style={{ fontSize: 'clamp(28px,4vw,44px)', margin: '6px 0 0' }}>
             @{p.handle}
           </h1>
           <div style={{ fontSize: 13.5, color: 'var(--muted)', marginTop: 6 }}>{t('seller.since', { date: formatDate(p.member_since, lang) })}</div>
+          {stats.data && (
+            <div style={{ fontSize: 13.5, color: 'var(--text-2)', marginTop: 4 }}>
+              {tp('coll.followers', stats.data.followers)} · {t('coll.followingCount', { n: stats.data.following })}
+            </div>
+          )}
         </div>
+        <FollowButton handle={p.handle} stats={stats.data ?? undefined} />
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(170px,1fr))', gap: 12, marginTop: 28 }}>
@@ -66,6 +78,7 @@ export default function SellerPage() {
           value={p.rating !== null ? <Stars value={Number(p.rating)} label={t('seller.stars', { n: Number(p.rating).toFixed(1) })} size={18} /> : t('seller.na')}
           sub={p.reviews ? tp('seller.reviews', p.reviews) : t('seller.noReviews')}
         />
+        {value && value.counted > 0 && <StatTile highlight label={t('coll.value')} value={money(value.total)} sub={t('coll.valueSub', { n: value.counted })} />}
         <StatTile label={t('coll.statShirts')} value={collection.data?.length ?? '–'} />
         <StatTile label={t('seller.sales')} value={p.sales} />
         <StatTile label={t('seller.passRate')} value={pct(p.pass_rate === null ? null : Number(p.pass_rate))} />

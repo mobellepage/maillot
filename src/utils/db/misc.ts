@@ -96,6 +96,12 @@ export async function saveOnboarding(userId: string, answers: { goals: string[];
   if (error) throw error;
 }
 
+/** Show (or hide) the total value of the shirts the member shows on their public profile. */
+export async function setShowCollectionValue(userId: string, show: boolean): Promise<void> {
+  const { error } = await (await sb()).from('profiles').update({ show_collection_value: show }).eq('id', userId);
+  if (error) throw error;
+}
+
 // ---------------------------------------------------------------------------
 // Operations health (admins)
 // ---------------------------------------------------------------------------

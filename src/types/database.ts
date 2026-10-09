@@ -592,6 +592,7 @@ export type Database = {
           goals: string[];
           interests: Json;
           onboarded_at: string | null;
+          show_collection_value: boolean;
         };
         Insert: {
           created_at?: string;
@@ -607,7 +608,14 @@ export type Database = {
           goals?: string[];
           interests?: Json;
           onboarded_at?: string | null;
+          show_collection_value?: boolean;
         };
+        Relationships: [];
+      };
+      follows: {
+        Row: { follower_id: string; followee_id: string; created_at: string };
+        Insert: never;
+        Update: never;
         Relationships: [];
       };
       review_queue: {
@@ -877,8 +885,17 @@ export type Database = {
           photo_path: string | null;
           thumb_path: string | null;
           added_at: string;
+          /** Valuation inputs: only when the owner shows their collection value. */
+          flock: Json | null;
+          patches: Json | null;
+          signature: Json | null;
+          verification_level: string | null;
         }[];
       };
+      follow_collector: { Args: { p_handle: string }; Returns: undefined };
+      unfollow_collector: { Args: { p_handle: string }; Returns: undefined };
+      collector_profile: { Args: { p_handle: string }; Returns: { followers: number; following: number; show_value: boolean; is_following: boolean; is_me: boolean }[] };
+      my_following: { Args: never; Returns: { handle: string; followed_at: string; shirts: number }[] };
       is_visible_vault_photo: { Args: { p_name: string }; Returns: boolean };
       report_client_error: { Args: { p_message: string; p_stack?: string; p_url?: string; p_release?: string; p_user_agent?: string }; Returns: undefined };
       admin_health: {

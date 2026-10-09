@@ -14,6 +14,7 @@ import type { Lang } from '../../i18n/index.ts';
 import { Button, ButtonLink, Card, Notice, Page } from '../../ui/index.ts';
 import { useConfirm } from '../../ui/Confirm.tsx';
 import { PayoutsCard } from '../vault/PayoutsCard.tsx';
+import { ProfileCard } from '../collectors/ProfileCard.tsx';
 
 declare const __RELEASE__: string;
 const RELEASE = typeof __RELEASE__ === 'string' ? __RELEASE__ : 'dev';
@@ -172,6 +173,7 @@ export default function AccountPage() {
             </ButtonLink>
           </Card>
         )}
+        <ProfileCard />
         <Settings />
         {user && <PayoutsCard />}
         <Links />

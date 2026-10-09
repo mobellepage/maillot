@@ -10,6 +10,8 @@ export type SellerReview = RpcReturns<'seller_review_list'>[number];
 export type SellerCard = RpcReturns<'seller_cards'>[number];
 export type CollectorHit = RpcReturns<'search_collectors'>[number];
 export type PublicShirt = RpcReturns<'public_collection'>[number];
+export type CollectorStats = RpcReturns<'collector_profile'>[number];
+export type Followed = RpcReturns<'my_following'>[number];
 
 export async function loadSellerProfile(handle: string): Promise<SellerProfile | null> {
   const { data, error } = await (await sb()).rpc('seller_profile', { p_handle: handle });
@@ -46,6 +48,25 @@ export async function searchCollectors(q: string): Promise<CollectorHit[]> {
 /** A collector's shirts that aren't private, newest first (no values, no label photos). */
 export async function loadPublicCollection(handle: string): Promise<PublicShirt[]> {
   const { data, error } = await (await sb()).rpc('public_collection', { p_handle: handle });
+  if (error) throw error;
+  return data ?? [];
+}
+
+/** Follow counts, whether the viewer follows (or is) this member, and the value opt-in. */
+export async function loadCollectorStats(handle: string): Promise<CollectorStats | null> {
+  const { data, error } = await (await sb()).rpc('collector_profile', { p_handle: handle });
+  if (error) throw error;
+  return data?.[0] ?? null;
+}
+
+export async function setFollowing(handle: string, follow: boolean): Promise<void> {
+  const { error } = await (await sb()).rpc(follow ? 'follow_collector' : 'unfollow_collector', { p_handle: handle });
+  if (error) throw error;
+}
+
+/** The collectors the signed-in member follows, newest first. */
+export async function loadMyFollowing(): Promise<Followed[]> {
+  const { data, error } = await (await sb()).rpc('my_following');
   if (error) throw error;
   return data ?? [];
 }

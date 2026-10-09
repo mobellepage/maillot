@@ -42,7 +42,7 @@ export default function NotificationBell() {
             {loading && <div style={{ padding: '24px 14px', textAlign: 'center', color: 'var(--muted)', fontSize: 13 }}>{t('common.loading')}</div>}
             {!error && !loading && items.length === 0 && <div style={{ padding: '24px 14px', textAlign: 'center', color: 'var(--muted)', fontSize: 13 }}>{t('header.noNotifications')}</div>}
             {items.map((n) => {
-              const data = (n.data || {}) as { order_id?: string; shirt_id?: string };
+              const data = (n.data || {}) as { order_id?: string; shirt_id?: string; handle?: string | null };
               const text = localizeNotification(n, t, money);
               return (
                 <button
@@ -54,6 +54,7 @@ export default function NotificationBell() {
                     setOpen(false);
                     if (data.order_id) navigate('/orders/' + data.order_id);
                     else if (data.shirt_id) navigate('/shirt/' + data.shirt_id);
+                    else if (data.handle) navigate('/u/' + data.handle);
                   }}
                   style={{ display: 'block', background: n.read ? 'none' : 'rgba(75,255,139,0.07)', marginBottom: 2 }}
                 >
