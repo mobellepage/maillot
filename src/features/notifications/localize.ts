@@ -29,7 +29,8 @@ const BY_TITLE: Record<string, [MessageKey, MessageKey | null]> = {
   'Your shirt went down': ['notif.moveDown.title', 'notif.moveDown.body'],
   'New follower': ['notif.follower.title', 'notif.follower.body'],
   'New listing from a collector you follow': ['notif.followedListing.title', 'notif.followedListing.body'],
-  'New shirt in a collection you follow': ['notif.followedShirt.title', 'notif.followedShirt.body']
+  'New shirt in a collection you follow': ['notif.followedShirt.title', 'notif.followedShirt.body'],
+  'A shirt you want is listed': ['notif.listingAlert.title', 'notif.listingAlert.body']
 };
 
 type N = { title: string; body: string | null; data: unknown };

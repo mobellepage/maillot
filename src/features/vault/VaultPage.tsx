@@ -11,6 +11,7 @@ import { getShirt } from '../catalog/model.ts';
 import { OrdersTab } from '../orders/OrdersTab.tsx';
 import { useOrders } from '../orders/useOrders.ts';
 import { useWatchlist } from '../watchlist/useWatchlist.ts';
+import { AlertsList } from '../watchlist/AlertsList.tsx';
 import { CollectionTab } from './CollectionTab.tsx';
 import { badgeFor, itemLook, itemName, valueOf } from './model.ts';
 import { useCollection } from './useCollection.ts';
@@ -143,7 +144,12 @@ export default function VaultPage({ tab }: { tab: Tab }) {
       </nav>
 
       {tab === 'collection' && <CollectionTab items={items} loading={loading} error={error} onRetry={refetch} />}
-      {tab === 'watchlist' && <div style={{ marginTop: 24 }}>{watched.length ? <ShirtGrid shirts={watched} /> : <EmptyState title={t('vault.watchEmpty')}>{t('vault.tapHeart')}</EmptyState>}</div>}
+      {tab === 'watchlist' && (
+        <div style={{ marginTop: 24 }}>
+          <AlertsList />
+          {watched.length ? <ShirtGrid shirts={watched} /> : <EmptyState title={t('vault.watchEmpty')}>{t('vault.tapHeart')}</EmptyState>}
+        </div>
+      )}
       {tab === 'orders' && <OrdersTab />}
     </Page>
   );

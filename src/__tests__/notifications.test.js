@@ -23,6 +23,10 @@ describe('localizeNotification', () => {
     const listing = { title: 'New listing from a collector you follow', body: '…', data: { handle: 'star', shirt_id: 'sui-26', size: 'L', amount: 180 } };
     expect(localizeNotification(listing, t, money).body).toBe('@star bietet Switzerland 2026 Home (L) für CHF 180 an.');
   });
+  it('announces a listing that matches an alert', () => {
+    const n = { title: 'A shirt you want is listed', body: '…', data: { shirt_id: 'ned-88', size: 'M', amount: 280 } };
+    expect(localizeNotification(n, t, money)).toEqual({ title: 'Ein gesuchtes Trikot ist im Angebot', body: 'Netherlands 1988 Home (M) ist jetzt für CHF 280 im Angebot.' });
+  });
   it('shows free text and unknown titles as sent', () => {
     expect(localizeNotification({ title: 'Dispute opened against your order', body: 'Never arrived', data: {} }, t, money)).toEqual({ title: 'Reklamation zu deiner Bestellung eröffnet', body: 'Never arrived' });
     expect(localizeNotification({ title: 'Something new', body: 'x', data: {} }, t, money)).toEqual({ title: 'Something new', body: 'x' });

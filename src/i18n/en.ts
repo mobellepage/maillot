@@ -1222,6 +1222,23 @@ export const en = {
   'dealer.badge': 'Verified dealer',
   'dealer.hint': 'A shop checked by the MAILLOT team.',
   'dealer.eyebrow': 'Dealer',
+  'alert.cta': 'Tell me when it’s listed',
+  'alert.signIn': 'Sign in to get an alert when this shirt is listed.',
+  'alert.title': 'Alert for new listings',
+  'alert.body': 'We’ll tell you as soon as someone lists {name} — in the app, and by email.',
+  'alert.thisSize': 'Size {size}',
+  'alert.anySize': 'any size',
+  'alert.maxPrice': 'Up to (optional)',
+  'alert.anyPrice': 'any price',
+  'alert.save': 'Set alert',
+  'alert.saved': 'Alert set — we’ll tell you when it’s listed.',
+  'alert.active': 'Alert on: {size}',
+  'alert.upTo': 'up to {price}',
+  'alert.remove': 'Remove',
+  'alert.listTitle': 'Your alerts',
+  'alert.sizeLabel': 'Size: {size}',
+  'notif.listingAlert.title': 'A shirt you want is listed',
+  'notif.listingAlert.body': '{shirt} ({size}) is now listed for {amount}.',
   // @@end
 };
 

@@ -617,6 +617,12 @@ export type Database = {
         };
         Relationships: [];
       };
+      listing_alerts: {
+        Row: { id: string; user_id: string; shirt_id: string; size: string | null; max_price: number | null; created_at: string; last_notified_at: string | null };
+        Insert: { id?: string; user_id: string; shirt_id: string; size?: string | null; max_price?: number | null };
+        Update: never;
+        Relationships: [];
+      };
       follows: {
         Row: { follower_id: string; followee_id: string; created_at: string };
         Insert: never;

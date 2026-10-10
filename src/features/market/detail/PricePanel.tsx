@@ -6,6 +6,7 @@ import type { OrderBook, SellerCard, ShirtStats } from '../../../utils/db.ts';
 import { Stars } from '../../../ui/Stars.tsx';
 import { marketValue } from '../../catalog/model.ts';
 import { AskPhotos } from './AskPhotos.tsx';
+import { AlertButton } from './AlertButton.tsx';
 import { DealerBadge } from '../../collectors/DealerBadge.tsx';
 
 export interface PricePanelProps {
@@ -113,6 +114,7 @@ export function PricePanel({ s, size, setSize, book, myUserId, stats, watched, t
         )}
         <WatchButton watched={watched} onToggle={toggleWatch} name={s.name} size={58} style={{ borderRadius: 14, border: '1.5px solid rgba(255,255,255,0.14)', background: 'none' }} />
       </div>
+      <AlertButton s={s} size={size} />
 
       <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start', marginTop: 18, padding: 16, borderRadius: 14, background: 'var(--surface)', border: '1px solid var(--line)' }}>
         <span aria-hidden="true" style={{ width: 34, height: 34, flex: 'none', borderRadius: 10, background: 'var(--accent-soft)', display: 'grid', placeItems: 'center', color: 'var(--accent)' }}>
