@@ -1,5 +1,6 @@
-// Illustrated shirt used wherever a catalogue item has no photo. One
-// component for every view of it (front / back with print / crest close-up).
+// A catalogue shirt's picture: its studio photo when it has one (front view),
+// otherwise the illustrated shirt. One component for every view of it
+// (front / back with print / crest close-up).
 import type { CSSProperties } from 'react';
 
 const FRONT_CLIP = 'polygon(31% 5%,39% 3%,50% 9%,61% 3%,69% 5%,97% 21%,88% 41%,78% 35%,78% 97%,22% 97%,22% 35%,12% 41%,3% 21%)';
@@ -12,6 +13,8 @@ export interface ShirtLook {
   trim: string;
   crest: string;
   num?: string | undefined;
+  /** Studio photo base path (catalogPhotos.ts): fills the frame instead of the drawing. */
+  photo?: string | undefined;
 }
 
 interface Props extends ShirtLook {
@@ -26,7 +29,20 @@ interface Props extends ShirtLook {
   title?: string;
 }
 
-export function ShirtGraphic({ pat, trim, crest, num, view = 'front', hero, flat, printName, printNumber, style, title }: Props) {
+export function ShirtGraphic({ pat, trim, crest, num, photo, view = 'front', hero, flat, printName, printNumber, style, title }: Props) {
+  if (photo && view === 'front')
+    return (
+      <img
+        src={photo + (hero ? '.jpg' : '-400.jpg')}
+        srcSet={`${photo}-400.jpg 400w, ${photo}.jpg 1000w`}
+        sizes={hero ? '(max-width: 900px) 100vw, 640px' : flat ? '120px' : '(max-width: 600px) 50vw, 320px'}
+        alt={title ?? ''}
+        loading={hero ? 'eager' : 'lazy'}
+        decoding="async"
+        // The photo is the studio square itself: it fills the frame (no drawing width, no extra shadow).
+        style={{ display: 'block', width: '100%', height: 'auto', aspectRatio: '1/1', objectFit: 'cover', animation: style?.animation, viewTransitionName: style?.viewTransitionName }}
+      />
+    );
   const shadow = flat ? 'none' : `drop-shadow(0 ${hero ? 30 : 22}px ${hero ? 30 : 24}px rgba(0,0,0,0.55))`;
   const a11y = title ? { role: 'img', 'aria-label': title } : { 'aria-hidden': true };
 

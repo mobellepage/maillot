@@ -7,3 +7,6 @@ export function shareOrigin(): string {
   if (typeof window === 'undefined') return SITE_URL;
   return /^https?:$/.test(window.location.protocol) ? window.location.origin : SITE_URL;
 }
+
+/** Prototype phase: a notice across the top says pictures and figures are examples. Turn off before launch. */
+export const PROTOTYPE = true;

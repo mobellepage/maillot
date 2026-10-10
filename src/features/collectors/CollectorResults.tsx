@@ -35,7 +35,7 @@ export function CollectorResults({ hits }: { hits: CollectorHit[] }) {
                 const s = BY[id];
                 return (
                   <span key={id + i} style={{ width: 30, height: 30, marginLeft: i ? -8 : 0, borderRadius: 9, background: 'var(--sunken)', border: '1px solid var(--line)', display: 'grid', placeItems: 'center' }}>
-                    <ShirtGraphic pat={s?.pat ?? HEX.placeholderPat} trim={s?.trim ?? HEX.muted} crest={s?.crest ?? HEX.muted} flat style={{ width: '78%' }} />
+                    <ShirtGraphic pat={s?.pat ?? HEX.placeholderPat} trim={s?.trim ?? HEX.muted} crest={s?.crest ?? HEX.muted} photo={s?.photo} flat style={{ width: '78%' }} />
                   </span>
                 );
               })}

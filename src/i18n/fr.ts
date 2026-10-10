@@ -1206,5 +1206,7 @@ export const fr: Messages = {
   'notif.followedListing.body': '{handle} propose {shirt} ({size}) pour {amount}.',
   'notif.followedShirt.title': 'Nouveau maillot dans une collection que tu suis',
   'notif.followedShirt.body': '{handle} a ajouté un maillot à sa collection.',
+  'proto.label': 'PROTOTYPE',
+  'proto.body': 'Images, prix et chiffres sont des exemples.',
   // @@end
 };

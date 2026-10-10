@@ -80,7 +80,7 @@ export default function OrderPage() {
         {t('ord.all')}
       </Link>
       <Card style={{ display: 'flex', gap: 20, alignItems: 'center', flexWrap: 'wrap' }}>
-        <div style={{ width: 96, flex: 'none' }}>{shirt && <ShirtGraphic pat={shirt.pat} trim={shirt.trim} crest={shirt.crest} flat />}</div>
+        <div style={{ width: 96, flex: 'none' }}>{shirt && <ShirtGraphic pat={shirt.pat} trim={shirt.trim} crest={shirt.crest} photo={shirt.photo} flat />}</div>
         <div style={{ flex: '1 1 240px', minWidth: 0 }}>
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
             <Badge>{isBuyer ? t('order.role.buy') : t('order.role.sell')}</Badge>

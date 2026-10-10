@@ -1205,6 +1205,8 @@ export const en = {
   'notif.followedListing.body': '{handle} listed {shirt} ({size}) for {amount}.',
   'notif.followedShirt.title': 'New shirt in a collection you follow',
   'notif.followedShirt.body': '{handle} added a shirt to their collection.',
+  'proto.label': 'PROTOTYPE',
+  'proto.body': 'Pictures, prices and figures are examples.',
   // @@end
 };
 

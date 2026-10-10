@@ -31,7 +31,7 @@ export function Gallery({ s }: { s: Shirt }) {
         <span className="badge badge--neutral" style={{ position: 'absolute', top: 18, right: 18, zIndex: 2, padding: '7px 12px', background: 'var(--overlay)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
           {t(tagFor(s))}
         </span>
-        {view === 'Front' && <ShirtGraphic hero pat={s.pat} trim={s.trim} crest={s.crest} style={{ width: '68%', filter: 'drop-shadow(0 40px 40px rgba(0,0,0,0.6))', animation: enter, viewTransitionName: 'shirt-hero' }} />}
+        {view === 'Front' && <ShirtGraphic hero pat={s.pat} trim={s.trim} crest={s.crest} photo={s.photo} style={{ width: '68%', filter: 'drop-shadow(0 40px 40px rgba(0,0,0,0.6))', animation: enter, viewTransitionName: 'shirt-hero' }} />}
         {view === 'Back' && (
           <ShirtGraphic view="back" pat={s.pat} trim={s.trim} crest={s.crest} num={s.num} printName={printName} printNumber={printNumber} style={{ width: '68%', filter: 'drop-shadow(0 40px 40px rgba(0,0,0,0.6))', animation: enter }} />
         )}
@@ -42,16 +42,19 @@ export function Gallery({ s }: { s: Shirt }) {
           </div>
         )}
       </div>
-      <div role="group" aria-label={t('gal.views')} style={{ display: 'flex', gap: 10, marginTop: 12 }}>
-        {VIEWS.map((v) => (
-          <button key={v} type="button" className="option-btn" aria-pressed={view === v} onClick={() => {
-              setView(v);
-              setSwitched(true);
-            }} style={{ flex: 1, maxWidth: 120, height: 64, borderRadius: 14, fontSize: 12, color: 'var(--text-2)', textAlign: 'center' }}>
-            {t('gal.view.' + v)}
-          </button>
-        ))}
-      </div>
+      {/* A photographed shirt shows its photo; the drawn back and crest views would not match it. */}
+      {!s.photo && (
+        <div role="group" aria-label={t('gal.views')} style={{ display: 'flex', gap: 10, marginTop: 12 }}>
+          {VIEWS.map((v) => (
+            <button key={v} type="button" className="option-btn" aria-pressed={view === v} onClick={() => {
+                setView(v);
+                setSwitched(true);
+              }} style={{ flex: 1, maxWidth: 120, height: 64, borderRadius: 14, fontSize: 12, color: 'var(--text-2)', textAlign: 'center' }}>
+              {t('gal.view.' + v)}
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

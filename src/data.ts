@@ -1,5 +1,6 @@
 // Core data + helpers for Maillot, ported from the original prototype.
 import { rng, generateSyntheticMarketData, type MarketData } from './marketData.ts';
+import { catalogPhoto } from './catalogPhotos.ts';
 
 export type ShirtType = 'New' | 'Retro' | 'Match-worn';
 
@@ -26,6 +27,8 @@ export interface RawShirt {
   glow: string;
   /** days since it was added to the catalogue */
   added: number;
+  /** Real photo (base path, see catalogPhotos.ts); the graphic is shown otherwise. */
+  photo?: string | undefined;
 }
 
 /** Real-trade figures for a shirt (from released orders). */
@@ -174,6 +177,7 @@ export function buildShirt(raw: RawShirt & { sizes?: string[]; sku?: string }, t
     spark: linePath(down(m.hist.slice(-90), 32), 100, 32, 3).d,
     hay: [raw.club, raw.name, raw.season, raw.brand, raw.league, raw.player, raw.type].join(' ').toLowerCase(),
     sku: raw.sku || sku,
+    photo: raw.photo ?? catalogPhoto(raw.id),
     trend: raw.ch * 1.6 + m.wants / 900
   };
 }

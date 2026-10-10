@@ -11,6 +11,7 @@ import { useOnboardingRedirect } from './useOnboardingRedirect.ts';
 import { OfflineBar } from './OfflineBar.tsx';
 import { RouteAnnouncer } from './RouteAnnouncer.tsx';
 import { AuthLinkNotice } from './AuthLinkNotice.tsx';
+import { PrototypeBar } from './PrototypeBar.tsx';
 
 export default function RootLayout() {
   useCatalogSync();
@@ -30,6 +31,7 @@ export default function RootLayout() {
       <RouteAnnouncer />
       <AuthLinkNotice />
       <OfflineBar />
+      <PrototypeBar />
       <Header />
       <div style={{ flex: 1 }}>
         <Suspense fallback={<PageFallback />}>

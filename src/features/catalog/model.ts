@@ -110,7 +110,7 @@ export function toCard(s: Shirt, money: (chf: number) => string): ShirtCardModel
     brand: s.brand,
     season: s.season,
     tag: tagFor(s),
-    look: { pat: s.pat, trim: s.trim, crest: s.crest, num: s.num },
+    look: { pat: s.pat, trim: s.trim, crest: s.crest, num: s.num, photo: s.photo },
     glow: alpha(s.glow, 0.34),
     priceFmt: money(s.price),
     chFmt: pct(s.ch),

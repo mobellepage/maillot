@@ -107,7 +107,7 @@ export default function SellerPage() {
             return (
               <li key={l.ask_id} className="card card--interactive" style={{ padding: 16, borderRadius: 20, position: 'relative' }}>
                 <div style={{ aspectRatio: '1/1', display: 'grid', placeItems: 'center' }}>
-                  <ShirtGraphic pat={s.pat} trim={s.trim} crest={s.crest} flat style={{ width: '70%' }} />
+                  <ShirtGraphic pat={s.pat} trim={s.trim} crest={s.crest} photo={s.photo} flat style={{ width: '70%' }} />
                 </div>
                 <Link to={`/shirt/${s.id}?size=${encodeURIComponent(l.size)}`} className="stretched-link" style={{ display: 'block', color: 'var(--text)', fontWeight: 600, fontSize: 14.5, marginTop: 8 }}>
                   {s.name}

@@ -24,7 +24,7 @@ export function Movers() {
                 {String(i + 1).padStart(2, '0')}
               </span>
               <span style={{ width: 56, height: 56, borderRadius: 12, background: `radial-gradient(circle,${alpha(m.glow, 0.34)},rgba(0,0,0,0) 72%),var(--sunken)`, display: 'grid', placeItems: 'center', flex: 'none' }}>
-                <ShirtGraphic pat={m.pat} trim={m.trim} crest={m.crest} flat style={{ width: '78%' }} />
+                <ShirtGraphic pat={m.pat} trim={m.trim} crest={m.crest} photo={m.photo} flat style={{ width: '78%' }} />
               </span>
               <span style={{ flex: 1, minWidth: 0 }}>
                 <span style={{ display: 'block', fontSize: 15, fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{m.name}</span>

@@ -29,7 +29,7 @@ export function PublicCollection({ shirts }: { shirts: PublicShirt[] }) {
               {src ? (
                 <img src={src} alt="" loading="lazy" decoding="async" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
               ) : (
-                <ShirtGraphic pat={cat?.pat ?? HEX.placeholderPat} trim={cat?.trim ?? HEX.muted} crest={cat?.crest ?? HEX.muted} style={{ width: '64%' }} />
+                <ShirtGraphic pat={cat?.pat ?? HEX.placeholderPat} trim={cat?.trim ?? HEX.muted} crest={cat?.crest ?? HEX.muted} photo={cat?.photo} style={{ width: '64%' }} />
               )}
               <div style={{ position: 'absolute', top: 10, left: 10, right: 10, display: 'flex', gap: 6, flexWrap: 'wrap', justifyContent: 'space-between' }}>
                 {s.verified ? <Badge tone="accent">{t('coll.verified')}</Badge> : <span />}

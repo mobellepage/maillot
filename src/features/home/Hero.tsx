@@ -95,7 +95,7 @@ export function Hero({ featured }: { featured: Shirt }) {
                   <li key={s.id} id={'sug-' + i} role="option" aria-selected={i === active}>
                     <Link to={'/shirt/' + s.id} className="row-btn" style={{ background: i === active ? 'rgba(255,255,255,0.05)' : undefined }}>
                       <span style={{ width: 40, height: 40, borderRadius: 9, background: 'var(--sunken)', display: 'grid', placeItems: 'center', flex: 'none' }}>
-                        <ShirtGraphic pat={s.pat} trim={s.trim} crest={s.crest} flat style={{ width: '80%' }} />
+                        <ShirtGraphic pat={s.pat} trim={s.trim} crest={s.crest} photo={s.photo} flat style={{ width: '80%' }} />
                       </span>
                       <span style={{ flex: 1, minWidth: 0 }}>
                         <span style={{ display: 'block', fontSize: 14, fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{s.name}</span>
@@ -138,7 +138,7 @@ export function Hero({ featured }: { featured: Shirt }) {
                 {pct(featured.ch)} · 30D
               </span>
             </span>
-            <ShirtGraphic hero pat={featured.pat} trim={featured.trim} crest={featured.crest} style={{ width: '66%', transform: 'translateY(-4%)', filter: 'drop-shadow(0 40px 40px rgba(0,0,0,0.6))' }} />
+            <ShirtGraphic hero pat={featured.pat} trim={featured.trim} crest={featured.crest} photo={featured.photo} style={{ width: '66%', transform: 'translateY(-4%)', filter: 'drop-shadow(0 40px 40px rgba(0,0,0,0.6))' }} />
             <span style={{ position: 'absolute', left: 18, right: 18, bottom: 18, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, padding: '16px 18px', borderRadius: 20, background: 'rgba(14,17,16,0.78)', backdropFilter: 'blur(14px)', border: '1px solid rgba(255,255,255,0.08)' }}>
               <span style={{ minWidth: 0 }}>
                 <span style={{ display: 'block', fontWeight: 700, fontSize: 16, lineHeight: 1.25 }}>{featured.name}</span>

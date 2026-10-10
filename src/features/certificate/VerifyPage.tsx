@@ -113,7 +113,7 @@ export default function VerifyPage() {
           )}
           <Card style={{ marginTop: 20, display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(240px,1fr))', gap: 24, alignItems: 'center' }}>
             <div style={{ display: 'grid', placeItems: 'center', minHeight: 220 }}>
-              {shirt ? <ShirtGraphic pat={shirt.pat} trim={shirt.trim} crest={shirt.crest} title={shirt.name} style={{ width: '70%' }} /> : <div style={{ color: 'var(--muted)' }}>{t('ver.custom')}</div>}
+              {shirt ? <ShirtGraphic pat={shirt.pat} trim={shirt.trim} crest={shirt.crest} photo={shirt.photo} title={shirt.name} style={{ width: '70%' }} /> : <div style={{ color: 'var(--muted)' }}>{t('ver.custom')}</div>}
             </div>
             <dl style={{ margin: 0, display: 'grid', gridTemplateColumns: 'auto 1fr', gap: '10px 16px', fontSize: 14 }}>
               <dt style={{ color: 'var(--muted)' }}>{t('ver.shirt')}</dt>

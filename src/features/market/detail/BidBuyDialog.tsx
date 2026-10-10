@@ -99,7 +99,7 @@ export function BidBuyDialog({ mode, onClose, shirt, size, lowestAsk, topBid, ma
         <>
           <div style={{ display: 'flex', gap: 14, alignItems: 'center', padding: 14, borderRadius: 16, background: 'var(--sunken)', border: '1px solid var(--line)', marginBottom: 22 }}>
             <span style={{ width: 64, height: 64, borderRadius: 12, display: 'grid', placeItems: 'center', flex: 'none', background: `radial-gradient(circle,${alpha(shirt.glow, 0.34)},rgba(0,0,0,0) 70%),var(--bg)` }}>
-              <ShirtGraphic pat={shirt.pat} trim={shirt.trim} crest={shirt.crest} flat style={{ width: '80%' }} />
+              <ShirtGraphic pat={shirt.pat} trim={shirt.trim} crest={shirt.crest} photo={shirt.photo} flat style={{ width: '80%' }} />
             </span>
             <span style={{ minWidth: 0 }}>
               <span style={{ display: 'block', fontWeight: 600, fontSize: 15, lineHeight: 1.3 }}>{shirt.name}</span>

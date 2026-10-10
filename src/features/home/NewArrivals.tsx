@@ -18,7 +18,7 @@ export function NewArrivals() {
                 <span className="mono" style={{ position: 'absolute', top: 12, left: 12, fontSize: 10.5, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--accent)' }}>
                   ● Added {s.added}d ago
                 </span>
-                <ShirtGraphic pat={s.pat} trim={s.trim} crest={s.crest} style={{ width: '56%', filter: 'drop-shadow(0 18px 22px rgba(0,0,0,0.55))' }} />
+                <ShirtGraphic pat={s.pat} trim={s.trim} crest={s.crest} photo={s.photo} style={{ width: '56%', filter: 'drop-shadow(0 18px 22px rgba(0,0,0,0.55))' }} />
               </span>
               <span style={{ display: 'block', padding: '14px 16px 16px' }}>
                 <span style={{ display: 'block', fontSize: 15, fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{s.name}</span>

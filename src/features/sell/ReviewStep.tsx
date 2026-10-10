@@ -13,7 +13,7 @@ export function ReviewStep({ f }: { f: SellFlow }) {
   return (
     <div style={{ display: 'flex', flexWrap: 'wrap', gap: 24, animation: 'kvIn .35s ease both' }}>
       <div style={{ flex: '1 1 360px', minWidth: 0, aspectRatio: '1/1', maxWidth: 520, borderRadius: 28, background: `radial-gradient(circle at 50% 45%,${alpha(s.glow, 0.34)},rgba(0,0,0,0) 60%),var(--sunken)`, border: '1px solid var(--line)', display: 'grid', placeItems: 'center' }}>
-        <ShirtGraphic hero pat={s.pat} trim={s.trim} crest={s.crest} title={s.name} style={{ width: '66%' }} />
+        <ShirtGraphic hero pat={s.pat} trim={s.trim} crest={s.crest} photo={s.photo} title={s.name} style={{ width: '66%' }} />
       </div>
       <Card style={{ flex: '1 1 340px', minWidth: 0, display: 'flex', flexDirection: 'column' }}>
         <h2 className="display" style={{ fontSize: 22, fontStretch: '78%', marginBottom: 10 }}>

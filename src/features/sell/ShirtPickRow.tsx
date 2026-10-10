@@ -8,7 +8,7 @@ export function ShirtPickRow({ s, onPick, right }: { s: Shirt; onPick: (s: Shirt
   return (
     <button type="button" className="row-btn" onClick={() => onPick(s)}>
       <span style={{ width: 44, height: 44, borderRadius: 10, background: 'var(--bg)', display: 'grid', placeItems: 'center', flex: 'none' }}>
-        <ShirtGraphic pat={s.pat} trim={s.trim} crest={s.crest} flat style={{ width: '80%' }} />
+        <ShirtGraphic pat={s.pat} trim={s.trim} crest={s.crest} photo={s.photo} flat style={{ width: '80%' }} />
       </span>
       <span style={{ flex: 1, minWidth: 0 }}>
         <span style={{ display: 'block', fontSize: 14.5, fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{s.name}</span>
@@ -30,7 +30,7 @@ export function SelectedShirt({ s, onChange }: { s: Shirt; onChange: () => void 
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 14, padding: 14, borderRadius: 18, background: 'var(--surface)', border: '1px solid var(--line)' }}>
       <span style={{ width: 56, height: 56, borderRadius: 12, background: 'var(--bg)', display: 'grid', placeItems: 'center', flex: 'none' }}>
-        <ShirtGraphic pat={s.pat} trim={s.trim} crest={s.crest} flat style={{ width: '80%' }} />
+        <ShirtGraphic pat={s.pat} trim={s.trim} crest={s.crest} photo={s.photo} flat style={{ width: '80%' }} />
       </span>
       <span style={{ flex: 1, minWidth: 0 }}>
         <span style={{ display: 'block', fontWeight: 600 }}>{s.name}</span>
