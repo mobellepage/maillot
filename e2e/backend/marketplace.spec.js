@@ -59,6 +59,8 @@ test('seller: listing at the top bid sells instantly', async ({ page }) => {
   await page.getByLabel('Search the catalogue').fill('france 1998');
   await page.getByText('France 1998 Home').first().click();
   await page.getByRole('button', { name: 'M', exact: true }).click();
+  // A photo of the actual shirt's front is required to continue.
+  await page.getByLabel('Front', { exact: true }).setInputFiles('public/catalog/nap-8788-400.jpg');
   await page.getByRole('button', { name: /Continue/ }).click();
   await seen(page, page.getByText('Sell now to top bid'));
   await page.getByText('Sell now to top bid').click();

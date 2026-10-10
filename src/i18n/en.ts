@@ -1207,6 +1207,18 @@ export const en = {
   'notif.followedShirt.body': '{handle} added a shirt to their collection.',
   'proto.label': 'PROTOTYPE',
   'proto.body': 'Pictures, prices and figures are examples.',
+  'sell.photos': 'Photos of your shirt',
+  'sell.photosHint': 'Buyers see exactly this shirt. The front is required; back, label and any flaws build trust and sell faster.',
+  'sell.photo.front': 'Front',
+  'sell.photo.back': 'Back',
+  'sell.photo.label': 'Label',
+  'sell.photo.detail': 'Detail / flaws',
+  'sell.photoQuality': 'Some photos are dark, blurry or small — clearer photos sell better.',
+  'sell.photoFailed': 'This photo could not be read — please try another.',
+  'sell.photoRequired': 'Add a photo of the front to continue',
+  'pp.sellerPhotos': 'Photos of this shirt',
+  'pp.noPhotos': 'The seller hasn’t added photos of this shirt.',
+  'pp.openPhoto': 'Open photo: {what}',
   // @@end
 };
 

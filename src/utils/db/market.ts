@@ -1,6 +1,8 @@
 // The order book (bids & asks). Matching runs server-side in the insert trigger.
 import { sb } from '../supabase.ts';
 import type { Ask, Bid, OrderBook, OrderRef } from './types.ts';
+import type { Json } from '../../types/database.ts';
+import type { ListingPhoto } from '../../types/domain.ts';
 
 // ---------------------------------------------------------------------------
 // Order book: bids & asks. Matching happens server-side in the insert
@@ -20,6 +22,8 @@ export interface AskInput {
   condition?: string;
   edition?: string;
   playerPrint?: string;
+  /** Photos of the actual shirt, already uploaded to the seller's folder. */
+  photos?: ListingPhoto[];
 }
 
 export async function placeAsk(userId: string, a: AskInput): Promise<Ask> {
@@ -33,7 +37,8 @@ export async function placeAsk(userId: string, a: AskInput): Promise<Ask> {
       amount: a.amount,
       condition: a.condition || null,
       edition: a.edition || null,
-      player_print: a.playerPrint || null
+      player_print: a.playerPrint || null,
+      photos: (a.photos ?? []) as unknown as Json
     })
     .select()
     .single();

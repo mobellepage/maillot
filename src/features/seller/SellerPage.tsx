@@ -15,6 +15,7 @@ import { PublicCollection } from '../collectors/PublicCollection.tsx';
 import { FollowButton } from '../collectors/FollowButton.tsx';
 import { publicCollectionValue } from '../collectors/collectionValue.ts';
 import { useSession } from '../../lib/session.tsx';
+import { usePhotoUrls } from '../../lib/usePhotoUrls.ts';
 
 export default function SellerPage() {
   useCatalog();
@@ -27,6 +28,8 @@ export default function SellerPage() {
   const { user } = useSession();
   const stats = useQuery({ queryKey: ['collectorStats', handle.toLowerCase(), user?.id], queryFn: () => db.loadCollectorStats(handle), enabled: !!profile.data });
   const value = stats.data?.show_value && collection.data ? publicCollectionValue(collection.data) : null;
+  // The sellers' own photos on their listings (first photo of each).
+  const listingPhoto = usePhotoUrls((listings.data ?? []).map((l) => (l.thumb_path ? { path: l.thumb_path } : undefined)));
   usePageMeta(t('seller.meta', { handle }), t('seller.metaDesc', { handle }));
 
   if (profile.isLoading)
@@ -106,8 +109,12 @@ export default function SellerPage() {
             if (!s) return null;
             return (
               <li key={l.ask_id} className="card card--interactive" style={{ padding: 16, borderRadius: 20, position: 'relative' }}>
-                <div style={{ aspectRatio: '1/1', display: 'grid', placeItems: 'center' }}>
-                  <ShirtGraphic pat={s.pat} trim={s.trim} crest={s.crest} photo={s.photo} flat style={{ width: '70%' }} />
+                <div style={{ aspectRatio: '1/1', display: 'grid', placeItems: 'center', borderRadius: 12, overflow: 'hidden' }}>
+                  {l.thumb_path && listingPhoto({ path: l.thumb_path }) ? (
+                    <img src={listingPhoto({ path: l.thumb_path })} alt="" loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  ) : (
+                    <ShirtGraphic pat={s.pat} trim={s.trim} crest={s.crest} photo={s.photo} flat style={{ width: '70%' }} />
+                  )}
                 </div>
                 <Link to={`/shirt/${s.id}?size=${encodeURIComponent(l.size)}`} className="stretched-link" style={{ display: 'block', color: 'var(--text)', fontWeight: 600, fontSize: 14.5, marginTop: 8 }}>
                   {s.name}

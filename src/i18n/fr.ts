@@ -1208,5 +1208,17 @@ export const fr: Messages = {
   'notif.followedShirt.body': '{handle} a ajouté un maillot à sa collection.',
   'proto.label': 'PROTOTYPE',
   'proto.body': 'Images, prix et chiffres sont des exemples.',
+  'sell.photos': 'Photos de ton maillot',
+  'sell.photosHint': 'Les acheteurs voient exactement ce maillot. Le devant est obligatoire ; dos, étiquette et défauts éventuels rassurent et font vendre plus vite.',
+  'sell.photo.front': 'Devant',
+  'sell.photo.back': 'Dos',
+  'sell.photo.label': 'Étiquette',
+  'sell.photo.detail': 'Détail / défauts',
+  'sell.photoQuality': 'Certaines photos sont sombres, floues ou petites – des photos nettes se vendent mieux.',
+  'sell.photoFailed': 'Impossible de lire cette photo – essaie une autre.',
+  'sell.photoRequired': 'Ajoute une photo du devant pour continuer',
+  'pp.sellerPhotos': 'Photos de ce maillot',
+  'pp.noPhotos': 'Le vendeur n’a pas ajouté de photos de ce maillot.',
+  'pp.openPhoto': 'Ouvrir la photo : {what}',
   // @@end
 };

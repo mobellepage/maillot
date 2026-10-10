@@ -8,7 +8,8 @@ import { useSession } from '../../lib/session.tsx';
 import { useToast } from '../../lib/toast.tsx';
 import { usePrefs } from '../../lib/prefs.tsx';
 import * as db from '../../utils/db.ts';
-import { analyzeAndCompress } from '../../utils/image.ts';
+import { analyzeAndCompress, type CompressedPhoto } from '../../utils/image.ts';
+import type { ListingPhoto } from '../../types/domain.ts';
 import { confidentMatch, sellPrefill } from '../identify/prefill.ts';
 import { getShirt, resolveSize } from '../catalog/model.ts';
 
@@ -20,6 +21,13 @@ export const CONDITIONS: [string, string][] = [
   ['Good', 'sell.cond.Good']
 ];
 export const EDITIONS = ['Replica', 'Authentic', 'Player issue', 'Match-worn'];
+/** Photos of the actual shirt: [kind, label key]. The front is required. */
+export const LISTING_PHOTOS = [
+  ['front', 'sell.photo.front'],
+  ['back', 'sell.photo.back'],
+  ['label', 'sell.photo.label'],
+  ['detail', 'sell.photo.detail']
+] as const;
 
 export type Scan = { status: 'idle' } | { status: 'reading'; img: string | null } | { status: 'done'; img: string; matchId: string | null; confidence: number; message: string };
 
@@ -40,6 +48,8 @@ export function useSellFlow() {
   const [ask, setAsk] = useState('');
   const [scan, setScan] = useState<Scan>({ status: 'idle' });
   const [busy, setBusy] = useState(false);
+  const [photos, setPhotos] = useState<Record<string, CompressedPhoto>>({});
+  const [photoBusy, setPhotoBusy] = useState<string | null>(null);
   const [published, setPublished] = useState<{ sold: boolean; amount: number } | null>(null);
   const scanToken = useRef(0);
 
@@ -58,6 +68,8 @@ export function useSellFlow() {
       const photo = await analyzeAndCompress(file, { maxDim: 1400 });
       if (scanToken.current !== token) return;
       setScan({ status: 'reading', img: photo.dataUrl });
+      // The label photo also goes on the listing — buyers like to see it.
+      setPhotos((x) => (x.label ? x : { ...x, label: photo }));
       if (!user) {
         setScan({ status: 'done', img: photo.dataUrl, matchId: null, confidence: 0, message: 'sell.scanSignIn' });
         return;
@@ -87,12 +99,33 @@ export function useSellFlow() {
     }
   };
 
+  const addPhoto = async (kind: string, file: File) => {
+    setPhotoBusy(kind);
+    try {
+      const photo = await analyzeAndCompress(file, { maxDim: 1600 });
+      setPhotos((x) => ({ ...x, [kind]: photo }));
+    } catch {
+      toast(t('sell.photoFailed'));
+    } finally {
+      setPhotoBusy(null);
+    }
+  };
+
   const amount = parseInt(ask, 10) || 0;
   const publish = async () => {
     if (!user || !shirt || amount <= 0 || busy) return;
     setBusy(true);
     try {
-      const placed = await db.placeAsk(user.id, { shirtId: shirt.id, size, amount, condition, edition, playerPrint: player.trim() });
+      // Photos go up only now, so an abandoned listing leaves nothing behind.
+      const folder = 'asks/' + Date.now().toString(36);
+      const uploaded: ListingPhoto[] = [];
+      for (const [kind] of LISTING_PHOTOS) {
+        const p = photos[kind];
+        if (!p) continue;
+        const { path, thumbPath } = await db.uploadPhoto(user.id, folder, kind, p.blob, p.thumb);
+        uploaded.push({ kind, path, thumbPath });
+      }
+      const placed = await db.placeAsk(user.id, { shirtId: shirt.id, size, amount, condition, edition, playerPrint: player.trim(), photos: uploaded });
       const order = await db.findOrderForAsk(placed.id);
       setPublished({ sold: !!order, amount: order ? Number(order.amount) : amount });
       qc.invalidateQueries({ queryKey: ['orderBook', shirt.id] });
@@ -112,6 +145,7 @@ export function useSellFlow() {
     setScan({ status: 'idle' });
     setAsk('');
     setPlayer('');
+    setPhotos({});
     setPublished(null);
     window.scrollTo(0, 0);
   };
@@ -121,7 +155,7 @@ export function useSellFlow() {
     window.scrollTo(0, 0);
   };
 
-  return { step, go, shirt, pick, size, setSize, condition, setCondition, edition, setEdition, player, setPlayer, ask, setAsk, amount, scan, scanLabel, busy, publish, published, reset, signedIn: !!user };
+  return { step, go, shirt, pick, size, setSize, condition, setCondition, edition, setEdition, player, setPlayer, ask, setAsk, amount, scan, scanLabel, photos, photoBusy, addPhoto, busy, publish, published, reset, signedIn: !!user };
 }
 
 export type SellFlow = ReturnType<typeof useSellFlow>;

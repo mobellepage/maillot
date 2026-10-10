@@ -82,6 +82,7 @@ export type Database = {
           edition: string | null;
           id: string;
           player_print: string | null;
+          photos: Json;
           shirt_id: string | null;
           size: string;
           status: string;
@@ -95,6 +96,7 @@ export type Database = {
           edition?: string | null;
           id?: string;
           player_print?: string | null;
+          photos?: Json;
           shirt_id?: string | null;
           size: string;
           status?: string;
@@ -108,6 +110,7 @@ export type Database = {
           edition?: string | null;
           id?: string;
           player_print?: string | null;
+          photos?: Json;
           shirt_id?: string | null;
           size?: string;
           status?: string;
@@ -863,7 +866,7 @@ export type Database = {
         Args: { p_handle: string };
         Returns: { handle: string; member_since: string; sales: number; rating: number | null; reviews: number; pass_rate: number | null; avg_ship_days: number | null; listings: number }[];
       };
-      seller_listings: { Args: { p_handle: string }; Returns: { ask_id: string; shirt_id: string; size: string; amount: number; condition: string | null; created_at: string }[] };
+      seller_listings: { Args: { p_handle: string }; Returns: { ask_id: string; shirt_id: string; size: string; amount: number; condition: string | null; created_at: string; thumb_path: string | null }[] };
       seller_review_list: { Args: { p_handle: string }; Returns: { rating: number; comment: string | null; shirt_id: string | null; created_at: string }[] };
       seller_cards: { Args: { p_user_ids: string[] }; Returns: { user_id: string; handle: string | null; rating: number | null; reviews: number; sales: number }[] };
       search_collectors: { Args: { p_q: string }; Returns: { handle: string; member_since: string; shirts: number; listings: number; preview: string[] }[] };

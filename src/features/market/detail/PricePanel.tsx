@@ -5,6 +5,7 @@ import { Button, ButtonLink, Notice, ShieldIcon, StatTile, WatchButton } from '.
 import type { OrderBook, SellerCard, ShirtStats } from '../../../utils/db.ts';
 import { Stars } from '../../../ui/Stars.tsx';
 import { marketValue } from '../../catalog/model.ts';
+import { AskPhotos } from './AskPhotos.tsx';
 
 export interface PricePanelProps {
   s: Shirt;
@@ -74,6 +75,7 @@ export function PricePanel({ s, size, setSize, book, myUserId, stats, watched, t
         <StatTile label={t('pp.highestBid')} amount={liveBid ? Number(liveBid.amount) : undefined} scope={s.id + size} value={liveBid ? money(Number(liveBid.amount)) : '—'} sub={liveBid ? tp('pp.bids', book.bids.length) : t('pp.noBids')} />
         <StatTile label={t('common.marketValue')} value={money(marketValue(s, size))} sub={s.priceSource === 'market' && s.valuation ? tp('pp.fromMarket', s.valuation.nTrades + s.valuation.nExact + s.valuation.nSimilar) : s.priceSource === 'trades' ? tp('pp.fromSales', s.trades.count) : t('pp.estimate')} />
       </div>
+      {liveAsk && <AskPhotos ask={liveAsk} />}
       {liveAsk && sellers?.[liveAsk.user_id ?? ''] && <SoldBy card={sellers[liveAsk.user_id ?? '']!} />}
       {myAsk && (
         <div style={{ marginTop: 10, fontSize: 13, color: 'var(--text-2)' }}>

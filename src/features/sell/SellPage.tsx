@@ -40,7 +40,7 @@ export default function SellPage() {
     );
   }
 
-  const canNext = f.step === 2 ? f.amount > 0 : true;
+  const canNext = f.step === 2 ? f.amount > 0 : f.step === 1 ? !!f.photos.front && !f.photoBusy : true;
   return (
     <Page>
       <div className="eyebrow">{t('sell.eyebrow')}</div>
@@ -72,9 +72,12 @@ export default function SellPage() {
             {t('sell.back')}
           </Button>
           {f.step < 3 && (
-            <Button variant="light" disabled={!canNext} onClick={() => f.go(f.step + 1)}>
-              {f.step === 2 ? t('sell.reviewListing') : t('sell.continue')} →
-            </Button>
+            <span style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              {f.step === 1 && !f.photos.front && <span style={{ fontSize: 12.5, color: 'var(--muted)' }}>{t('sell.photoRequired')}</span>}
+              <Button variant="light" disabled={!canNext} onClick={() => f.go(f.step + 1)}>
+                {f.step === 2 ? t('sell.reviewListing') : t('sell.continue')} →
+              </Button>
+            </span>
           )}
         </div>
       )}

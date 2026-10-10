@@ -1,7 +1,37 @@
 import { usePrefs } from '../../lib/prefs.tsx';
 import { TextField } from '../../ui/index.ts';
 import { SelectedShirt } from './ShirtPickRow.tsx';
-import { CONDITIONS, EDITIONS, type SellFlow } from './useSellFlow.ts';
+import { CONDITIONS, EDITIONS, LISTING_PHOTOS, type SellFlow } from './useSellFlow.ts';
+import { PhotoInput } from '../vault/addshirt/parts.tsx';
+import type { CompressedPhoto } from '../../utils/image.ts';
+import type { Photo } from '../../types/domain.ts';
+
+const asPhoto = (p: CompressedPhoto | undefined): Photo | undefined =>
+  p && { dataUrl: p.dataUrl, lowRes: p.lowRes, blurry: p.blurry, tooDark: p.tooDark, tooBright: p.tooBright };
+
+/** Photos of the actual shirt: buyers see exactly what they get. The front is required. */
+function ListingPhotos({ f }: { f: SellFlow }) {
+  const { t } = usePrefs();
+  const warn = Object.values(f.photos).some((p) => p.lowRes || p.blurry || p.tooDark || p.tooBright);
+  return (
+    <fieldset style={{ border: 0, padding: 0, margin: 0 }}>
+      <legend style={{ fontSize: 14, fontWeight: 600, marginBottom: 4 }}>{t('sell.photos')}</legend>
+      <p style={{ fontSize: 13, color: 'var(--muted)', margin: '0 0 12px', lineHeight: 1.45 }}>{t('sell.photosHint')}</p>
+      <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap' }}>
+        {LISTING_PHOTOS.map(([kind, key]) => (
+          <div key={kind} style={{ display: 'grid', justifyItems: 'center', gap: 6 }}>
+            <PhotoInput size={96} data={asPhoto(f.photos[kind])} busy={f.photoBusy === kind} onFile={(file) => f.addPhoto(kind, file)} label={t(key)} />
+            <span style={{ fontSize: 12, color: kind === 'front' && !f.photos.front ? 'var(--text)' : 'var(--text-2)', fontWeight: kind === 'front' ? 600 : 400 }}>
+              {t(key)}
+              {kind === 'front' && ' *'}
+            </span>
+          </div>
+        ))}
+      </div>
+      {warn && <p style={{ fontSize: 12.5, color: 'var(--warn)', marginTop: 10 }}>{t('sell.photoQuality')}</p>}
+    </fieldset>
+  );
+}
 
 export function DetailsStep({ f }: { f: SellFlow }) {
   const s = f.shirt!;
@@ -9,6 +39,7 @@ export function DetailsStep({ f }: { f: SellFlow }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 28, maxWidth: 760, animation: 'kvIn .35s ease both' }}>
       <SelectedShirt s={s} onChange={() => f.go(0)} />
+      <ListingPhotos f={f} />
       <fieldset style={{ border: 0, padding: 0, margin: 0 }}>
         <legend style={{ fontSize: 14, fontWeight: 600, marginBottom: 10 }}>{t('sell.size')}</legend>
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>

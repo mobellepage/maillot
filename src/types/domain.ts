@@ -68,6 +68,14 @@ export interface Precheck {
 
 export type Visibility = 'private' | 'public' | 'offers' | 'forsale';
 
+/** A photo of the actual shirt on a listing (asks.photos). */
+export interface ListingPhoto {
+  /** front | back | label | detail */
+  kind: string;
+  path: string;
+  thumbPath?: string;
+}
+
 export interface CustomItem {
   id: string;
   catalogId: string | null;

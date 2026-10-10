@@ -1208,5 +1208,17 @@ export const de: Messages = {
   'notif.followedShirt.body': '{handle} hat ein Trikot zur Sammlung hinzugefügt.',
   'proto.label': 'PROTOTYP',
   'proto.body': 'Bilder, Preise und Zahlen sind Beispiele.',
+  'sell.photos': 'Fotos von deinem Trikot',
+  'sell.photosHint': 'Käufer sehen genau dieses Trikot. Die Vorderseite ist Pflicht; Rückseite, Etikett und allfällige Mängel schaffen Vertrauen und verkaufen schneller.',
+  'sell.photo.front': 'Vorderseite',
+  'sell.photo.back': 'Rückseite',
+  'sell.photo.label': 'Etikett',
+  'sell.photo.detail': 'Detail / Mängel',
+  'sell.photoQuality': 'Einige Fotos sind dunkel, unscharf oder klein – klare Fotos verkaufen besser.',
+  'sell.photoFailed': 'Dieses Foto konnte nicht gelesen werden – bitte ein anderes versuchen.',
+  'sell.photoRequired': 'Für weiter: Foto der Vorderseite hinzufügen',
+  'pp.sellerPhotos': 'Fotos dieses Trikots',
+  'pp.noPhotos': 'Der Verkäufer hat keine Fotos dieses Trikots hinzugefügt.',
+  'pp.openPhoto': 'Foto öffnen: {what}',
   // @@end
 };
