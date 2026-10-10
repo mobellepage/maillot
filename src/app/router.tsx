@@ -1,6 +1,7 @@
 // Route table. Every page is a lazy chunk, so the first visit only downloads
 // the shell plus the page being opened. The browser router is created in
 // main.tsx; scripts/prerender.mjs renders the same routes to static HTML.
+import { lazy } from 'react';
 import { Navigate, type RouteObject } from 'react-router';
 import RootLayout from './RootLayout.tsx';
 import RouteError from './RouteError.tsx';
@@ -27,6 +28,9 @@ import {
   AccountPage,
   ResetPasswordPage
 } from './pages.tsx';
+
+// Private partner preview (scripts/partner-demo.mjs): development only, never in a production build.
+const PartnerDemoPage = import.meta.env.DEV ? lazy(() => import('../features/demo/PartnerDemoPage.tsx')) : null;
 
 export const routes: RouteObject[] = [
   {
@@ -110,6 +114,7 @@ export const routes: RouteObject[] = [
           { path: 'account', element: <AccountPage /> },
           { path: 'reset-password', element: <ResetPasswordPage /> },
           { path: 'legal/:doc', element: <LegalPage /> },
+          ...(PartnerDemoPage ? [{ path: 'demo/partner', element: <PartnerDemoPage /> }] : []),
           { path: '*', element: <Navigate to="/" replace /> }
         ]
       }
