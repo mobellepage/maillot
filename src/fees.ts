@@ -30,9 +30,10 @@ export function buyerCheckoutFees(askPrice: number): { authFee: number; shipping
 
 /**
  * @param {number} askPrice - the seller's asking price in CHF
+ * @param {number} rate - the seller's commission rate (dealers on pilot terms have their own)
  * @returns {{ commission: number, payout: number }}
  */
-export function sellerPayout(askPrice: number): { commission: number; payout: number } {
-  const commission = Math.round(askPrice * SELLER_FEE_RATE);
+export function sellerPayout(askPrice: number, rate: number = SELLER_FEE_RATE): { commission: number; payout: number } {
+  const commission = Math.round(askPrice * rate);
   return { commission, payout: askPrice - commission };
 }

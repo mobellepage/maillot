@@ -6,6 +6,7 @@ import { BY } from '../../data.ts';
 import { usePrefs } from '../../lib/prefs.tsx';
 import type { CollectorHit } from '../../utils/db.ts';
 import { HEX, ShirtGraphic } from '../../ui/index.ts';
+import { DealerBadge } from './DealerBadge.tsx';
 
 export function CollectorResults({ hits }: { hits: CollectorHit[] }) {
   const { t, tp } = usePrefs();
@@ -26,6 +27,11 @@ export function CollectorResults({ hits }: { hits: CollectorHit[] }) {
               <Link to={'/u/' + c.handle} className="stretched-link" style={{ display: 'block', color: 'var(--text)', fontWeight: 700, fontSize: 15, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                 @{c.handle}
               </Link>
+              {c.dealer && (
+                <div style={{ marginTop: 3 }}>
+                  <DealerBadge compact />
+                </div>
+              )}
               <div style={{ fontSize: 12.5, color: 'var(--muted)', marginTop: 2 }}>
                 {[c.shirts ? tp('coll.shirts', c.shirts) : null, c.listings ? tp('coll.listings', c.listings) : null].filter(Boolean).join(' · ')}
               </div>

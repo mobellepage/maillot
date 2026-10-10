@@ -1,5 +1,6 @@
 import { SELLER_FEE_RATE, sellerPayout } from '../../fees.ts';
 import { usePrefs } from '../../lib/prefs.tsx';
+import { useSession } from '../../lib/session.tsx';
 import { Card, KeyValueList, TextField } from '../../ui/index.ts';
 import { marketValue } from '../catalog/model.ts';
 import { useOrderBook } from '../market/queries.ts';
@@ -9,6 +10,8 @@ import type { SellFlow } from './useSellFlow.ts';
 export function PriceStep({ f }: { f: SellFlow }) {
   const s = f.shirt!;
   const { money, t } = usePrefs();
+  // Dealers on pilot terms pay their own rate; everyone else the standard one.
+  const rate = useSession().profile?.commissionRate ?? SELLER_FEE_RATE;
   const book = useOrderBook(s.id, f.size).data ?? { bids: [], asks: [] };
   const market = marketValue(s, f.size);
   const lowAsk = book.asks[0] ? Number(book.asks[0].amount) : null;
@@ -32,7 +35,7 @@ export function PriceStep({ f }: { f: SellFlow }) {
           : lowAsk
             ? t('sell.hint.above', { diff: money(sa - lowAsk) })
             : t('sell.hint.only', { size: f.size });
-  const payout = sellerPayout(sa);
+  const payout = sellerPayout(sa, rate);
 
   return (
     <div style={{ display: 'flex', flexWrap: 'wrap', gap: 24, animation: 'kvIn .35s ease both' }}>
@@ -76,7 +79,7 @@ export function PriceStep({ f }: { f: SellFlow }) {
         <h2 className="title" style={{ margin: '0 0 10px' }}>
           {t('sell.payout')}
         </h2>
-        <KeyValueList rows={[[t('sell.yourAsk'), money(sa)], [t('sell.fee', { pct: Math.round(SELLER_FEE_RATE * 100) }), '−' + money(payout.commission)], [t('sell.authentication'), t('sell.free')], [t('sell.shipping'), t('sell.prepaid')]]} />
+        <KeyValueList rows={[[t('sell.yourAsk'), money(sa)], [t('sell.fee', { pct: Math.round(rate * 1000) / 10 }), '−' + money(payout.commission)], [t('sell.authentication'), t('sell.free')], [t('sell.shipping'), t('sell.prepaid')]]} />
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', paddingTop: 14 }}>
           <span style={{ fontWeight: 600 }}>{t('sell.youEarn')}</span>
           <span className="mono" style={{ fontSize: 26, fontWeight: 700, color: 'var(--accent)' }}>

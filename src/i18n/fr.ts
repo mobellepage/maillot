@@ -1220,5 +1220,8 @@ export const fr: Messages = {
   'pp.sellerPhotos': 'Photos de ce maillot',
   'pp.noPhotos': 'Le vendeur n’a pas ajouté de photos de ce maillot.',
   'pp.openPhoto': 'Ouvrir la photo : {what}',
+  'dealer.badge': 'Revendeur vérifié',
+  'dealer.hint': 'Une boutique vérifiée par l’équipe MAILLOT.',
+  'dealer.eyebrow': 'Revendeur',
   // @@end
 };

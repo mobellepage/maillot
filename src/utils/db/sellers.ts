@@ -12,6 +12,7 @@ export type CollectorHit = RpcReturns<'search_collectors'>[number];
 export type PublicShirt = RpcReturns<'public_collection'>[number];
 export type CollectorStats = RpcReturns<'collector_profile'>[number];
 export type Followed = RpcReturns<'my_following'>[number];
+export type Dealer = RpcReturns<'admin_dealers'>[number];
 
 export async function loadSellerProfile(handle: string): Promise<SellerProfile | null> {
   const { data, error } = await (await sb()).rpc('seller_profile', { p_handle: handle });
@@ -69,6 +70,19 @@ export async function loadMyFollowing(): Promise<Followed[]> {
   const { data, error } = await (await sb()).rpc('my_following');
   if (error) throw error;
   return data ?? [];
+}
+
+/** Admins: dealers and members on their own commission rate. */
+export async function loadDealers(): Promise<Dealer[]> {
+  const { data, error } = await (await sb()).rpc('admin_dealers');
+  if (error) throw error;
+  return data ?? [];
+}
+
+/** Admins: verify a dealer (with an optional own commission rate, 0–0.3) or clear it. */
+export async function setDealer(handle: string, verified: boolean, rate: number | null): Promise<void> {
+  const { error } = await (await sb()).rpc('admin_set_dealer', { p_handle: handle, p_verified: verified, p_commission_rate: rate });
+  if (error) throw error;
 }
 
 export async function reviewSeller(orderId: string, rating: number, comment: string): Promise<void> {

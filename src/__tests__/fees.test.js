@@ -14,5 +14,7 @@ describe('fees', () => {
     expect(sellerPayout(120)).toEqual({ commission: 10, payout: 110 });
     expect(sellerPayout(235)).toEqual({ commission: 19, payout: 216 });
     expect(sellerPayout(0)).toEqual({ commission: 0, payout: 0 });
+    // Dealers on pilot terms pay their own rate.
+    expect(sellerPayout(200, 0.05)).toEqual({ commission: 10, payout: 190 });
   });
 });

@@ -70,7 +70,7 @@ export default function OrderPage() {
       ]
     : [
         [t('ord.salePrice'), money(Number(o.amount))],
-        [t('ord.fee', { pct: Math.round(SELLER_FEE_RATE * 100) }), '− ' + money(Number(o.commission))],
+        [t('ord.fee', { pct: Number(o.amount) > 0 ? Math.round((Number(o.commission) / Number(o.amount)) * 1000) / 10 : Math.round(SELLER_FEE_RATE * 100) }), '− ' + money(Number(o.commission))],
         [t('ord.payout'), <strong key="p">{money(Number(o.amount) - Number(o.commission))}</strong>]
       ];
 

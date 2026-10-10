@@ -6,6 +6,7 @@ import type { OrderBook, SellerCard, ShirtStats } from '../../../utils/db.ts';
 import { Stars } from '../../../ui/Stars.tsx';
 import { marketValue } from '../../catalog/model.ts';
 import { AskPhotos } from './AskPhotos.tsx';
+import { DealerBadge } from '../../collectors/DealerBadge.tsx';
 
 export interface PricePanelProps {
   s: Shirt;
@@ -131,6 +132,7 @@ function SoldBy({ card }: { card: SellerCard }) {
     <div style={{ marginTop: 10, fontSize: 13, color: 'var(--text-2)', display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
       {t('seller.soldBy')}
       {card.handle ? <Link to={'/u/' + card.handle}>@{card.handle}</Link> : <span>{t('seller.newSeller')}</span>}
+      {card.dealer && <DealerBadge compact />}
       {card.rating !== null && <Stars value={Number(card.rating)} label={t('seller.stars', { n: Number(card.rating).toFixed(1) })} size={13} />}
       <span style={{ color: 'var(--muted)' }}>· {card.sales ? tp('seller.salesShort', card.sales) : t('seller.newSeller')}</span>
     </div>

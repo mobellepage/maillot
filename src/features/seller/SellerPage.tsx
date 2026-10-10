@@ -13,6 +13,7 @@ import { Card, EmptyState, ErrorState, Page, ShirtGraphic, Skeleton, StatTile } 
 import { Stars } from '../../ui/Stars.tsx';
 import { PublicCollection } from '../collectors/PublicCollection.tsx';
 import { FollowButton } from '../collectors/FollowButton.tsx';
+import { DealerBadge } from '../collectors/DealerBadge.tsx';
 import { publicCollectionValue } from '../collectors/collectionValue.ts';
 import { useSession } from '../../lib/session.tsx';
 import { usePhotoUrls } from '../../lib/usePhotoUrls.ts';
@@ -60,7 +61,10 @@ export default function SellerPage() {
           <div style={{ width: '100%', height: '100%', borderRadius: '50%', background: 'var(--avatar-grad)', display: 'grid', placeItems: 'center', fontSize: 24, fontWeight: 800 }}>{p.handle.slice(0, 2).toUpperCase()}</div>
         </div>
         <div style={{ flex: '1 1 200px', minWidth: 0 }}>
-          <div className="eyebrow">{t('seller.eyebrow')}</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+            <span className="eyebrow">{stats.data?.dealer ? t('dealer.eyebrow') : t('seller.eyebrow')}</span>
+            {stats.data?.dealer && <DealerBadge />}
+          </div>
           <h1 className="display" style={{ fontSize: 'clamp(28px,4vw,44px)', margin: '6px 0 0' }}>
             @{p.handle}
           </h1>

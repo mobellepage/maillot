@@ -1220,5 +1220,8 @@ export const de: Messages = {
   'pp.sellerPhotos': 'Fotos dieses Trikots',
   'pp.noPhotos': 'Der Verkäufer hat keine Fotos dieses Trikots hinzugefügt.',
   'pp.openPhoto': 'Foto öffnen: {what}',
+  'dealer.badge': 'Verifizierter Händler',
+  'dealer.hint': 'Ein vom MAILLOT-Team geprüfter Händler.',
+  'dealer.eyebrow': 'Händler',
   // @@end
 };

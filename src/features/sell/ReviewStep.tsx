@@ -1,6 +1,7 @@
 import { Link } from 'react-router';
 import { sellerPayout } from '../../fees.ts';
 import { usePrefs } from '../../lib/prefs.tsx';
+import { useSession } from '../../lib/session.tsx';
 import { Button, Card, KeyValueList, Notice, ShirtGraphic, alpha } from '../../ui/index.ts';
 import { usePayoutStatus } from '../vault/usePayoutStatus.ts';
 import { LISTING_PHOTOS, type SellFlow } from './useSellFlow.ts';
@@ -9,6 +10,7 @@ export function ReviewStep({ f }: { f: SellFlow }) {
   const s = f.shirt!;
   const { money, t, label } = usePrefs();
   const payouts = usePayoutStatus();
+  const { profile } = useSession();
   const needsPayouts = f.signedIn && payouts.data && !payouts.data.payouts_enabled;
   return (
     <div style={{ display: 'flex', flexWrap: 'wrap', gap: 24, animation: 'kvIn .35s ease both' }}>
@@ -38,7 +40,7 @@ export function ReviewStep({ f }: { f: SellFlow }) {
             [t('sell.edition'), label('edition', f.edition)],
             [t('sell.playerPrint'), f.player || t('sell.none')],
             [t('sell.asking'), money(f.amount)],
-            [t('sell.youEarn'), money(sellerPayout(f.amount).payout)]
+            [t('sell.youEarn'), money(sellerPayout(f.amount, profile?.commissionRate ?? undefined).payout)]
           ]}
         />
         <div style={{ flex: 1, minHeight: 16 }} />

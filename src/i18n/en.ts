@@ -1219,6 +1219,9 @@ export const en = {
   'pp.sellerPhotos': 'Photos of this shirt',
   'pp.noPhotos': 'The seller hasn’t added photos of this shirt.',
   'pp.openPhoto': 'Open photo: {what}',
+  'dealer.badge': 'Verified dealer',
+  'dealer.hint': 'A shop checked by the MAILLOT team.',
+  'dealer.eyebrow': 'Dealer',
   // @@end
 };
 

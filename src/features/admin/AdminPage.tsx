@@ -8,6 +8,7 @@ import { CertificatesPanel } from './CertificatesPanel.tsx';
 import { HealthPanel } from './HealthPanel.tsx';
 import { ReviewQueue } from './ReviewQueue.tsx';
 import { AuditPanel } from './AuditPanel.tsx';
+import { DealersPanel } from './DealersPanel.tsx';
 import { MfaGate } from './MfaGate.tsx';
 import { useSession } from '../../lib/session.tsx';
 
@@ -37,6 +38,7 @@ export default function AdminPage() {
       <InspectionPanel />
       <CertificatesPanel />
       <DisputesPanel />
+      <DealersPanel />
       <ApiKeysPanel />
       <AuditPanel />
     </Page>

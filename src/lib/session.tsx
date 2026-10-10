@@ -28,6 +28,8 @@ export interface Profile {
   onboardedAt: string | null;
   /** The public profile shows the total value of the shirts on display. */
   showCollectionValue: boolean;
+  /** Own commission rate (dealers on pilot terms); null = the standard rate. */
+  commissionRate: number | null;
 }
 
 interface Session {
@@ -102,7 +104,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     queryKey: ['profile', user?.id],
     enabled: !!user,
     queryFn: async () => {
-      const { data, error } = await (await sb()).from('profiles').select('is_admin,handle,goals,interests,onboarded_at,show_collection_value').eq('id', user!.id).maybeSingle();
+      const { data, error } = await (await sb()).from('profiles').select('is_admin,handle,goals,interests,onboarded_at,show_collection_value,commission_rate').eq('id', user!.id).maybeSingle();
       if (error) throw error;
       return data;
     }
@@ -114,7 +116,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     isAdmin: !!profile.data?.is_admin && aal === 'aal2',
     adminFlag: !!profile.data?.is_admin,
     aal,
-    profile: !user ? null : profile.data === undefined ? undefined : profile.data && { handle: profile.data.handle, goals: profile.data.goals ?? [], interests: (profile.data.interests ?? {}) as Profile['interests'], onboardedAt: profile.data.onboarded_at, showCollectionValue: !!profile.data.show_collection_value },
+    profile: !user ? null : profile.data === undefined ? undefined : profile.data && { handle: profile.data.handle, goals: profile.data.goals ?? [], interests: (profile.data.interests ?? {}) as Profile['interests'], onboardedAt: profile.data.onboarded_at, showCollectionValue: !!profile.data.show_collection_value, commissionRate: profile.data.commission_rate === null ? null : Number(profile.data.commission_rate) },
     signIn: async (email, password, captchaToken) => {
       const { error } = await (await sb()).auth.signInWithPassword({ email, password, options: captchaToken ? { captchaToken } : undefined });
       return { error: error ? error.message : null };
