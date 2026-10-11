@@ -17,6 +17,7 @@ import { DealerBadge } from '../collectors/DealerBadge.tsx';
 import { publicCollectionValue } from '../collectors/collectionValue.ts';
 import { useSession } from '../../lib/session.tsx';
 import { usePhotoUrls } from '../../lib/usePhotoUrls.ts';
+import { Avatar } from '../avatars/Avatar.tsx';
 
 export default function SellerPage() {
   useCatalog();
@@ -58,7 +59,7 @@ export default function SellerPage() {
     <Page>
       <div style={{ display: 'flex', alignItems: 'center', gap: 20, flexWrap: 'wrap' }}>
         <div aria-hidden="true" style={{ width: 80, height: 80, borderRadius: '50%', border: '3px solid var(--accent)', padding: 4, flex: 'none' }}>
-          <div style={{ width: '100%', height: '100%', borderRadius: '50%', background: 'var(--avatar-grad)', display: 'grid', placeItems: 'center', fontSize: 24, fontWeight: 800 }}>{p.handle.slice(0, 2).toUpperCase()}</div>
+          <Avatar avatar={stats.data?.avatar} name={p.handle} size={66} ring={false} style={{ width: '100%', height: '100%' }} />
         </div>
         <div style={{ flex: '1 1 200px', minWidth: 0 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>

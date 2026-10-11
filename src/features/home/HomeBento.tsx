@@ -6,6 +6,7 @@ import { usePrefs } from '../../lib/prefs.tsx';
 import { useSession } from '../../lib/session.tsx';
 import { ButtonLink, HeartIcon, ShirtGraphic } from '../../ui/index.ts';
 import { SITE_URL } from '../../config/site.ts';
+import { Avatar } from '../avatars/Avatar.tsx';
 
 function Thumb({ id, size = 64, bg = 'var(--sunken)' }: { id: string; size?: number; bg?: string }) {
   const s = BY[id];
@@ -61,9 +62,7 @@ export function HomeBento() {
           <p style={big}>{t('home.bento.show.title')}</p>
           <p style={body}>{t('home.bento.show.body')}</p>
           <div aria-hidden="true" style={{ marginTop: 'auto', paddingTop: 16, display: 'flex', alignItems: 'center', gap: 12 }}>
-            <span style={{ width: 48, height: 48, borderRadius: '50%', border: '2px solid var(--accent)', background: 'var(--avatar-grad)', display: 'grid', placeItems: 'center', fontWeight: 700 }}>
-              {handle.slice(0, 2).toUpperCase()}
-            </span>
+            <Avatar avatar={profile ? profile.avatar : 'legend-01'} name={handle} size={48} />
             <span>
               <span style={{ display: 'block', fontWeight: 700 }}>@{handle}</span>
               <span style={{ display: 'block', fontSize: 13, color: 'var(--muted)' }}>{SITE_URL.replace(/^https?:\/\//, '')}/u/{handle}</span>

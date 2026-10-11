@@ -15,6 +15,8 @@ import { Button, ButtonLink, Card, Notice, Page } from '../../ui/index.ts';
 import { useConfirm } from '../../ui/Confirm.tsx';
 import { PayoutsCard } from '../vault/PayoutsCard.tsx';
 import { ProfileCard } from '../collectors/ProfileCard.tsx';
+import { Avatar } from '../avatars/Avatar.tsx';
+import { AvatarPicker } from '../avatars/AvatarPicker.tsx';
 
 declare const __RELEASE__: string;
 const RELEASE = typeof __RELEASE__ === 'string' ? __RELEASE__ : 'dev';
@@ -131,6 +133,7 @@ export default function AccountPage() {
   const { user, profile, signOut } = useSession();
   const toast = useToast();
   const navigate = useNavigate();
+  const [picking, setPicking] = useState(false);
 
   return (
     <Page narrow>
@@ -139,14 +142,21 @@ export default function AccountPage() {
         {user ? (
           <Card>
             <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-              <span aria-hidden="true" style={{ width: 52, height: 52, borderRadius: '50%', border: '2px solid var(--accent)', background: 'var(--avatar-grad)', display: 'grid', placeItems: 'center', fontWeight: 700, flex: 'none' }}>
-                {(profile?.handle || user.email || '?').slice(0, 2).toUpperCase()}
-              </span>
+              <button type="button" onClick={() => setPicking(true)} aria-label={t('avatar.title')} title={t('avatar.change')} style={{ position: 'relative', padding: 0, border: 0, background: 'none', cursor: 'pointer', borderRadius: '50%', flex: 'none' }}>
+                <Avatar avatar={profile?.avatar} name={profile?.handle || user.email || '?'} size={64} />
+                <span aria-hidden="true" style={{ position: 'absolute', right: -2, bottom: -2, width: 24, height: 24, borderRadius: '50%', background: 'var(--accent-fill)', color: 'var(--accent-ink)', display: 'grid', placeItems: 'center', fontSize: 14, fontWeight: 800, border: '2px solid var(--bg)' }}>
+                  +
+                </span>
+              </button>
               <div style={{ minWidth: 0 }}>
                 <div style={{ fontWeight: 700, fontSize: 17 }}>{profile?.handle ? '@' + profile.handle : t('acct.noHandle')}</div>
                 <div style={{ color: 'var(--muted)', fontSize: 13.5, overflow: 'hidden', textOverflow: 'ellipsis' }}>{user.email}</div>
+                <button type="button" className="link-btn" onClick={() => setPicking(true)} style={{ fontSize: 13.5, marginTop: 4 }}>
+                  {t('avatar.title')}
+                </button>
               </div>
             </div>
+            <AvatarPicker open={picking} onClose={() => setPicking(false)} />
             <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 16 }}>
               {profile?.handle ? (
                 <ButtonLink to={'/u/' + profile.handle} variant="secondary" size="sm">

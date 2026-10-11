@@ -1371,5 +1371,11 @@ export const fr: Messages = {
   'pshirt.condition': 'État',
   'pshirt.since': 'Dans la collection depuis',
   'pshirt.catalog': 'Voir dans le catalogue',
+  'avatar.title': 'Choisir une photo de profil',
+  'avatar.body': 'Choisis une légende du foot – elle s’affiche sur ton profil, dans la recherche et chez tes abonnés.',
+  'avatar.initials': 'Initiales',
+  'avatar.legend': 'Légende {n}',
+  'avatar.saved': 'Photo de profil enregistrée.',
+  'avatar.change': 'Changer l’image',
   // @@end
 };

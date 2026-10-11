@@ -8,6 +8,7 @@ import { useSession } from '../../lib/session.tsx';
 import { useToast } from '../../lib/toast.tsx';
 import * as db from '../../utils/db.ts';
 import { Card } from '../../ui/index.ts';
+import { Avatar } from '../avatars/Avatar.tsx';
 
 export function ProfileCard() {
   const { t, tp } = usePrefs();
@@ -98,8 +99,9 @@ export function ProfileCard() {
           <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
             {following.data.map((f) => (
               <li key={f.handle}>
-                <Link to={'/u/' + f.handle} className="row-btn" style={{ display: 'flex', justifyContent: 'space-between', gap: 10, padding: '10px 4px', color: 'var(--text)' }}>
-                  <span style={{ fontWeight: 600 }}>@{f.handle}</span>
+                <Link to={'/u/' + f.handle} className="row-btn" style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 4px', color: 'var(--text)' }}>
+                  <Avatar avatar={f.avatar} name={f.handle} size={32} ring={false} />
+                  <span style={{ fontWeight: 600, flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis' }}>@{f.handle}</span>
                   <span style={{ color: 'var(--muted)', fontSize: 13 }}>{tp('coll.shirts', f.shirts)}</span>
                 </Link>
               </li>

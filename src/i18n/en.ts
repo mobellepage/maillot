@@ -1370,6 +1370,12 @@ export const en = {
   'pshirt.condition': 'Condition',
   'pshirt.since': 'In the collection since',
   'pshirt.catalog': 'View in the catalogue',
+  'avatar.title': 'Choose a profile picture',
+  'avatar.body': 'Pick a football legend — it shows on your profile, in search and to the collectors who follow you.',
+  'avatar.initials': 'Initials',
+  'avatar.legend': 'Legend {n}',
+  'avatar.saved': 'Profile picture saved.',
+  'avatar.change': 'Change picture',
   // @@end
 };
 

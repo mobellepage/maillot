@@ -51,6 +51,20 @@ test('a member follows and unfollows a collector', async ({ page }) => {
   await expect(page.getByText('0 followers')).toBeVisible();
 });
 
+test('a member picks a legend as profile picture and can go back to initials', async ({ page }) => {
+  await signIn(page, 'seller@maillot.test');
+  await page.goto('/account');
+  await page.getByRole('button', { name: 'Choose a profile picture' }).first().click();
+  const dialog = page.getByRole('dialog');
+  await dialog.getByRole('button', { name: 'Legend 7', exact: true }).click();
+  await expect(page.getByText('Profile picture saved.')).toBeVisible();
+  await page.reload();
+  await page.getByRole('button', { name: 'Choose a profile picture' }).first().click();
+  await expect(page.getByRole('dialog').getByRole('button', { name: 'Legend 7', exact: true })).toHaveAttribute('aria-pressed', 'true');
+  await page.getByRole('dialog').getByRole('button', { name: 'Initials' }).click();
+  await expect(page.getByText('Profile picture saved.').first()).toBeVisible();
+});
+
 test('the collection value setting is saved and can be turned off again', async ({ page }) => {
   await signIn(page, 'seller@maillot.test');
   await page.goto('/account');

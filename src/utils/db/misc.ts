@@ -102,6 +102,12 @@ export async function setShowCollectionValue(userId: string, show: boolean): Pro
   if (error) throw error;
 }
 
+/** Pick a legend profile picture ('legend-01' … 'legend-50'), or null for initials. */
+export async function setAvatar(userId: string, avatar: string | null): Promise<void> {
+  const { error } = await (await sb()).from('profiles').update({ avatar }).eq('id', userId);
+  if (error) throw error;
+}
+
 /** Keep the whole collection private (or show it again). */
 export async function setCollectionPrivate(userId: string, on: boolean): Promise<void> {
   const { error } = await (await sb()).from('profiles').update({ collection_private: on }).eq('id', userId);

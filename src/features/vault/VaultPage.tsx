@@ -20,6 +20,7 @@ import { VaultSummary } from './VaultSummary.tsx';
 import { PayoutsCard } from './PayoutsCard.tsx';
 import { SITE_URL, shareOrigin } from '../../config/site.ts';
 import { mainColor, renderCard, shareCard } from './shareCard.ts';
+import { Avatar } from '../avatars/Avatar.tsx';
 
 type Tab = 'collection' | 'watchlist' | 'orders';
 const TITLES = { collection: 'vault.title.collection', watchlist: 'vault.title.watchlist', orders: 'vault.title.orders' } as const;
@@ -105,7 +106,7 @@ export default function VaultPage({ tab }: { tab: Tab }) {
     <Page>
       <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 20 }}>
         <div aria-hidden="true" style={{ width: 88, height: 88, borderRadius: '50%', border: '3px solid var(--accent)', padding: 4, flex: 'none' }}>
-          <div style={{ width: '100%', height: '100%', borderRadius: '50%', background: 'var(--avatar-grad)', display: 'grid', placeItems: 'center', fontSize: 26, fontWeight: 800 }}>{(user.email || '?').slice(0, 2).toUpperCase()}</div>
+          <Avatar avatar={profile?.avatar} name={profile?.handle || user.email || '?'} size={72} ring={false} style={{ width: '100%', height: '100%' }} />
         </div>
         <div style={{ flex: 1, minWidth: 220 }}>
           <h1 className="display" style={{ fontSize: 'clamp(32px,4vw,48px)', lineHeight: 1 }}>

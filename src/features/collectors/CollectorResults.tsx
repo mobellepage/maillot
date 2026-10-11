@@ -7,6 +7,7 @@ import { usePrefs } from '../../lib/prefs.tsx';
 import type { CollectorHit } from '../../utils/db.ts';
 import { HEX, ShirtGraphic } from '../../ui/index.ts';
 import { DealerBadge } from './DealerBadge.tsx';
+import { Avatar } from '../avatars/Avatar.tsx';
 
 export function CollectorResults({ hits }: { hits: CollectorHit[] }) {
   const { t, tp } = usePrefs();
@@ -20,9 +21,7 @@ export function CollectorResults({ hits }: { hits: CollectorHit[] }) {
       <ul style={{ listStyle: 'none', padding: 0, margin: '12px 0 0', display: 'grid', gap: 10, gridTemplateColumns: 'repeat(auto-fill,minmax(min(100%,260px),1fr))' }}>
         {hits.map((c) => (
           <li key={c.handle} className="card card--interactive" style={{ padding: 14, borderRadius: 18, position: 'relative', display: 'flex', alignItems: 'center', gap: 12 }}>
-            <span aria-hidden="true" style={{ width: 44, height: 44, borderRadius: '50%', border: '2px solid var(--accent)', background: 'var(--avatar-grad)', display: 'grid', placeItems: 'center', fontWeight: 800, fontSize: 14, flex: 'none' }}>
-              {c.handle.slice(0, 2).toUpperCase()}
-            </span>
+            <Avatar avatar={c.avatar} name={c.handle} size={44} />
             <div style={{ minWidth: 0, flex: 1 }}>
               <Link to={'/u/' + c.handle} className="stretched-link" style={{ display: 'block', color: 'var(--text)', fontWeight: 700, fontSize: 15, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                 @{c.handle}

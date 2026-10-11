@@ -11,6 +11,7 @@ import type { Lang } from '../i18n/index.ts';
 const NotificationBell = lazy(() => import('./NotificationBell.tsx'));
 import { useNavItems } from './nav.ts';
 import { focusMain } from './focusMain.ts';
+import { Avatar } from '../features/avatars/Avatar.tsx';
 
 // The mark: a shirt outline (24×24). scripts/brand-assets.mjs draws the
 // same path for the favicon and app icons.
@@ -34,7 +35,7 @@ const pillSelect = { height: 40, padding: '0 8px', borderRadius: 999, background
 
 export default function Header() {
   const { t, currency, setCurrency, currencies, lang, setLang, langs } = usePrefs();
-  const { user, signOut } = useSession();
+  const { user, profile, signOut } = useSession();
   const watch = useWatchlist();
   const toast = useToast();
   const navigate = useNavigate();
@@ -103,8 +104,8 @@ export default function Header() {
             <Suspense fallback={<span style={{ width: 40 }} />}>
               <NotificationBell />
             </Suspense>
-            <Link to="/account" title={user.email} aria-label={t('header.account')} style={{ width: 40, height: 40, borderRadius: '50%', border: '2px solid var(--accent)', background: 'var(--avatar-grad)', color: 'var(--text)', fontWeight: 700, fontSize: 13, display: 'grid', placeItems: 'center', flex: 'none' }}>
-              {(user.email || '?').slice(0, 2).toUpperCase()}
+            <Link to="/account" title={user.email} aria-label={t('header.account')} style={{ display: 'grid', flex: 'none', color: 'var(--text)' }}>
+              <Avatar avatar={profile?.avatar} name={profile?.handle || user.email || '?'} size={40} />
             </Link>
             <button
               type="button"
