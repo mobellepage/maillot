@@ -8,6 +8,7 @@ import { usePrefs } from '../../lib/prefs.tsx';
 import { downloadVaultCard } from '../../utils/cardExport.js';
 import { Badge, Button, Card, ErrorState, KeyValueList, Notice, Page, ShirtGraphic, Skeleton, HEX, useConfirm } from '../../ui/index.ts';
 import { badgeFor, itemLook, itemName, valueOf } from './model.ts';
+import { VisibilityEditor } from './VisibilityEditor.tsx';
 import { usePhotoUrls } from '../../lib/usePhotoUrls.ts';
 import { currentValuation, displayStatus, useCollection, useCollectionActions } from './useCollection.ts';
 
@@ -142,11 +143,11 @@ export default function VaultItemPage() {
                 [t('vault.f.tags'), c.tagsAttached ? t('vault.yesBnwt') : t('vault.no')],
                 [t('vault.f.condition'), c.condition.grade + '/10' + (c.condition.defects.length ? ' · ' + c.condition.defects.map((d) => label('opt', d)).join(', ') : '')],
                 [t('vault.f.provenance'), c.provenance || '—'],
-                [t('vault.f.visibility'), t('vault.vis.' + c.visibility) + (c.visibility === 'forsale' && c.salePrice ? ' · ' + money(Number(c.salePrice)) : '')],
                 [t('vault.f.added'), formatDate(c.createdAt, lang)]
               ]}
             />
           </Card>
+          <VisibilityEditor item={c} />
         </div>
       </div>
       <div style={{ marginTop: 40, paddingTop: 20, borderTop: '1px solid var(--line)' }}>

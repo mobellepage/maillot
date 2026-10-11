@@ -703,7 +703,7 @@ export const en = {
   'as.f.confidence': 'Ø {mid} · confidence: {c}',
   'as.f.visibility': 'Visibility',
   'as.vis.private.desc': 'Only you see this shirt.',
-  'as.vis.public.desc': 'Other collectors can see it on your profile.',
+  'as.vis.public.desc': 'Shown on your profile — other collectors can see it.',
   'as.vis.offers.desc': 'You can receive non-binding offers.',
   'as.vis.forsale.desc': 'Listed on the marketplace with a price.',
   'as.f.price': 'Price in CHF',
@@ -1316,6 +1316,18 @@ export const en = {
   'notif.offerDeclined.body': 'Your offer of {amount} for {shirt} was declined.',
   'notif.wanted.title': 'A shirt you want is in a collection',
   'notif.wanted.body': '{handle} has {shirt} ({size}) and is open to offers.',
+  'coll.private': 'Keep my collection private',
+  'coll.privateHint': 'Nobody but you sees your shirts, and new shirts are saved as private. Off: your shirts show on your profile — you can still make single shirts private.',
+  'coll.privateOn': 'Your collection is now private.',
+  'coll.privateOff': 'Your collection shows on your profile again.',
+  'coll.privateMine': 'Your collection is private — only you see it. Change this in your profile settings.',
+  'coll.privateOther': 'This collection is private.',
+  'as.vis.collectionPrivate': 'Your whole collection is private, so nobody sees this shirt until you make the collection public in your profile.',
+  'vault.visSaved': 'Visibility saved.',
+  'vault.salePrice': 'Asking price in CHF',
+  'vault.setForSale': 'Set for sale',
+  'vault.collectionPrivateNote': 'Your collection is private, so others don’t see this shirt right now.',
+  'vault.changeInProfile': 'Change in profile',
   // @@end
 };
 

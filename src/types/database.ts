@@ -598,6 +598,7 @@ export type Database = {
           show_collection_value: boolean;
           dealer_verified_at: string | null;
           commission_rate: number | null;
+          collection_private: boolean;
         };
         Insert: {
           created_at?: string;
@@ -614,6 +615,7 @@ export type Database = {
           interests?: Json;
           onboarded_at?: string | null;
           show_collection_value?: boolean;
+          collection_private?: boolean;
         };
         Relationships: [];
       };
@@ -905,7 +907,7 @@ export type Database = {
       };
       follow_collector: { Args: { p_handle: string }; Returns: undefined };
       unfollow_collector: { Args: { p_handle: string }; Returns: undefined };
-      collector_profile: { Args: { p_handle: string }; Returns: { followers: number; following: number; show_value: boolean; is_following: boolean; is_me: boolean; dealer: boolean }[] };
+      collector_profile: { Args: { p_handle: string }; Returns: { followers: number; following: number; show_value: boolean; is_following: boolean; is_me: boolean; dealer: boolean; collection_private: boolean }[] };
       admin_set_dealer: { Args: { p_handle: string; p_verified: boolean; p_commission_rate?: number | null }; Returns: undefined };
       admin_dealers: { Args: never; Returns: { handle: string; dealer_verified_at: string | null; commission_rate: number | null; listings: number; sales: number }[] };
       my_following: { Args: never; Returns: { handle: string; followed_at: string; shirts: number }[] };

@@ -1,7 +1,7 @@
 // Notifications, behaviour events, public stats and API keys.
 import { sb } from '../supabase.ts';
 import type { RpcReturns, Tables } from '../../types/database.ts';
-import type { EventType } from '../../types/domain.ts';
+import type { EventType, Visibility } from '../../types/domain.ts';
 import type { ApiKeyRow, Notification } from './types.ts';
 
 // ---------------------------------------------------------------------------
@@ -99,6 +99,18 @@ export async function saveOnboarding(userId: string, answers: { goals: string[];
 /** Show (or hide) the total value of the shirts the member shows on their public profile. */
 export async function setShowCollectionValue(userId: string, show: boolean): Promise<void> {
   const { error } = await (await sb()).from('profiles').update({ show_collection_value: show }).eq('id', userId);
+  if (error) throw error;
+}
+
+/** Keep the whole collection private (or show it again). */
+export async function setCollectionPrivate(userId: string, on: boolean): Promise<void> {
+  const { error } = await (await sb()).from('profiles').update({ collection_private: on }).eq('id', userId);
+  if (error) throw error;
+}
+
+/** Change who sees one shirt of your collection. */
+export async function setItemVisibility(itemId: string, visibility: Visibility, salePrice = ''): Promise<void> {
+  const { error } = await (await sb()).from('custom_items').update({ visibility, sale_price: visibility === 'forsale' ? salePrice : '' }).eq('id', itemId);
   if (error) throw error;
 }
 

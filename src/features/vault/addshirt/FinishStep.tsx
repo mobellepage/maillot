@@ -4,11 +4,14 @@ import type { Valuation, Visibility } from '../../../types/domain.ts';
 import { Button, Card, Notice } from '../../../ui/index.ts';
 import { Section } from './parts.tsx';
 import { inputStyle } from './styles.ts';
-import type { Wizard } from './useAddShirtForm.ts';
+import { chosenVisibility, type Wizard } from './useAddShirtForm.ts';
+import { useSession } from '../../../lib/session.tsx';
 
 export function FinishStep({ w, valuation, onSave, saving }: { w: Wizard; valuation: Valuation; onSave: () => void; saving: boolean }) {
   const { money, t, label } = usePrefs();
   const { f, set } = w;
+  const { profile } = useSession();
+  const visibility = chosenVisibility(f, profile?.collectionPrivate);
   return (
     <div>
       <Section title={t('as.f.estimate')}>
@@ -29,13 +32,14 @@ export function FinishStep({ w, valuation, onSave, saving }: { w: Wizard; valuat
       <Section title={t('as.f.visibility')}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           {(VISIBILITIES as { key: Visibility; label: string; desc: string }[]).map((o) => (
-            <button key={o.key} type="button" className="option-btn" aria-pressed={f.visibility === o.key} onClick={() => set({ visibility: o.key })} style={{ padding: 14 }}>
+            <button key={o.key} type="button" className="option-btn" aria-pressed={visibility === o.key} onClick={() => set({ visibility: o.key })} style={{ padding: 14 }}>
               <span style={{ display: 'block', fontWeight: 600, fontSize: 14 }}>{t(o.label)}</span>
               <span style={{ display: 'block', fontSize: 12, color: 'var(--muted)' }}>{t(o.desc)}</span>
             </button>
           ))}
         </div>
-        {f.visibility === 'forsale' && (
+        {profile?.collectionPrivate && visibility !== 'private' && <p style={{ fontSize: 12.5, color: 'var(--muted)', margin: '8px 0 0' }}>{t('as.vis.collectionPrivate')}</p>}
+        {visibility === 'forsale' && (
           <input aria-label={t('as.f.price')} inputMode="numeric" value={f.salePrice} onChange={(e) => set({ salePrice: e.target.value.replace(/[^0-9]/g, '') })} placeholder={valuation.blocked ? t('as.f.price') : t('as.f.pricePh', { mid: valuation.mid })} style={{ ...inputStyle, marginTop: 10 }} />
         )}
       </Section>

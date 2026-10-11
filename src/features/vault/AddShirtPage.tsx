@@ -18,7 +18,7 @@ import { DetailsStep } from './addshirt/DetailsStep.tsx';
 import { FinishStep } from './addshirt/FinishStep.tsx';
 import { IdentifyStep } from './addshirt/IdentifyStep.tsx';
 import { ScanStep } from './addshirt/ScanStep.tsx';
-import { useAddShirtForm } from './addshirt/useAddShirtForm.ts';
+import { chosenVisibility, useAddShirtForm } from './addshirt/useAddShirtForm.ts';
 import { buildPhotoSpecs } from '../../addShirtData.js';
 import { useCollectionActions } from './useCollection.ts';
 
@@ -28,7 +28,7 @@ export default function AddShirtPage() {
   useCatalog(); // re-render when the live catalogue loads
   const { t, lang } = usePrefs();
   usePageMeta(t('as.meta'));
-  const { user } = useSession();
+  const { user, profile } = useSession();
   const w = useAddShirtForm(user?.id);
   const { f, set } = w;
   const { add } = useCollectionActions();
@@ -109,8 +109,8 @@ export default function AddShirtPage() {
         photos: f.photos,
         precheck: f.precheck,
         verification: f.verification,
-        visibility: f.visibility,
-        salePrice: f.visibility === 'forsale' ? f.salePrice : '',
+        visibility: chosenVisibility(f, profile?.collectionPrivate),
+        salePrice: chosenVisibility(f, profile?.collectionPrivate) === 'forsale' ? f.salePrice : '',
         valuation
       },
       {

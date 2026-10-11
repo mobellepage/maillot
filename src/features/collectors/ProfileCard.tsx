@@ -30,7 +30,22 @@ export function ProfileCard() {
       toast(t('coll.saveFailed'));
     }
   });
+  const [privateChosen, setPrivateChosen] = useState<boolean | null>(null);
+  const setPrivate = useMutation({
+    mutationFn: (on: boolean) => db.setCollectionPrivate(user!.id, on),
+    onSuccess: (_r, on) => {
+      toast(on ? t('coll.privateOn') : t('coll.privateOff'));
+      qc.invalidateQueries({ queryKey: ['profile', user?.id] });
+      qc.invalidateQueries({ queryKey: ['collectorStats'] });
+      qc.invalidateQueries({ queryKey: ['publicCollection'] });
+    },
+    onError: () => {
+      setPrivateChosen(null);
+      toast(t('coll.saveFailed'));
+    }
+  });
   if (!user || !profile) return null;
+  const isPrivate = privateChosen ?? profile.collectionPrivate;
 
   return (
     <Card>
@@ -38,8 +53,23 @@ export function ProfileCard() {
       <label style={{ display: 'flex', alignItems: 'flex-start', gap: 12, padding: '14px 0', borderTop: '1px solid var(--line)', cursor: 'pointer' }}>
         <input
           type="checkbox"
+          checked={isPrivate}
+          onChange={(e) => {
+            setPrivateChosen(e.target.checked);
+            setPrivate.mutate(e.target.checked);
+          }}
+          style={{ width: 20, height: 20, marginTop: 2, accentColor: 'var(--accent)', flex: 'none' }}
+        />
+        <span>
+          <span style={{ display: 'block', fontSize: 14.5 }}>{t('coll.private')}</span>
+          <span style={{ display: 'block', fontSize: 12.5, color: 'var(--muted)', marginTop: 3, lineHeight: 1.45 }}>{t('coll.privateHint')}</span>
+        </span>
+      </label>
+      <label style={{ display: 'flex', alignItems: 'flex-start', gap: 12, padding: '14px 0', borderTop: '1px solid var(--line)', cursor: 'pointer' }}>
+        <input
+          type="checkbox"
           checked={chosen ?? profile.showCollectionValue}
-          disabled={!profile.handle}
+          disabled={!profile.handle || isPrivate}
           onChange={(e) => {
             setChosen(e.target.checked);
             showValue.mutate(e.target.checked);

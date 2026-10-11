@@ -98,7 +98,7 @@ export default function SellerPage() {
         </h2>
         {collection.isLoading && <Skeleton height={220} radius={20} style={{ marginTop: 14 }} />}
         {collection.isError && <ErrorState compact what={t('coll.title')} onRetry={() => collection.refetch()} />}
-        {collection.data && !collection.data.length && <p style={{ color: 'var(--muted)', fontSize: 14 }}>{t('coll.empty')}</p>}
+        {collection.data && !collection.data.length && <p style={{ color: 'var(--muted)', fontSize: 14 }}>{stats.data?.collection_private ? (stats.data.is_me ? t('coll.privateMine') : t('coll.privateOther')) : t('coll.empty')}</p>}
         {!!collection.data?.length && <PublicCollection shirts={collection.data} owner={p.handle} canOffer={!stats.data?.is_me} />}
       </section>
 

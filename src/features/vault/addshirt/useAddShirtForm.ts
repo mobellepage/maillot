@@ -45,7 +45,8 @@ export interface AddShirtForm {
   photos: Record<string, Photo>;
   precheck: Precheck | null;
   verification: Verification;
-  visibility: Visibility;
+  /** null = the member's default: public, or private when their whole collection is private. */
+  visibility: Visibility | null;
   salePrice: string;
   /** The member turned the studio look off for this shirt. */
   studioOff: boolean;
@@ -75,10 +76,15 @@ function emptyForm(): AddShirtForm {
     photos: {},
     precheck: null,
     verification: { level: 'self', status: 'none', reason: '', reviewId: null },
-    visibility: 'private',
+    visibility: null,
     salePrice: '',
     studioOff: false
   };
+}
+
+/** What a new shirt is saved as: the member's choice, else public — private when the collection is private. */
+export function chosenVisibility(f: Pick<AddShirtForm, 'visibility'>, collectionPrivate: boolean | undefined): Visibility {
+  return f.visibility ?? (collectionPrivate ? 'private' : 'public');
 }
 
 export function useAddShirtForm(userId: string | undefined) {
