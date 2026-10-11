@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router';
 import { BY, pct, type Shirt } from '../../data.ts';
 import type { MessageKey } from '../../i18n/index.ts';
 import { usePrefs } from '../../lib/prefs.tsx';
-import { Button, ButtonLink, SearchIcon, ShirtGraphic } from '../../ui/index.ts';
+import { Button, ButtonLink, SearchIcon, ShirtGraphic, alpha } from '../../ui/index.ts';
 import { search } from '../catalog/model.ts';
 import { HeroStats } from './HeroStats.tsx';
 
@@ -168,7 +168,7 @@ function HeroCards({ featured }: { featured: Shirt }) {
               onPointerMove={tilt}
               onPointerLeave={untilt}
             >
-              <span style={{ position: 'relative', display: 'block', borderRadius: 16, overflow: 'hidden', background: '#0e1110' }}>
+              <span className="hero-card-photo" style={{ position: 'relative', display: 'block', borderRadius: 16, overflow: 'hidden', background: `radial-gradient(circle at 50% 45%,${alpha(s.glow, 0.28)} 0%,rgba(0,0,0,0) 62%),var(--surface-2)` }}>
                 <ShirtGraphic pat={s.pat} trim={s.trim} crest={s.crest} photo={s.photo} />
                 <span className={isFeatured ? 'badge badge--solid' : 'badge badge--neutral'} style={{ position: 'absolute', top: 8, left: 8, fontSize: 10.5, maxWidth: 'calc(100% - 16px)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                   {isFeatured ? t('home.shirtOfWeek') : '✓ ' + t('home.cardTag')}

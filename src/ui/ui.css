@@ -948,6 +948,12 @@ main:focus {
   }
 }
 
+/* Catalogue photos are transparent cut-outs; the shadow is drawn here so it
+   suits the tile they sit on (ShirtGraphic). */
+.shirt-photo {
+  filter: drop-shadow(0 22px 26px rgba(0, 0, 0, 0.55));
+}
+
 /* Home hero: shirts fanned out like collector cards (Hero.tsx). The fan
    opens a little when the pointer is over it; the card under the pointer
    straightens, lifts and tilts towards it (--tx/--ty set on pointer move). */

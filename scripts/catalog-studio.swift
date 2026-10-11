@@ -1,10 +1,13 @@
 // Catalogue photos in MAILLOT's studio look, made on a Mac (macOS 14+):
-// Apple's Vision subject lifting cuts the shirt out, then it is placed on the
-// dark studio background exactly like members' photos (src/features/vault/
-// addshirt/studio.ts: 78 % box, a little above centre, soft spotlight and
-// shadow). Nothing leaves the machine.
+// Apple's Vision subject lifting cuts the shirt out, then it is placed in a
+// square like members' photos (src/features/vault/addshirt/studio.ts: 78 %
+// box, a little above centre). Nothing leaves the machine.
 //
-//   swift scripts/catalog-studio.swift <photo> <out.jpg> [size=1000]
+//   swift scripts/catalog-studio.swift <photo> <out.png> [size=1000]
+//
+// A .png keeps the background transparent (the app draws the tile and the
+// shadow, public/catalog/ — convert to .webp with scripts/catalog-webp.py);
+// a .jpg gets the dark studio background with spotlight and shadow.
 import AppKit
 import Vision
 
@@ -99,11 +102,14 @@ let s = CGFloat(size)
 let space = CGColorSpace(name: CGColorSpace.sRGB)!
 guard let ctx = CGContext(data: nil, width: size, height: size, bitsPerComponent: 8, bytesPerRow: 0, space: space,
                           bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue) else { fail("no canvas") }
-ctx.setFillColor(CGColor(srgbRed: 10 / 255, green: 12 / 255, blue: 11 / 255, alpha: 1))
-ctx.fill(CGRect(x: 0, y: 0, width: s, height: s))
-let spot = CGGradient(colorsSpace: space, colors: [CGColor(gray: 1, alpha: 0.09), CGColor(gray: 1, alpha: 0)] as CFArray, locations: [0, 1])!
-let centre = CGPoint(x: s / 2, y: s - s * 0.44)
-ctx.drawRadialGradient(spot, startCenter: centre, startRadius: 0, endCenter: centre, endRadius: s * 0.62, options: [])
+let transparent = args[2].lowercased().hasSuffix(".png")
+if !transparent {
+  ctx.setFillColor(CGColor(srgbRed: 10 / 255, green: 12 / 255, blue: 11 / 255, alpha: 1))
+  ctx.fill(CGRect(x: 0, y: 0, width: s, height: s))
+  let spot = CGGradient(colorsSpace: space, colors: [CGColor(gray: 1, alpha: 0.09), CGColor(gray: 1, alpha: 0)] as CFArray, locations: [0, 1])!
+  let centre = CGPoint(x: s / 2, y: s - s * 0.44)
+  ctx.drawRadialGradient(spot, startCenter: centre, startRadius: 0, endCenter: centre, endRadius: s * 0.62, options: [])
+}
 
 let w = CGFloat(cutout.width), h = CGFloat(cutout.height)
 let scale = min(s * 0.78 / w, s * 0.78 / h)
@@ -111,14 +117,14 @@ let dw = w * scale, dh = h * scale
 let x = (s - dw) / 2
 let yTop = (s - dh) / 2 - s * 0.02
 ctx.saveGState()
-ctx.setShadow(offset: CGSize(width: 0, height: -28 * s / 1200), blur: 60 * s / 1200, color: CGColor(gray: 0, alpha: 0.6))
+if !transparent { ctx.setShadow(offset: CGSize(width: 0, height: -28 * s / 1200), blur: 60 * s / 1200, color: CGColor(gray: 0, alpha: 0.6)) }
 ctx.interpolationQuality = .high
 ctx.draw(cutout, in: CGRect(x: x, y: s - yTop - dh, width: dw, height: dh))
 ctx.restoreGState()
 
-// 3. JPEG out.
+// 3. PNG or JPEG out.
 guard let out = ctx.makeImage() else { fail("cannot finish image") }
 let rep = NSBitmapImageRep(cgImage: out)
-guard let jpeg = rep.representation(using: .jpeg, properties: [.compressionFactor: 0.84]) else { fail("cannot encode") }
-do { try jpeg.write(to: URL(fileURLWithPath: args[2])) } catch { fail("cannot write \(args[2]): \(error)") }
-print("\(args[2])  \(size)x\(size)  \(jpeg.count / 1024) KB")
+guard let encoded = transparent ? rep.representation(using: .png, properties: [:]) : rep.representation(using: .jpeg, properties: [.compressionFactor: 0.84]) else { fail("cannot encode") }
+do { try encoded.write(to: URL(fileURLWithPath: args[2])) } catch { fail("cannot write \(args[2]): \(error)") }
+print("\(args[2])  \(size)x\(size)  \(encoded.count / 1024) KB")

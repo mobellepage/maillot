@@ -52,7 +52,7 @@ function CardFace({ item, photoUrl }: { item: FeedItem; photoUrl: string | undef
   const l = item.kind === 'listing' ? item.listing : null;
   return (
     <>
-      <div style={{ position: 'absolute', inset: 0, display: 'grid', placeItems: 'center', background: `radial-gradient(circle at 50% 36%,${alpha(s.glow, 0.3)},rgba(0,0,0,0) 60%),#0A0C0B` }}>
+      <div style={{ position: 'absolute', inset: 0, display: 'grid', placeItems: 'center', background: `radial-gradient(circle at 50% 36%,${alpha(s.glow, 0.3)},rgba(0,0,0,0) 60%),var(--feed-card, #0A0C0B)` }}>
         {l && photoUrl ? (
           <img src={photoUrl} alt="" draggable={false} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
         ) : (
@@ -61,7 +61,7 @@ function CardFace({ item, photoUrl }: { item: FeedItem; photoUrl: string | undef
           </div>
         )}
       </div>
-      <div style={{ position: 'absolute', left: 0, right: 0, bottom: 0, padding: '60px 20px 20px', color: '#F2F4F1', background: 'linear-gradient(180deg,rgba(10,12,11,0) 0%,rgba(10,12,11,0.94) 38%)' }}>
+      <div className="feed-caption" style={{ position: 'absolute', left: 0, right: 0, bottom: 0, padding: '60px 20px 20px', color: '#F2F4F1', background: 'linear-gradient(180deg,rgba(10,12,11,0) 0%,rgba(10,12,11,0.94) 38%)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', fontSize: 13, color: '#C9D0CB' }}>
           {l ? (
             <>
