@@ -99,7 +99,7 @@ export default function SellerPage() {
         {collection.isLoading && <Skeleton height={220} radius={20} style={{ marginTop: 14 }} />}
         {collection.isError && <ErrorState compact what={t('coll.title')} onRetry={() => collection.refetch()} />}
         {collection.data && !collection.data.length && <p style={{ color: 'var(--muted)', fontSize: 14 }}>{t('coll.empty')}</p>}
-        {!!collection.data?.length && <PublicCollection shirts={collection.data} />}
+        {!!collection.data?.length && <PublicCollection shirts={collection.data} owner={p.handle} canOffer={!stats.data?.is_me} />}
       </section>
 
       <section aria-labelledby="listings-title" style={{ marginTop: 40 }}>

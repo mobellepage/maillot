@@ -40,3 +40,8 @@ insert into public.bids (user_id, shirt_id, size, amount, expires_at) values
   ('33333333-3333-3333-3333-333333333333', 'ger-26',   'M', 120, now() + interval '30 days'),
   ('33333333-3333-3333-3333-333333333333', 'juv-9697', 'L', 210, now() + interval '30 days'),
   ('33333333-3333-3333-3333-333333333333', 'fra-98',   'M', 250, now() + interval '30 days');
+
+-- A collection shirt open to offers (offers e2e): the seller's Ajax 1994/95.
+insert into public.custom_items (id, user_id, catalog_id, size, version, visibility, condition, flock, patches, signature, photos)
+values ('seed-ajax-offers', '22222222-2222-2222-2222-222222222222', 'ajx-95', 'M', 'Replica', 'offers',
+        '{"grade":8,"defects":[]}', '{"source":"Keine"}', '[]', '{"signed":false}', '{}');

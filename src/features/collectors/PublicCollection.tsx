@@ -9,10 +9,12 @@ import { usePhotoUrls } from '../../lib/usePhotoUrls.ts';
 import type { PublicShirt } from '../../utils/db.ts';
 import type { Photo } from '../../types/domain.ts';
 import { Badge, HEX, ShirtGraphic, alpha } from '../../ui/index.ts';
+import { marketValue } from '../catalog/model.ts';
+import { OfferButton } from './OfferButton.tsx';
 
 const photoOf = (s: PublicShirt): Photo | undefined => (s.photo_path ? { path: s.photo_path, thumbPath: s.thumb_path ?? undefined } : undefined);
 
-export function PublicCollection({ shirts }: { shirts: PublicShirt[] }) {
+export function PublicCollection({ shirts, owner, canOffer }: { shirts: PublicShirt[]; owner: string; canOffer: boolean }) {
   const { t, label } = usePrefs();
   const url = usePhotoUrls(shirts.map(photoOf), true);
 
@@ -47,6 +49,7 @@ export function PublicCollection({ shirts }: { shirts: PublicShirt[] }) {
               <div className="mono" style={{ fontSize: 12, color: 'var(--text-2)', marginTop: 6 }}>
                 {[s.size && t('coll.size', { size: s.size }), player, s.version && label('opt', s.version), s.grade !== null && s.grade + '/10'].filter(Boolean).join(' · ')}
               </div>
+              {canOffer && cat && s.size && (s.visibility === 'offers' || s.visibility === 'forsale') && <OfferButton itemId={s.id} name={name} owner={owner} suggested={marketValue(cat, s.size)} />}
             </div>
           </li>
         );
