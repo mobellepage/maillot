@@ -13,10 +13,10 @@ export function useNavItems() {
   const { adminFlag } = useSession();
   const items: NavItem[] = [
     { to: '/', label: t('nav.discover'), short: t('nav.discover'), match: (p) => p === '/' },
+    { to: '/vault', label: t('nav.collection'), short: t('nav.collectionShort'), match: (p) => p.startsWith('/vault') || p === '/watchlist' || p === '/orders' },
     { to: '/feed', label: t('nav.feed'), short: t('nav.feed') },
     { to: '/market', label: t('nav.marketplace'), short: t('nav.marketShort'), match: (p) => p.startsWith('/market') || p.startsWith('/shirt') },
-    { to: '/sell', label: t('nav.sell'), short: t('nav.sell') },
-    { to: '/vault', label: t('nav.collection'), short: t('nav.collectionShort'), match: (p) => p.startsWith('/vault') || p === '/watchlist' || p === '/orders' }
+    { to: '/sell', label: t('nav.sell'), short: t('nav.sell') }
   ];
   if (adminFlag) items.push({ to: '/admin', label: t('nav.admin'), short: t('nav.admin') });
   return items;

@@ -7,6 +7,8 @@ import { SectionHeader } from '../../ui/index.ts';
 import { ShirtGrid } from '../catalog/ShirtGrid.tsx';
 import { useCollection } from '../vault/useCollection.ts';
 import { Hero } from './Hero.tsx';
+import { HowItWorks } from './HowItWorks.tsx';
+import { SecondLife } from './SecondLife.tsx';
 import { IndexTicker } from './IndexTicker.tsx';
 import { Movers } from './Movers.tsx';
 import { NewArrivals } from './NewArrivals.tsx';
@@ -23,6 +25,7 @@ export default function HomePage() {
   return (
     <main id="main" style={{ animation: 'kvIn .45s ease both' }}>
       <Hero featured={BY['ger-26']!} />
+      <HowItWorks />
       <IndexTicker />
       {recommended.length > 0 && (
         <section aria-labelledby="rec-title" style={section}>
@@ -43,6 +46,7 @@ export default function HomePage() {
         />
         <ShirtGrid shirts={trending} />
       </section>
+      <SecondLife />
       <Movers />
       <NewArrivals />
     </main>

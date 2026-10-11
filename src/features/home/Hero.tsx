@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router';
-import { SHIRTS, pct, type Shirt } from '../../data.ts';
+import { pct, type Shirt } from '../../data.ts';
 import type { MessageKey } from '../../i18n/index.ts';
 import { usePrefs } from '../../lib/prefs.tsx';
-import { Button, SearchIcon, ShirtGraphic, alpha } from '../../ui/index.ts';
+import { Button, ButtonLink, SearchIcon, ShirtGraphic, alpha } from '../../ui/index.ts';
 import { search } from '../catalog/model.ts';
 import { HeroStats } from './HeroStats.tsx';
 
@@ -37,7 +37,7 @@ export function Hero({ featured }: { featured: Shirt }) {
         <div style={{ flex: '1 1 520px', minWidth: 0 }}>
           <div className="mono" style={{ display: 'inline-flex', alignItems: 'center', gap: 10, padding: '7px 14px 7px 10px', borderRadius: 999, border: '1px solid rgba(255,255,255,0.1)', fontSize: 11.5, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--text-2)' }}>
             <span aria-hidden="true" style={{ width: 7, height: 7, borderRadius: '50%', background: 'var(--accent)', boxShadow: '0 0 12px var(--accent)', animation: 'kvPulse 1.8s ease-in-out infinite' }} />
-            {t('home.liveIndex', { n: SHIRTS.length })}
+            {t('home.pill')}
           </div>
           <h1 id="hero-title" className="display display--xl" style={{ marginTop: 22, fontWeight: 800 }}>
             {t('home.h1a')}
@@ -46,9 +46,17 @@ export function Hero({ featured }: { featured: Shirt }) {
             <br />
             <span style={{ color: 'var(--accent)' }}>{t('home.h1c')}</span>
           </h1>
-          <p className="lede" style={{ margin: '24px 0 0', maxWidth: 520 }}>
+          <p className="lede" style={{ margin: '24px 0 0', maxWidth: 540 }}>
             {t('home.lede')}
           </p>
+          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 28 }}>
+            <ButtonLink to="/vault/add" size="lg">
+              {t('home.cta.start')}
+            </ButtonLink>
+            <ButtonLink to="/vault" size="lg" variant="secondary">
+              {t('home.cta.mine')}
+            </ButtonLink>
+          </div>
 
           <form
             role="search"
@@ -57,7 +65,7 @@ export function Hero({ featured }: { featured: Shirt }) {
               if (active >= 0 && sug[active]) navigate('/shirt/' + sug[active]!.id);
               else go();
             }}
-            style={{ position: 'relative', marginTop: 32, maxWidth: 620 }}
+            style={{ position: 'relative', marginTop: 28, maxWidth: 620 }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, height: 64, padding: '0 8px 0 22px', borderRadius: 18, background: 'var(--surface-2)', border: '1px solid rgba(255,255,255,0.12)', boxShadow: '0 20px 60px rgba(0,0,0,0.4)', color: 'var(--muted)' }}>
               <SearchIcon size={20} />

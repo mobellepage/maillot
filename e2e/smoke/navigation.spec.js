@@ -3,13 +3,13 @@ import { expect, test } from '@playwright/test';
 test('home page renders the hero and trending shirts @mobile', async ({ page }) => {
   await page.goto('/');
   await expect(page).toHaveTitle(/MAILLOT/);
-  await expect(page.getByRole('heading', { level: 1 })).toContainText('Every shirt');
+  await expect(page.getByRole('heading', { level: 1 })).toContainText('Your collection');
   await expect(page.getByText('Trending shirts', { exact: false })).toBeVisible();
 });
 
 test('search leads to a shareable product URL and Back works', async ({ page }) => {
   await page.goto('/');
-  await page.getByPlaceholder('Search any shirt…').fill('maradona');
+  await page.getByPlaceholder('Or look up any shirt…').fill('maradona');
   await page.getByRole('button', { name: 'Search', exact: true }).click();
   // The search lives in the URL, so results are shareable.
   await expect(page).toHaveURL(/\/market\?q=maradona$/);
@@ -60,7 +60,7 @@ test('a malformed share link shows an error page instead of crashing @mobile', a
 
 test('unknown URLs fall back to the home page', async ({ page }) => {
   await page.goto('/this/does/not/exist');
-  await expect(page.getByRole('heading', { level: 1 })).toContainText('Every shirt');
+  await expect(page.getByRole('heading', { level: 1 })).toContainText('Your collection');
 });
 
 test('product pages link to the authentication explainer', async ({ page }) => {
