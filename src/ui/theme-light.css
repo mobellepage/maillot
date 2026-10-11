@@ -215,8 +215,8 @@ html[data-theme='light'] .nav-link[aria-current='page'] {
 html[data-theme='light'] .logo-mark {
   background: #1d1d1f !important;
 }
-html[data-theme='light'] .logo-mark > span {
-  border-color: #ffffff !important;
+html[data-theme='light'] .logo-mark > svg {
+  color: #ffffff !important;
 }
 html[data-theme='light'] .logo-word {
   font-stretch: normal !important;
