@@ -23,3 +23,4 @@ export const AccountPage = lazy(() => import('../features/account/AccountPage.ts
 export const ResetPasswordPage = lazy(() => import('../features/auth/ResetPasswordPage.tsx'));
 export const ReturnPage = lazy(() => import('../features/native/ReturnPage.tsx'));
 export const PublicVaultPage = lazy(() => import('../features/vault/PublicVaultPage.tsx'));
+export const FeedPage = lazy(() => import('../features/feed/FeedPage.tsx'));

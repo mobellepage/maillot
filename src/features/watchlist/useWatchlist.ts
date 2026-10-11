@@ -1,6 +1,6 @@
 // Watchlist for signed-in users (Supabase) and guests (this browser only).
 // When a guest signs in, their hearts are merged into the account.
-import { useEffect, useState } from 'react';
+import { useEffect, useSyncExternalStore } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import * as db from '../../utils/db.ts';
 import { loadJSON, saveJSON } from '../../utils/storage.ts';
@@ -10,13 +10,31 @@ import { useToast } from '../../lib/toast.tsx';
 
 const GUEST_KEY = 'kv_guest_watch';
 
+// Guests' hearts live in this browser. One shared store, so the header's
+// count, the feed and every heart button agree.
+let guestIds: string[] | null = null;
+const listeners = new Set<() => void>();
+const NONE: string[] = [];
+const readGuest = () => (guestIds ??= loadJSON<string[]>(GUEST_KEY, []));
+const subscribeGuest = (l: () => void) => {
+  listeners.add(l);
+  return () => {
+    listeners.delete(l);
+  };
+};
+function setGuest(next: string[]) {
+  guestIds = next;
+  saveJSON(GUEST_KEY, next);
+  listeners.forEach((l) => l());
+}
+
 export function useWatchlist() {
   const { user } = useSession();
   const uid = user?.id;
   const qc = useQueryClient();
   const toast = useToast();
   const { t } = usePrefs();
-  const [guest, setGuest] = useState<string[]>(() => loadJSON<string[]>(GUEST_KEY, []));
+  const guest = useSyncExternalStore(subscribeGuest, readGuest, () => NONE);
 
   const q = useQuery({ queryKey: ['watchlist', uid], enabled: !!uid, queryFn: () => db.loadWatchlist(uid!) });
 
@@ -24,9 +42,9 @@ export function useWatchlist() {
   useEffect(() => {
     if (!uid || !guest.length) return;
     const pending = guest;
-    saveJSON(GUEST_KEY, []);
+    // Emptied first, so the other mounted hooks don't merge the same hearts again.
+    setGuest([]);
     Promise.all(pending.map((id) => db.addWatch(uid, id).catch(() => {}))).then(() => {
-      setGuest([]);
       qc.invalidateQueries({ queryKey: ['watchlist', uid] });
     });
   }, [uid, guest, qc]);
@@ -61,12 +79,10 @@ export function useWatchlist() {
     has: (id: string) => ids.includes(id),
     toggle: (id: string) => {
       const on = !ids.includes(id);
-      toast(on ? 'Added to watchlist' : 'Removed from watchlist');
+      toast(on ? t('watch.added') : t('watch.removed'));
       if (uid) toggle.mutate({ id, on });
       else {
-        const next = on ? [...guest, id] : guest.filter((x) => x !== id);
-        setGuest(next);
-        saveJSON(GUEST_KEY, next);
+        setGuest(on ? [...guest, id] : guest.filter((x) => x !== id));
       }
     }
   };

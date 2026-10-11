@@ -909,6 +909,10 @@ export type Database = {
       admin_set_dealer: { Args: { p_handle: string; p_verified: boolean; p_commission_rate?: number | null }; Returns: undefined };
       admin_dealers: { Args: never; Returns: { handle: string; dealer_verified_at: string | null; commission_rate: number | null; listings: number; sales: number }[] };
       my_following: { Args: never; Returns: { handle: string; followed_at: string; shirts: number }[] };
+      feed_listings: {
+        Args: { p_limit?: number };
+        Returns: { ask_id: string; shirt_id: string; size: string; amount: number; condition: string | null; edition: string | null; player_print: string | null; photos: Json; handle: string | null; dealer: boolean; created_at: string }[];
+      };
       is_visible_vault_photo: { Args: { p_name: string }; Returns: boolean };
       report_client_error: { Args: { p_message: string; p_stack?: string; p_url?: string; p_release?: string; p_user_agent?: string }; Returns: undefined };
       admin_health: {

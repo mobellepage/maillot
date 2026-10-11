@@ -24,6 +24,7 @@ import {
   OrderPage,
   WelcomePage,
   SellerPage,
+  FeedPage,
   ReturnPage,
   AccountPage,
   ResetPasswordPage
@@ -42,6 +43,7 @@ export const routes: RouteObject[] = [
         errorElement: <RouteError />,
         children: [
           { index: true, element: <HomePage /> },
+          { path: 'feed', element: <FeedPage /> },
           { path: 'market', element: <BrowsePage /> },
           { path: 'shirt/:id', element: <DetailPage /> },
           { path: 'sell', element: <SellPage /> },

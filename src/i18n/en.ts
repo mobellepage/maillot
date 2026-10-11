@@ -1239,6 +1239,21 @@ export const en = {
   'alert.sizeLabel': 'Size: {size}',
   'notif.listingAlert.title': 'A shirt you want is listed',
   'notif.listingAlert.body': '{shirt} ({size}) is now listed for {amount}.',
+  'nav.feed': 'Feed',
+  'feed.title': 'Feed',
+  'feed.hint': 'Swipe up · double-tap to like',
+  'feed.aria': 'Shirts, one at a time',
+  'feed.metaTitle': 'Feed — discover football shirts',
+  'feed.metaDesc': 'Scroll through shirts from collectors and dealers and like the ones you want.',
+  'feed.catalog': 'From the catalogue · no listing yet',
+  'feed.buy': 'View & buy',
+  'feed.view': 'View',
+  'feed.like': 'Like {name}',
+  'feed.unlike': 'Unlike {name}',
+  'feed.likeShort': 'Like',
+  'feed.liked': 'On your list',
+  'watch.added': 'Added to your watchlist',
+  'watch.removed': 'Removed from your watchlist',
   // @@end
 };
 

@@ -15,3 +15,4 @@ export * from './db/account.ts';
 export * from './db/identify.ts';
 export * from './db/studio.ts';
 export * from './db/alerts.ts';
+export * from './db/feed.ts';
