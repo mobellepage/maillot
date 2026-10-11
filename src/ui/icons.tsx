@@ -64,3 +64,48 @@ export function DownloadIcon({ size = 14, ...rest }: IconProps) {
     </svg>
   );
 }
+
+// Bottom navigation.
+export function CompassIcon({ size = 22, ...rest }: IconProps) {
+  return (
+    <svg {...base(size, rest)} fill="none" stroke="currentColor" strokeWidth={1.9} strokeLinejoin="round">
+      <circle cx="12" cy="12" r="9" />
+      <path d="M15.5 8.5l-2 5-5 2 2-5z" />
+    </svg>
+  );
+}
+
+export function ShirtIcon({ size = 22, ...rest }: IconProps) {
+  return (
+    <svg {...base(size, rest)} fill="none" stroke="currentColor" strokeWidth={1.9} strokeLinejoin="round">
+      <path d="M8.5 3.5L3 6.5l2.2 4.3L7 10v10.5h10V10l1.8.8L21 6.5l-5.5-3c-.6 1.5-2 2.4-3.5 2.4s-2.9-.9-3.5-2.4z" />
+    </svg>
+  );
+}
+
+export function PlayCardIcon({ size = 22, ...rest }: IconProps) {
+  return (
+    <svg {...base(size, rest)} fill="none" stroke="currentColor" strokeWidth={1.9} strokeLinejoin="round">
+      <rect x="4.5" y="2.5" width="15" height="19" rx="3.5" />
+      <path d="M10 9l5 3-5 3z" fill="currentColor" />
+    </svg>
+  );
+}
+
+export function BagIcon({ size = 22, ...rest }: IconProps) {
+  return (
+    <svg {...base(size, rest)} fill="none" stroke="currentColor" strokeWidth={1.9} strokeLinejoin="round" strokeLinecap="round">
+      <path d="M5 8h14l-1.2 12.5H6.2z" />
+      <path d="M9 10.5V6.5a3 3 0 016 0v4" />
+    </svg>
+  );
+}
+
+export function TagIcon({ size = 22, ...rest }: IconProps) {
+  return (
+    <svg {...base(size, rest)} fill="none" stroke="currentColor" strokeWidth={1.9} strokeLinejoin="round">
+      <path d="M3 12.2V4a1 1 0 011-1h8.2l9 9a1.4 1.4 0 010 2l-7.2 7.2a1.4 1.4 0 01-2 0z" />
+      <circle cx="7.8" cy="7.8" r="1.6" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}

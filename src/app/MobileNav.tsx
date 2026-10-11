@@ -1,6 +1,9 @@
 import { NavLink, useLocation } from 'react-router';
 import { usePrefs } from '../lib/prefs.tsx';
-import { useNavItems } from './nav.ts';
+import { useNavItems, type NavIcon } from './nav.ts';
+import { BagIcon, CompassIcon, PlayCardIcon, ShieldIcon, ShirtIcon, TagIcon } from '../ui/index.ts';
+
+const ICONS: Record<NavIcon, typeof CompassIcon> = { discover: CompassIcon, collection: ShirtIcon, feed: PlayCardIcon, market: BagIcon, sell: TagIcon, admin: ShieldIcon };
 
 export default function MobileNav() {
   const items = useNavItems();
@@ -14,6 +17,7 @@ export default function MobileNav() {
     >
       {items.map((n) => {
         const on = n.match ? n.match(pathname) : pathname === n.to;
+        const Icon = ICONS[n.icon];
         return (
           <NavLink
             key={n.to}
@@ -21,7 +25,7 @@ export default function MobileNav() {
             aria-current={on ? 'page' : undefined}
             style={{ flex: 1, minHeight: 48, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 4, color: on ? 'var(--text)' : 'var(--muted)', fontSize: 11, fontWeight: 600 }}
           >
-            <span aria-hidden="true" style={{ width: 6, height: 6, borderRadius: '50%', background: on ? 'var(--accent)' : 'transparent' }} />
+            <Icon size={22} style={{ color: on ? 'var(--accent)' : 'currentColor' }} />
             {n.short}
           </NavLink>
         );
