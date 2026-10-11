@@ -14,14 +14,14 @@ import { chromium } from '@playwright/test';
 const ACCENT = '#4BFF8B';
 const INK = '#0A0C0B';
 
-// The mark: a shirt silhouette on the accent tile — the same path as the
+// The mark: a shirt outline on the accent tile — the same path as the
 // header logo (src/app/Header.tsx, 24×24), drawn at 36/64 of the tile.
 // `bleed` fills the whole canvas (maskable / Apple icons: the OS rounds it).
 const JERSEY = 'M8.8 3L12 6.6L15.2 3L20.6 5.3L22.8 10.4L19.2 11.8L18.2 9.8V20.2Q18.2 21 17.4 21H6.6Q5.8 21 5.8 20.2V9.8L4.8 11.8L1.2 10.4L3.4 5.3Z';
 const mark = ({ bleed = false, scale = 1 } = {}) => {
   const k = (36 / 24) * scale;
   const o = 32 - 12 * k;
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="${bleed ? 0 : 18}" fill="${ACCENT}"/><path transform="translate(${o} ${o}) scale(${k})" d="${JERSEY}" fill="${INK}" stroke="${INK}" stroke-width="1.2" stroke-linejoin="round"/></svg>`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="${bleed ? 0 : 18}" fill="${ACCENT}"/><path transform="translate(${o} ${o}) scale(${k})" d="${JERSEY}" fill="none" stroke="${INK}" stroke-width="1.9" stroke-linejoin="round"/></svg>`;
 };
 
 mkdirSync('public/icons', { recursive: true });

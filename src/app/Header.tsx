@@ -12,7 +12,7 @@ const NotificationBell = lazy(() => import('./NotificationBell.tsx'));
 import { useNavItems } from './nav.ts';
 import { focusMain } from './focusMain.ts';
 
-// The mark: a shirt silhouette (24×24). scripts/brand-assets.mjs draws the
+// The mark: a shirt outline (24×24). scripts/brand-assets.mjs draws the
 // same path for the favicon and app icons.
 const JERSEY = 'M8.8 3L12 6.6L15.2 3L20.6 5.3L22.8 10.4L19.2 11.8L18.2 9.8V20.2Q18.2 21 17.4 21H6.6Q5.8 21 5.8 20.2V9.8L4.8 11.8L1.2 10.4L3.4 5.3Z';
 
@@ -22,7 +22,7 @@ export function Logo() {
     <Link to="/" aria-label={t('header.home')} style={{ display: 'flex', alignItems: 'center', gap: 10, flex: 'none', color: 'var(--text)' }}>
       <span aria-hidden="true" className="logo-mark" style={{ width: 28, height: 28, borderRadius: 8, background: 'var(--accent-fill)', display: 'grid', placeItems: 'center' }}>
         <svg width="18" height="18" viewBox="0 0 24 24" style={{ color: 'var(--bg)' }}>
-          <path d={JERSEY} fill="currentColor" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round" />
+          <path d={JERSEY} fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinejoin="round" />
         </svg>
       </span>
       <span className="logo-word" style={{ fontWeight: 800, fontStretch: '78%', fontSize: 22, letterSpacing: '0.03em' }}>MAILLOT</span>
