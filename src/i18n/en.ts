@@ -1253,7 +1253,7 @@ export const en = {
   'feed.liked': 'On your list',
   'watch.added': 'Added to your watchlist',
   'watch.removed': 'Removed from your watchlist',
-  'home.cta.start': 'Start your collection',
+  'home.cta.start': 'List your shirts!',
   'home.cta.mine': 'My collection',
   'home.stat.capture': 'Photo → shirt',
   'home.stat.captureSub': 'recognised in seconds',
@@ -1359,6 +1359,8 @@ export const en = {
   'feed.again': 'Start again',
   'feed.wishlistCount': 'Wishlist: {n} shirts',
   'coll.noneShown': 'No shirts shown yet',
+  'home.cards': 'Shirts collected on MAILLOT',
+  'home.cardTag': 'Collected',
   // @@end
 };
 

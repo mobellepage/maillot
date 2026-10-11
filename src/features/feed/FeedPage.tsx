@@ -281,7 +281,7 @@ export default function FeedPage() {
               <button type="button" aria-label={t('feed.skip', { name: BY[current.shirtId]!.name })} onClick={() => decide(false)} style={{ width: 64, height: 64, borderRadius: '50%', border: '1px solid var(--line-strong)', background: 'var(--surface)', color: 'var(--neg)', display: 'grid', placeItems: 'center', cursor: 'pointer' }}>
                 <CloseIcon size={26} />
               </button>
-              <button type="button" aria-label={t('feed.like', { name: BY[current.shirtId]!.name })} onClick={() => decide(true)} style={{ width: 64, height: 64, borderRadius: '50%', border: 0, background: 'var(--accent)', color: 'var(--accent-ink)', display: 'grid', placeItems: 'center', cursor: 'pointer' }}>
+              <button type="button" aria-label={t('feed.like', { name: BY[current.shirtId]!.name })} onClick={() => decide(true)} style={{ width: 64, height: 64, borderRadius: '50%', border: 0, background: 'var(--accent-fill)', color: 'var(--accent-ink)', display: 'grid', placeItems: 'center', cursor: 'pointer' }}>
                 <HeartIcon size={26} filled />
               </button>
               <Link to={href(current)} className="icon-btn" aria-label={t('feed.details', { name: BY[current.shirtId]!.name })} style={{ width: 48, height: 48, borderRadius: '50%', display: 'grid', placeItems: 'center', fontWeight: 700 }}>

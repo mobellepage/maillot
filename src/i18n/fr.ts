@@ -1254,7 +1254,7 @@ export const fr: Messages = {
   'feed.liked': 'Dans ta liste',
   'watch.added': 'Ajouté à ta liste',
   'watch.removed': 'Retiré de ta liste',
-  'home.cta.start': 'Créer ma collection',
+  'home.cta.start': 'Liste tes maillots !',
   'home.cta.mine': 'Ma collection',
   'home.stat.capture': 'Photo → maillot',
   'home.stat.captureSub': 'reconnu en quelques secondes',
@@ -1360,5 +1360,7 @@ export const fr: Messages = {
   'feed.again': 'Recommencer',
   'feed.wishlistCount': 'Liste : {n} maillots',
   'coll.noneShown': 'Aucun maillot visible pour l’instant',
+  'home.cards': 'Maillots collectionnés sur MAILLOT',
+  'home.cardTag': 'Collectionné',
   // @@end
 };

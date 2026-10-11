@@ -160,7 +160,7 @@ export function GuidedCapture({ specs, photos, startKey, onShot, onClose }: { sp
                     setKey(s.key);
                   }}
                   className="mono"
-                  style={{ width: 30, height: 30, borderRadius: 8, fontSize: 11, cursor: 'pointer', border: s.key === key ? '2px solid var(--text)' : '1px solid var(--line-strong)', background: photos[s.key] ? 'var(--accent)' : 'var(--sunken)', color: photos[s.key] ? 'var(--accent-ink)' : 'var(--text-2)' }}
+                  style={{ width: 30, height: 30, borderRadius: 8, fontSize: 11, cursor: 'pointer', border: s.key === key ? '2px solid var(--text)' : '1px solid var(--line-strong)', background: photos[s.key] ? 'var(--accent-fill)' : 'var(--sunken)', color: photos[s.key] ? 'var(--accent-ink)' : 'var(--text-2)' }}
                 >
                   {i + 1}
                 </button>

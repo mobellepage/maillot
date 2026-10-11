@@ -36,7 +36,7 @@ export function ValuationCard({ s }: { s: Shirt }) {
           <>
             <div style={{ fontSize: 13.5, color: 'var(--text-2)', marginTop: 2 }}>{t('val.range', { low: money(v.low), high: money(v.high) })}</div>
             <div aria-hidden="true" style={{ position: 'relative', height: 6, borderRadius: 6, background: 'linear-gradient(90deg,var(--accent-soft),var(--accent-line),var(--accent-soft))', margin: '14px 0 4px' }}>
-              <span style={{ position: 'absolute', top: -4, left: `calc(${positionInRange(v.low, v.value, v.high)}% - 7px)`, width: 14, height: 14, borderRadius: '50%', background: 'var(--accent)', boxShadow: '0 0 0 3px var(--surface)' }} />
+              <span style={{ position: 'absolute', top: -4, left: `calc(${positionInRange(v.low, v.value, v.high)}% - 7px)`, width: 14, height: 14, borderRadius: '50%', background: 'var(--accent-fill)', boxShadow: '0 0 0 3px var(--surface)' }} />
             </div>
           </>
         )}

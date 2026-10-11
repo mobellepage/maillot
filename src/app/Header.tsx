@@ -16,7 +16,7 @@ export function Logo() {
   const { t } = usePrefs();
   return (
     <Link to="/" aria-label={t('header.home')} style={{ display: 'flex', alignItems: 'center', gap: 10, flex: 'none', color: 'var(--text)' }}>
-      <span aria-hidden="true" className="logo-mark" style={{ width: 28, height: 28, borderRadius: 8, background: 'var(--accent)', display: 'grid', placeItems: 'center' }}>
+      <span aria-hidden="true" className="logo-mark" style={{ width: 28, height: 28, borderRadius: 8, background: 'var(--accent-fill)', display: 'grid', placeItems: 'center' }}>
         <span style={{ width: 10, height: 10, border: '2.5px solid var(--bg)', borderRadius: 2, transform: 'rotate(45deg)' }} />
       </span>
       <span className="logo-word" style={{ fontWeight: 800, fontStretch: '78%', fontSize: 22, letterSpacing: '0.03em' }}>MAILLOT</span>

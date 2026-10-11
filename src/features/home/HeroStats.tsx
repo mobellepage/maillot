@@ -20,7 +20,7 @@ export function HeroStats() {
     { value: t('home.stat.verified'), label: t('home.stat.verifiedSub') }
   ];
   return (
-    <dl style={{ display: 'flex', flexWrap: 'wrap', gap: 'clamp(20px,4vw,48px)', margin: '40px 0 0' }}>
+    <dl style={{ display: 'flex', flexWrap: 'wrap', gap: 'clamp(20px,4vw,48px)', margin: '40px 0 0', justifyContent: 'center' }}>
       {[...real, ...promises].slice(0, 3).map((x) => (
         <div key={x.label} style={{ display: 'flex', flexDirection: 'column-reverse' }}>
           <dt style={{ fontSize: 13, color: 'var(--muted)', marginTop: 2 }}>{x.label}</dt>

@@ -62,7 +62,7 @@ export function IdentifyStep({ f }: { f: SellFlow }) {
             <span style={{ fontSize: 13.5, color: 'var(--text-2)', maxWidth: 300, lineHeight: 1.5 }}>{t('sell.snapBody')}</span>
             {reading && (
               <span role="progressbar" aria-label={t('sell.reading')} style={{ width: 160, height: 4, borderRadius: 4, background: 'rgba(255,255,255,0.1)', overflow: 'hidden' }}>
-                <span style={{ display: 'block', width: '40%', height: '100%', background: 'var(--accent)', animation: 'kvSlide 1.1s ease-in-out infinite' }} />
+                <span style={{ display: 'block', width: '40%', height: '100%', background: 'var(--accent-fill)', animation: 'kvSlide 1.1s ease-in-out infinite' }} />
               </span>
             )}
           </span>

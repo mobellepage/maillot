@@ -24,7 +24,7 @@ function StudioPreview({ w, studio, onStudioOff }: { w: Wizard; studio: StudioSt
       <div style={{ display: 'flex', gap: 16, alignItems: 'center', flexWrap: 'wrap' }}>
         <div style={{ width: 160, height: 160, borderRadius: 16, overflow: 'hidden', background: '#0A0C0B', border: '1px solid var(--line)', display: 'grid', placeItems: 'center', flex: 'none' }}>
           {studio === 'working' ? (
-            <span aria-hidden="true" style={{ width: 10, height: 10, borderRadius: '50%', background: 'var(--accent)', animation: 'kvPulse 1.2s ease-in-out infinite' }} />
+            <span aria-hidden="true" style={{ width: 10, height: 10, borderRadius: '50%', background: 'var(--accent-fill)', animation: 'kvPulse 1.2s ease-in-out infinite' }} />
           ) : src && !f.studioOff ? (
             <img src={src} alt={t('as.photo.studio')} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
           ) : (
@@ -77,7 +77,7 @@ export function ScanStep({ w, busyKey, onScanFile, valuation, studio, onStudioOf
           {f.scan.status === 'idle' && !f.photos.front && !f.photos.product_code && <p style={{ fontSize: 13.5, color: 'var(--muted)' }}>{t('as.scan.idle')}</p>}
           {busy && (
             <p style={{ fontSize: 13.5, color: 'var(--text-2)', display: 'flex', alignItems: 'center', gap: 8 }}>
-              <span aria-hidden="true" style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--accent)', animation: 'kvPulse 1.2s ease-in-out infinite' }} />
+              <span aria-hidden="true" style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--accent-fill)', animation: 'kvPulse 1.2s ease-in-out infinite' }} />
               {t('as.scan.scanning')}
             </p>
           )}

@@ -28,7 +28,7 @@ export function PhotosStep({ w, busyKey, onPhoto }: { w: Wizard; busyKey: string
       {guided && <GuidedCapture specs={specs} photos={w.f.photos} startKey={null} onShot={onPhoto} onClose={() => setGuided(false)} />}
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 18 }}>
         <div role="progressbar" aria-valuemin={0} aria-valuemax={specs.length} aria-valuenow={done} aria-label={t('as.p.progress')} style={{ flex: 1, height: 6, borderRadius: 6, background: 'rgba(255,255,255,0.08)', overflow: 'hidden' }}>
-          <div style={{ height: '100%', width: (done / specs.length) * 100 + '%', background: 'var(--accent)', transition: 'width .3s' }} />
+          <div style={{ height: '100%', width: (done / specs.length) * 100 + '%', background: 'var(--accent-fill)', transition: 'width .3s' }} />
         </div>
         <span className="mono" style={{ fontSize: 12.5, color: 'var(--muted)', flex: 'none' }}>
           {t('as.p.count', { done, total: specs.length })}

@@ -1254,7 +1254,7 @@ export const de: Messages = {
   'feed.liked': 'Auf der Liste',
   'watch.added': 'Zur Merkliste hinzugefügt',
   'watch.removed': 'Von der Merkliste entfernt',
-  'home.cta.start': 'Sammlung anlegen',
+  'home.cta.start': 'Liste deine Trikots!',
   'home.cta.mine': 'Meine Sammlung',
   'home.stat.capture': 'Foto → Trikot',
   'home.stat.captureSub': 'in Sekunden erkannt',
@@ -1360,5 +1360,7 @@ export const de: Messages = {
   'feed.again': 'Nochmals von vorne',
   'feed.wishlistCount': 'Wunschliste: {n} Trikots',
   'coll.noneShown': 'Noch keine Trikots gezeigt',
+  'home.cards': 'In MAILLOT gesammelte Trikots',
+  'home.cardTag': 'Gesammelt',
   // @@end
 };

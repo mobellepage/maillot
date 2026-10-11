@@ -5,7 +5,7 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <meta name="theme-color" content="#0A0C0B" />
+    <meta name="theme-color" content="#FFFFFF" />
     <meta name="description" content="Capture your football shirt collection, see what it’s worth and show it anywhere." />
     <meta property="og:site_name" content="MAILLOT" />
     <meta property="og:type" content="website" />
@@ -23,10 +23,16 @@
         var l = JSON.parse(localStorage.getItem('kv_lang') || 'null') || (navigator.language || 'en').slice(0, 2);
         if (l === 'de' || l === 'fr') document.documentElement.setAttribute('data-lang-pending', '');
       } catch (e) {}
+      try {
+        if (localStorage.getItem('kv_theme') !== 'dark') document.documentElement.setAttribute('data-theme', 'light');
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
     </script>
     <style>
       html[data-lang-pending] #root { visibility: hidden; }
       html { background: #0a0c0b; }
+      html[data-theme='light'] { background: #ffffff; }
     </style>
   </head>
   <body>

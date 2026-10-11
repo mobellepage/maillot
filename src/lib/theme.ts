@@ -1,6 +1,6 @@
-// Theme preview switch: ?theme=light shows the light "KitVault v3" design
-// and remembers it in this browser; ?theme=dark goes back to the default.
-// Nothing changes for anyone who doesn't ask for it.
+// Theme switch: the light "KitVault v3" design is the default; ?theme=dark
+// shows the dark look and remembers it in this browser, ?theme=light goes
+// back.
 const KEY = 'kv_theme';
 
 export function applyThemeFromUrl(): void {
@@ -13,6 +13,6 @@ export function applyThemeFromUrl(): void {
   } catch {
     theme = null;
   }
-  if (theme === 'light') document.documentElement.dataset.theme = 'light';
-  else delete document.documentElement.dataset.theme;
+  if (theme === 'dark') delete document.documentElement.dataset.theme;
+  else document.documentElement.dataset.theme = 'light';
 }

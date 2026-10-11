@@ -37,10 +37,13 @@
   --muted: #8c958f;
   --faint: #808983; /* ≥4.5:1 on every surface (WCAG AA) */
 
-  --accent: #4bff8b;
+  --accent: #4aff8b;
+  /* Fills (buttons, dots, bars) — in the light theme the text accent is a
+     darker green, but fills stay the MAILLOT green. */
+  --accent-fill: var(--accent);
   --accent-ink: #06110a;
-  --accent-soft: rgba(75, 255, 139, 0.1);
-  --accent-line: rgba(75, 255, 139, 0.35);
+  --accent-soft: rgba(74, 255, 139, 0.1);
+  --accent-line: rgba(74, 255, 139, 0.35);
   --neg: #ff6b5e;
   --neg-soft: rgba(255, 107, 94, 0.13);
   --warn: #e8b04b;
@@ -122,7 +125,7 @@ textarea::placeholder {
   color: var(--faint);
 }
 ::selection {
-  background: var(--accent);
+  background: var(--accent-fill);
   color: var(--bg);
 }
 ::-webkit-scrollbar {
@@ -396,7 +399,7 @@ html[data-first-load] #root * {
   width: 100%;
 }
 .btn--primary {
-  background: var(--accent);
+  background: var(--accent-fill);
   color: var(--accent-ink);
 }
 .btn--primary:hover:not(:disabled) {
@@ -433,7 +436,7 @@ html[data-first-load] #root * {
   color: var(--bg);
 }
 .btn--light:hover:not(:disabled) {
-  background: var(--accent);
+  background: var(--accent-fill);
 }
 .btn--danger {
   background: none;
@@ -556,7 +559,7 @@ html[data-first-load] #root * {
   color: var(--info);
 }
 .badge--solid {
-  background: var(--accent);
+  background: var(--accent-fill);
   color: var(--accent-ink);
 }
 .chip {
@@ -885,7 +888,7 @@ html[data-native] :where(a, button, img, svg) {
   z-index: 200;
   padding: 10px 16px;
   border-radius: var(--r-md);
-  background: var(--accent);
+  background: var(--accent-fill);
   color: var(--accent-ink);
   font-weight: 700;
 }
@@ -942,5 +945,77 @@ main:focus {
   }
   .card {
     break-inside: avoid;
+  }
+}
+
+/* Home hero: shirts fanned out like collector cards (Hero.tsx). The fan
+   opens a little when the pointer is over it; the card under the pointer
+   straightens, lifts and tilts towards it (--tx/--ty set on pointer move). */
+.hero-fan {
+  --card: clamp(150px, 16vw, 220px);
+  list-style: none;
+  margin: clamp(36px, 5vw, 56px) auto clamp(36px, 5vw, 56px);
+  padding: 8px 0 calc(var(--card) * 0.18);
+  display: flex;
+  justify-content: center;
+  perspective: 1400px;
+}
+.hero-card-slot {
+  flex: none;
+  width: var(--card);
+  margin: 0 calc(var(--card) * -0.14);
+  z-index: var(--z);
+  animation: kvFloat 7s ease-in-out infinite;
+  animation-delay: calc(var(--i) * -1.1s);
+}
+.hero-card-slot:hover,
+.hero-card-slot:focus-within {
+  z-index: 20;
+}
+.hero-card {
+  display: block;
+  padding: 8px;
+  border-radius: 22px;
+  background: var(--elevated);
+  border: 1px solid var(--line);
+  color: var(--text);
+  text-decoration: none;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.28);
+  transform: translateY(var(--y)) rotate(var(--r));
+  transition:
+    transform 0.5s var(--ease),
+    box-shadow 0.5s var(--ease);
+  will-change: transform;
+}
+.hero-fan:hover .hero-card {
+  transform: translateX(var(--sx)) translateY(var(--y)) rotate(var(--r));
+}
+.hero-fan .hero-card:hover,
+.hero-fan .hero-card:focus-visible {
+  color: var(--text);
+  transform: translateX(var(--sx)) translateY(calc(var(--y) - 26px)) rotate(0deg) rotateX(var(--ty, 0deg)) rotateY(var(--tx, 0deg)) scale(1.07);
+  box-shadow: 0 34px 70px rgba(0, 0, 0, 0.36);
+  transition-duration: 0.35s, 0.35s;
+}
+@keyframes kvFloat {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+  50% {
+    translate: 0 -8px;
+  }
+}
+@media (max-width: 1180px) {
+  .hero-card-slot[data-edge] {
+    display: none;
+  }
+}
+@media (max-width: 600px) {
+  .hero-fan {
+    --card: 36vw;
+  }
+  .hero-card-slot[data-far] {
+    display: none;
   }
 }

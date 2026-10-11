@@ -38,7 +38,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
               maxWidth: 'calc(100vw - 32px)'
             }}
           >
-            <span aria-hidden="true" style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--accent)', flex: 'none' }} />
+            <span aria-hidden="true" style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--accent-fill)', flex: 'none' }} />
             {msg}
           </div>
         )}

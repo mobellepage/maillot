@@ -122,7 +122,7 @@ export function StatTile({ label, value, sub, highlight, live, amount, scope = '
     >
       <div style={{ fontSize: 11.5, color: 'var(--text-2)', display: 'flex', alignItems: 'center', gap: 6 }}>
         {label}
-        {live && <span aria-hidden="true" style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--accent)', animation: 'kvPulse 1.8s ease-in-out infinite' }} />}
+        {live && <span aria-hidden="true" style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--accent-fill)', animation: 'kvPulse 1.8s ease-in-out infinite' }} />}
       </div>
       <div key={flash?.n} className={flash ? 'mono flash-' + flash.dir : 'mono'} style={{ fontSize: 'clamp(16px,1.8vw,21px)', fontWeight: 700, marginTop: 4, marginInline: -4, paddingInline: 4, width: 'fit-content' }}>
         {value}
