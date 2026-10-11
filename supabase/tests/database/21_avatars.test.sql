@@ -31,11 +31,12 @@ update profiles set handle = 'avatar_fan' where id = '00000000-0000-4000-a000-00
 update profiles set handle = 'avatar_other' where id = '00000000-0000-4000-a000-0000000a7a02';
 insert into follows (follower_id, followee_id) values ('00000000-0000-4000-a000-0000000a7a02', '00000000-0000-4000-a000-0000000a7a01');
 
-select plan(8);
+select plan(9);
 
 select tests.login('00000000-0000-4000-a000-0000000a7a01');
+select lives_ok($$update profiles set avatar = 'legend-100' where id = '00000000-0000-4000-a000-0000000a7a01'$$, 'the hundredth legend exists');
 select lives_ok($$update profiles set avatar = 'legend-07' where id = '00000000-0000-4000-a000-0000000a7a01'$$, 'a member picks a legend avatar');
-select throws_ok($$update profiles set avatar = 'legend-51' where id = '00000000-0000-4000-a000-0000000a7a01'$$, '23514', null, 'only the 50 legends exist');
+select throws_ok($$update profiles set avatar = 'legend-101' where id = '00000000-0000-4000-a000-0000000a7a01'$$, '23514', null, 'only the 100 legends exist');
 select throws_ok($$update profiles set avatar = 'https://example.com/x.png' where id = '00000000-0000-4000-a000-0000000a7a01'$$, '23514', null, 'no links as avatars');
 update profiles set avatar = 'legend-12' where id = '00000000-0000-4000-a000-0000000a7a02';
 select tests.logout();

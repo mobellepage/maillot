@@ -23,13 +23,19 @@ const FRONT: Partial<Record<Legend['hair'], string>> = {
   sidepart: 'M21.6 25.5C20.8 15.5 29 12 35 13C40.5 14 43.2 18.5 42.4 25.5C40.5 20.5 35.5 19 30.5 17C27 19 23.5 21.5 21.6 25.5Z',
   quiff: 'M21.8 24C22 16 26 11 33 10.5C39 10 43 14 42.2 24C40 19 36 17.8 32 18C28 18.2 24.5 19.5 21.8 24Z',
   mohawk: 'M29 8.5C30 7.5 34 7.5 35 8.5L35.5 20L28.5 20Z',
-  bald: 'M21.8 27C21.6 23.5 22.3 21.5 23.6 21L24 28.5ZM42.2 27C42.4 23.5 41.7 21.5 40.4 21L40 28.5Z'
+  bald: 'M21.8 27C21.6 23.5 22.3 21.5 23.6 21L24 28.5ZM42.2 27C42.4 23.5 41.7 21.5 40.4 21L40 28.5Z',
+  curtains: 'M21.6 28C20.8 15 27 12.5 32 13C37 12.5 43.2 15 42.4 28C41.2 22.5 38 19.2 33.2 18.6L32 21.5L30.8 18.6C26 19.2 22.8 22.5 21.6 28Z',
+  spiky: 'M22 24.5L20.8 16L25 18.8L25.8 11L29.4 16.2L32 8.6L34.6 16.2L38.2 11L39 18.8L43.2 16L42 24.5C39 20.2 25 20.2 22 24.5Z',
+  cornrows: 'M22.3 23.5C22.8 16.5 27.5 14.6 32 14.6C36.5 14.6 41.2 16.5 41.7 23.5C38.5 19.8 25.5 19.8 22.3 23.5Z'
 };
+// Cornrows: thin parting lines over the close-cropped cap.
+const ROWS_LINES = 'M26.5 16.3L25 21.2M30 15L29.4 20.2M34 15L34.6 20.2M37.5 16.3L39 21.2';
 const CURLS: [number, number, number][] = [[23, 21, 4], [26.5, 16, 4.2], [32, 13.8, 4.4], [37.5, 16, 4.2], [41, 21, 4], [29, 18.5, 3.5], [35, 18.5, 3.5]];
 const FACE: Record<Exclude<Legend['face'], 'none'>, { d: string; opacity?: number }[]> = {
   moustache: [{ d: 'M27.3 33C28.8 31.4 31 31.8 32 32.9C33 31.8 35.2 31.4 36.7 33C35.2 34.5 33.2 34.1 32 33.6C30.8 34.1 28.8 34.5 27.3 33Z' }],
   beard: [{ d: 'M22.2 28.5C22.6 37.5 27 40.6 32 40.6C37 40.6 41.4 37.5 41.8 28.5C40.2 33.6 37 35.4 32 35.4C27 35.4 23.8 33.6 22.2 28.5Z' }, { d: 'M27.3 33C28.8 31.4 31 31.8 32 32.9C33 31.8 35.2 31.4 36.7 33C35.2 34.5 33.2 34.1 32 33.6C30.8 34.1 28.8 34.5 27.3 33Z' }],
   stubble: [{ d: 'M22.2 28.5C22.6 37.5 27 40.6 32 40.6C37 40.6 41.4 37.5 41.8 28.5C40.2 33.6 37 35.4 32 35.4C27 35.4 23.8 33.6 22.2 28.5Z', opacity: 0.3 }],
+  fullbeard: [{ d: 'M21.6 26C21.8 39.5 26.4 43.6 32 43.6C37.6 43.6 42.2 39.5 42.4 26C40.6 33.2 37.6 35.4 32 35.4C26.4 35.4 23.4 33.2 21.6 26Z' }, { d: 'M27.3 33C28.8 31.4 31 31.8 32 32.9C33 31.8 35.2 31.4 36.7 33C35.2 34.5 33.2 34.1 32 33.6C30.8 34.1 28.8 34.5 27.3 33Z' }],
   goatee: [{ d: 'M29.2 35.6C29.6 39 30.8 40.4 32 40.4C33.2 40.4 34.4 39 34.8 35.6C33.8 36.4 30.2 36.4 29.2 35.6Z' }, { d: 'M27.3 33C28.8 31.4 31 31.8 32 32.9C33 31.8 35.2 31.4 36.7 33C35.2 34.5 33.2 34.1 32 33.6C30.8 34.1 28.8 34.5 27.3 33Z' }]
 };
 
@@ -55,6 +61,23 @@ function Pattern({ l }: { l: Legend }) {
       return <path d="M14 46L22 44L50 66L40 66Z" fill={c} />;
     case 'chest':
       return <rect x={0} y={54} width={64} height={4} fill={c} />;
+    case 'quarters':
+      return (
+        <>
+          <rect x={0} y={40} width={32} height={13} fill={c} />
+          <rect x={32} y={53} width={32} height={13} fill={c} />
+        </>
+      );
+    case 'checks':
+      return (
+        <>
+          {Array.from({ length: 13 * 6 }, (_, i) => [i % 13, Math.floor(i / 13)] as const)
+            .filter(([x, y]) => (x + y) % 2 === 0)
+            .map(([x, y]) => (
+              <rect key={x + '-' + y} x={x * 5} y={40 + y * 5} width={5} height={5} fill={c} />
+            ))}
+        </>
+      );
     default:
       return null;
   }
@@ -83,10 +106,18 @@ function LegendArt({ l }: { l: Legend }) {
       {l.hair === 'curls' && CURLS.map(([x, y, r]) => <circle key={x + '-' + y} cx={x} cy={y} r={r} fill={l.hairColor} />)}
       {l.hair === 'afro' && <path d="M21.8 25C21 17 26 14 32 14C38 14 43 17 42.2 25C39 20.5 25 20.5 21.8 25Z" fill={l.hairColor} />}
       {front && <path d={front} fill={l.hairColor} />}
+      {l.hair === 'cornrows' && <path d={ROWS_LINES} stroke={l.skin} strokeWidth="0.9" strokeLinecap="round" opacity={0.55} fill="none" />}
       {l.headband && <rect x="21.5" y="19.5" width="21" height="3.2" rx="1.6" fill={l.headband} />}
       <ellipse cx="28" cy="28" rx="1.2" ry="1.5" fill="#1D1D1F" />
       <ellipse cx="36" cy="28" rx="1.2" ry="1.5" fill="#1D1D1F" />
       {l.face !== 'none' && FACE[l.face].map((p) => <path key={p.d} d={p.d} fill={l.hairColor} opacity={p.opacity ?? 1} />)}
+      {l.glasses && (
+        <g fill="none" stroke="#1D1D1F" strokeWidth="1.1">
+          <circle cx="28" cy="28" r="3.1" />
+          <circle cx="36" cy="28" r="3.1" />
+          <path d="M31.1 28H32.9M24.9 27.6L22.4 26.8M39.1 27.6L41.6 26.8" />
+        </g>
+      )}
       <text x="32" y="61.5" textAnchor="middle" fontSize="7" fontWeight="800" fontFamily="var(--font-sans)" fill={ink(l.kit)} stroke={l.kit} strokeWidth="1.4" paintOrder="stroke">
         {l.num}
       </text>

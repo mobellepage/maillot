@@ -1,4 +1,4 @@
-// "Choose a profile picture": the 50 legends in a grid, plus initials. Saves
+// "Choose a profile picture": the 100 legends in a grid, plus initials. Saves
 // straight away and refreshes everywhere the member's picture shows.
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { usePrefs } from '../../lib/prefs.tsx';
