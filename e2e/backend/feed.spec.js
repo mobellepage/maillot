@@ -1,18 +1,21 @@
 import { expect, test } from '@playwright/test';
 
-// The feed shows live listings with their seller (seed: @zurich_kits has open
-// asks) and a like puts the shirt on the watchlist.
-test('the feed shows listings from sellers and a like lands on the watchlist', async ({ page }) => {
+// The feed is a stack of cards: live listings first (seed: @zurich_kits has
+// open asks), like = onto the wishlist, skip = next card.
+test('swiping through the feed: like puts the shirt on the wishlist, skip moves on', async ({ page }) => {
   await page.goto('/feed');
-  // Listings come first; the seed's seller is the first one shown.
-  const first = page.locator('.feed-item').first();
-  await expect(first.getByRole('link', { name: '@zurich_kits' })).toBeVisible({ timeout: 10000 });
-  await expect(first.getByRole('link', { name: 'View & buy' })).toBeVisible();
+  const card = page.locator('[aria-roledescription="shirt card"]');
+  await expect(card).toContainText('@zurich_kits', { timeout: 10000 });
 
-  const name = await first.getByRole('heading', { level: 2 }).innerText();
-  await first.getByRole('button', { name: 'Like ' + name }).click();
-  await expect(first.getByRole('button', { name: 'Unlike ' + name })).toHaveAttribute('aria-pressed', 'true');
+  const liked = (await card.getByRole('heading', { level: 2 }).innerText()).trim();
+  await page.getByRole('button', { name: 'Like ' + liked }).click();
+  // The next card replaces it.
+  await expect(page.getByRole('button', { name: 'Like ' + liked })).toHaveCount(0);
+
+  const skipped = (await card.getByRole('heading', { level: 2 }).innerText()).trim();
+  await page.keyboard.press('ArrowLeft');
+  await expect(page.getByRole('button', { name: 'Skip ' + skipped })).toHaveCount(0);
 
   await page.goto('/watchlist');
-  await expect(page.getByRole('link', { name })).toBeVisible();
+  await expect(page.getByRole('link', { name: liked })).toBeVisible();
 });

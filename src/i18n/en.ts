@@ -1241,7 +1241,7 @@ export const en = {
   'notif.listingAlert.body': '{shirt} ({size}) is now listed for {amount}.',
   'nav.feed': 'Feed',
   'feed.title': 'Feed',
-  'feed.hint': 'Swipe up · double-tap to like',
+  'feed.hint': 'Swipe right to like · left to skip',
   'feed.aria': 'Shirts, one at a time',
   'feed.metaTitle': 'Feed — discover football shirts',
   'feed.metaDesc': 'Scroll through shirts from collectors and dealers and like the ones you want.',
@@ -1349,6 +1349,17 @@ export const en = {
   'home.bento.wanted.body': 'Like shirts in the feed. When someone adds one to their collection or lists it, you hear first — and can make an offer.',
   'home.bento.wanted.sample': '@retro_ruedi has Netherlands 1988 Home (M) and is open to offers.',
   'home.bento.wanted.cta': 'Discover the feed',
+  'feed.card': 'shirt card',
+  'feed.skip': 'Skip {name}',
+  'feed.undo': 'Back to the last shirt',
+  'feed.details': 'Details of {name}',
+  'feed.stampLike': 'LIKE',
+  'feed.stampNope': 'NOPE',
+  'feed.doneTitle': 'You’ve seen them all',
+  'feed.doneBody': '{n} shirts are on your wishlist. We’ll tell you when one turns up.',
+  'feed.viewWishlist': 'View wishlist',
+  'feed.again': 'Start again',
+  'feed.wishlistCount': 'Wishlist: {n} shirts',
   // @@end
 };
 

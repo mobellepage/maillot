@@ -842,24 +842,6 @@ html[data-native] :where(a, button, img, svg) {
   user-select: none;
 }
 
-/* ---------- feed: one shirt per screen, snapping while you scroll ---------- */
-.feed {
-  overflow-y: auto;
-  scroll-snap-type: y mandatory;
-  overscroll-behavior: contain;
-  scrollbar-width: none;
-  outline: none;
-}
-.feed::-webkit-scrollbar {
-  display: none;
-}
-.feed-item {
-  scroll-snap-align: start;
-  scroll-snap-stop: always;
-  position: relative;
-  overflow: hidden;
-}
-
 /* ---------- responsive helpers ---------- */
 .show-mobile {
   display: none !important;

@@ -77,9 +77,10 @@ export function useWatchlist() {
   return {
     ids,
     has: (id: string) => ids.includes(id),
-    toggle: (id: string) => {
+    /** quiet: no toast (the feed shows its own feedback for every swipe). */
+    toggle: (id: string, opts?: { quiet?: boolean }) => {
       const on = !ids.includes(id);
-      toast(on ? t('watch.added') : t('watch.removed'));
+      if (!opts?.quiet) toast(on ? t('watch.added') : t('watch.removed'));
       if (uid) toggle.mutate({ id, on });
       else {
         setGuest(on ? [...guest, id] : guest.filter((x) => x !== id));
