@@ -1025,3 +1025,67 @@ main:focus {
     display: none;
   }
 }
+
+/* One sideways-scrolling row of cards with arrows (ScrollRow.tsx). */
+.scroll-row {
+  position: relative;
+}
+.scroll-row__list {
+  list-style: none;
+  margin: 0;
+  padding: 4px 0 16px;
+  display: flex;
+  gap: clamp(10px, 1.4vw, 18px);
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+}
+.scroll-row__list::-webkit-scrollbar {
+  display: none;
+}
+.scroll-row__list > li {
+  flex: 0 0 clamp(190px, 19vw, 250px);
+  scroll-snap-align: start;
+}
+.scroll-row__arrow {
+  position: absolute;
+  top: calc(50% - 30px);
+  z-index: 3;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: var(--elevated);
+  color: var(--text);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
+  transition:
+    transform var(--dur-ui, 0.2s) var(--ease),
+    background var(--dur-ui, 0.2s);
+}
+.scroll-row__arrow:hover {
+  transform: scale(1.08);
+}
+.scroll-row__arrow--prev {
+  left: -12px;
+}
+.scroll-row__arrow--next {
+  right: -12px;
+}
+@media (max-width: 600px) {
+  .scroll-row__list > li {
+    flex-basis: 44vw;
+  }
+  .scroll-row__arrow {
+    width: 40px;
+    height: 40px;
+  }
+  .scroll-row__arrow--prev {
+    left: -6px;
+  }
+  .scroll-row__arrow--next {
+    right: -6px;
+  }
+}

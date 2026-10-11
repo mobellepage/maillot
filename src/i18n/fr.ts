@@ -1331,12 +1331,6 @@ export const fr: Messages = {
   'home.bento.scan.title': 'Une photo. Club, saison, valeur.',
   'home.bento.scan.body': 'MAILLOT reconnaît ton maillot et estime sa valeur – en quelques secondes.',
   'home.bento.scan.cta': 'Ajouter un maillot',
-  'home.bento.value.kicker': 'Exemple',
-  'home.bento.value.kickerMine': 'Ta collection',
-  'home.bento.value.title': '{value} de valeur.',
-  'home.bento.value.body': 'Chaque maillot reçoit une estimation basée sur des ventes comparables – la valeur de ta collection, toujours à jour.',
-  'home.bento.value.bodyMine': '{n} maillots, estimés à partir de ventes comparables et mis à jour.',
-  'home.bento.value.cta': 'Ouvrir ma collection',
   'home.bento.show.kicker': 'Toujours avec toi',
   'home.bento.show.title': 'Montre-la à tes amis.',
   'home.bento.show.body': 'On te demande quels maillots tu as ? Ouvre MAILLOT – ou envoie le lien de ton profil.',
@@ -1362,5 +1356,7 @@ export const fr: Messages = {
   'coll.noneShown': 'Aucun maillot visible pour l’instant',
   'home.cards': 'Maillots collectionnés sur MAILLOT',
   'home.cardTag': 'Collectionné',
+  'common.scrollNext': 'Voir plus',
+  'common.scrollPrev': 'Précédent',
   // @@end
 };

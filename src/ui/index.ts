@@ -11,5 +11,6 @@ export type { Tone, SegmentOption } from './primitives.tsx';
 export { ShirtGraphic } from './ShirtGraphic.tsx';
 export type { ShirtLook } from './ShirtGraphic.tsx';
 export { ShirtCard, WatchButton } from './ShirtCard.tsx';
+export { ScrollRow } from './ScrollRow.tsx';
 export type { ShirtCardModel } from './ShirtCard.tsx';
 export { T, HEX, alpha } from './tokens.ts';

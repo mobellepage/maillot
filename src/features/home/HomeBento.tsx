@@ -1,24 +1,17 @@
-// The promise as four tiles (replaces the three-step list): capture with a
-// photo, know what your collection is worth, show it to friends, and hear
-// when a shirt you want turns up. Signed-in members see their own numbers;
-// visitors see a clearly labelled example.
+// The promise as three tiles: capture with a photo, show your collection to
+// friends, and hear when a shirt you want turns up.
 import { Link } from 'react-router';
 import { BY } from '../../data.ts';
 import { usePrefs } from '../../lib/prefs.tsx';
 import { useSession } from '../../lib/session.tsx';
 import { ButtonLink, HeartIcon, ShirtGraphic } from '../../ui/index.ts';
-import { valueOf } from '../vault/model.ts';
 import { SITE_URL } from '../../config/site.ts';
-import { useCollection } from '../vault/useCollection.ts';
 
-const SAMPLE = ['nap-8788', 'ned-88', 'ars-91', 'juv-9697'];
-const SAMPLE_VALUE = 2340;
-
-function Thumb({ id, size = 64 }: { id: string; size?: number }) {
+function Thumb({ id, size = 64, bg = 'var(--sunken)' }: { id: string; size?: number; bg?: string }) {
   const s = BY[id];
   if (!s) return null;
   return (
-    <span style={{ width: size, height: size, borderRadius: 14, overflow: 'hidden', display: 'grid', placeItems: 'center', background: 'var(--sunken)', flex: 'none' }}>
+    <span style={{ width: size, height: size, borderRadius: 14, overflow: 'hidden', display: 'grid', placeItems: 'center', background: bg, flex: 'none' }}>
       <ShirtGraphic pat={s.pat} trim={s.trim} crest={s.crest} photo={s.photo} flat style={{ width: '78%' }} />
     </span>
   );
@@ -30,20 +23,16 @@ const big = { margin: 0, fontSize: 'clamp(26px,3.2vw,38px)', lineHeight: 1.08, f
 const body = { margin: 0, fontSize: 15.5, lineHeight: 1.5, color: 'var(--text-2)', maxWidth: 420 } as const;
 
 export function HomeBento() {
-  const { t, money } = usePrefs();
-  const { user, profile } = useSession();
-  const { items } = useCollection();
-  const mine = user && items.length > 0;
-  const total = mine ? items.reduce((a, c) => a + (valueOf(c) ?? 0), 0) : SAMPLE_VALUE;
+  const { t } = usePrefs();
+  const { profile } = useSession();
   const handle = profile?.handle ?? t('home.bento.show.sampleHandle');
-  const thumbs = mine ? items.map((c) => c.catalogId).filter((x): x is string => !!x && !!BY[x]).slice(0, 4) : SAMPLE;
 
   return (
     <section aria-labelledby="bento-title" style={{ maxWidth: 1360, margin: '0 auto', padding: 'clamp(40px,5vw,72px) var(--gutter) 0' }}>
       <h2 id="bento-title" className="sr-only">
         {t('home.how.title')}
       </h2>
-      <div style={{ display: 'grid', gap: 14, gridTemplateColumns: 'repeat(auto-fit,minmax(min(100%,420px),1fr))' }}>
+      <div style={{ display: 'grid', gap: 14, gridTemplateColumns: 'repeat(auto-fit,minmax(min(100%,290px),1fr))' }}>
         {/* 1 — capture: dark, like the camera */}
         <div style={{ ...tile, background: '#0A0C0B', color: '#F2F4F1', alignItems: 'center', textAlign: 'center' }}>
           <span style={{ ...kicker, color: '#4BFF8B' }}>{t('home.bento.scan.kicker')}</span>
@@ -58,7 +47,7 @@ export function HomeBento() {
               <span key={i} style={{ position: 'absolute', inset, margin: 12, width: 24, height: 24, borderColor: '#4BFF8B', borderStyle: 'solid', borderWidth: `${i < 2 ? 3 : 0}px ${i % 2 ? 3 : 0}px ${i >= 2 ? 3 : 0}px ${i % 2 ? 0 : 3}px`, borderRadius: 4 }} />
             ))}
             <span style={{ width: '72%' }}>
-              <Thumb id="juv-9697" size={150} />
+              <Thumb id="juv-9697" size={150} bg="transparent" />
             </span>
             <span className="mono" style={{ position: 'absolute', bottom: 14, fontSize: 11.5, padding: '4px 10px', borderRadius: 999, background: 'rgba(255,255,255,0.1)', color: '#F2F4F1' }}>
               Juventus 1996/97 · 96 %
@@ -66,22 +55,7 @@ export function HomeBento() {
           </div>
         </div>
 
-        {/* 2 — value */}
-        <div style={{ ...tile, background: 'var(--surface)' }}>
-          <span style={{ ...kicker, color: 'var(--accent)' }}>{mine ? t('home.bento.value.kickerMine') : t('home.bento.value.kicker')}</span>
-          <p style={big}>{t('home.bento.value.title', { value: money(total) })}</p>
-          <p style={body}>{mine ? t('home.bento.value.bodyMine', { n: items.length }) : t('home.bento.value.body')}</p>
-          <div style={{ display: 'flex', gap: 10, marginTop: 'auto', paddingTop: 16 }}>
-            {thumbs.map((id) => (
-              <Thumb key={id} id={id} size={72} />
-            ))}
-          </div>
-          <Link to="/vault" style={{ fontWeight: 600, marginTop: 8 }}>
-            {t('home.bento.value.cta')} ›
-          </Link>
-        </div>
-
-        {/* 3 — show your friends */}
+        {/* 2 — show your friends */}
         <div style={{ ...tile, background: 'var(--surface)' }}>
           <span style={{ ...kicker, color: 'var(--accent)' }}>{t('home.bento.show.kicker')}</span>
           <p style={big}>{t('home.bento.show.title')}</p>
@@ -100,7 +74,7 @@ export function HomeBento() {
           </Link>
         </div>
 
-        {/* 4 — wanted shirt shows up */}
+        {/* 3 — wanted shirt shows up */}
         <div style={{ ...tile, background: 'var(--surface)' }}>
           <span style={{ ...kicker, color: 'var(--accent)' }}>{t('home.bento.wanted.kicker')}</span>
           <p style={big}>{t('home.bento.wanted.title')}</p>

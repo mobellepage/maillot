@@ -1330,12 +1330,6 @@ export const en = {
   'home.bento.scan.title': 'One photo. Club, season, value.',
   'home.bento.scan.body': 'MAILLOT recognises your shirt and estimates what it is worth — in seconds.',
   'home.bento.scan.cta': 'Add a shirt',
-  'home.bento.value.kicker': 'Example',
-  'home.bento.value.kickerMine': 'Your collection',
-  'home.bento.value.title': 'Worth {value}.',
-  'home.bento.value.body': 'Every shirt gets an estimate from comparable sales — the total of your collection, always up to date.',
-  'home.bento.value.bodyMine': '{n} shirts, valued from comparable sales and kept up to date.',
-  'home.bento.value.cta': 'Open my collection',
   'home.bento.show.kicker': 'Always with you',
   'home.bento.show.title': 'Show your friends.',
   'home.bento.show.body': 'Someone asks which shirts you have? Open MAILLOT — or send your profile link.',
@@ -1361,6 +1355,8 @@ export const en = {
   'coll.noneShown': 'No shirts shown yet',
   'home.cards': 'Shirts collected on MAILLOT',
   'home.cardTag': 'Collected',
+  'common.scrollNext': 'Show more',
+  'common.scrollPrev': 'Show previous',
   // @@end
 };
 

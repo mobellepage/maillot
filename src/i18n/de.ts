@@ -1331,12 +1331,6 @@ export const de: Messages = {
   'home.bento.scan.title': 'Ein Foto. Verein, Saison, Wert.',
   'home.bento.scan.body': 'MAILLOT erkennt dein Trikot und schätzt, was es wert ist – in Sekunden.',
   'home.bento.scan.cta': 'Trikot erfassen',
-  'home.bento.value.kicker': 'Beispiel',
-  'home.bento.value.kickerMine': 'Deine Sammlung',
-  'home.bento.value.title': '{value} wert.',
-  'home.bento.value.body': 'Jedes Trikot erhält eine Schätzung aus vergleichbaren Verkäufen – der Wert deiner Sammlung, immer aktuell.',
-  'home.bento.value.bodyMine': '{n} Trikots, geschätzt aus vergleichbaren Verkäufen und laufend aktualisiert.',
-  'home.bento.value.cta': 'Meine Sammlung öffnen',
   'home.bento.show.kicker': 'Immer dabei',
   'home.bento.show.title': 'Zeig sie deinen Freunden.',
   'home.bento.show.body': 'Jemand fragt, welche Trikots du hast? MAILLOT öffnen – oder deinen Profil-Link schicken.',
@@ -1362,5 +1356,7 @@ export const de: Messages = {
   'coll.noneShown': 'Noch keine Trikots gezeigt',
   'home.cards': 'In MAILLOT gesammelte Trikots',
   'home.cardTag': 'Gesammelt',
+  'common.scrollNext': 'Mehr zeigen',
+  'common.scrollPrev': 'Zurück',
   // @@end
 };

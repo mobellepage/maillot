@@ -4,7 +4,7 @@ import { BY } from '../../data.ts';
 import { usePageMeta } from '../../lib/meta.ts';
 import { usePrefs } from '../../lib/prefs.tsx';
 import { SectionHeader } from '../../ui/index.ts';
-import { ShirtGrid } from '../catalog/ShirtGrid.tsx';
+import { ShirtRow } from '../catalog/ShirtGrid.tsx';
 import { useCollection } from '../vault/useCollection.ts';
 import { Hero } from './Hero.tsx';
 import { HomeBento } from './HomeBento.tsx';
@@ -30,7 +30,7 @@ export default function HomePage() {
       {recommended.length > 0 && (
         <section aria-labelledby="rec-title" style={section}>
           <SectionHeader id="rec-title" eyebrow={t('home.rec.eyebrow')} title={t('home.rec.title')} />
-          <ShirtGrid shirts={recommended} />
+          <ShirtRow shirts={recommended} />
         </section>
       )}
       <section aria-labelledby="trending-title" style={section}>
@@ -44,7 +44,7 @@ export default function HomePage() {
             </Link>
           }
         />
-        <ShirtGrid shirts={trending} />
+        <ShirtRow shirts={trending} />
       </section>
       {/* The market comes last: index, biggest moves, new in the catalogue. */}
       <div style={{ marginTop: 'clamp(48px,6vw,88px)' }}>

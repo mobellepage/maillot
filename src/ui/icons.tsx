@@ -109,3 +109,11 @@ export function TagIcon({ size = 22, ...rest }: IconProps) {
     </svg>
   );
 }
+
+export function ChevronIcon({ size = 18, ...rest }: IconProps) {
+  return (
+    <svg {...base(size, rest)} fill="none" stroke="currentColor" strokeWidth={2.4} strokeLinecap="round" strokeLinejoin="round">
+      <path d="M9 5l7 7-7 7" />
+    </svg>
+  );
+}
