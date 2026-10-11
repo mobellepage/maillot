@@ -1,0 +1,244 @@
+/* Light theme preview ("KitVault v3 Light"): white surfaces, Apple-style
+   type, black pill buttons, MAILLOT green as the accent (darkened to read
+   on white, 5.4:1). Opt-in only — ?theme=light turns it
+   on (and remembers it), ?theme=dark turns it off (src/lib/theme.ts).
+   Everything here is scoped to html[data-theme='light'], so the default
+   dark look is untouched. Some components set dark colours inline; the
+   !important rules below cover the ones visible on the main screens. */
+
+html[data-theme='light'] {
+  --bg: #ffffff;
+  --surface: #f5f5f7;
+  --surface-2: #f5f5f7;
+  --sunken: #f5f5f7;
+  --elevated: #ffffff;
+  --overlay: rgba(255, 255, 255, 0.82);
+  --scrim: rgba(0, 0, 0, 0.32);
+
+  --line: rgba(0, 0, 0, 0.08);
+  --line-strong: rgba(0, 0, 0, 0.16);
+
+  --text: #1d1d1f;
+  --text-2: #424245;
+  --muted: #6e6e73;
+  --faint: #6e6e73;
+
+  --accent: #087a41;
+  --accent-ink: #ffffff;
+  --accent-soft: rgba(8, 122, 65, 0.08);
+  --accent-line: rgba(8, 122, 65, 0.35);
+  --neg: #d70015;
+  --neg-soft: rgba(215, 0, 21, 0.08);
+  --warn: #b64400;
+  --warn-soft: rgba(182, 68, 0, 0.1);
+  --info: #0071e3;
+  --info-soft: rgba(0, 113, 227, 0.08);
+  --pos: #087a41;
+  --pos-soft: rgba(8, 122, 65, 0.1);
+  --bg-deep: #f5f5f7;
+  --step-idle: #e8e8ed;
+  --faint-2: #d2d2d7;
+  --avatar-grad: linear-gradient(135deg, #e8e8ed, #d2d2d7);
+
+  --font-sans: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --font-mono: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+
+  --r-lg: 18px;
+  --r-xl: 22px;
+  --r-2xl: 26px;
+  color-scheme: light;
+}
+
+html[data-theme='light'] body {
+  -webkit-font-smoothing: antialiased;
+  font-feature-settings: 'tnum' 1;
+}
+
+/* Type: sentence case, tight tracking, no condensed widths. */
+html[data-theme='light'] .display {
+  text-transform: none;
+  font-weight: 700;
+  font-stretch: normal;
+  letter-spacing: -0.035em;
+  line-height: 1.04;
+}
+html[data-theme='light'] .title {
+  text-transform: none;
+  font-stretch: normal;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+html[data-theme='light'] .eyebrow {
+  font-family: var(--font-sans);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--accent);
+}
+html[data-theme='light'] .mono {
+  letter-spacing: -0.01em;
+}
+html[data-theme='light'] .lede {
+  color: var(--muted);
+}
+
+/* Buttons: pills — black for the main action, outlined for the second. */
+html[data-theme='light'] .btn {
+  border-radius: 999px;
+  font-weight: 500;
+  font-size: 16px;
+}
+html[data-theme='light'] .btn--sm {
+  font-size: 14px;
+}
+html[data-theme='light'] .btn--primary {
+  background: #1d1d1f;
+  color: #ffffff;
+}
+html[data-theme='light'] .btn--primary:hover:not(:disabled) {
+  background: #000000;
+  box-shadow: none;
+}
+html[data-theme='light'] .btn--secondary {
+  color: var(--text);
+  border: 1px solid var(--line-strong);
+}
+html[data-theme='light'] .btn--secondary:hover:not(:disabled) {
+  background: var(--surface);
+  border-color: var(--text);
+}
+html[data-theme='light'] .btn--light {
+  background: #1d1d1f;
+  color: #ffffff;
+}
+
+/* Surfaces: soft grey cards, no borders, gentle lift. */
+html[data-theme='light'] .card {
+  border-color: transparent;
+}
+html[data-theme='light'] .card--accent {
+  background: var(--surface);
+  border-color: var(--accent-line);
+}
+html[data-theme='light'] .card--interactive:hover {
+  border-color: transparent;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.08);
+}
+html[data-theme='light'] .kv {
+  border-bottom-color: var(--line);
+}
+
+/* Badges & chips: gains in green, everything else quiet. */
+html[data-theme='light'] .badge {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  border-radius: 6px;
+}
+html[data-theme='light'] .badge--accent {
+  background: var(--pos-soft);
+  color: var(--pos);
+}
+html[data-theme='light'] .badge--neutral {
+  background: #ffffff;
+  color: var(--text);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+html[data-theme='light'] .badge--solid {
+  background: var(--pos);
+  color: #ffffff;
+}
+html[data-theme='light'] .chip {
+  border-color: transparent;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 14px;
+}
+html[data-theme='light'] .chip--active,
+html[data-theme='light'] .chip[aria-pressed='true'] {
+  background: #1d1d1f;
+  color: #ffffff;
+}
+
+/* Fields & options. */
+html[data-theme='light'] .field,
+html[data-theme='light'] .select {
+  border-color: transparent;
+  border-radius: 999px;
+}
+html[data-theme='light'] .option-btn {
+  border-color: transparent;
+  background: var(--surface);
+}
+html[data-theme='light'] .option-btn:hover {
+  border-color: var(--accent-line);
+}
+html[data-theme='light'] .option-btn[aria-pressed='true'] {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+html[data-theme='light'] .skeleton {
+  background: linear-gradient(90deg, #f5f5f7 0, #ececf0 40px, #f5f5f7 80px);
+  background-size: 400px 100%;
+}
+html[data-theme='light'] .empty {
+  border-color: var(--line-strong);
+}
+
+/* Navigation: frosted white bars. */
+html[data-theme='light'] .app-header {
+  background: rgba(251, 251, 253, 0.8) !important;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06) !important;
+}
+html[data-theme='light'] .app-header select {
+  background: var(--surface) !important;
+  border-color: transparent !important;
+}
+html[data-theme='light'] .app-header form[role='search'] {
+  background: var(--surface) !important;
+  border-color: transparent !important;
+}
+html[data-theme='light'] nav.show-mobile {
+  background: rgba(251, 251, 253, 0.92) !important;
+  border-top: 1px solid rgba(0, 0, 0, 0.08) !important;
+}
+html[data-theme='light'] .nav-link[aria-current='page'] {
+  color: var(--text);
+  font-weight: 600;
+}
+html[data-theme='light'] .logo-mark {
+  background: #1d1d1f !important;
+}
+html[data-theme='light'] .logo-mark > span {
+  border-color: #ffffff !important;
+}
+html[data-theme='light'] .logo-word {
+  font-stretch: normal !important;
+  letter-spacing: -0.02em !important;
+  font-weight: 700 !important;
+  text-transform: none;
+}
+
+/* Hero: plain white, centred like the design. */
+html[data-theme='light'] section[aria-labelledby='hero-title'] {
+  background: #ffffff !important;
+}
+html[data-theme='light'] .hero-feature-panel {
+  background: rgba(255, 255, 255, 0.86) !important;
+  border-color: rgba(0, 0, 0, 0.06) !important;
+}
+html[data-theme='light'] footer {
+  background: var(--surface) !important;
+}
+
+/* Phones: the larger button type must still fit three actions in a row. */
+@media (max-width: 480px) {
+  html[data-theme='light'] .btn {
+    font-size: 15px;
+    padding: 0 16px;
+  }
+  html[data-theme='light'] .btn--sm {
+    font-size: 13.5px;
+    padding: 0 14px;
+  }
+}

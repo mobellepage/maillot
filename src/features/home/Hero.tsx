@@ -147,7 +147,7 @@ export function Hero({ featured }: { featured: Shirt }) {
               </span>
             </span>
             <ShirtGraphic hero pat={featured.pat} trim={featured.trim} crest={featured.crest} photo={featured.photo} style={{ width: '66%', transform: 'translateY(-4%)', filter: 'drop-shadow(0 40px 40px rgba(0,0,0,0.6))' }} />
-            <span style={{ position: 'absolute', left: 18, right: 18, bottom: 18, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, padding: '16px 18px', borderRadius: 20, background: 'rgba(14,17,16,0.78)', backdropFilter: 'blur(14px)', border: '1px solid rgba(255,255,255,0.08)' }}>
+            <span className="hero-feature-panel" style={{ position: 'absolute', left: 18, right: 18, bottom: 18, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, padding: '16px 18px', borderRadius: 20, background: 'rgba(14,17,16,0.78)', backdropFilter: 'blur(14px)', border: '1px solid rgba(255,255,255,0.08)' }}>
               <span style={{ minWidth: 0 }}>
                 <span style={{ display: 'block', fontWeight: 700, fontSize: 16, lineHeight: 1.25 }}>{featured.name}</span>
                 <span className="mono" style={{ display: 'block', fontSize: 12, color: 'var(--muted)', marginTop: 4 }}>

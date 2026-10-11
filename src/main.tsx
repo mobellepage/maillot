@@ -3,6 +3,8 @@ import { createRoot } from 'react-dom/client';
 import { createBrowserRouter } from 'react-router';
 import { RouterProvider } from 'react-router/dom';
 import './ui/ui.css';
+import './ui/theme-light.css';
+import { applyThemeFromUrl } from './lib/theme.ts';
 import { queryClient } from './lib/queryClient.ts';
 import { initialLang } from './lib/prefs.tsx';
 import { loadMessages, type Lang } from './i18n/index.ts';
@@ -13,6 +15,7 @@ import { installNative } from './lib/native.ts';
 import { SITE_URL } from './config/site.ts';
 
 installErrorReporting();
+applyThemeFromUrl();
 
 const router = createBrowserRouter(routes);
 // Entrance animations resume with the first in-app navigation (see ui.css).

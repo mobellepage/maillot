@@ -7,7 +7,7 @@ import { SectionHeader } from '../../ui/index.ts';
 import { ShirtGrid } from '../catalog/ShirtGrid.tsx';
 import { useCollection } from '../vault/useCollection.ts';
 import { Hero } from './Hero.tsx';
-import { HowItWorks } from './HowItWorks.tsx';
+import { HomeBento } from './HomeBento.tsx';
 import { SecondLife } from './SecondLife.tsx';
 import { IndexTicker } from './IndexTicker.tsx';
 import { Movers } from './Movers.tsx';
@@ -25,8 +25,8 @@ export default function HomePage() {
   return (
     <main id="main" style={{ animation: 'kvIn .45s ease both' }}>
       <Hero featured={BY['ger-26']!} />
-      <HowItWorks />
-      <IndexTicker />
+      <HomeBento />
+      <SecondLife />
       {recommended.length > 0 && (
         <section aria-labelledby="rec-title" style={section}>
           <SectionHeader id="rec-title" eyebrow={t('home.rec.eyebrow')} title={t('home.rec.title')} />
@@ -46,7 +46,10 @@ export default function HomePage() {
         />
         <ShirtGrid shirts={trending} />
       </section>
-      <SecondLife />
+      {/* The market comes last: index, biggest moves, new in the catalogue. */}
+      <div style={{ marginTop: 'clamp(48px,6vw,88px)' }}>
+        <IndexTicker />
+      </div>
       <Movers />
       <NewArrivals />
     </main>
