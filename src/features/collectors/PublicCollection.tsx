@@ -26,7 +26,7 @@ export function PublicCollection({ shirts, owner, canOffer }: { shirts: PublicSh
         const src = url(photoOf(s));
         const player = [s.player_name, s.player_number].filter(Boolean).join(' ');
         return (
-          <li key={s.id} className={'card' + (cat ? ' card--interactive' : '')} style={{ padding: 0, borderRadius: 20, overflow: 'hidden', position: 'relative' }}>
+          <li key={s.id} className="card card--interactive" style={{ padding: 0, borderRadius: 20, overflow: 'hidden', position: 'relative' }}>
             <div style={{ aspectRatio: '1/1', display: 'grid', placeItems: 'center', position: 'relative', background: src ? '#0A0C0B' : `radial-gradient(circle at 50% 46%,${alpha(cat ? cat.glow : HEX.muted, 0.3)},rgba(0,0,0,0) 62%),var(--sunken)` }}>
               {src ? (
                 <img src={src} alt="" loading="lazy" decoding="async" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
@@ -39,13 +39,10 @@ export function PublicCollection({ shirts, owner, canOffer }: { shirts: PublicSh
               </div>
             </div>
             <div style={{ padding: '12px 14px 14px' }}>
-              {cat ? (
-                <Link to={'/shirt/' + cat.id} className="stretched-link" style={{ display: 'block', color: 'var(--text)', fontWeight: 600, fontSize: 14.5, lineHeight: 1.25 }}>
-                  {name}
-                </Link>
-              ) : (
-                <div style={{ fontWeight: 600, fontSize: 14.5, lineHeight: 1.25 }}>{name}</div>
-              )}
+              {/* The owner's own shirt (their photos), not the catalogue entry. */}
+              <Link to={'/u/' + owner + '/' + encodeURIComponent(s.id)} className="stretched-link" style={{ display: 'block', color: 'var(--text)', fontWeight: 600, fontSize: 14.5, lineHeight: 1.25 }}>
+                {name}
+              </Link>
               <div className="mono" style={{ fontSize: 12, color: 'var(--text-2)', marginTop: 6 }}>
                 {[s.size && t('coll.size', { size: s.size }), player, s.version && label('opt', s.version), s.grade !== null && s.grade + '/10'].filter(Boolean).join(' · ')}
               </div>

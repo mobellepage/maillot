@@ -12,6 +12,7 @@ export type CollectorHit = RpcReturns<'search_collectors'>[number];
 export type PublicShirt = RpcReturns<'public_collection'>[number];
 export type CollectorStats = RpcReturns<'collector_profile'>[number];
 export type Followed = RpcReturns<'my_following'>[number];
+export type PublicShirtPhoto = RpcReturns<'public_shirt_photos'>[number];
 export type Dealer = RpcReturns<'admin_dealers'>[number];
 
 export async function loadSellerProfile(handle: string): Promise<SellerProfile | null> {
@@ -49,6 +50,13 @@ export async function searchCollectors(q: string): Promise<CollectorHit[]> {
 /** A collector's shirts that aren't private, newest first (no values, no label photos). */
 export async function loadPublicCollection(handle: string): Promise<PublicShirt[]> {
   const { data, error } = await (await sb()).rpc('public_collection', { p_handle: handle });
+  if (error) throw error;
+  return data ?? [];
+}
+
+/** The pictures others may see of one shirt in a member's collection: main photo and back. */
+export async function loadPublicShirtPhotos(handle: string, itemId: string): Promise<PublicShirtPhoto[]> {
+  const { data, error } = await (await sb()).rpc('public_shirt_photos', { p_handle: handle, p_item_id: itemId });
   if (error) throw error;
   return data ?? [];
 }

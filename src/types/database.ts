@@ -598,6 +598,7 @@ export type Database = {
           show_collection_value: boolean;
           dealer_verified_at: string | null;
           commission_rate: number | null;
+          avatar: string | null;
           collection_private: boolean;
         };
         Insert: {
@@ -615,6 +616,7 @@ export type Database = {
           interests?: Json;
           onboarded_at?: string | null;
           show_collection_value?: boolean;
+          avatar?: string | null;
           collection_private?: boolean;
         };
         Relationships: [];
@@ -879,7 +881,8 @@ export type Database = {
       seller_listings: { Args: { p_handle: string }; Returns: { ask_id: string; shirt_id: string; size: string; amount: number; condition: string | null; created_at: string; thumb_path: string | null }[] };
       seller_review_list: { Args: { p_handle: string }; Returns: { rating: number; comment: string | null; shirt_id: string | null; created_at: string }[] };
       seller_cards: { Args: { p_user_ids: string[] }; Returns: { user_id: string; handle: string | null; rating: number | null; reviews: number; sales: number; dealer: boolean }[] };
-      search_collectors: { Args: { p_q: string }; Returns: { handle: string; member_since: string; shirts: number; listings: number; preview: string[]; dealer: boolean }[] };
+      search_collectors: { Args: { p_q: string }; Returns: { handle: string; member_since: string; shirts: number; listings: number; preview: string[]; dealer: boolean; avatar: string | null }[] };
+      public_shirt_photos: { Args: { p_handle: string; p_item_id: string }; Returns: { kind: 'main' | 'back'; path: string; thumb_path: string | null }[] };
       public_collection: {
         Args: { p_handle: string };
         Returns: {
@@ -907,10 +910,10 @@ export type Database = {
       };
       follow_collector: { Args: { p_handle: string }; Returns: undefined };
       unfollow_collector: { Args: { p_handle: string }; Returns: undefined };
-      collector_profile: { Args: { p_handle: string }; Returns: { followers: number; following: number; show_value: boolean; is_following: boolean; is_me: boolean; dealer: boolean; collection_private: boolean }[] };
+      collector_profile: { Args: { p_handle: string }; Returns: { followers: number; following: number; show_value: boolean; is_following: boolean; is_me: boolean; dealer: boolean; collection_private: boolean; avatar: string | null }[] };
       admin_set_dealer: { Args: { p_handle: string; p_verified: boolean; p_commission_rate?: number | null }; Returns: undefined };
       admin_dealers: { Args: never; Returns: { handle: string; dealer_verified_at: string | null; commission_rate: number | null; listings: number; sales: number }[] };
-      my_following: { Args: never; Returns: { handle: string; followed_at: string; shirts: number }[] };
+      my_following: { Args: never; Returns: { handle: string; followed_at: string; shirts: number; avatar: string | null }[] };
       make_collection_offer: { Args: { p_item_id: string; p_amount: number; p_message?: string | null }; Returns: string };
       respond_collection_offer: { Args: { p_offer_id: string; p_accept: boolean }; Returns: string | null };
       withdraw_collection_offer: { Args: { p_offer_id: string }; Returns: undefined };

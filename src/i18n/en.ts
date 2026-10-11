@@ -1357,6 +1357,19 @@ export const en = {
   'home.cardTag': 'Collected',
   'common.scrollNext': 'Show more',
   'common.scrollPrev': 'Show previous',
+  'pshirt.meta': '{name} — @{handle}’s collection',
+  'pshirt.from': 'From @{handle}’s collection',
+  'pshirt.notFound': 'Shirt not found',
+  'pshirt.notFoundBody': 'This shirt isn’t shown in @{handle}’s collection (any more).',
+  'pshirt.photos': 'Photos',
+  'pshirt.front': 'Front',
+  'pshirt.backPhoto': 'Back',
+  'pshirt.size': 'Size',
+  'pshirt.print': 'Print',
+  'pshirt.version': 'Version',
+  'pshirt.condition': 'Condition',
+  'pshirt.since': 'In the collection since',
+  'pshirt.catalog': 'View in the catalogue',
   // @@end
 };
 

@@ -1358,5 +1358,18 @@ export const de: Messages = {
   'home.cardTag': 'Gesammelt',
   'common.scrollNext': 'Mehr zeigen',
   'common.scrollPrev': 'Zurück',
+  'pshirt.meta': '{name} — Sammlung von @{handle}',
+  'pshirt.from': 'Aus der Sammlung von @{handle}',
+  'pshirt.notFound': 'Trikot nicht gefunden',
+  'pshirt.notFoundBody': 'Dieses Trikot wird in der Sammlung von @{handle} nicht (mehr) gezeigt.',
+  'pshirt.photos': 'Fotos',
+  'pshirt.front': 'Vorne',
+  'pshirt.backPhoto': 'Hinten',
+  'pshirt.size': 'Grösse',
+  'pshirt.print': 'Flock',
+  'pshirt.version': 'Version',
+  'pshirt.condition': 'Zustand',
+  'pshirt.since': 'In der Sammlung seit',
+  'pshirt.catalog': 'Im Katalog ansehen',
   // @@end
 };

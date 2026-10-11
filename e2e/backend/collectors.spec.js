@@ -24,6 +24,17 @@ test('visitors find a collector by username and are asked to sign in to follow',
   await expect(page).toHaveURL(/\/signin$/);
 });
 
+test('a shirt in a collection opens as the member’s own shirt, not the catalogue entry', async ({ page }) => {
+  await page.goto('/u/zurich_kits');
+  await page.locator('a[href="/u/zurich_kits/seed-ajax-offers"]').click();
+  await expect(page).toHaveURL(/\/u\/zurich_kits\/seed-ajax-offers$/);
+  await expect(page.getByText('From @zurich_kits’s collection')).toBeVisible();
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Ajax 1994/95 Home');
+  await expect(page.getByText('8/10')).toBeVisible();
+  await page.getByRole('link', { name: /View in the catalogue/ }).click();
+  await expect(page).toHaveURL(/\/shirt\/ajx-95$/);
+});
+
 test('a member follows and unfollows a collector', async ({ page }) => {
   await signIn(page, 'buyer@maillot.test');
   await page.goto('/u/zurich_kits');
