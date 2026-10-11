@@ -47,7 +47,8 @@ jobs:
           cache: npm
       - uses: supabase/setup-cli@v1
         with:
-          version: latest
+          # Pinned: "latest" asks GitHub's API on every run and fails when it's rate-limited.
+          version: 2.120.0
       - run: npm ci
       # Builds the whole database from supabase/migrations + seed.sql —
       # proves every migration applies cleanly from zero.
