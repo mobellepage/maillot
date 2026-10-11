@@ -35,18 +35,12 @@ export function Hero({ featured }: { featured: Shirt }) {
     >
       <div style={{ maxWidth: 1360, margin: '0 auto', padding: 'clamp(36px,7vw,96px) var(--gutter) clamp(40px,6vw,80px)', display: 'flex', flexWrap: 'wrap', gap: 'clamp(32px,5vw,64px)', alignItems: 'center' }}>
         <div style={{ flex: '1 1 520px', minWidth: 0 }}>
-          <div className="mono" style={{ display: 'inline-flex', alignItems: 'center', gap: 10, padding: '7px 14px 7px 10px', borderRadius: 999, border: '1px solid rgba(255,255,255,0.1)', fontSize: 11.5, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--text-2)' }}>
-            <span aria-hidden="true" style={{ width: 7, height: 7, borderRadius: '50%', background: 'var(--accent)', boxShadow: '0 0 12px var(--accent)', animation: 'kvPulse 1.8s ease-in-out infinite' }} />
-            {t('home.pill')}
-          </div>
-          <h1 id="hero-title" className="display display--xl" style={{ marginTop: 22, fontWeight: 800 }}>
+          <h1 id="hero-title" className="display display--xl" style={{ fontWeight: 800, fontSize: 'clamp(42px,6vw,84px)' }}>
             {t('home.h1a')}
             <br />
-            {t('home.h1b')}
-            <br />
-            <span style={{ color: 'var(--accent)' }}>{t('home.h1c')}</span>
+            <span style={{ color: 'var(--accent)' }}>{t('home.h1b')}</span>
           </h1>
-          <p className="lede" style={{ margin: '24px 0 0', maxWidth: 540 }}>
+          <p className="lede" style={{ margin: '20px 0 0', maxWidth: 480 }}>
             {t('home.lede')}
           </p>
           <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 28 }}>
