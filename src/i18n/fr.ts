@@ -1361,5 +1361,6 @@ export const fr: Messages = {
   'feed.viewWishlist': 'Voir ma liste',
   'feed.again': 'Recommencer',
   'feed.wishlistCount': 'Liste : {n} maillots',
+  'coll.noneShown': 'Aucun maillot visible pour l’instant',
   // @@end
 };

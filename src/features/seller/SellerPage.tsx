@@ -65,7 +65,7 @@ export default function SellerPage() {
             <span className="eyebrow">{stats.data?.dealer ? t('dealer.eyebrow') : t('seller.eyebrow')}</span>
             {stats.data?.dealer && <DealerBadge />}
           </div>
-          <h1 className="display" style={{ fontSize: 'clamp(28px,4vw,44px)', margin: '6px 0 0' }}>
+          <h1 className="display" style={{ fontSize: p.handle.length > 14 ? 'clamp(18px,5vw,40px)' : 'clamp(28px,4vw,44px)', margin: '6px 0 0', overflowWrap: 'anywhere' }}>
             @{p.handle}
           </h1>
           <div style={{ fontSize: 13.5, color: 'var(--muted)', marginTop: 6 }}>{t('seller.since', { date: formatDate(p.member_since, lang) })}</div>

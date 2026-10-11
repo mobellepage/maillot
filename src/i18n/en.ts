@@ -1360,6 +1360,7 @@ export const en = {
   'feed.viewWishlist': 'View wishlist',
   'feed.again': 'Start again',
   'feed.wishlistCount': 'Wishlist: {n} shirts',
+  'coll.noneShown': 'No shirts shown yet',
   // @@end
 };
 

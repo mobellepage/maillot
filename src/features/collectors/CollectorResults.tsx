@@ -33,7 +33,7 @@ export function CollectorResults({ hits }: { hits: CollectorHit[] }) {
                 </div>
               )}
               <div style={{ fontSize: 12.5, color: 'var(--muted)', marginTop: 2 }}>
-                {[c.shirts ? tp('coll.shirts', c.shirts) : null, c.listings ? tp('coll.listings', c.listings) : null].filter(Boolean).join(' · ')}
+                {[c.shirts ? tp('coll.shirts', c.shirts) : null, c.listings ? tp('coll.listings', c.listings) : null].filter(Boolean).join(' · ') || t('coll.noneShown')}
               </div>
             </div>
             <div aria-hidden="true" style={{ display: 'flex', flex: 'none' }}>

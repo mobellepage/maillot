@@ -1361,5 +1361,6 @@ export const de: Messages = {
   'feed.viewWishlist': 'Wunschliste ansehen',
   'feed.again': 'Nochmals von vorne',
   'feed.wishlistCount': 'Wunschliste: {n} Trikots',
+  'coll.noneShown': 'Noch keine Trikots gezeigt',
   // @@end
 };

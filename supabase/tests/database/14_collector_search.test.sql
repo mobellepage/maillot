@@ -39,12 +39,12 @@ insert into asks (user_id, shirt_id, size, amount) values ('00000000-0000-4000-a
 select plan(14);
 
 set local role anon;
-select is((select array_agg(handle order by handle) from search_collectors('dan')), array['dana_kits', 'erik_dan'], 'search finds members who show something, never ones with only private shirts');
+select is((select array_agg(handle order by handle) from search_collectors('dan')), array['dana_kits', 'danny_private', 'erik_dan'], 'search finds every member by username');
 select is((select handle from search_collectors('@DANA_KITS') limit 1), 'dana_kits', 'a leading @ and case are ignored; the exact match comes first');
 select is((select row(shirts, listings)::text from search_collectors('dana_kits')), '(2,0)', 'counts only visible shirts');
 select is((select preview from search_collectors('dana_kits')), array['sui-26'], 'previews only catalogued, visible shirts');
 select is((select count(*)::int from search_collectors('d')), 0, 'one character is not a search');
-select is((select count(*)::int from search_collectors('danny')), 0, 'a member with only private shirts cannot be found');
+select is((select row(shirts, preview)::text from search_collectors('danny')), '(0,{})', 'a member with only private shirts is found, but none of them shows');
 
 select is((select array_agg(id order by added_at) from public_collection('Dana_Kits')), array['t-dana-1', 't-dana-2'], 'the collection lists visible shirts, newest last here, never private ones');
 select is((select row(player_name, player_number, grade, verified, photo_path)::text from public_collection('dana_kits') where id = 't-dana-1'),

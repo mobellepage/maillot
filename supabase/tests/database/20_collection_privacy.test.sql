@@ -46,7 +46,7 @@ select tests.logout();
 
 set local role anon;
 select is((select count(*)::int from public_collection('shy_collector')), 0, 'a private collection shows nothing');
-select is((select count(*)::int from search_collectors('shy_collector')), 0, 'and cannot be found by its shirts');
+select is((select row(shirts, preview)::text from search_collectors('shy_collector')), '(0,{})', 'the member is still found, but shows no shirts');
 select ok(not is_visible_vault_photo('00000000-0000-4000-a000-0000000b1a01/items/p1/front.jpg'), 'its photos are not readable');
 select is((select collection_private from collector_profile('shy_collector')), true, 'the profile says the collection is private');
 reset role;
