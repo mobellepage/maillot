@@ -12,7 +12,7 @@ import { analyzeAndCompress } from '../../utils/image.ts';
 import { cutoutShirt, removePhotos, uploadPhoto } from '../../utils/db.ts';
 import type { Photo } from '../../types/domain.ts';
 import { composeStudio, type StudioState } from './addshirt/studio.ts';
-import { Button, CheckIcon, Page } from '../../ui/index.ts';
+import { Button, ButtonLink, CheckIcon, EmptyState, Page } from '../../ui/index.ts';
 import { PhotosStep, PrecheckStep, VerifyStep } from './addshirt/CheckSteps.tsx';
 import { DetailsStep } from './addshirt/DetailsStep.tsx';
 import { FinishStep } from './addshirt/FinishStep.tsx';
@@ -20,7 +20,9 @@ import { IdentifyStep } from './addshirt/IdentifyStep.tsx';
 import { ScanStep } from './addshirt/ScanStep.tsx';
 import { chosenVisibility, useAddShirtForm } from './addshirt/useAddShirtForm.ts';
 import { buildPhotoSpecs } from '../../addShirtData.js';
-import { useCollectionActions } from './useCollection.ts';
+import { useCollection, useCollectionActions } from './useCollection.ts';
+import { FREE_SHIRT_LIMIT } from '../../config/plans.ts';
+import { isPlanLimitError } from '../../utils/db.ts';
 
 const STEPS = ['as.step.scan', 'as.step.shirt', 'as.step.details', 'as.step.photos', 'as.step.precheck', 'as.step.verify', 'as.step.finish'] as const;
 
@@ -32,6 +34,9 @@ export default function AddShirtPage() {
   const w = useAddShirtForm(user?.id);
   const { f, set } = w;
   const { add } = useCollectionActions();
+  const { items, loading: itemsLoading } = useCollection();
+  // Free plan full: offer Premium instead of a wizard that can't be saved.
+  const planFull = !!user && !itemsLoading && !profile?.premium && items.length >= FREE_SHIRT_LIMIT;
   const navigate = useNavigate();
   const toast = useToast();
   const [busyKey, setBusyKey] = useState<string | null>(null);
@@ -118,6 +123,9 @@ export default function AddShirtPage() {
           w.reset();
           toast(t('as.saved'));
           navigate('/vault/item/' + item.id);
+        },
+        onError: (e) => {
+          if (isPlanLimitError(e)) navigate('/premium');
         }
       }
     );
@@ -126,6 +134,23 @@ export default function AddShirtPage() {
     set({ step: n });
     window.scrollTo(0, 0);
   };
+
+  if (planFull)
+    return (
+      <Page narrow>
+        <EmptyState
+          accent
+          title={t('premium.limitTitle', { n: FREE_SHIRT_LIMIT })}
+          action={
+            <ButtonLink to="/premium">
+              {t('premium.cta')}
+            </ButtonLink>
+          }
+        >
+          {t('premium.limitBody', { n: FREE_SHIRT_LIMIT })}
+        </EmptyState>
+      </Page>
+    );
 
   return (
     <Page style={{ maxWidth: 860 }}>

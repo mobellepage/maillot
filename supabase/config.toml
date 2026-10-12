@@ -98,3 +98,6 @@ verify_jwt = false
 
 [functions.studio-photo]
 verify_jwt = true
+
+[functions.premium]
+verify_jwt = true

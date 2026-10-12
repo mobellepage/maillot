@@ -173,6 +173,9 @@ export default function AccountPage() {
               <ButtonLink to="/orders" variant="ghost" size="sm">
                 {t('vault.title.orders')}
               </ButtonLink>
+              <ButtonLink to="/premium" variant="ghost" size="sm">
+                {profile?.premium ? 'Premium ✓' : t('premium.cta')}
+              </ButtonLink>
             </div>
           </Card>
         ) : (

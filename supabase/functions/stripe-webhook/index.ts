@@ -43,11 +43,28 @@ Deno.serve(async (req: Request) => {
     return json({ received: true });
   }
 
+  // Premium subscription started, renewed, changed or ended: Premium runs
+  // until the end of the paid period (plus a day's grace for renewals).
+  if (event.type === "customer.subscription.created" || event.type === "customer.subscription.updated" || event.type === "customer.subscription.deleted") {
+    const sub = event.data.object as Stripe.Subscription;
+    const service = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
+    const customer = typeof sub.customer === "string" ? sub.customer : sub.customer.id;
+    const live = ["active", "trialing", "past_due"].includes(sub.status) && event.type !== "customer.subscription.deleted";
+    const until = live ? new Date((sub.current_period_end + 24 * 3600) * 1000).toISOString() : new Date().toISOString();
+    const userId = sub.metadata?.user_id;
+    const q = service.from("profiles").update({ premium_until: until, stripe_customer_id: customer });
+    const { error } = await (userId ? q.eq("id", userId) : q.eq("stripe_customer_id", customer));
+    if (error) console.error(`[stripe-webhook] premium update failed for ${customer}: ${error.message}`);
+    return json({ received: true, premium: live });
+  }
+
   if (event.type !== "checkout.session.completed" && event.type !== "checkout.session.async_payment_succeeded") {
     return json({ received: true, ignored: event.type });
   }
 
   const session = event.data.object as Stripe.Checkout.Session;
+  // Premium checkouts are handled by the subscription events above.
+  if (session.mode === "subscription") return json({ received: true, ignored: "subscription checkout" });
   if (session.payment_status !== "paid") return json({ received: true, pending: true });
 
   const orderId = session.metadata?.order_id ?? session.client_reference_id;

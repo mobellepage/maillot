@@ -598,6 +598,9 @@ export type Database = {
           show_collection_value: boolean;
           dealer_verified_at: string | null;
           commission_rate: number | null;
+          premium_until: string | null;
+          stripe_customer_id: string | null;
+          premium_waitlist_at: string | null;
           avatar: string | null;
           collection_private: boolean;
         };
@@ -616,6 +619,9 @@ export type Database = {
           interests?: Json;
           onboarded_at?: string | null;
           show_collection_value?: boolean;
+          premium_until?: string | null;
+          stripe_customer_id?: string | null;
+          premium_waitlist_at?: string | null;
           avatar?: string | null;
           collection_private?: boolean;
         };
@@ -882,6 +888,9 @@ export type Database = {
       seller_review_list: { Args: { p_handle: string }; Returns: { rating: number; comment: string | null; shirt_id: string | null; created_at: string }[] };
       seller_cards: { Args: { p_user_ids: string[] }; Returns: { user_id: string; handle: string | null; rating: number | null; reviews: number; sales: number; dealer: boolean }[] };
       search_collectors: { Args: { p_q: string }; Returns: { handle: string; member_since: string; shirts: number; listings: number; preview: string[]; dealer: boolean; avatar: string | null }[] };
+      join_premium_waitlist: { Args: never; Returns: undefined };
+      admin_set_premium: { Args: { p_handle: string; p_until: string | null }; Returns: undefined };
+      free_shirt_limit: { Args: never; Returns: number };
       public_shirt_photos: { Args: { p_handle: string; p_item_id: string }; Returns: { kind: 'main' | 'back'; path: string; thumb_path: string | null }[] };
       public_collection: {
         Args: { p_handle: string };
