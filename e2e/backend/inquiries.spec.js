@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 
 // "Ask anyway" on a collector's piece, end to end on the local seeded stack:
-// the seller (@zurich_kits) keeps a Netherlands 1988 as not for sale; the
+// the seller (@zurich_kits) keeps a Real Madrid 2026/27 as not for sale; the
 // buyer asks without obligation, the seller replies, the buyer reads it.
 const PASSWORD = 'maillot-dev-pw';
 
@@ -17,8 +17,9 @@ test('a collector’s piece takes inquiries: ask, reply, read', async ({ browser
   const buyer = await browser.newPage();
   await signIn(buyer, 'buyer@maillot.test');
   await buyer.goto('/u/zurich_kits');
-  const card = buyer.getByRole('listitem').filter({ hasText: 'Netherlands 1988 Home' });
-  await expect(card.getByText('Collector’s piece · not for sale')).toBeVisible();
+  // The seller also lists this shirt for sale; the collection card is the one marked as a collector's piece.
+  const card = buyer.getByRole('listitem').filter({ hasText: 'Real Madrid 2026/27 Home' }).filter({ hasText: 'Collector’s piece · not for sale' });
+  await expect(card).toHaveCount(1);
   await card.getByRole('button', { name: 'Ask anyway' }).click();
   const dialog = buyer.getByRole('dialog');
   await dialog.getByLabel('Your message').fill('Would you ever part with it?');

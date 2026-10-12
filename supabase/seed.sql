@@ -46,7 +46,8 @@ insert into public.custom_items (id, user_id, catalog_id, size, version, visibil
 values ('seed-ajax-offers', '22222222-2222-2222-2222-222222222222', 'ajx-95', 'M', 'Replica', 'offers',
         '{"grade":8,"defects":[]}', '{"source":"Keine"}', '[]', '{"signed":false}', '{}');
 
--- A collector's piece, not for sale (inquiries e2e): the seller's Netherlands 1988.
+-- A collector's piece, not for sale (inquiries e2e): the seller's Real Madrid
+-- 2026/27 — a shirt no database test uses (they count owners of theirs).
 insert into public.custom_items (id, user_id, catalog_id, size, version, visibility, condition, flock, patches, signature, photos)
-values ('seed-piece', '22222222-2222-2222-2222-222222222222', 'ned-88', 'L', 'Replica', 'public',
+values ('seed-piece', '22222222-2222-2222-2222-222222222222', 'rma-2627', 'L', 'Replica', 'public',
         '{"grade":9,"defects":[]}', '{"source":"Keine"}', '[]', '{"signed":false}', '{}');
