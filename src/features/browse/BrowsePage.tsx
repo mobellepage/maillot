@@ -2,10 +2,11 @@ import { useState } from 'react';
 import { useCatalog } from '../catalog/useCatalog.ts';
 import { usePageMeta } from '../../lib/meta.ts';
 import { usePrefs } from '../../lib/prefs.tsx';
-import { Button, ButtonLink, Dialog, EmptyState, Page, SearchField } from '../../ui/index.ts';
+import { Button, ButtonLink, Dialog, EmptyState, GridIcon, ListIcon, Page, SearchField } from '../../ui/index.ts';
+import { loadJSON, saveJSON } from '../../utils/storage.ts';
 import { SHIRTS } from '../../data.ts';
 import { browse, FILTER_KEYS, PRICE_MAX, SORTS, type FilterKey, type SortKey } from '../catalog/model.ts';
-import { ShirtGrid } from '../catalog/ShirtGrid.tsx';
+import { ShirtGrid, ShirtList } from '../catalog/ShirtGrid.tsx';
 import { FilterPanel } from './FilterPanel.tsx';
 import { useBrowseParams } from './useBrowseParams.ts';
 import { CollectorResults } from '../collectors/CollectorResults.tsx';
@@ -26,6 +27,12 @@ export default function BrowsePage() {
   const { query, setQ, setSort, toggle, setRange, clear } = useBrowseParams();
   const { money, t, label } = usePrefs();
   const [showFilters, setShowFilters] = useState(false);
+  // Big cards make you want the shirt; a list lets you compare. People choose.
+  const [view, setViewState] = useState<'grid' | 'list'>(() => (loadJSON<string>('kv_browse_view', 'grid') === 'list' ? 'list' : 'grid'));
+  const setView = (v: 'grid' | 'list') => {
+    setViewState(v);
+    saveJSON('kv_browse_view', v);
+  };
   const results = browse(query);
   const collectors = useCollectorSearch(query.q);
   usePageMeta(query.q ? t('browse.metaSearch', { q: query.q }) : t('browse.metaTitle'), t('browse.metaDesc', { n: SHIRTS.length }));
@@ -49,13 +56,21 @@ export default function BrowsePage() {
         </div>
         <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', flex: '1 1 360px', justifyContent: 'flex-end' }}>
           <SearchField key={query.q === '' ? 'empty' : 'q'} srLabel={t('browse.searchLabel')} placeholder={t('browse.searchPlaceholder')} defaultValue={query.q} onChange={(e) => setQ(e.target.value)} style={{ flex: '1 1 220px', maxWidth: 360 }} />
-          <select className="select" aria-label={t('sort.aria')} value={query.sort} onChange={(e) => setSort(e.target.value as SortKey)}>
+          <select className="select" aria-label={t('sort.aria')} value={query.sort} onChange={(e) => setSort(e.target.value as SortKey)} style={{ flex: '1 1 150px', minWidth: 0, maxWidth: 260 }}>
             {SORTS.map((s) => (
               <option key={s.value} value={s.value}>
                 {t('sort.label', { label: t(s.label) })}
               </option>
             ))}
           </select>
+          <div role="group" aria-label={t('browse.view')} className="segmented" style={{ height: 46, flex: 'none' }}>
+            <button type="button" aria-pressed={view === 'grid'} aria-label={t('browse.viewGrid')} title={t('browse.viewGrid')} onClick={() => setView('grid')} style={{ display: 'grid', placeItems: 'center', padding: '0 12px' }}>
+              <GridIcon />
+            </button>
+            <button type="button" aria-pressed={view === 'list'} aria-label={t('browse.viewList')} title={t('browse.viewList')} onClick={() => setView('list')} style={{ display: 'grid', placeItems: 'center', padding: '0 12px' }}>
+              <ListIcon />
+            </button>
+          </div>
           <Button variant="secondary" size="sm" className="show-mobile" style={{ height: 46 }} aria-haspopup="dialog" onClick={() => setShowFilters(true)}>
             {t('filter.show') + (chips.length ? ` (${chips.length})` : '')}
           </Button>
@@ -116,7 +131,7 @@ export default function BrowsePage() {
         <div style={{ flex: 1, minWidth: 0, width: '100%' }}>
           <CollectorResults hits={collectors} />
           {results.length ? (
-            <ShirtGrid shirts={results} label={t('browse.results')} />
+            view === 'list' ? <ShirtList shirts={results} label={t('browse.results')} /> : <ShirtGrid shirts={results} label={t('browse.results')} />
           ) : collectors.length ? (
             <p style={{ color: 'var(--muted)', fontSize: 14 }}>{t('browse.noShirtsForQuery', { q: query.q })}</p>
           ) : (

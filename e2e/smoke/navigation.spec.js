@@ -158,3 +158,14 @@ test('on a phone the filters open as a sheet whose button counts the matches @mo
   await expect(sheet).toBeHidden();
   await expect(page).toHaveURL(/type=Retro/);
 });
+
+test('the market can show a compact list instead of cards, and remembers it', async ({ page }) => {
+  await page.goto('/market');
+  await page.getByRole('button', { name: 'Compact list' }).click();
+  await expect(page.getByRole('button', { name: 'Compact list' })).toHaveAttribute('aria-pressed', 'true');
+  const list = page.getByRole('list', { name: 'Results' });
+  await expect(list.getByRole('link', { name: 'Germany 2026 Home "The Last Adidas"' })).toBeVisible();
+  await page.reload();
+  await expect(page.getByRole('button', { name: 'Compact list' })).toHaveAttribute('aria-pressed', 'true');
+  expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBeLessThanOrEqual(0);
+});

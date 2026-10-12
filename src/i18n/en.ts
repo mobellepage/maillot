@@ -1470,6 +1470,9 @@ export const en = {
   'notif.inquiryReply.title': 'The owner replied to your inquiry',
   'home.top.eyebrow': 'Community',
   'home.top.title': 'Top collectors',
+  'browse.view': 'View',
+  'browse.viewGrid': 'Large cards',
+  'browse.viewList': 'Compact list',
   // @@end
 };
 

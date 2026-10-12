@@ -1471,5 +1471,8 @@ export const fr: Messages = {
   'notif.inquiryReply.title': 'Le propriétaire a répondu à ta demande',
   'home.top.eyebrow': 'Communauté',
   'home.top.title': 'Top collectionneurs',
+  'browse.view': 'Affichage',
+  'browse.viewGrid': 'Grandes cartes',
+  'browse.viewList': 'Liste compacte',
   // @@end
 };

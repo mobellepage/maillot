@@ -1471,5 +1471,8 @@ export const de: Messages = {
   'notif.inquiryReply.title': 'Der Besitzer hat auf deine Anfrage geantwortet',
   'home.top.eyebrow': 'Community',
   'home.top.title': 'Top-Sammler',
+  'browse.view': 'Ansicht',
+  'browse.viewGrid': 'Grosse Karten',
+  'browse.viewList': 'Kompakte Liste',
   // @@end
 };

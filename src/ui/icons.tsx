@@ -117,3 +117,25 @@ export function ChevronIcon({ size = 18, ...rest }: IconProps) {
     </svg>
   );
 }
+
+export function GridIcon({ size = 18, ...rest }: IconProps) {
+  return (
+    <svg {...base(size, rest)} fill="none" stroke="currentColor" strokeWidth={2}>
+      <rect x="4" y="4" width="6.5" height="6.5" rx="1.5" />
+      <rect x="13.5" y="4" width="6.5" height="6.5" rx="1.5" />
+      <rect x="4" y="13.5" width="6.5" height="6.5" rx="1.5" />
+      <rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1.5" />
+    </svg>
+  );
+}
+
+export function ListIcon({ size = 18, ...rest }: IconProps) {
+  return (
+    <svg {...base(size, rest)} fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round">
+      <path d="M9 6.5h11M9 12h11M9 17.5h11" />
+      <circle cx="4.8" cy="6.5" r="1.1" fill="currentColor" stroke="none" />
+      <circle cx="4.8" cy="12" r="1.1" fill="currentColor" stroke="none" />
+      <circle cx="4.8" cy="17.5" r="1.1" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
