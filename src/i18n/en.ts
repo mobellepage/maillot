@@ -264,7 +264,7 @@ export const en = {
   'pp.authTitle': 'Authentication in Switzerland — coming soon.',
   'pp.authBody': 'We are setting up an inspection of every shirt before it ships. Your payment is held in escrow until the shirt has arrived.',
   'pp.howItWorks': 'How it works →',
-  'gal.authenticated': '✓ Authenticated on every sale',
+  'gal.authenticated': '✓ Escrow on every purchase',
   'gal.view.Front': 'Front',
   'gal.view.Back': 'Back',
   'gal.view.Crest': 'Crest',

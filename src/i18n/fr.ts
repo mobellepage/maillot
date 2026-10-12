@@ -265,7 +265,7 @@ export const fr: Messages = {
   'pp.authTitle': 'Authentification en Suisse – bientôt disponible.',
   'pp.authBody': 'Nous mettons en place un contrôle de chaque maillot avant l’envoi. Ton paiement reste en séquestre jusqu’à l’arrivée du maillot.',
   'pp.howItWorks': 'Comment ça marche →',
-  'gal.authenticated': '✓ Authentifié à chaque vente',
+  'gal.authenticated': '✓ Séquestre à chaque achat',
   'gal.view.Front': 'Face',
   'gal.view.Back': 'Dos',
   'gal.view.Crest': 'Écusson',

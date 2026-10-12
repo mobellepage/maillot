@@ -265,7 +265,7 @@ export const de: Messages = {
   'pp.authTitle': 'Echtheitsprüfung in der Schweiz – bald verfügbar.',
   'pp.authBody': 'Wir bauen eine Prüfung jedes Trikots vor dem Versand auf. Deine Zahlung bleibt treuhänderisch hinterlegt, bis das Trikot angekommen ist.',
   'pp.howItWorks': 'So funktioniert’s →',
-  'gal.authenticated': '✓ Bei jedem Verkauf geprüft',
+  'gal.authenticated': '✓ Treuhand bei jedem Kauf',
   'gal.view.Front': 'Vorderseite',
   'gal.view.Back': 'Rückseite',
   'gal.view.Crest': 'Wappen',
