@@ -1,6 +1,7 @@
 // Which notifications a member wants. Offers, inquiries and orders always
 // arrive (money and deadlines); value news, wanted shirts and social can be
 // switched off. Stored on the profile and applied by the database.
+import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { usePrefs } from '../../lib/prefs.tsx';
 import { useSession } from '../../lib/session.tsx';
@@ -16,11 +17,16 @@ export function NotificationSettings() {
   const { user, profile } = useSession();
   const qc = useQueryClient();
   const toast = useToast();
-  const prefs = profile?.notificationPrefs ?? {};
+  // The switch flips at once; the saved profile catches up (and wins after a failed save).
+  const [chosen, setChosen] = useState<Partial<Record<Group, boolean>> | null>(null);
+  const prefs = chosen ?? profile?.notificationPrefs ?? {};
   const save = useMutation({
     mutationFn: (next: Partial<Record<Group, boolean>>) => db.setNotificationPrefs(user!.id, next),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['profile', user?.id] }),
-    onError: () => toast(t('vault.saveFailed'))
+    onError: () => {
+      setChosen(null);
+      toast(t('vault.saveFailed'));
+    }
   });
   if (!user || !profile) return null;
   return (
@@ -35,8 +41,11 @@ export function NotificationSettings() {
             <input
               type="checkbox"
               checked={prefs[g] !== false}
-              disabled={save.isPending}
-              onChange={(e) => save.mutate({ ...prefs, [g]: e.target.checked })}
+              onChange={(e) => {
+                const next = { ...prefs, [g]: e.target.checked };
+                setChosen(next);
+                save.mutate(next);
+              }}
               style={{ width: 18, height: 18, marginTop: 2, accentColor: 'var(--accent)' }}
             />
             <span>

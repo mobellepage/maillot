@@ -26,10 +26,15 @@ export function VisibilityEditor({ item }: { item: CustomItem }) {
     },
     onError: () => toast(t('vault.saveFailed'))
   });
+  // Flips at once; the saved shirt catches up (and wins after a failed save).
+  const [askChosen, setAskChosen] = useState<boolean | null>(null);
   const inquiries = useMutation({
     mutationFn: (on: boolean) => db.setInquiriesEnabled(item.id, on),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['customItems', user?.id] }),
-    onError: () => toast(t('vault.saveFailed'))
+    onError: () => {
+      setAskChosen(null);
+      toast(t('vault.saveFailed'));
+    }
   });
   const options = VISIBILITIES as { key: Visibility; label: string; desc: string }[];
   return (
@@ -59,7 +64,13 @@ export function VisibilityEditor({ item }: { item: CustomItem }) {
       </div>
       {item.visibility === 'public' && (
         <label style={{ display: 'flex', gap: 10, alignItems: 'flex-start', marginTop: 12, fontSize: 13.5, cursor: 'pointer' }}>
-          <input type="checkbox" checked={item.inquiriesEnabled !== false} disabled={inquiries.isPending} onChange={(e) => inquiries.mutate(e.target.checked)} style={{ width: 18, height: 18, marginTop: 1, accentColor: 'var(--accent)' }} />
+          <input
+            type="checkbox"
+            checked={askChosen ?? item.inquiriesEnabled !== false}
+            onChange={(e) => {
+              setAskChosen(e.target.checked);
+              inquiries.mutate(e.target.checked);
+            }} style={{ width: 18, height: 18, marginTop: 1, accentColor: 'var(--accent)' }} />
           <span>
             <span style={{ display: 'block', fontWeight: 600 }}>{t('inq.allow')}</span>
             <span style={{ display: 'block', fontSize: 12, color: 'var(--muted)' }}>{t('inq.allowHint')}</span>

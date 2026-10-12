@@ -3,6 +3,9 @@ import { expect, test } from '@playwright/test';
 // Offers on collection shirts, end to end on the local seeded stack: the
 // seller (@zurich_kits) has an Ajax 1994/95 open to offers; the buyer offers,
 // the seller accepts, and it becomes an order the buyer pays.
+// Both tests negotiate on the same seeded shirt with the same buyer: one after the other.
+test.describe.configure({ mode: 'serial' });
+
 const PASSWORD = 'maillot-dev-pw';
 
 async function signIn(page, email) {
