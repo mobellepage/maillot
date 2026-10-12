@@ -12,6 +12,7 @@ import { VisibilityEditor } from './VisibilityEditor.tsx';
 import { usePhotoUrls } from '../../lib/usePhotoUrls.ts';
 import { currentValuation, displayStatus, useCollection, useCollectionActions } from './useCollection.ts';
 import { isCutout } from './addshirt/studio.ts';
+import { StudioButton } from './StudioButton.tsx';
 
 
 
@@ -77,6 +78,7 @@ export default function VaultItemPage() {
             </Badge>
           </div>
           <p style={{ fontSize: 12, color: 'var(--muted)', margin: '10px 0 0', lineHeight: 1.5 }}>{t(badge.desc)}</p>
+          <StudioButton item={c} frontUrl={c.photos?.front ? fullUrl(c.photos.front) : undefined} />
           {photos.length > 0 && (
             <div role="group" aria-label={t('vault.photos')} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(64px,1fr))', gap: 8, marginTop: 10 }}>
               {photos.map((p, i) => (

@@ -2,14 +2,24 @@ import { useState } from 'react';
 import { useCatalog } from '../catalog/useCatalog.ts';
 import { usePageMeta } from '../../lib/meta.ts';
 import { usePrefs } from '../../lib/prefs.tsx';
-import { Button, ButtonLink, EmptyState, Page, SearchField } from '../../ui/index.ts';
+import { Button, ButtonLink, Dialog, EmptyState, Page, SearchField } from '../../ui/index.ts';
 import { SHIRTS } from '../../data.ts';
-import { browse, FILTER_KEYS, PRICE_MAX, SORTS, type SortKey } from '../catalog/model.ts';
+import { browse, FILTER_KEYS, PRICE_MAX, SORTS, type FilterKey, type SortKey } from '../catalog/model.ts';
 import { ShirtGrid } from '../catalog/ShirtGrid.tsx';
 import { FilterPanel } from './FilterPanel.tsx';
 import { useBrowseParams } from './useBrowseParams.ts';
 import { CollectorResults } from '../collectors/CollectorResults.tsx';
 import { useCollectorSearch } from '../collectors/useCollectorSearch.ts';
+
+type Quick = { label: string } & ({ kind: 'filter'; key: FilterKey; value: string } | { kind: 'range'; max: number });
+const QUICK: Quick[] = [
+  { label: 'filter.q.retro', kind: 'filter', key: 'type', value: 'Retro' },
+  { label: 'filter.q.new', kind: 'filter', key: 'type', value: 'New' },
+  { label: 'filter.q.matchWorn', kind: 'filter', key: 'type', value: 'Match-worn' },
+  { label: 'filter.q.national', kind: 'filter', key: 'league', value: 'National Teams' },
+  { label: 'filter.q.ssl', kind: 'filter', key: 'league', value: 'Swiss Super League' },
+  { label: 'filter.q.under', kind: 'range', max: 120 }
+];
 
 export default function BrowsePage() {
   useCatalog(); // re-render when the live catalogue loads
@@ -46,11 +56,30 @@ export default function BrowsePage() {
               </option>
             ))}
           </select>
-          <Button variant="secondary" size="sm" className="show-mobile" style={{ height: 46 }} aria-expanded={showFilters} onClick={() => setShowFilters(!showFilters)}>
-            {(showFilters ? t('filter.hide') : t('filter.show')) + (chips.length ? ` (${chips.length})` : '')}
+          <Button variant="secondary" size="sm" className="show-mobile" style={{ height: 46 }} aria-haspopup="dialog" onClick={() => setShowFilters(true)}>
+            {t('filter.show') + (chips.length ? ` (${chips.length})` : '')}
           </Button>
         </div>
       </div>
+
+      {/* Quick filters: one tap, no panel. */}
+      <nav aria-label={t('filter.quick')} style={{ display: 'flex', gap: 8, overflowX: 'auto', margin: '-8px 0 18px', paddingBottom: 4, scrollbarWidth: 'none' }}>
+        {QUICK.map((q) => {
+          const on = q.kind === 'range' ? query.max === q.max && query.min === 0 : query.filters[q.key].includes(q.value);
+          return (
+            <button
+              key={q.label}
+              type="button"
+              className={'chip' + (on ? ' chip--active' : '')}
+              aria-pressed={on}
+              style={{ flex: 'none' }}
+              onClick={() => (q.kind === 'range' ? setRange(0, on ? PRICE_MAX : q.max) : toggle(q.key, q.value))}
+            >
+              {t(q.label, { price: money(q.kind === 'range' ? q.max : 0) })}
+            </button>
+          );
+        })}
+      </nav>
 
       {chips.length > 0 && (
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, alignItems: 'center', marginBottom: 20 }}>
@@ -69,9 +98,21 @@ export default function BrowsePage() {
       )}
 
       <div className="browse-layout">
-        <aside aria-label={t('filter.aria')} className={'browse-filters' + (showFilters ? ' is-open' : '')}>
+        <aside aria-label={t('filter.aria')} className="browse-filters">
           <FilterPanel query={query} toggle={toggle} setRange={setRange} />
         </aside>
+        {/* Phones: the filters as a sheet over the results; the button says what you'll get. */}
+        <Dialog open={showFilters} onClose={() => setShowFilters(false)} title={t('filter.show')}>
+          <FilterPanel query={query} toggle={toggle} setRange={setRange} />
+          <div style={{ position: 'sticky', bottom: -28, display: 'flex', gap: 10, alignItems: 'center', margin: '8px -28px -28px', padding: '14px 28px 20px', background: 'var(--surface-2)', borderTop: '1px solid var(--line)' }}>
+            <button type="button" className="link-btn link-btn--muted" style={{ fontSize: 14, padding: 8, whiteSpace: 'nowrap', flex: 'none' }} onClick={clear} disabled={!chips.length}>
+              {t('filter.clearAll')}
+            </button>
+            <Button block onClick={() => setShowFilters(false)} disabled={!results.length}>
+              {results.length ? t('filter.showN', { n: results.length }) : t('filter.none')}
+            </Button>
+          </div>
+        </Dialog>
         <div style={{ flex: 1, minWidth: 0, width: '100%' }}>
           <CollectorResults hits={collectors} />
           {results.length ? (

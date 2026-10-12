@@ -1419,5 +1419,16 @@ export const fr: Messages = {
   'app.reload': 'Recharger',
   'app.iconHint': 'MAILLOT a une nouvelle icône. Tu vois encore la verte ? Retire MAILLOT de l’écran d’accueil et ajoute-le à nouveau (Partager → Sur l’écran d’accueil).',
   'app.iconHintOk': 'Compris',
+  'vault.studioMake': 'Créer le look studio',
+  'vault.studioDone': 'Look studio prêt – ton maillot est maintenant sur fond clair.',
+  'filter.quick': 'Filtres rapides',
+  'filter.q.retro': 'Rétro',
+  'filter.q.new': 'Nouvelle saison',
+  'filter.q.matchWorn': 'Porté en match',
+  'filter.q.national': 'Équipes nationales',
+  'filter.q.ssl': 'Swiss Super League',
+  'filter.q.under': 'Moins de {price}',
+  'filter.showN': 'Voir {n} maillots',
+  'filter.none': 'Aucun maillot',
   // @@end
 };

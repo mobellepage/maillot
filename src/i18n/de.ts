@@ -1419,5 +1419,16 @@ export const de: Messages = {
   'app.reload': 'Neu laden',
   'app.iconHint': 'MAILLOT hat ein neues Icon. Siehst du noch das grüne? Entferne MAILLOT vom Homescreen und füge es neu hinzu (Teilen → Zum Home-Bildschirm).',
   'app.iconHintOk': 'Verstanden',
+  'vault.studioMake': 'Studio-Look erstellen',
+  'vault.studioDone': 'Studio-Look fertig – dein Trikot steht jetzt auf hellem Hintergrund.',
+  'filter.quick': 'Schnellfilter',
+  'filter.q.retro': 'Retro',
+  'filter.q.new': 'Neue Saison',
+  'filter.q.matchWorn': 'Matchgetragen',
+  'filter.q.national': 'Nationalteams',
+  'filter.q.ssl': 'Swiss Super League',
+  'filter.q.under': 'Unter {price}',
+  'filter.showN': '{n} Trikots anzeigen',
+  'filter.none': 'Keine Trikots gefunden',
   // @@end
 };

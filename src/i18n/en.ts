@@ -1418,6 +1418,17 @@ export const en = {
   'app.reload': 'Reload',
   'app.iconHint': 'MAILLOT has a new icon. Still seeing the green one? Remove MAILLOT from your home screen and add it again (Share → Add to Home Screen).',
   'app.iconHintOk': 'Got it',
+  'vault.studioMake': 'Create studio look',
+  'vault.studioDone': 'Studio look ready — your shirt now sits on the light background.',
+  'filter.quick': 'Quick filters',
+  'filter.q.retro': 'Retro',
+  'filter.q.new': 'New season',
+  'filter.q.matchWorn': 'Match-worn',
+  'filter.q.national': 'National teams',
+  'filter.q.ssl': 'Swiss Super League',
+  'filter.q.under': 'Under {price}',
+  'filter.showN': 'Show {n} shirts',
+  'filter.none': 'No shirts match',
   // @@end
 };
 

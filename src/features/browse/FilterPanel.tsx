@@ -1,9 +1,33 @@
 import { useState } from 'react';
 import { usePrefs } from '../../lib/prefs.tsx';
 import { CheckIcon } from '../../ui/index.ts';
+import { SHIRTS } from '../../data.ts';
 import { filterGroups, PRICE_MAX, type BrowseQuery, type FilterKey } from '../catalog/model.ts';
 
 const GROUPS = filterGroups();
+
+// How the catalogue spreads over the price range: bars behind the sliders
+// show where most shirts sit, so moving the range is an informed choice.
+const BUCKETS = 20;
+function priceBars(): number[] {
+  const bars = new Array<number>(BUCKETS).fill(0);
+  for (const s of SHIRTS) bars[Math.min(BUCKETS - 1, Math.floor((Math.min(s.price, PRICE_MAX) / PRICE_MAX) * BUCKETS))]!++;
+  return bars;
+}
+
+function PriceHistogram({ min, max }: { min: number; max: number }) {
+  const bars = priceBars();
+  const top = Math.max(1, ...bars);
+  return (
+    <div aria-hidden="true" style={{ display: 'flex', alignItems: 'flex-end', gap: 2, height: 44, margin: '0 2px 4px' }}>
+      {bars.map((n, i) => {
+        const from = (i / BUCKETS) * PRICE_MAX;
+        const on = from + PRICE_MAX / BUCKETS > min && from < max;
+        return <span key={i} style={{ flex: 1, height: Math.max(n ? 4 : 1, (n / top) * 44), borderRadius: 3, background: on ? 'var(--accent-fill)' : 'var(--line-strong)' }} />;
+      })}
+    </div>
+  );
+}
 
 export function FilterPanel({ query, toggle, setRange }: { query: BrowseQuery; toggle: (k: FilterKey, v: string) => void; setRange: (min: number, max: number) => void }) {
   const { money, t, label } = usePrefs();
@@ -22,7 +46,7 @@ export function FilterPanel({ query, toggle, setRange }: { query: BrowseQuery; t
               return (
                 <label key={o.value} className="row-btn" style={{ gap: 10, padding: '7px 6px', borderRadius: 8, color: on ? 'var(--text)' : 'var(--text-2)', fontSize: 14 }}>
                   <input type="checkbox" className="sr-only" checked={on} onChange={() => toggle(g.key, o.value)} />
-                  <span aria-hidden="true" style={{ width: 17, height: 17, borderRadius: 5, border: `1.5px solid ${on ? 'var(--accent)' : 'rgba(255,255,255,0.22)'}`, background: on ? 'var(--accent)' : 'transparent', display: 'grid', placeItems: 'center', color: 'var(--bg)', flex: 'none' }}>
+                  <span aria-hidden="true" style={{ width: 17, height: 17, borderRadius: 5, border: `1.5px solid ${on ? 'var(--accent)' : 'var(--line-strong)'}`, background: on ? 'var(--accent)' : 'transparent', display: 'grid', placeItems: 'center', color: 'var(--bg)', flex: 'none' }}>
                     {on && <CheckIcon size={11} />}
                   </span>
                   <span style={{ flex: 1 }}>{g.key === 'type' || g.key === 'league' ? label(g.key, o.value) : g.key === 'condition' ? label('cond', o.value) : o.value}</span>
@@ -48,6 +72,7 @@ export function FilterPanel({ query, toggle, setRange }: { query: BrowseQuery; t
           {money(query.min)} – {money(query.max)}
           {query.max >= PRICE_MAX ? '+' : ''}
         </div>
+        <PriceHistogram min={query.min} max={query.max} />
         <div style={{ display: 'flex', flexDirection: 'column', gap: 6, fontSize: 12, color: 'var(--muted)' }}>
           <label style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             {t('filter.min')}

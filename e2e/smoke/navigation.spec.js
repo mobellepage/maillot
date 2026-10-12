@@ -144,3 +144,17 @@ test('an expired email link is explained, not silently ignored', async ({ page }
   await expect(page.getByText('That link has expired or was already used. Please request a new one.')).toBeVisible();
   await expect(page).toHaveURL(/\/$/);
 });
+
+test('on a phone the filters open as a sheet whose button counts the matches @mobile', async ({ page }) => {
+  test.skip(!test.info().project.name.includes('mobile'), 'phone layout only');
+  await page.goto('/market');
+  await page.getByRole('button', { name: 'Filters' }).click();
+  const sheet = page.getByRole('dialog');
+  const show = sheet.getByRole('button', { name: /^Show \d+ shirts$/ });
+  const before = Number((await show.textContent()).match(/\d+/)[0]);
+  await sheet.getByText('Retro', { exact: true }).click();
+  await expect(show).not.toHaveText(`Show ${before} shirts`);
+  await show.click();
+  await expect(sheet).toBeHidden();
+  await expect(page).toHaveURL(/type=Retro/);
+});
