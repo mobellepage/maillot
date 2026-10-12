@@ -5,6 +5,10 @@ test('home page renders the hero and trending shirts @mobile', async ({ page }) 
   await expect(page).toHaveTitle(/MAILLOT/);
   await expect(page.getByRole('heading', { level: 1 })).toContainText('Your collection');
   await expect(page.getByText('Trending shirts', { exact: false })).toBeVisible();
+  // Nothing may stick out sideways: on a phone the browser would zoom out
+  // and taps would land on the wrong element.
+  await expect(page.getByRole('heading', { name: 'New to the catalogue' })).toBeAttached();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBeLessThanOrEqual(0);
 });
 
 test('search leads to a shareable product URL and Back works', async ({ page }) => {
@@ -76,6 +80,9 @@ test('footer reaches every legal page and no fonts are fetched from Google @mobi
   const thirdParty = [];
   page.on('request', (r) => /googleapis|gstatic/.test(r.url()) && thirdParty.push(r.url()));
   await page.goto('/');
+  // The home page grows once the catalogue sections render; scroll to the
+  // footer only after that (slow CI machines click mid-growth otherwise).
+  await expect(page.getByRole('heading', { name: 'New to the catalogue' })).toBeAttached();
   for (const [link, heading, path] of [
     ['Terms of use', /Terms of use/i, /\/legal\/terms$/],
     ['Privacy policy', /Privacy policy/i, /\/legal\/privacy$/],

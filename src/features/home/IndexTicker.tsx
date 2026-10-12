@@ -11,7 +11,9 @@ export function IndexTicker() {
   return (
     <div style={{ borderTop: '1px solid var(--line)', borderBottom: '1px solid var(--line)', background: 'var(--bg-deep)' }}>
       {/* Scrolls sideways on small screens, so it must be keyboard-focusable. */}
-      <div role="region" aria-label={t('home.tickerLabel')} tabIndex={0} style={{ margin: '0 auto', maxWidth: 1360, overflowX: 'auto' }}>
+      {/* position: relative keeps the screen-reader labels inside the scroller —
+          without it they'd stretch the page sideways on phones. */}
+      <div role="region" aria-label={t('home.tickerLabel')} tabIndex={0} style={{ position: 'relative', margin: '0 auto', maxWidth: 1360, overflowX: 'auto' }}>
         <ul style={{ listStyle: 'none', margin: 0, padding: '0 var(--gutter)', display: 'flex', alignItems: 'center' }}>
           <li style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '12px 24px 12px 0', marginRight: 24, borderRight: '1px solid var(--line)', whiteSpace: 'nowrap', fontSize: 12.5, fontWeight: 600 }}>
             {t('home.tickerHead')}
