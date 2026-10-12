@@ -3,19 +3,21 @@
 // registered details before launch — the pages show a visible "draft" notice
 // until LEGAL_REVIEWED is set to true (after a lawyer has reviewed them).
 
+// Prototype phase: there is no registered company yet, so nothing here may
+// read like one. Replace every [placeholder] once the company is founded.
 export const COMPANY = {
-  name: 'Maillot AG',
-  street: '[Street and number]',
-  city: '[Postcode] Zürich',
+  name: 'MAILLOT – Prototyp',
+  street: '[Street and number — follows once the company is registered]',
+  city: '[Postcode and town]',
   country: 'Switzerland',
-  uid: 'CHE-[xxx.xxx.xxx]',
-  register: 'Commercial register of the Canton of Zürich',
+  uid: '[UID — follows once the company is registered]',
+  register: '[Commercial register — follows once the company is registered]',
   representatives: '[Name(s) of the board / managing directors]',
   email: 'hello@maillot.app',
   supportEmail: 'support@maillot.app',
   privacyEmail: 'privacy@maillot.app',
   /** Where sellers ship to. Must match AUTH_CENTRE_ADDRESS on the shipping-label function. */
-  authCentre: ['Maillot Authentication', '[Street and number]', '[Postcode] Zürich', 'Switzerland']
+  authCentre: ['MAILLOT Authentication (planned)', '[Street and number]', '[Postcode and town]', 'Switzerland']
 } as const;
 
 export const LEGAL_REVIEWED = false;

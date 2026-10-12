@@ -82,7 +82,7 @@ export default function Footer() {
         }}
       >
         <div style={{ fontFamily: MONO, fontSize: 12, color: 'var(--faint)' }}>
-          © 2026 {COMPANY.name} · Zürich · {t('footer.noTracking')}
+          © 2026 {COMPANY.name} · {t('footer.noTracking')}
         </div>
         <div role="group" aria-label={t('footer.settings')} style={{ display: 'flex', gap: 8 }}>
           <select className="select" aria-label={t('header.language')} value={lang} onChange={(e) => setLang(e.target.value as Lang)} style={{ height: 34, fontSize: 13 }}>

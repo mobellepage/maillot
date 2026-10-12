@@ -22,9 +22,9 @@ export default defineConfig(({ mode }) => ({
       // Registering the service worker must never hold up the first paint.
       injectRegister: 'script-defer',
       manifest: {
-        name: 'MAILLOT — Football Shirt Marketplace',
+        name: 'MAILLOT — your football shirt collection',
         short_name: 'MAILLOT',
-        description: 'The catalogue, marketplace and price index for football shirts.',
+        description: 'Capture your football shirt collection, see what it’s worth and have it with you everywhere.',
         start_url: '/',
         display: 'standalone',
         background_color: '#FFFFFF',

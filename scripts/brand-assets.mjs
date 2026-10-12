@@ -104,13 +104,13 @@ await shoot(
   `<div style="position:relative;width:1200px;height:630px;background:radial-gradient(circle at 78% 50%,rgba(75,255,139,.16),rgba(0,0,0,0) 55%),${INK};font-family:var(--font-sans);color:var(--text)">
     <div style="position:absolute;left:72px;top:64px">${logo}</div>
     <div style="position:absolute;left:72px;top:190px;width:600px">
-      <div class="display" style="font-size:84px;line-height:.95;font-weight:800">Every shirt.<br>Every season.<br><span style="color:${ACCENT}">One market.</span></div>
-      <div style="margin-top:28px;font-size:24px;line-height:1.4;color:var(--text-2)">Catalogue, marketplace and price index for football shirts. Authenticated in Zürich.</div>
+      <div class="display" style="font-size:84px;line-height:.95;font-weight:800">Your collection,<br><span style="color:${ACCENT}">in your pocket.</span></div>
+      <div style="margin-top:28px;font-size:24px;line-height:1.4;color:var(--text-2)">Photograph, value and show off every football shirt you own.</div>
     </div>
     <div style="position:absolute;right:20px;top:90px;width:520px;height:460px">
       ${featured.map((a, i) => `<div style="position:absolute;left:${[0, 170, 80][i]}px;top:${[40, 0, 170][i]}px;transform:rotate(${[-8, 6, 0][i]}deg)">${shirtBox(a, [300, 300, 320][i])}</div>`).join('')}
     </div>
-    <div class="mono" style="position:absolute;left:72px;bottom:52px;font-size:20px;color:var(--muted);letter-spacing:.08em">MAILLOT.APP</div>
+    <div class="mono" style="position:absolute;left:72px;bottom:52px;font-size:20px;color:var(--muted);letter-spacing:.08em">MAILLOT-TWO.VERCEL.APP</div>
   </div>`,
   1200,
   630,
@@ -128,7 +128,7 @@ for (const path of PATHS.filter((p) => p.startsWith('/shirt/'))) {
         <div class="mono" style="font-size:20px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)">${a.brand} · ${a.season} · ${a.type}</div>
         <div class="display" style="margin-top:16px;font-size:64px;line-height:.98;font-weight:800">${a.name}</div>
       </div>
-      <div style="position:absolute;left:660px;bottom:64px;display:inline-flex;align-items:center;gap:10px;padding:12px 18px;border-radius:999px;border:1.5px solid var(--accent-line);color:${ACCENT};font-size:20px;font-weight:600">✓ Authenticated on every sale</div>
+      <div style="position:absolute;left:660px;bottom:64px;display:inline-flex;align-items:center;gap:10px;padding:12px 18px;border-radius:999px;border:1.5px solid var(--accent-line);color:${ACCENT};font-size:20px;font-weight:600">✓ Value · price history · offers</div>
     </div>`,
     1200,
     630,

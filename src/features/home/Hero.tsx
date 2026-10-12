@@ -6,6 +6,7 @@ import { usePrefs } from '../../lib/prefs.tsx';
 import { Button, ButtonLink, SearchIcon, ShirtGraphic, alpha } from '../../ui/index.ts';
 import { search } from '../catalog/model.ts';
 import { HeroStats } from './HeroStats.tsx';
+import { useCollection } from '../vault/useCollection.ts';
 
 const QUICK: { label: MessageKey; to: string }[] = [
   { label: 'home.quick.retro', to: '/market?type=Retro' },
@@ -137,6 +138,9 @@ const FAN = ['ned-88', 'juv-9697', 'acm-0607', 'ger-26', 'sui-26', 'ars-91', 'na
 
 function HeroCards({ featured }: { featured: Shirt }) {
   const { money, t } = usePrefs();
+  // "In your collection" only for shirts the signed-in member actually owns.
+  const { items } = useCollection();
+  const mine = new Set(items.map((c) => c.catalogId).filter(Boolean));
   const ids = FAN.includes(featured.id) ? FAN.filter((id) => id !== featured.id) : FAN.slice(0, 6);
   const mid = Math.floor(ids.length / 2);
   const cards = [...ids.slice(0, mid), featured.id, ...ids.slice(mid)].map((id) => BY[id]).filter((s): s is Shirt => !!s);
@@ -170,9 +174,11 @@ function HeroCards({ featured }: { featured: Shirt }) {
             >
               <span className="hero-card-photo" style={{ position: 'relative', display: 'block', borderRadius: 16, overflow: 'hidden', background: `radial-gradient(circle at 50% 45%,${alpha(s.glow, 0.28)} 0%,rgba(0,0,0,0) 62%),var(--surface-2)` }}>
                 <ShirtGraphic pat={s.pat} trim={s.trim} crest={s.crest} photo={s.photo} />
-                <span className={isFeatured ? 'badge badge--solid' : 'badge badge--neutral'} style={{ position: 'absolute', top: 8, left: 8, fontSize: 10.5, maxWidth: 'calc(100% - 16px)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                  {isFeatured ? t('home.shirtOfWeek') : '✓ ' + t('home.cardTag')}
-                </span>
+                {(isFeatured || mine.has(s.id)) && (
+                  <span className={isFeatured ? 'badge badge--solid' : 'badge badge--neutral'} style={{ position: 'absolute', top: 8, left: 8, fontSize: 10.5, maxWidth: 'calc(100% - 16px)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    {isFeatured ? t('home.shirtOfWeek') : '✓ ' + t('home.cardTag')}
+                  </span>
+                )}
               </span>
               <span style={{ display: 'block', padding: '10px 4px 4px', textAlign: 'left' }}>
                 <span style={{ display: 'block', fontSize: 13.5, fontWeight: 650, lineHeight: 1.25, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{s.name}</span>
