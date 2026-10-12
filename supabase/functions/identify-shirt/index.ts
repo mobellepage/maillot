@@ -77,7 +77,8 @@ Deno.serve(async (req: Request) => {
 
   const request = (structured: boolean) =>
     client.beta.messages.create({
-      model: MODEL,
+      // IDENTIFY_MODEL (Supabase secret) switches to a cheaper model without a deploy.
+      model: Deno.env.get("IDENTIFY_MODEL") || MODEL,
       max_tokens: 16000,
       // A safety decline is re-run on Anthropic's recommended fallback model.
       betas: ["server-side-fallback-2026-07-01"],
