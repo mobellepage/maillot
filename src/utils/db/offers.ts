@@ -10,11 +10,17 @@ export async function makeOffer(itemId: string, amount: number, message: string)
   if (error) throw error;
 }
 
-/** Accept (returns the new order's id) or decline an offer on one of your shirts. */
+/** Accept (returns the new order's id) or decline an offer (or counter-offer) addressed to you. */
 export async function respondToOffer(offerId: string, accept: boolean): Promise<string | null> {
   const { data, error } = await (await sb()).rpc('respond_collection_offer', { p_offer_id: offerId, p_accept: accept });
   if (error) throw error;
   return data ?? null;
+}
+
+/** Answer an offer addressed to you with a different price (a new round). */
+export async function counterOffer(offerId: string, amount: number, message: string): Promise<void> {
+  const { error } = await (await sb()).rpc('counter_collection_offer', { p_offer_id: offerId, p_amount: amount, p_message: message.trim() || null });
+  if (error) throw error;
 }
 
 export async function withdrawOffer(offerId: string): Promise<void> {

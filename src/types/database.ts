@@ -938,9 +938,11 @@ export type Database = {
       make_collection_offer: { Args: { p_item_id: string; p_amount: number; p_message?: string | null }; Returns: string };
       respond_collection_offer: { Args: { p_offer_id: string; p_accept: boolean }; Returns: string | null };
       withdraw_collection_offer: { Args: { p_offer_id: string }; Returns: undefined };
+      counter_collection_offer: { Args: { p_offer_id: string; p_amount: number; p_message?: string | null }; Returns: string };
+      offer_policy: { Args: never; Returns: { valid_hours: number; max_rounds: number }[] };
       my_collection_offers: {
         Args: never;
-        Returns: { id: string; direction: 'received' | 'sent'; item_id: string; catalog_id: string | null; size: string | null; amount: number; message: string | null; status: 'open' | 'accepted' | 'declined' | 'withdrawn' | 'expired'; created_at: string; expires_at: string; other_handle: string | null; order_id: string | null }[];
+        Returns: { id: string; direction: 'received' | 'sent'; item_id: string; catalog_id: string | null; size: string | null; amount: number; message: string | null; status: 'open' | 'accepted' | 'declined' | 'withdrawn' | 'expired'; created_at: string; expires_at: string; other_handle: string | null; order_id: string | null; round: number; by_owner: boolean; awaiting_me: boolean }[];
       };
       feed_listings: {
         Args: { p_limit?: number };
