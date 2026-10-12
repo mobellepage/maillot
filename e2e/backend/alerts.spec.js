@@ -32,7 +32,7 @@ test('an alert fires when the wanted shirt is listed', async ({ browser }) => {
   const seller = await browser.newPage();
   await signIn(seller, 'seller@maillot.test');
   await seller.goto('/sell?shirt=mun-0708&size=S');
-  await seller.getByLabel('Front', { exact: true }).setInputFiles('public/catalog/acm-0607-400.jpg');
+  await seller.getByLabel('Front', { exact: true }).setInputFiles('e2e/fixtures/shirt-front.jpg');
   await seller.getByRole('button', { name: /Continue/ }).click();
   await seller.locator('input[inputmode="numeric"]').fill('650');
   await seller.getByRole('button', { name: /Review listing/ }).click();

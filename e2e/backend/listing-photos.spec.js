@@ -15,8 +15,8 @@ test('a listing needs a front photo, and buyers see its photos', async ({ page, 
   await page.goto('/sell?shirt=fra-98&size=L');
   const next = page.getByRole('button', { name: /Continue/ });
   await expect(next).toBeDisabled();
-  await page.getByLabel('Front', { exact: true }).setInputFiles('public/catalog/nap-8788-400.jpg');
-  await page.getByLabel('Back', { exact: true }).setInputFiles('public/catalog/sui-26-400.jpg');
+  await page.getByLabel('Front', { exact: true }).setInputFiles('e2e/fixtures/shirt-front.jpg');
+  await page.getByLabel('Back', { exact: true }).setInputFiles('e2e/fixtures/shirt-back.jpg');
   await expect(next).toBeEnabled();
   await next.click();
   await page.locator('input[inputmode="numeric"]').fill('990');

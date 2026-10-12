@@ -100,7 +100,7 @@ export default function IndexReportPage() {
             <ol style={{ margin: 0, padding: 0, listStyle: 'none', display: 'grid', gap: 8, fontSize: 13.5 }}>
               {(list as IndexInput[]).map((r) => (
                 <li key={r.id} style={{ display: 'flex', justifyContent: 'space-between', gap: 12 }}>
-                  <Link to={'/shirt/' + r.id} style={{ color: 'var(--text)' }}>
+                  <Link to={'/shirt/' + r.id} style={{ color: 'var(--text)', display: 'inline-block', padding: '5px 0' }}>
                     {r.name}
                   </Link>
                   <span className="mono" style={{ color: tone(r.ch), whiteSpace: 'nowrap' }}>
@@ -139,7 +139,7 @@ export default function IndexReportPage() {
               {sorted.map((r) => (
                 <tr key={r.id} style={{ borderTop: '1px solid var(--line)' }}>
                   <td style={{ padding: '9px 12px 9px 0' }}>
-                    <Link to={'/shirt/' + r.id} style={{ color: 'var(--text)' }}>
+                    <Link to={'/shirt/' + r.id} style={{ color: 'var(--text)', display: 'inline-block', padding: '5px 0' }}>
                       {r.name}
                     </Link>
                   </td>
