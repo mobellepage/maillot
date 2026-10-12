@@ -9,6 +9,7 @@ import { useCollection } from '../vault/useCollection.ts';
 import { Hero } from './Hero.tsx';
 import { HomeBento } from './HomeBento.tsx';
 import { SecondLife } from './SecondLife.tsx';
+import { TopCollectors } from './TopCollectors.tsx';
 import { IndexTicker } from './IndexTicker.tsx';
 import { Movers } from './Movers.tsx';
 import { NewArrivals } from './NewArrivals.tsx';
@@ -46,6 +47,7 @@ export default function HomePage() {
         />
         <ShirtRow shirts={trending} />
       </section>
+      <TopCollectors />
       {/* The market comes last: index, biggest moves, new in the catalogue. */}
       <div style={{ marginTop: 'clamp(48px,6vw,88px)' }}>
         <IndexTicker />

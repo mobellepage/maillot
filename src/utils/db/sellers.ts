@@ -13,6 +13,7 @@ export type PublicShirt = RpcReturns<'public_collection'>[number];
 export type CollectorStats = RpcReturns<'collector_profile'>[number];
 export type Followed = RpcReturns<'my_following'>[number];
 export type PublicShirtPhoto = RpcReturns<'public_shirt_photos'>[number];
+export type TopCollector = RpcReturns<'top_collectors'>[number];
 export type Dealer = RpcReturns<'admin_dealers'>[number];
 
 export async function loadSellerProfile(handle: string): Promise<SellerProfile | null> {
@@ -76,6 +77,13 @@ export async function setFollowing(handle: string, follow: boolean): Promise<voi
 /** The collectors the signed-in member follows, newest first. */
 export async function loadMyFollowing(): Promise<Followed[]> {
   const { data, error } = await (await sb()).rpc('my_following');
+  if (error) throw error;
+  return data ?? [];
+}
+
+/** The most-followed public collections (home page). */
+export async function loadTopCollectors(limit = 10): Promise<TopCollector[]> {
+  const { data, error } = await (await sb()).rpc('top_collectors', { p_limit: limit });
   if (error) throw error;
   return data ?? [];
 }

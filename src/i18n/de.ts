@@ -1469,5 +1469,7 @@ export const de: Messages = {
   'notif.inquiry.title': 'Jemand interessiert sich für dein Sammlerstück',
   'notif.inquiry.body': '{handle} interessiert sich für dein {shirt}.',
   'notif.inquiryReply.title': 'Der Besitzer hat auf deine Anfrage geantwortet',
+  'home.top.eyebrow': 'Community',
+  'home.top.title': 'Top-Sammler',
   // @@end
 };

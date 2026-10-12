@@ -1468,6 +1468,8 @@ export const en = {
   'notif.inquiry.title': 'Someone is interested in your collector’s piece',
   'notif.inquiry.body': '{handle} is interested in your {shirt}.',
   'notif.inquiryReply.title': 'The owner replied to your inquiry',
+  'home.top.eyebrow': 'Community',
+  'home.top.title': 'Top collectors',
   // @@end
 };
 
