@@ -1159,7 +1159,7 @@ export const fr: Messages = {
   'auth.linkFailed': 'Ce lien n’a pas fonctionné. Réessaie ou demandes-en un nouveau.',
   'as.photo.studio': 'Photo studio',
   'as.studio.title': 'Look studio',
-  'as.studio.body': 'Ton maillot détouré sur le fond MAILLOT – pour que chaque collection ait le même look. La photo d’origine est conservée pour l’authentification.',
+  'as.studio.body': 'Ton maillot détouré sur un fond clair avec une ombre douce – pour que chaque collection ait le même look. La photo d’origine est conservée pour l’authentification.',
   'as.studio.use': 'Utiliser le look studio',
   'as.studio.working': 'Détourage du maillot…',
   'as.studio.off': 'Le look studio n’est pas encore activé – ta photo est affichée telle quelle.',

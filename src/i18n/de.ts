@@ -1159,7 +1159,7 @@ export const de: Messages = {
   'auth.linkFailed': 'Dieser Link hat nicht funktioniert. Bitte versuche es erneut oder fordere einen neuen an.',
   'as.photo.studio': 'Studio-Foto',
   'as.studio.title': 'Studio-Look',
-  'as.studio.body': 'Dein Trikot, freigestellt auf dem MAILLOT-Hintergrund – so sieht jede Sammlung einheitlich aus. Das Originalfoto bleibt für die Echtheitsprüfung erhalten.',
+  'as.studio.body': 'Dein Trikot, freigestellt auf hellem Hintergrund mit sanftem Schatten – so sieht jede Sammlung einheitlich aus. Das Originalfoto bleibt für die Echtheitsprüfung erhalten.',
   'as.studio.use': 'Studio-Look verwenden',
   'as.studio.working': 'Dein Trikot wird freigestellt…',
   'as.studio.off': 'Der Studio-Look ist noch nicht eingeschaltet – dein Foto wird so gezeigt, wie es ist.',

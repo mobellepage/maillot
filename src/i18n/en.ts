@@ -1158,7 +1158,7 @@ export const en = {
   'auth.linkFailed': 'That link didn’t work. Please try again or request a new one.',
   'as.photo.studio': 'Studio photo',
   'as.studio.title': 'Studio look',
-  'as.studio.body': 'Your shirt, cut out and placed on the MAILLOT background — so every collection looks like one. The original photo is kept for authentication.',
+  'as.studio.body': 'Your shirt, cut out and placed on a clean background with a soft shadow — so every collection looks like one. The original photo is kept for authentication.',
   'as.studio.use': 'Use studio look',
   'as.studio.working': 'Cutting out your shirt…',
   'as.studio.off': 'The studio look isn’t switched on yet — your photo is shown as taken.',

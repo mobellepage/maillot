@@ -22,11 +22,11 @@ function StudioPreview({ w, studio, onStudioOff }: { w: Wizard; studio: StudioSt
   return (
     <Section title={t('as.studio.title')} hint={t('as.studio.body')}>
       <div style={{ display: 'flex', gap: 16, alignItems: 'center', flexWrap: 'wrap' }}>
-        <div style={{ width: 160, height: 160, borderRadius: 16, overflow: 'hidden', background: '#0A0C0B', border: '1px solid var(--line)', display: 'grid', placeItems: 'center', flex: 'none' }}>
+        <div style={{ width: 160, height: 160, borderRadius: 16, overflow: 'hidden', background: 'var(--sunken)', border: '1px solid var(--line)', display: 'grid', placeItems: 'center', flex: 'none' }}>
           {studio === 'working' ? (
             <span aria-hidden="true" style={{ width: 10, height: 10, borderRadius: '50%', background: 'var(--accent-fill)', animation: 'kvPulse 1.2s ease-in-out infinite' }} />
           ) : src && !f.studioOff ? (
-            <img src={src} alt={t('as.photo.studio')} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            <img src={src} alt={t('as.photo.studio')} className="shirt-photo" style={{ width: '86%', height: '86%', objectFit: 'contain' }} />
           ) : (
             <span style={{ fontSize: 12, color: 'var(--muted)', padding: 12, textAlign: 'center' }}>—</span>
           )}
