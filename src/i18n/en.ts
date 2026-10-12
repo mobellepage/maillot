@@ -1502,6 +1502,8 @@ export const en = {
   'ns.wantedHint': 'When a shirt from your wishlist turns up in a collection or is listed.',
   'ns.social': 'Followers and collections you follow',
   'ns.socialHint': 'New followers, and new shirts or listings from collectors you follow.',
+  'vault.over30': '30 days',
+  'vault.over365': '1 year',
   // @@end
 };
 

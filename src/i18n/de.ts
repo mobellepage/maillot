@@ -1503,5 +1503,7 @@ export const de: Messages = {
   'ns.wantedHint': 'Wenn ein Trikot von deiner Wunschliste in einer Sammlung auftaucht oder angeboten wird.',
   'ns.social': 'Follower und gefolgte Sammlungen',
   'ns.socialHint': 'Neue Follower sowie neue Trikots oder Angebote von Sammlern, denen du folgst.',
+  'vault.over30': '30 Tage',
+  'vault.over365': '1 Jahr',
   // @@end
 };

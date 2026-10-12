@@ -5,7 +5,7 @@ import type { CustomItem } from '../../types/domain.ts';
 import * as db from '../../utils/db.ts';
 import { Card } from '../../ui/index.ts';
 import { itemName, valueOf } from './model.ts';
-import { weeklyMoves } from './moves.ts';
+import { movesOver, weeklyMoves } from './moves.ts';
 
 export function VaultSummary({ items, watching }: { items: CustomItem[]; watching: number }) {
   const { money, t } = usePrefs();
@@ -23,8 +23,16 @@ export function VaultSummary({ items, watching }: { items: CustomItem[]; watchin
   const total = Math.max(1, items.length);
   // Like a portfolio: how the collection moved this week, and what moved most.
   const ids = [...new Set(items.map((c) => c.catalogId).filter((x): x is string => !!x))].sort();
-  const history = useQuery({ queryKey: ['valueHistory', ids], queryFn: () => db.loadValueHistory(ids), enabled: ids.length > 0, staleTime: 30 * 60 * 1000 });
-  const week = history.data ? weeklyMoves(items.map((c) => ({ id: c.id, catalogId: c.catalogId, name: itemName(c), value: valueOf(c) })), history.data) : null;
+  const history = useQuery({ queryKey: ['valueHistory', ids, 370], queryFn: () => db.loadValueHistory(ids, 370), enabled: ids.length > 0, staleTime: 30 * 60 * 1000 });
+  const owned = items.map((c) => ({ id: c.id, catalogId: c.catalogId, name: itemName(c), value: valueOf(c) }));
+  const week = history.data ? weeklyMoves(owned, history.data) : null;
+  // Longer periods appear once the price history reaches back that far.
+  const longer = history.data
+    ? ([
+        [t('vault.over30'), movesOver(owned, history.data, 30)],
+        [t('vault.over365'), movesOver(owned, history.data, 365)]
+      ] as const).filter(([, m]) => m && Math.abs(m.change) >= 1)
+    : [];
   const signed = (n: number) => (n >= 0 ? '+' : '−') + money(Math.abs(n));
 
   return (
@@ -45,6 +53,11 @@ export function VaultSummary({ items, watching }: { items: CustomItem[]; watchin
               {t('vault.thisWeek', { amount: signed(week.change), pct: pct(week.pct) })}
             </div>
           )}
+          {longer.map(([label, m]) => (
+            <div key={label} className="mono" style={{ fontSize: 14, color: m!.change >= 0 ? 'var(--accent)' : 'var(--neg)', marginTop: 4 }}>
+              {label}: {signed(m!.change)} ({pct(m!.pct)})
+            </div>
+          ))}
           <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 6 }}>{t('vault.estimateNote')}</div>
         </div>
         {week && week.movers.length > 0 && (

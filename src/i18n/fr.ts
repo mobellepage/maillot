@@ -1503,5 +1503,7 @@ export const fr: Messages = {
   'ns.wantedHint': 'Quand un maillot de ta liste apparaît dans une collection ou est mis en vente.',
   'ns.social': 'Abonnés et collections suivies',
   'ns.socialHint': 'Nouveaux abonnés, et nouveaux maillots ou annonces des collectionneurs que tu suis.',
+  'vault.over30': '30 jours',
+  'vault.over365': '1 an',
   // @@end
 };

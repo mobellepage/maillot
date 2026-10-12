@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { weeklyMoves, weeklyRatios } from '../features/vault/moves.ts';
+import { movesOver, ratiosOver, weeklyMoves, weeklyRatios } from '../features/vault/moves.ts';
 
 const h = (catalog_id, day, value) => ({ catalog_id, day, value });
 const history = [h('ned-88', '2026-09-29', 300), h('ned-88', '2026-10-03', 320), h('ned-88', '2026-10-07', 330), h('sui-26', '2026-09-30', 100), h('sui-26', '2026-10-07', 95), h('new-26', '2026-10-06', 80), h('new-26', '2026-10-07', 90)];
@@ -30,5 +30,12 @@ describe('collection moves', () => {
 
   it('says nothing without history', () => {
     expect(weeklyMoves([{ id: 'a', catalogId: 'ned-88', name: 'x', value: 100 }], [])).toBe(null);
+  });
+
+  it('works over longer periods too, once the history reaches back that far', () => {
+    const long = [h('ned-88', '2025-10-01', 250), ...history];
+    expect(ratiosOver(long, 30).get('ned-88')).toBeCloseTo(330 / 250);
+    expect(ratiosOver(history, 30).has('ned-88')).toBe(false); // only 8 days of history
+    expect(movesOver([{ id: 'a', catalogId: 'ned-88', name: 'Holland 88', value: 330 }], long, 365).change).toBeCloseTo(80, 0);
   });
 });
