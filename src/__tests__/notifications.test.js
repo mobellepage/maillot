@@ -23,6 +23,10 @@ describe('localizeNotification', () => {
     const listing = { title: 'New listing from a collector you follow', body: '…', data: { handle: 'star', shirt_id: 'sui-26', size: 'L', amount: 180 } };
     expect(localizeNotification(listing, t, money).body).toBe('@star bietet Switzerland 2026 Home (L) für CHF 180 an.');
   });
+  it('celebrates an all-time high', () => {
+    const n = { title: 'Your shirt reached an all-time high', body: '…', data: { shirt_id: 'ned-88', amount: 331 } };
+    expect(localizeNotification(n, t, money)).toEqual({ title: 'Allzeithoch für dein Trikot', body: 'Netherlands 1988 Home ist jetzt etwa CHF 331 wert – so viel wie noch nie.' });
+  });
   it('sums up the collection week', () => {
     const up = { title: 'Your collection went up this week', body: '…', data: { change_pct: 7.9, delta: 15, amount: 205 } };
     expect(localizeNotification(up, t, money)).toEqual({ title: 'Deine Sammlung ist diese Woche gestiegen', body: 'Plus 7.9 % (+CHF 15) – jetzt etwa CHF 205 wert.' });

@@ -1474,5 +1474,7 @@ export const de: Messages = {
   'browse.view': 'Ansicht',
   'browse.viewGrid': 'Grosse Karten',
   'browse.viewList': 'Kompakte Liste',
+  'notif.ath.title': 'Allzeithoch für dein Trikot',
+  'notif.ath.body': '{shirt} ist jetzt etwa {amount} wert – so viel wie noch nie.',
   // @@end
 };

@@ -1474,5 +1474,7 @@ export const fr: Messages = {
   'browse.view': 'Affichage',
   'browse.viewGrid': 'Grandes cartes',
   'browse.viewList': 'Liste compacte',
+  'notif.ath.title': 'Ton maillot atteint un record',
+  'notif.ath.body': '{shirt} vaut maintenant environ {amount} – plus que jamais.',
   // @@end
 };

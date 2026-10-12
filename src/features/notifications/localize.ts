@@ -37,6 +37,7 @@ const BY_TITLE: Record<string, [MessageKey, MessageKey | null]> = {
   'A shirt you want is in a collection': ['notif.wanted.title', 'notif.wanted.body'],
   'Someone is interested in your shirt': ['notif.inquiry.title', 'notif.inquiry.body'],
   'The owner replied to your inquiry': ['notif.inquiryReply.title', null],
+  'Your shirt reached an all-time high': ['notif.ath.title', 'notif.ath.body'],
   'Your collection went up this week': ['notif.weekUp.title', 'notif.weekUp.body'],
   'Your collection went down this week': ['notif.weekDown.title', 'notif.weekDown.body']
 };

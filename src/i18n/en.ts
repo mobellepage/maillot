@@ -1473,6 +1473,8 @@ export const en = {
   'browse.view': 'View',
   'browse.viewGrid': 'Large cards',
   'browse.viewList': 'Compact list',
+  'notif.ath.title': 'Your shirt reached an all-time high',
+  'notif.ath.body': '{shirt} is now worth about {amount} — more than ever before.',
   // @@end
 };
 
