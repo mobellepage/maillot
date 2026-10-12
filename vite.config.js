@@ -25,7 +25,8 @@ export default defineConfig(({ mode }) => ({
         name: 'MAILLOT — your football shirt collection',
         short_name: 'MAILLOT',
         description: 'Capture your football shirt collection, see what it’s worth and have it with you everywhere.',
-        start_url: '/',
+        // ?app=2 marks installs made with the black icon (app/AppUpdates.tsx).
+        start_url: '/?app=2',
         display: 'standalone',
         background_color: '#FFFFFF',
         theme_color: '#FFFFFF',

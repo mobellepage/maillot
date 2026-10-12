@@ -1414,6 +1414,10 @@ export const en = {
   'home.tickerAvg': 'average market value',
   'home.tickerChange': 'change over 30 days',
   'home.new.added': 'Added {n}d ago',
+  'app.updated': 'A new version of MAILLOT is ready.',
+  'app.reload': 'Reload',
+  'app.iconHint': 'MAILLOT has a new icon. Still seeing the green one? Remove MAILLOT from your home screen and add it again (Share → Add to Home Screen).',
+  'app.iconHintOk': 'Got it',
   // @@end
 };
 

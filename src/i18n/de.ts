@@ -1415,5 +1415,9 @@ export const de: Messages = {
   'home.tickerAvg': 'durchschnittlicher Marktwert',
   'home.tickerChange': 'Veränderung in 30 Tagen',
   'home.new.added': 'Vor {n} Tagen erfasst',
+  'app.updated': 'Eine neue Version von MAILLOT ist bereit.',
+  'app.reload': 'Neu laden',
+  'app.iconHint': 'MAILLOT hat ein neues Icon. Siehst du noch das grüne? Entferne MAILLOT vom Homescreen und füge es neu hinzu (Teilen → Zum Home-Bildschirm).',
+  'app.iconHintOk': 'Verstanden',
   // @@end
 };

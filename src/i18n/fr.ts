@@ -1415,5 +1415,9 @@ export const fr: Messages = {
   'home.tickerAvg': 'valeur marchande moyenne',
   'home.tickerChange': 'évolution sur 30 jours',
   'home.new.added': 'Ajouté il y a {n} j',
+  'app.updated': 'Une nouvelle version de MAILLOT est prête.',
+  'app.reload': 'Recharger',
+  'app.iconHint': 'MAILLOT a une nouvelle icône. Tu vois encore la verte ? Retire MAILLOT de l’écran d’accueil et ajoute-le à nouveau (Partager → Sur l’écran d’accueil).',
+  'app.iconHintOk': 'Compris',
   // @@end
 };

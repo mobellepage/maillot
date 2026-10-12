@@ -12,6 +12,7 @@ import { OfflineBar } from './OfflineBar.tsx';
 import { RouteAnnouncer } from './RouteAnnouncer.tsx';
 import { AuthLinkNotice } from './AuthLinkNotice.tsx';
 import { PrototypeBar } from './PrototypeBar.tsx';
+import { AppUpdates } from './AppUpdates.tsx';
 
 export default function RootLayout() {
   useCatalogSync();
@@ -39,6 +40,7 @@ export default function RootLayout() {
         </Suspense>
       </div>
       <Footer />
+      <AppUpdates />
       <MobileNav />
       {/* Every full page load has location.key "default", so keying on it
           would restore one page's scroll position on another. Key initial
