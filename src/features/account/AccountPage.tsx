@@ -15,6 +15,7 @@ import { Button, ButtonLink, Card, Notice, Page } from '../../ui/index.ts';
 import { useConfirm } from '../../ui/Confirm.tsx';
 import { PayoutsCard } from '../vault/PayoutsCard.tsx';
 import { ProfileCard } from '../collectors/ProfileCard.tsx';
+import { NotificationSettings } from './NotificationSettings.tsx';
 import { Avatar } from '../avatars/Avatar.tsx';
 import { AvatarPicker } from '../avatars/AvatarPicker.tsx';
 
@@ -187,6 +188,7 @@ export default function AccountPage() {
           </Card>
         )}
         <ProfileCard />
+        <NotificationSettings />
         <Settings />
         {user && <PayoutsCard />}
         <Links />

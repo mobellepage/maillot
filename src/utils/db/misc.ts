@@ -108,6 +108,12 @@ export async function setAvatar(userId: string, avatar: string | null): Promise<
   if (error) throw error;
 }
 
+/** Switch notification groups on or off (value news, wanted shirts, social). */
+export async function setNotificationPrefs(userId: string, prefs: Partial<Record<'value' | 'wanted' | 'social', boolean>>): Promise<void> {
+  const { error } = await (await sb()).from('profiles').update({ notification_prefs: prefs }).eq('id', userId);
+  if (error) throw error;
+}
+
 /** Keep the whole collection private (or show it again). */
 export async function setCollectionPrivate(userId: string, on: boolean): Promise<void> {
   const { error } = await (await sb()).from('profiles').update({ collection_private: on }).eq('id', userId);

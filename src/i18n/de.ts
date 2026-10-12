@@ -1495,5 +1495,13 @@ export const de: Messages = {
   'notif.counterAccepted.body': '{handle} hat {amount} für {shirt} angenommen – jetzt folgt die Zahlung.',
   'notif.counterDeclined.title': 'Dein Gegenangebot wurde abgelehnt',
   'notif.counterDeclined.body': '{handle} hat {amount} für {shirt} abgelehnt.',
+  'ns.title': 'Benachrichtigungen',
+  'ns.always': 'Angebote, Anfragen und Bestellungen bekommst du immer – da geht es um Geld und Fristen.',
+  'ns.value': 'Wert-News',
+  'ns.valueHint': 'Grosse Preisbewegungen, Allzeithochs und der Wochen-Rückblick deiner Sammlung.',
+  'ns.wanted': 'Gesuchte Trikots',
+  'ns.wantedHint': 'Wenn ein Trikot von deiner Wunschliste in einer Sammlung auftaucht oder angeboten wird.',
+  'ns.social': 'Follower und gefolgte Sammlungen',
+  'ns.socialHint': 'Neue Follower sowie neue Trikots oder Angebote von Sammlern, denen du folgst.',
   // @@end
 };

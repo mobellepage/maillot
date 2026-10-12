@@ -601,6 +601,7 @@ export type Database = {
           show_collection_value: boolean;
           dealer_verified_at: string | null;
           commission_rate: number | null;
+          notification_prefs: Json;
           premium_until: string | null;
           stripe_customer_id: string | null;
           premium_waitlist_at: string | null;
@@ -622,6 +623,7 @@ export type Database = {
           interests?: Json;
           onboarded_at?: string | null;
           show_collection_value?: boolean;
+          notification_prefs?: Json;
           premium_until?: string | null;
           stripe_customer_id?: string | null;
           premium_waitlist_at?: string | null;

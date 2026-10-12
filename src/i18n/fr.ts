@@ -1495,5 +1495,13 @@ export const fr: Messages = {
   'notif.counterAccepted.body': '{handle} a accepté {amount} pour {shirt} – le paiement suit.',
   'notif.counterDeclined.title': 'Ta contre-offre a été refusée',
   'notif.counterDeclined.body': '{handle} a refusé {amount} pour {shirt}.',
+  'ns.title': 'Notifications',
+  'ns.always': 'Les offres, demandes et commandes t’arrivent toujours – il s’agit d’argent et de délais.',
+  'ns.value': 'Infos sur la valeur',
+  'ns.valueHint': 'Fortes variations, records et le récap hebdomadaire de ta collection.',
+  'ns.wanted': 'Maillots recherchés',
+  'ns.wantedHint': 'Quand un maillot de ta liste apparaît dans une collection ou est mis en vente.',
+  'ns.social': 'Abonnés et collections suivies',
+  'ns.socialHint': 'Nouveaux abonnés, et nouveaux maillots ou annonces des collectionneurs que tu suis.',
   // @@end
 };

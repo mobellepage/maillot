@@ -65,6 +65,19 @@ test('a member picks a legend as profile picture and can go back to initials', a
   await expect(page.getByText('Profile picture saved.').first()).toBeVisible();
 });
 
+test('a member switches value news off and on again', async ({ page }) => {
+  await signIn(page, 'seller@maillot.test');
+  await page.goto('/account');
+  const value = page.getByRole('checkbox', { name: /Value news/ });
+  await expect(value).toBeChecked();
+  await value.uncheck();
+  await page.reload();
+  await expect(page.getByRole('checkbox', { name: /Value news/ })).not.toBeChecked();
+  await page.getByRole('checkbox', { name: /Value news/ }).check();
+  await page.reload();
+  await expect(page.getByRole('checkbox', { name: /Value news/ })).toBeChecked();
+});
+
 test('the collection value setting is saved and can be turned off again', async ({ page }) => {
   await signIn(page, 'seller@maillot.test');
   await page.goto('/account');

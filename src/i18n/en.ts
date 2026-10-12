@@ -1494,6 +1494,14 @@ export const en = {
   'notif.counterAccepted.body': '{handle} accepted {amount} for {shirt} — payment is next.',
   'notif.counterDeclined.title': 'Your counter-offer was declined',
   'notif.counterDeclined.body': '{handle} declined {amount} for {shirt}.',
+  'ns.title': 'Notifications',
+  'ns.always': 'Offers, inquiries and orders always reach you — they’re about money and deadlines.',
+  'ns.value': 'Value news',
+  'ns.valueHint': 'Big price moves, all-time highs and the weekly recap of your collection.',
+  'ns.wanted': 'Wanted shirts',
+  'ns.wantedHint': 'When a shirt from your wishlist turns up in a collection or is listed.',
+  'ns.social': 'Followers and collections you follow',
+  'ns.socialHint': 'New followers, and new shirts or listings from collectors you follow.',
   // @@end
 };
 
