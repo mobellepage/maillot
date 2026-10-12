@@ -27,8 +27,8 @@ export default defineConfig(({ mode }) => ({
         description: 'The catalogue, marketplace and price index for football shirts.',
         start_url: '/',
         display: 'standalone',
-        background_color: '#0A0C0B',
-        theme_color: '#0A0C0B',
+        background_color: '#FFFFFF',
+        theme_color: '#FFFFFF',
         icons: [
           { src: '/favicon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any' },
           { src: '/icons/icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },

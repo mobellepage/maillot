@@ -38,8 +38,8 @@ export default function AddShirtPage() {
   const [studio, setStudio] = useState<StudioState>(f.photos.front_studio ? 'done' : 'idle');
   const studioToken = useRef(0);
 
-  // The studio look: cut the shirt out of the main photo and put it on the dark
-  // background (see addshirt/studio.ts). Runs again whenever the photo changes.
+  // The studio look: cut the shirt out of the main photo, transparent, to sit
+  // on the app's tiles (see addshirt/studio.ts). Runs again whenever the photo changes.
   const makeStudio = async (front: Photo & { dataUrl?: string }, off = f.studioOff) => {
     const token = ++studioToken.current;
     const old = f.photos.front_studio;

@@ -131,10 +131,8 @@ export default function VaultPage({ tab }: { tab: Tab }) {
         <ButtonLink to="/vault/add">{t('vault.add')}</ButtonLink>
       </div>
 
-      <VaultSummary items={items} watching={watch.ids.length} />
-      <PayoutsCard />
 
-      <nav aria-label={t('vault.sections')} style={{ display: 'flex', gap: 28, marginTop: 40, borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+      <nav aria-label={t('vault.sections')} style={{ display: 'flex', gap: 28, marginTop: 32, borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
         {tabs.map(([k, label, n]) => (
           <NavLink key={k} to={path[k]} aria-current={tab === k ? 'page' : undefined} style={{ padding: '0 0 14px', fontSize: 16, fontWeight: 700, color: tab === k ? 'var(--text)' : 'var(--muted)', borderBottom: `2px solid ${tab === k ? 'var(--accent)' : 'transparent'}`, marginBottom: -1, display: 'flex', gap: 8, alignItems: 'center' }}>
             {label}
@@ -158,6 +156,12 @@ export default function VaultPage({ tab }: { tab: Tab }) {
         </div>
       )}
       {tab === 'orders' && <OrdersTab />}
+
+      {/* The shirts come first; what they're worth follows below. */}
+      <div style={{ marginTop: 8 }}>
+        <VaultSummary items={items} watching={watch.ids.length} />
+        <PayoutsCard />
+      </div>
     </Page>
   );
 }

@@ -11,6 +11,7 @@ import type { Photo } from '../../types/domain.ts';
 import { Badge, HEX, ShirtGraphic, alpha } from '../../ui/index.ts';
 import { marketValue } from '../catalog/model.ts';
 import { OfferButton } from './OfferButton.tsx';
+import { isCutoutPath } from '../vault/addshirt/studio.ts';
 
 const photoOf = (s: PublicShirt): Photo | undefined => (s.photo_path ? { path: s.photo_path, thumbPath: s.thumb_path ?? undefined } : undefined);
 
@@ -27,9 +28,13 @@ export function PublicCollection({ shirts, owner, canOffer }: { shirts: PublicSh
         const player = [s.player_name, s.player_number].filter(Boolean).join(' ');
         return (
           <li key={s.id} className="card card--interactive" style={{ padding: 0, borderRadius: 20, overflow: 'hidden', position: 'relative' }}>
-            <div style={{ aspectRatio: '1/1', display: 'grid', placeItems: 'center', position: 'relative', background: src ? '#0A0C0B' : `radial-gradient(circle at 50% 46%,${alpha(cat ? cat.glow : HEX.muted, 0.3)},rgba(0,0,0,0) 62%),var(--sunken)` }}>
+            <div style={{ aspectRatio: '1/1', display: 'grid', placeItems: 'center', position: 'relative', background: src && !isCutoutPath(s.photo_path) ? 'var(--sunken)' : `radial-gradient(circle at 50% 46%,${alpha(cat ? cat.glow : HEX.muted, 0.3)},rgba(0,0,0,0) 62%),var(--sunken)` }}>
               {src ? (
-                <img src={src} alt="" loading="lazy" decoding="async" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                isCutoutPath(s.photo_path) ? (
+                  <img src={src} alt="" loading="lazy" decoding="async" className="shirt-photo" style={{ width: '86%', height: '86%', objectFit: 'contain' }} />
+                ) : (
+                  <img src={src} alt="" loading="lazy" decoding="async" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                )
               ) : (
                 <ShirtGraphic pat={cat?.pat ?? HEX.placeholderPat} trim={cat?.trim ?? HEX.muted} crest={cat?.crest ?? HEX.muted} photo={cat?.photo} style={{ width: '64%' }} />
               )}

@@ -16,6 +16,7 @@ import { Badge, EmptyState, ErrorState, HEX, Page, ShirtGraphic, Skeleton, alpha
 import { useCatalog } from '../catalog/useCatalog.ts';
 import { marketValue } from '../catalog/model.ts';
 import { OfferButton } from './OfferButton.tsx';
+import { isCutoutPath } from '../vault/addshirt/studio.ts';
 
 export default function PublicShirtPage() {
   useCatalog();
@@ -73,9 +74,9 @@ export default function PublicShirtPage() {
       </Link>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'clamp(24px,4vw,56px)', marginTop: 16, alignItems: 'flex-start' }}>
         <div style={{ flex: '1 1 420px', minWidth: 0 }}>
-          <div style={{ position: 'relative', aspectRatio: '1/1', borderRadius: 28, overflow: 'hidden', display: 'grid', placeItems: 'center', border: '1px solid var(--line)', background: src ? 'var(--sunken)' : `radial-gradient(circle at 50% 44%,${alpha(cat ? cat.glow : HEX.muted, 0.3)},rgba(0,0,0,0) 60%),var(--sunken)` }}>
+          <div style={{ position: 'relative', aspectRatio: '1/1', borderRadius: 28, overflow: 'hidden', display: 'grid', placeItems: 'center', border: '1px solid var(--line)', background: src && !isCutoutPath(current?.photo.path) ? 'var(--sunken)' : `radial-gradient(circle at 50% 44%,${alpha(cat ? cat.glow : HEX.muted, 0.3)},rgba(0,0,0,0) 60%),var(--sunken)` }}>
             {src ? (
-              <img src={src} alt={current?.kind === 'back' ? t('pshirt.backPhoto') : name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+              <img src={src} alt={current?.kind === 'back' ? t('pshirt.backPhoto') : name} className={isCutoutPath(current?.photo.path) ? 'shirt-photo' : undefined} style={isCutoutPath(current?.photo.path) ? { width: '86%', height: '86%', objectFit: 'contain' } : { width: '100%', height: '100%', objectFit: 'cover' }} />
             ) : photos.isLoading ? (
               <Skeleton height="100%" radius={0} />
             ) : (
@@ -86,7 +87,7 @@ export default function PublicShirtPage() {
             <div role="group" aria-label={t('pshirt.photos')} style={{ display: 'flex', gap: 10, marginTop: 12 }}>
               {pics.map((p, i) => (
                 <button key={p.kind} type="button" aria-pressed={i === shown} aria-label={p.kind === 'back' ? t('pshirt.backPhoto') : t('pshirt.front')} onClick={() => setShown(i)} style={{ width: 72, height: 72, padding: 0, borderRadius: 14, overflow: 'hidden', cursor: 'pointer', border: `2px solid ${i === shown ? 'var(--text)' : 'var(--line)'}`, background: 'var(--sunken)' }}>
-                  {thumb(p.photo) && <img src={thumb(p.photo)} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />}
+                  {thumb(p.photo) && <img src={thumb(p.photo)} alt="" style={{ width: '100%', height: '100%', objectFit: isCutoutPath(p.photo.path) ? 'contain' : 'cover' }} />}
                 </button>
               ))}
             </div>

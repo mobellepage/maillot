@@ -7,13 +7,17 @@ import type { Photo } from '../../types/domain.ts';
 
 const BUCKET = 'vault-photos';
 
+// Photos are JPEG; studio cut-outs are WebP or PNG (transparent background).
+const EXT: Record<string, string> = { 'image/webp': '.webp', 'image/png': '.png' };
+const typeOf = (b: Blob) => (EXT[b.type] ? b.type : 'image/jpeg');
+
 export async function uploadPhoto(userId: string, folder: string, key: string, blob: Blob, thumb: Blob): Promise<{ path: string; thumbPath: string }> {
   const base = `${userId}/${folder}/${key}-${Date.now()}`;
-  const path = base + '.jpg';
-  const thumbPath = base + '_thumb.jpg';
+  const path = base + (EXT[blob.type] ?? '.jpg');
+  const thumbPath = base + '_thumb' + (EXT[thumb.type] ?? '.jpg');
   const [a, b] = await Promise.all([
-    (await sb()).storage.from(BUCKET).upload(path, blob, { contentType: 'image/jpeg', upsert: false, cacheControl: '31536000' }),
-    (await sb()).storage.from(BUCKET).upload(thumbPath, thumb, { contentType: 'image/jpeg', upsert: false, cacheControl: '31536000' })
+    (await sb()).storage.from(BUCKET).upload(path, blob, { contentType: typeOf(blob), upsert: false, cacheControl: '31536000' }),
+    (await sb()).storage.from(BUCKET).upload(thumbPath, thumb, { contentType: typeOf(thumb), upsert: false, cacheControl: '31536000' })
   ]);
   if (a.error) throw a.error;
   if (b.error) throw b.error;

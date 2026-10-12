@@ -112,13 +112,32 @@ export default function FeedPage() {
   const items = (feed.data ?? []).filter((i) => BY[i.shirtId]);
   const [index, setIndex] = useState(0);
   const [history, setHistory] = useState<{ item: FeedItem; liked: boolean }[]>([]);
-  const [drag, setDrag] = useState({ x: 0, y: 0, active: false });
-  const [leaving, setLeaving] = useState<null | 'left' | 'right'>(null);
   const [pulse, setPulse] = useState(0);
+  // The drag runs outside React: the card, the card behind and the stamps are
+  // moved directly, once per animation frame — no re-render while swiping.
+  const card = useRef<HTMLDivElement>(null);
+  const behind = useRef<HTMLDivElement>(null);
+  const likeStamp = useRef<HTMLSpanElement>(null);
+  const nopeStamp = useRef<HTMLSpanElement>(null);
   const start = useRef<{ x: number; y: number } | null>(null);
-  // The latest drag offset, read on release (state may lag behind fast moves).
   const offset = useRef({ x: 0, y: 0 });
+  const frame = useRef(0);
+  const leaving = useRef(false);
 
+  const paint = (x: number, y: number, animate: boolean, gone = false) => {
+    const ease = animate ? 'transform .24s ease-out, opacity .24s ease-out' : 'none';
+    if (card.current) {
+      card.current.style.transition = ease;
+      card.current.style.transform = `translate3d(${x}px, ${y}px, 0) rotate(${x / 18}deg)`;
+      card.current.style.opacity = gone ? '0' : '1';
+    }
+    if (behind.current) {
+      behind.current.style.transition = animate ? 'transform .24s ease-out' : 'none';
+      behind.current.style.transform = `scale(${0.94 + Math.min(Math.abs(x) / THRESHOLD, 1) * 0.06})`;
+    }
+    if (likeStamp.current) likeStamp.current.style.opacity = String(Math.max(0, Math.min(1, x / THRESHOLD)));
+    if (nopeStamp.current) nopeStamp.current.style.opacity = String(Math.max(0, Math.min(1, -x / THRESHOLD)));
+  };
   const fronts = items.map((i): Photo | undefined => {
     if (i.kind !== 'listing') return undefined;
     const p = i.listing.photos.find((x) => x.kind === 'front') ?? i.listing.photos[0];
@@ -131,8 +150,8 @@ export default function FeedPage() {
 
   const decide = (like: boolean) => {
     const item = items[index];
-    if (!item || leaving) return;
-    setLeaving(like ? 'right' : 'left');
+    if (!item || leaving.current) return;
+    leaving.current = true;
     if (like) {
       if (!watch.has(item.shirtId)) watch.toggle(item.shirtId, { quiet: true });
       setPulse((p) => p + 1);
@@ -141,12 +160,13 @@ export default function FeedPage() {
     seen.add(item.key);
     saveJSON(SEEN_KEY, [...seen].slice(-500));
     // Let the card fly out, then show the next one.
+    paint(like ? window.innerWidth : -window.innerWidth, offset.current.y * 0.3, true, true);
     window.setTimeout(() => {
       setHistory((h) => [...h, { item, liked: like }]);
       setIndex((i) => i + 1);
-      setLeaving(null);
-      setDrag({ x: 0, y: 0, active: false });
-    }, 220);
+      offset.current = { x: 0, y: 0 };
+      leaving.current = false;
+    }, 240);
   };
 
   const undo = () => {
@@ -158,33 +178,34 @@ export default function FeedPage() {
   };
 
   const down = (e: ReactPointerEvent<HTMLDivElement>) => {
-    if (leaving) return;
+    if (leaving.current) return;
     e.currentTarget.setPointerCapture(e.pointerId);
     start.current = { x: e.clientX, y: e.clientY };
     offset.current = { x: 0, y: 0 };
-    setDrag({ x: 0, y: 0, active: true });
+    e.currentTarget.style.cursor = 'grabbing';
   };
   const move = (e: ReactPointerEvent<HTMLDivElement>) => {
     if (!start.current) return;
     offset.current = { x: e.clientX - start.current.x, y: e.clientY - start.current.y };
-    setDrag({ ...offset.current, active: true });
+    if (!frame.current)
+      frame.current = requestAnimationFrame(() => {
+        frame.current = 0;
+        if (start.current) paint(offset.current.x, offset.current.y * 0.3, false);
+      });
   };
-  const up = () => {
+  const up = (e: ReactPointerEvent<HTMLDivElement>) => {
     if (!start.current) return;
     start.current = null;
+    e.currentTarget.style.cursor = 'grab';
     const { x, y } = offset.current;
     if (x > THRESHOLD) decide(true);
     else if (x < -THRESHOLD) decide(false);
     // A tap (no real drag) opens the shirt.
     else if (Math.abs(x) < 6 && Math.abs(y) < 6 && current) navigate(href(current));
-    else setDrag({ x: 0, y: 0, active: false });
+    else paint(0, 0, true);
   };
 
   const cardH = Math.min(height - 120, 640);
-  const flyX = leaving === 'right' ? 600 : leaving === 'left' ? -600 : drag.x;
-  const rot = flyX / 18;
-  const likeOpacity = Math.max(0, Math.min(1, flyX / THRESHOLD));
-  const nopeOpacity = Math.max(0, Math.min(1, -flyX / THRESHOLD));
   const done = feed.data && !current;
 
   return (
@@ -238,11 +259,13 @@ export default function FeedPage() {
           <>
             <div style={{ position: 'relative', width: 'min(100%, 420px)', height: cardH }}>
               {next && (
-                <div aria-hidden="true" style={{ position: 'absolute', inset: 0, borderRadius: 26, overflow: 'hidden', transform: `scale(${0.94 + Math.min(Math.abs(flyX) / THRESHOLD, 1) * 0.06})`, transition: 'transform .2s', boxShadow: '0 20px 50px rgba(0,0,0,0.25)' }}>
+                <div key={next.key} ref={behind} aria-hidden="true" style={{ position: 'absolute', inset: 0, borderRadius: 26, overflow: 'hidden', transform: 'scale(0.94)', boxShadow: '0 20px 50px rgba(0,0,0,0.25)' }}>
                   <CardFace item={next} photoUrl={url(fronts[index + 1])} />
                 </div>
               )}
               <div
+                key={current.key}
+                ref={card}
                 role="group"
                 aria-roledescription={t('feed.card')}
                 aria-label={BY[current.shirtId]!.name}
@@ -255,20 +278,19 @@ export default function FeedPage() {
                   inset: 0,
                   borderRadius: 26,
                   overflow: 'hidden',
-                  cursor: drag.active ? 'grabbing' : 'grab',
+                  cursor: 'grab',
                   touchAction: 'none',
                   userSelect: 'none',
+                  WebkitUserSelect: 'none',
                   boxShadow: '0 24px 60px rgba(0,0,0,0.35)',
-                  transform: `translate(${flyX}px, ${leaving ? drag.y : drag.y * 0.3}px) rotate(${rot}deg)`,
-                  transition: drag.active && !leaving ? 'none' : 'transform .22s ease-out, opacity .22s',
-                  opacity: leaving ? 0 : 1
+                  willChange: 'transform'
                 }}
               >
                 <CardFace item={current} photoUrl={url(fronts[index])} />
-                <span aria-hidden="true" style={{ position: 'absolute', top: 24, left: 20, padding: '6px 14px', borderRadius: 10, border: '3px solid #4BFF8B', color: '#4BFF8B', fontWeight: 800, fontSize: 22, transform: 'rotate(-14deg)', opacity: likeOpacity }}>
+                <span ref={likeStamp} aria-hidden="true" style={{ position: 'absolute', top: 24, left: 20, padding: '6px 14px', borderRadius: 10, border: '3px solid #4BFF8B', color: '#4BFF8B', fontWeight: 800, fontSize: 22, transform: 'rotate(-14deg)', opacity: 0 }}>
                   {t('feed.stampLike')}
                 </span>
-                <span aria-hidden="true" style={{ position: 'absolute', top: 24, right: 20, padding: '6px 14px', borderRadius: 10, border: '3px solid #FF6B5E', color: '#FF6B5E', fontWeight: 800, fontSize: 22, transform: 'rotate(14deg)', opacity: nopeOpacity }}>
+                <span ref={nopeStamp} aria-hidden="true" style={{ position: 'absolute', top: 24, right: 20, padding: '6px 14px', borderRadius: 10, border: '3px solid #FF6B5E', color: '#FF6B5E', fontWeight: 800, fontSize: 22, transform: 'rotate(14deg)', opacity: 0 }}>
                   {t('feed.stampNope')}
                 </span>
               </div>

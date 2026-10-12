@@ -7,14 +7,14 @@ const config: CapacitorConfig = {
   appId: 'ch.maillot.app',
   appName: 'MAILLOT',
   webDir: 'dist',
-  backgroundColor: '#0A0C0B',
+  backgroundColor: '#FFFFFF',
   ios: {
     contentInset: 'never',
     // Links to the website open inside the app instead of Safari.
     limitsNavigationsToAppBoundDomains: false
   },
   plugins: {
-    SplashScreen: { launchAutoHide: false, backgroundColor: '#0A0C0B', showSpinner: false },
+    SplashScreen: { launchAutoHide: false, backgroundColor: '#FFFFFF', showSpinner: false },
     StatusBar: { style: 'DARK', overlaysWebView: true }
   }
 };
