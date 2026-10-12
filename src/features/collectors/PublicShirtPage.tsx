@@ -16,6 +16,7 @@ import { Badge, EmptyState, ErrorState, HEX, Page, ShirtGraphic, Skeleton, alpha
 import { useCatalog } from '../catalog/useCatalog.ts';
 import { marketValue } from '../catalog/model.ts';
 import { OfferButton } from './OfferButton.tsx';
+import { InquiryButton } from './InquiryButton.tsx';
 import { isCutoutPath } from '../vault/addshirt/studio.ts';
 
 export default function PublicShirtPage() {
@@ -101,7 +102,7 @@ export default function PublicShirtPage() {
           </h1>
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 14 }}>
             {s.verified && <Badge tone="accent">{t('coll.verified')}</Badge>}
-            {s.visibility !== 'public' && <Badge tone="info">{t('vault.vis.' + s.visibility)}</Badge>}
+            <Badge tone={s.visibility === 'public' ? 'neutral' : 'info'}>{s.visibility === 'public' ? t('inq.piece') : t('vault.vis.' + s.visibility)}</Badge>
           </div>
           <dl style={{ margin: '22px 0 0', display: 'grid', gap: 0 }}>
             {facts.map(([k, v]) => (
@@ -112,6 +113,12 @@ export default function PublicShirtPage() {
             ))}
           </dl>
           {canOffer && cat && s.size && <OfferButton itemId={s.id} name={name} owner={handle} suggested={marketValue(cat, s.size)} />}
+          {!stats.data?.is_me && s.visibility === 'public' && (
+            <div style={{ marginTop: 16 }}>
+              <p style={{ margin: 0, fontSize: 14, color: 'var(--text-2)' }}>{s.inquiries_enabled ? t('inq.notForSale') : t('inq.notForSaleNoAsk')}</p>
+              {s.inquiries_enabled && <InquiryButton itemId={s.id} name={name} owner={handle} />}
+            </div>
+          )}
           {cat && (
             <Link to={'/shirt/' + cat.id} style={{ display: 'inline-block', marginTop: 20, fontWeight: 600 }}>
               {t('pshirt.catalog')} ›

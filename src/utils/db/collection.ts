@@ -31,6 +31,8 @@ function rowToCustomItem(r: Tables<'custom_items'>): CustomItem {
     verification: fromJson(r.verification, { level: 'self', status: 'none', reason: '', reviewId: null }),
     visibility: fromJson(r.visibility, 'private'),
     salePrice: r.sale_price || '',
+    // Set on its own (setInquiriesEnabled), never written back by an upsert.
+    inquiriesEnabled: r.inquiries_enabled !== false,
     valuation: fromJson(r.valuation, null),
     initialValuation: fromJson(r.initial_valuation, null),
     createdAt: new Date(r.created_at).getTime(),

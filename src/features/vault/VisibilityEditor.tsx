@@ -26,6 +26,11 @@ export function VisibilityEditor({ item }: { item: CustomItem }) {
     },
     onError: () => toast(t('vault.saveFailed'))
   });
+  const inquiries = useMutation({
+    mutationFn: (on: boolean) => db.setInquiriesEnabled(item.id, on),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['customItems', user?.id] }),
+    onError: () => toast(t('vault.saveFailed'))
+  });
   const options = VISIBILITIES as { key: Visibility; label: string; desc: string }[];
   return (
     <Card tight style={{ marginTop: 16 }}>
@@ -52,6 +57,15 @@ export function VisibilityEditor({ item }: { item: CustomItem }) {
           {t('vault.setForSale')}
         </Button>
       </div>
+      {item.visibility === 'public' && (
+        <label style={{ display: 'flex', gap: 10, alignItems: 'flex-start', marginTop: 12, fontSize: 13.5, cursor: 'pointer' }}>
+          <input type="checkbox" checked={item.inquiriesEnabled !== false} disabled={inquiries.isPending} onChange={(e) => inquiries.mutate(e.target.checked)} style={{ width: 18, height: 18, marginTop: 1, accentColor: 'var(--accent)' }} />
+          <span>
+            <span style={{ display: 'block', fontWeight: 600 }}>{t('inq.allow')}</span>
+            <span style={{ display: 'block', fontSize: 12, color: 'var(--muted)' }}>{t('inq.allowHint')}</span>
+          </span>
+        </label>
+      )}
       {profile?.collectionPrivate && (
         <p style={{ fontSize: 12.5, color: 'var(--muted)', margin: '10px 0 0', lineHeight: 1.45 }}>
           {t('vault.collectionPrivateNote')} <Link to="/account">{t('vault.changeInProfile')}</Link>

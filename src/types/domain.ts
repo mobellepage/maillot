@@ -98,6 +98,8 @@ export interface CustomItem {
   verification: Verification;
   visibility: Visibility;
   salePrice: string;
+  /** Others may send a non-binding inquiry while the shirt is not for sale. */
+  inquiriesEnabled?: boolean;
   valuation: Valuation | null;
   initialValuation: Valuation | null;
   createdAt: number;

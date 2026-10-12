@@ -13,6 +13,7 @@ import { useOrders } from '../orders/useOrders.ts';
 import { useWatchlist } from '../watchlist/useWatchlist.ts';
 import { AlertsList } from '../watchlist/AlertsList.tsx';
 import { OffersPanel } from './OffersPanel.tsx';
+import { InquiriesPanel } from './InquiriesPanel.tsx';
 import { CollectionTab } from './CollectionTab.tsx';
 import { badgeFor, itemLook, itemName, valueOf } from './model.ts';
 import { useCollection } from './useCollection.ts';
@@ -157,6 +158,7 @@ export default function VaultPage({ tab }: { tab: Tab }) {
       {tab === 'collection' && (
         <>
           <OffersPanel />
+          <InquiriesPanel />
           <CollectionTab items={items} loading={loading} error={error} onRetry={refetch} />
         </>
       )}

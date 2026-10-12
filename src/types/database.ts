@@ -187,6 +187,7 @@ export type Database = {
           verification: Json;
           version: string | null;
           visibility: string;
+          inquiries_enabled: boolean;
         };
         Insert: {
           catalog_id?: string | null;
@@ -215,6 +216,7 @@ export type Database = {
           verification?: Json;
           version?: string | null;
           visibility?: string;
+          inquiries_enabled?: boolean;
         };
         Update: {
           catalog_id?: string | null;
@@ -243,6 +245,7 @@ export type Database = {
           verification?: Json;
           version?: string | null;
           visibility?: string;
+          inquiries_enabled?: boolean;
         };
         Relationships: [];
       };
@@ -915,7 +918,15 @@ export type Database = {
           patches: Json | null;
           signature: Json | null;
           verification_level: string | null;
+          inquiries_enabled: boolean;
         }[];
+      };
+      make_inquiry: { Args: { p_item_id: string; p_amount?: number | null; p_message?: string | null }; Returns: string };
+      answer_inquiry: { Args: { p_id: string; p_reply: string }; Returns: undefined };
+      dismiss_inquiry: { Args: { p_id: string }; Returns: undefined };
+      my_inquiries: {
+        Args: never;
+        Returns: { id: string; direction: 'received' | 'sent'; item_id: string; catalog_id: string | null; item_name: string | null; amount: number | null; message: string | null; status: 'open' | 'answered' | 'dismissed'; reply: string | null; created_at: string; other_handle: string | null; other_avatar: string | null }[];
       };
       follow_collector: { Args: { p_handle: string }; Returns: undefined };
       unfollow_collector: { Args: { p_handle: string }; Returns: undefined };

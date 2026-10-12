@@ -1,0 +1,41 @@
+import { expect, test } from '@playwright/test';
+
+// "Ask anyway" on a collector's piece, end to end on the local seeded stack:
+// the seller (@zurich_kits) keeps a Netherlands 1988 as not for sale; the
+// buyer asks without obligation, the seller replies, the buyer reads it.
+const PASSWORD = 'maillot-dev-pw';
+
+async function signIn(page, email) {
+  await page.goto('/signin');
+  await page.getByLabel(/email/i).fill(email);
+  await page.getByLabel(/password|passwort/i).fill(PASSWORD);
+  await page.locator('form').getByRole('button', { name: /sign in|anmelden/i }).click();
+  await expect(page).toHaveURL(/\/vault$/, { timeout: 10000 });
+}
+
+test('a collector’s piece takes inquiries: ask, reply, read', async ({ browser }) => {
+  const buyer = await browser.newPage();
+  await signIn(buyer, 'buyer@maillot.test');
+  await buyer.goto('/u/zurich_kits');
+  const card = buyer.getByRole('listitem').filter({ hasText: 'Netherlands 1988 Home' });
+  await expect(card.getByText('Collector’s piece · not for sale')).toBeVisible();
+  await card.getByRole('button', { name: 'Ask anyway' }).click();
+  const dialog = buyer.getByRole('dialog');
+  await dialog.getByLabel('Your message').fill('Would you ever part with it?');
+  await dialog.getByLabel(/What you would pay/).fill('400');
+  await dialog.getByRole('button', { name: 'Send inquiry' }).click();
+  await expect(buyer.getByText('Inquiry sent to @zurich_kits.')).toBeVisible();
+
+  const seller = await browser.newPage();
+  await signIn(seller, 'seller@maillot.test');
+  const panel = seller.getByRole('region', { name: 'Inquiries' });
+  await expect(panel.getByText('“Would you ever part with it?”')).toBeVisible({ timeout: 10000 });
+  await panel.getByLabel('Your reply').fill('Not this one, sorry!');
+  await panel.getByRole('button', { name: 'Reply', exact: true }).click();
+  await expect(seller.getByText('Reply sent.')).toBeVisible();
+  await seller.close();
+
+  await buyer.goto('/vault');
+  await expect(buyer.getByRole('region', { name: 'Inquiries' }).getByText('Not this one, sorry!')).toBeVisible();
+  await buyer.close();
+});

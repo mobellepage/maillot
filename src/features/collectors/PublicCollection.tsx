@@ -11,6 +11,7 @@ import type { Photo } from '../../types/domain.ts';
 import { Badge, HEX, ShirtGraphic, alpha } from '../../ui/index.ts';
 import { marketValue } from '../catalog/model.ts';
 import { OfferButton } from './OfferButton.tsx';
+import { InquiryButton } from './InquiryButton.tsx';
 import { isCutoutPath } from '../vault/addshirt/studio.ts';
 
 const photoOf = (s: PublicShirt): Photo | undefined => (s.photo_path ? { path: s.photo_path, thumbPath: s.thumb_path ?? undefined } : undefined);
@@ -40,7 +41,7 @@ export function PublicCollection({ shirts, owner, canOffer }: { shirts: PublicSh
               )}
               <div style={{ position: 'absolute', top: 10, left: 10, right: 10, display: 'flex', gap: 6, flexWrap: 'wrap', justifyContent: 'space-between' }}>
                 {s.verified ? <Badge tone="accent">{t('coll.verified')}</Badge> : <span />}
-                {s.visibility !== 'public' && <Badge tone="info">{t('vault.vis.' + s.visibility)}</Badge>}
+                <Badge tone={s.visibility === 'public' ? 'neutral' : 'info'}>{s.visibility === 'public' ? t('inq.piece') : t('vault.vis.' + s.visibility)}</Badge>
               </div>
             </div>
             <div style={{ padding: '12px 14px 14px' }}>
@@ -52,6 +53,7 @@ export function PublicCollection({ shirts, owner, canOffer }: { shirts: PublicSh
                 {[s.size && t('coll.size', { size: s.size }), player, s.version && label('opt', s.version), s.grade !== null && s.grade + '/10'].filter(Boolean).join(' · ')}
               </div>
               {canOffer && cat && s.size && (s.visibility === 'offers' || s.visibility === 'forsale') && <OfferButton itemId={s.id} name={name} owner={owner} suggested={marketValue(cat, s.size)} />}
+              {canOffer && s.visibility === 'public' && s.inquiries_enabled && <InquiryButton itemId={s.id} name={name} owner={owner} />}
             </div>
           </li>
         );
