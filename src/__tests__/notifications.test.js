@@ -23,6 +23,12 @@ describe('localizeNotification', () => {
     const listing = { title: 'New listing from a collector you follow', body: '…', data: { handle: 'star', shirt_id: 'sui-26', size: 'L', amount: 180 } };
     expect(localizeNotification(listing, t, money).body).toBe('@star bietet Switzerland 2026 Home (L) für CHF 180 an.');
   });
+  it('sums up the collection week', () => {
+    const up = { title: 'Your collection went up this week', body: '…', data: { change_pct: 7.9, delta: 15, amount: 205 } };
+    expect(localizeNotification(up, t, money)).toEqual({ title: 'Deine Sammlung ist diese Woche gestiegen', body: 'Plus 7.9 % (+CHF 15) – jetzt etwa CHF 205 wert.' });
+    const down = { title: 'Your collection went down this week', body: '…', data: { change_pct: -2.5, delta: -40, amount: 1560 } };
+    expect(localizeNotification(down, t, money).body).toBe('Minus 2.5 % (−CHF 40) – jetzt etwa CHF 1560 wert.');
+  });
   it('announces a listing that matches an alert', () => {
     const n = { title: 'A shirt you want is listed', body: '…', data: { shirt_id: 'ned-88', size: 'M', amount: 280 } };
     expect(localizeNotification(n, t, money)).toEqual({ title: 'Ein gesuchtes Trikot ist im Angebot', body: 'Netherlands 1988 Home (M) ist jetzt für CHF 280 im Angebot.' });

@@ -1429,6 +1429,10 @@ export const en = {
   'filter.q.under': 'Under {price}',
   'filter.showN': 'Show {n} shirts',
   'filter.none': 'No shirts match',
+  'notif.weekUp.title': 'Your collection went up this week',
+  'notif.weekUp.body': 'Up {pct}% (+{delta}) — now worth about {amount}.',
+  'notif.weekDown.title': 'Your collection went down this week',
+  'notif.weekDown.body': 'Down {pct}% (−{delta}) — now worth about {amount}.',
   // @@end
 };
 

@@ -1430,5 +1430,9 @@ export const de: Messages = {
   'filter.q.under': 'Unter {price}',
   'filter.showN': '{n} Trikots anzeigen',
   'filter.none': 'Keine Trikots gefunden',
+  'notif.weekUp.title': 'Deine Sammlung ist diese Woche gestiegen',
+  'notif.weekUp.body': 'Plus {pct} % (+{delta}) – jetzt etwa {amount} wert.',
+  'notif.weekDown.title': 'Deine Sammlung ist diese Woche gesunken',
+  'notif.weekDown.body': 'Minus {pct} % (−{delta}) – jetzt etwa {amount} wert.',
   // @@end
 };

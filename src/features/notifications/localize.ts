@@ -34,7 +34,9 @@ const BY_TITLE: Record<string, [MessageKey, MessageKey | null]> = {
   'New offer for your shirt': ['notif.offer.title', 'notif.offer.body'],
   'Your offer was accepted': ['notif.offerAccepted.title', 'notif.offerAccepted.body'],
   'Your offer was declined': ['notif.offerDeclined.title', 'notif.offerDeclined.body'],
-  'A shirt you want is in a collection': ['notif.wanted.title', 'notif.wanted.body']
+  'A shirt you want is in a collection': ['notif.wanted.title', 'notif.wanted.body'],
+  'Your collection went up this week': ['notif.weekUp.title', 'notif.weekUp.body'],
+  'Your collection went down this week': ['notif.weekDown.title', 'notif.weekDown.body']
 };
 
 type N = { title: string; body: string | null; data: unknown };
@@ -42,7 +44,7 @@ type N = { title: string; body: string | null; data: unknown };
 export function localizeNotification(n: N, t: (key: MessageKey, vars?: Vars) => string, money: (chf: number) => string): { title: string; body: string | null } {
   const keys = BY_TITLE[n.title];
   if (!keys) return { title: n.title, body: n.body };
-  const data = (n.data ?? {}) as { shirt_id?: string; catalog_id?: string; size?: string; amount?: number; tracking_code?: string; change_pct?: number; handle?: string | null };
+  const data = (n.data ?? {}) as { shirt_id?: string; catalog_id?: string; size?: string; amount?: number; delta?: number; tracking_code?: string; change_pct?: number; handle?: string | null };
   const body = n.body ?? '';
   const vars: Vars = {
     shirt: ((data.shirt_id ?? data.catalog_id) && BY[(data.shirt_id ?? data.catalog_id)!]?.name) || data.shirt_id || data.catalog_id || '',
@@ -50,7 +52,8 @@ export function localizeNotification(n: N, t: (key: MessageKey, vars?: Vars) => 
     amount: data.amount != null ? money(Number(data.amount)) : (/CHF [\d'.,]+/.exec(body)?.[0] ?? ''),
     date: /\d{2}\.\d{2}\.(?: \d{2}:\d{2})?/.exec(body)?.[0] ?? '',
     pct: data.change_pct != null ? String(Math.abs(Number(data.change_pct))) : (/(\d+)%/.exec(body)?.[1] ?? ''),
-    handle: data.handle ? '@' + data.handle : (/@\w+/.exec(body)?.[0] ?? '')
+    handle: data.handle ? '@' + data.handle : (/@\w+/.exec(body)?.[0] ?? ''),
+    delta: data.delta != null ? money(Math.abs(Number(data.delta))) : ''
   };
   const [titleKey, bodyKey] = keys;
   return { title: t(titleKey), body: bodyKey ? t(bodyKey, vars) : n.body };
