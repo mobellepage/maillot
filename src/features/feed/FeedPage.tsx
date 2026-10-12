@@ -9,6 +9,7 @@ import { useQuery } from '@tanstack/react-query';
 import { BY, SHIRTS } from '../../data.ts';
 import { usePageMeta } from '../../lib/meta.ts';
 import { usePrefs } from '../../lib/prefs.tsx';
+import { useSession } from '../../lib/session.tsx';
 import { usePhotoUrls } from '../../lib/usePhotoUrls.ts';
 import { loadJSON, saveJSON } from '../../utils/storage.ts';
 import * as db from '../../utils/db.ts';
@@ -92,19 +93,23 @@ export default function FeedPage() {
   const { t } = usePrefs();
   usePageMeta(t('feed.metaTitle'), t('feed.metaDesc'));
   const watch = useWatchlist();
+  const { user, profile } = useSession();
   const navigate = useNavigate();
   const stage = useRef<HTMLDivElement>(null);
   const height = useFeedHeight(stage);
 
   // Composed once per visit, from the likes known at that moment.
   const feed = useQuery({
-    queryKey: ['feed'],
+    queryKey: ['feed', user?.id],
+    // Wait for the member's profile so their interests shape the first cards.
+    enabled: profile !== undefined,
     queryFn: async () =>
       composeFeed({
         listings: await db.loadFeedListings().catch(() => []),
         catalog: SHIRTS.map((s) => ({ id: s.id, club: s.club, league: s.league, type: s.type })),
         liked: watch.ids,
-        seen: new Set(loadJSON<string[]>(SEEN_KEY, []))
+        seen: new Set(loadJSON<string[]>(SEEN_KEY, [])),
+        interests: profile?.interests
       }),
     staleTime: Infinity,
     gcTime: 60 * 1000

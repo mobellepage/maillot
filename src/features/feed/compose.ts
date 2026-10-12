@@ -1,7 +1,9 @@
 // What the feed shows, in which order. Pure, so it is unit-tested.
 //  - Live listings come first, sellers taking turns (no run of one shop).
 //  - What the member liked tilts the odds: same club strongly, same league
-//    and same kind of shirt (retro, new, match-worn) a little.
+//    and same kind of shirt (retro, new, match-worn) a little. Leagues and
+//    kinds picked at sign-up count the same way, so a new member's very
+//    first cards already fit their taste.
 //  - Things already seen sink towards the end.
 //  - Catalogue shirts without a listing fill in (one after every three
 //    listings), so the feed is never empty.
@@ -38,15 +40,17 @@ interface Input {
   liked: string[];
   /** Feed item keys seen before. */
   seen: ReadonlySet<string>;
+  /** Leagues and kinds of shirt chosen during onboarding. */
+  interests?: { leagues?: string[]; types?: string[] } | undefined;
   rand?: () => number;
 }
 
-export function composeFeed({ listings, catalog, liked, seen, rand = Math.random }: Input): FeedItem[] {
+export function composeFeed({ listings, catalog, liked, seen, interests, rand = Math.random }: Input): FeedItem[] {
   const byId = new Map(catalog.map((c) => [c.id, c]));
   const likedEntries = liked.map((id) => byId.get(id)).filter((c): c is CatalogEntry => !!c);
   const clubs = new Set(likedEntries.map((c) => c.club));
-  const leagues = new Set(likedEntries.map((c) => c.league));
-  const types = new Set(likedEntries.map((c) => c.type));
+  const leagues = new Set([...likedEntries.map((c) => c.league), ...(interests?.leagues ?? [])]);
+  const types = new Set([...likedEntries.map((c) => c.type), ...(interests?.types ?? [])]);
 
   const weight = (shirtId: string, key: string) => {
     const c = byId.get(shirtId);

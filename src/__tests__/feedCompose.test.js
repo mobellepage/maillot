@@ -34,6 +34,16 @@ describe('composeFeed', () => {
     expect(composeFeed({ listings: [], catalog, liked: [], seen: new Set() })).toHaveLength(catalog.length);
   });
 
+  it('leans towards the leagues and kinds picked at sign-up, before any like', () => {
+    let swissFirst = 0;
+    for (let i = 0; i < 400; i++) {
+      const feed = composeFeed({ listings: [], catalog, liked: [], seen: new Set(), interests: { leagues: ['Swiss Super League'], types: [] } });
+      if (catalog.find((c) => c.id === feed[0].shirtId).league === 'Swiss Super League') swissFirst++;
+    }
+    // Two of five shirts are Swiss: 40 % by chance, clearly more with the interest.
+    expect(swissFirst / 400).toBeGreaterThan(0.5);
+  });
+
   it('puts what matches your likes first more often, and seen items further back', () => {
     let likedFirst = 0;
     let seenFirst = 0;
