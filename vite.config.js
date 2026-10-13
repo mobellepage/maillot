@@ -25,20 +25,19 @@ export default defineConfig(({ mode }) => ({
         name: 'MAILLOT — your football shirt collection',
         short_name: 'MAILLOT',
         description: 'Capture your football shirt collection, see what it’s worth and have it with you everywhere.',
-        // ?app=2 marks installs made with the black icon (app/AppUpdates.tsx).
-        start_url: '/?app=2',
+        // ?app=3 marks installs made with the green app icon (app/AppUpdates.tsx).
+        start_url: '/?app=3',
         display: 'standalone',
         background_color: '#FFFFFF',
         theme_color: '#FFFFFF',
         icons: [
-          { src: '/favicon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any' },
           { src: '/icons/icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
           { src: '/icons/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
           { src: '/icons/maskable-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' }
         ]
       },
       workbox: {
-        globPatterns: ['**/*.{js,css,html,svg,woff2}'],
+        globPatterns: ['**/*.{js,css,html,svg,woff2}', 'favicon.png'],
         // Offline/repeat navigations get the empty shell; prerendered pages
         // are for first visits, crawlers and link previews.
         navigateFallback: '/app.html'

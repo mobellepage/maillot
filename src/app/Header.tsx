@@ -13,8 +13,8 @@ import { useNavItems } from './nav.ts';
 import { focusMain } from './focusMain.ts';
 import { Avatar } from '../features/avatars/Avatar.tsx';
 
-// The mark: a shirt outline (24×24). scripts/brand-assets.mjs draws the
-// same path for the favicon and app icons.
+// The header mark: a shirt outline (24×24). The favicon and app icons come
+// from brand/app-icon.webp (scripts/brand-assets.mjs).
 const JERSEY = 'M8.8 3L12 6.6L15.2 3L20.6 5.3L22.8 10.4L19.2 11.8L18.2 9.8V20.2Q18.2 21 17.4 21H6.6Q5.8 21 5.8 20.2V9.8L4.8 11.8L1.2 10.4L3.4 5.3Z';
 
 export function Logo() {

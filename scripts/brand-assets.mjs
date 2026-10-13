@@ -1,11 +1,14 @@
-// Generates the brand's raster assets from one source of truth: the mark
-// below and the app's own fonts, styles and shirt illustrations.
+// Generates the brand's raster assets from one source of truth: the app
+// icon (brand/app-icon.webp — a white shirt-"M" on a green rounded tile,
+// 1254 px with a white margin) and the app's own fonts, styles and shirt
+// illustrations.
 //
 //   npm run build && npm run brand
 //
-// Writes (and the repo commits) public/favicon.svg, public/icons/*.png and
-// public/og/*.jpg. Re-run after changing the mark or adding catalogue shirts;
-// shirts without a preview image fall back to og/default.jpg (prerender.mjs).
+// Writes (and the repo commits) public/favicon.png, public/icons/*.png,
+// public/og/*.jpg, the iOS icon and splash, and the Wallet pass images.
+// Re-run after changing the icon or adding catalogue shirts; shirts without
+// a preview image fall back to og/default.jpg (prerender.mjs).
 import { createServer } from 'node:http';
 import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { extname, join } from 'node:path';
@@ -13,23 +16,23 @@ import { chromium } from '@playwright/test';
 
 const ACCENT = '#4BFF8B';
 const INK = '#0A0C0B';
-// The app icon: a white shirt outline on a black tile.
-const TILE = '#1D1D1F';
-const LINE = '#FFFFFF';
 
-// The mark: a shirt outline on the black tile — the same path as the
-// header logo (src/app/Header.tsx, 24×24), drawn at 36/64 of the tile.
-// `bleed` fills the whole canvas (maskable / Apple icons: the OS rounds it).
-const JERSEY = 'M8.8 3L12 6.6L15.2 3L20.6 5.3L22.8 10.4L19.2 11.8L18.2 9.8V20.2Q18.2 21 17.4 21H6.6Q5.8 21 5.8 20.2V9.8L4.8 11.8L1.2 10.4L3.4 5.3Z';
-const mark = ({ bleed = false, scale = 1 } = {}) => {
-  const k = (36 / 24) * scale;
-  const o = 32 - 12 * k;
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="${bleed ? 0 : 18}" fill="${TILE}"/><path transform="translate(${o} ${o}) scale(${k})" d="${JERSEY}" fill="none" stroke="${LINE}" stroke-width="1.9" stroke-linejoin="round"/></svg>`;
+// The icon source and where its green tile sits in it (pixels of the 1254 px source).
+const SOURCE = 'data:image/webp;base64,' + readFileSync('brand/app-icon.webp').toString('base64');
+const SRC = 1254;
+const TILE = { at: 94, size: 1068 }; // the whole rounded tile
+const BLEED = { at: 188, size: 878 }; // a square inside it, clear of the rounded corners
+
+// `bleed` fills the whole square edge to edge (Apple / maskable icons: the OS
+// rounds it); otherwise the rounded tile on a transparent background.
+const mark = (size, { bleed = false } = {}) => {
+  const r = bleed ? BLEED : TILE;
+  const k = size / r.size;
+  return `<div style="position:relative;width:${size}px;height:${size}px;overflow:hidden;flex:none;${bleed ? '' : 'border-radius:25%'}"><img src="${SOURCE}" alt="" style="position:absolute;display:block;max-width:none;width:${SRC * k}px;height:${SRC * k}px;left:${-r.at * k}px;top:${-r.at * k}px"></div>`;
 };
 
 mkdirSync('public/icons', { recursive: true });
 mkdirSync('public/og/shirt', { recursive: true });
-writeFileSync('public/favicon.svg', mark() + '\n');
 
 // Serve dist/ so pages get the real CSS and fonts; /__brand serves the page under test.
 const css = readdirSync('dist/assets').filter((f) => f.endsWith('.css'));
@@ -52,23 +55,23 @@ async function shoot(body, width, height, path, opts = {}) {
   await page.setViewportSize({ width, height });
   await page.goto(base + '/__brand');
   await page.evaluate(() => document.fonts.ready);
+  await page.evaluate(() => Promise.all([...document.images].map((i) => i.decode().catch(() => {}))));
   await page.screenshot({ path, type: path.endsWith('.jpg') ? 'jpeg' : 'png', quality: path.endsWith('.jpg') ? 86 : undefined, omitBackground: !!opts.transparent });
 }
 
-// App icons.
-const img = (svg, size) => `<img src="data:image/svg+xml;base64,${Buffer.from(svg).toString('base64')}" width="${size}" height="${size}" style="display:block">`;
-await shoot(img(mark(), 192), 192, 192, 'public/icons/icon-192.png', { transparent: true });
-await shoot(img(mark(), 512), 512, 512, 'public/icons/icon-512.png', { transparent: true });
-// Maskable: the OS may crop to a circle of 80% — keep the diamond well inside.
-await shoot(img(mark({ bleed: true, scale: 0.8 }), 512), 512, 512, 'public/icons/maskable-512.png');
-await shoot(img(mark({ bleed: true, scale: 0.9 }), 180), 180, 180, 'public/icons/apple-touch-icon.png');
+// Favicon and app icons.
+await shoot(mark(64), 64, 64, 'public/favicon.png', { transparent: true });
+await shoot(mark(192), 192, 192, 'public/icons/icon-192.png', { transparent: true });
+await shoot(mark(512), 512, 512, 'public/icons/icon-512.png', { transparent: true });
+await shoot(mark(512, { bleed: true }), 512, 512, 'public/icons/maskable-512.png');
+await shoot(mark(180, { bleed: true }), 180, 180, 'public/icons/apple-touch-icon.png');
 
 // iOS app (ios/): App Store icon — square, opaque, iOS rounds it — and the
-// launch screen (the mark centred on white; one image serves every scale).
+// launch screen (the icon centred on white; one image serves every scale).
 if (existsSync('ios/App/App/Assets.xcassets')) {
-  await shoot(img(mark({ bleed: true, scale: 0.9 }), 1024), 1024, 1024, 'ios/App/App/Assets.xcassets/AppIcon.appiconset/AppIcon-512@2x.png');
+  await shoot(mark(1024, { bleed: true }), 1024, 1024, 'ios/App/App/Assets.xcassets/AppIcon.appiconset/AppIcon-512@2x.png');
   const splash = 'ios/App/App/Assets.xcassets/Splash.imageset/splash-2732x2732.png';
-  await shoot(`<div style="width:2732px;height:2732px;display:grid;place-items:center">${img(mark(), 300)}</div>`, 2732, 2732, splash, { bg: '#FFFFFF' });
+  await shoot(`<div style="width:2732px;height:2732px;display:grid;place-items:center">${mark(300)}</div>`, 2732, 2732, splash, { bg: '#FFFFFF' });
   for (const n of [1, 2]) writeFileSync(splash.replace('.png', `-${n}.png`), readFileSync(splash));
 }
 
@@ -78,13 +81,13 @@ if (existsSync('ios/App/App/Assets.xcassets')) {
   const shots = {};
   for (const [name, size] of [['icon.png', 29], ['icon@2x.png', 58], ['icon@3x.png', 87]]) {
     const path = `dist/__pass-${name}`;
-    await shoot(img(mark({ bleed: true, scale: 0.9 }), size), size, size, path);
+    await shoot(mark(size, { bleed: true }), size, size, path);
     shots[name] = readFileSync(path).toString('base64');
   }
   for (const [name, w, h] of [['logo.png', 160, 50], ['logo@2x.png', 320, 100]]) {
     const path = `dist/__pass-${name}`;
     const s = h / 50;
-    await shoot(`<div style="display:flex;align-items:center;gap:${8 * s}px;height:${h}px">${img(mark(), 30 * s)}<span style="font-weight:800;font-stretch:78%;font-size:${22 * s}px;letter-spacing:.03em;color:#F2F4F1">MAILLOT</span></div>`, w, h, path, { transparent: true });
+    await shoot(`<div style="display:flex;align-items:center;gap:${8 * s}px;height:${h}px">${mark(30 * s)}<span style="font-weight:800;font-stretch:78%;font-size:${22 * s}px;letter-spacing:.03em;color:#F2F4F1">MAILLOT</span></div>`, w, h, path, { transparent: true });
     shots[name] = readFileSync(path).toString('base64');
   }
   writeFileSync(
@@ -95,7 +98,7 @@ if (existsSync('ios/App/App/Assets.xcassets')) {
 
 // Link previews (1200×630).
 const { shirtArt, PATHS } = await import('../dist-ssr/entry-server.js');
-const logo = `<div style="display:flex;align-items:center;gap:16px">${img(mark(), 52)}<span style="font-weight:800;font-stretch:78%;font-size:40px;letter-spacing:.03em;color:var(--text)">MAILLOT</span></div>`;
+const logo = `<div style="display:flex;align-items:center;gap:16px">${mark(52)}<span style="font-weight:800;font-stretch:78%;font-size:40px;letter-spacing:.03em;color:var(--text)">MAILLOT</span></div>`;
 const shirtBox = (a, size, extra = '') =>
   `<div style="position:relative;width:${size}px;height:${size}px;display:grid;place-items:center;${extra}"><div style="width:78%">${a.html}</div></div>`;
 
@@ -139,4 +142,4 @@ for (const path of PATHS.filter((p) => p.startsWith('/shirt/'))) {
 
 await browser.close();
 server.close();
-console.log(`wrote favicon.svg, 4 icons (+ iOS icon and splash), og/default.jpg and ${n} shirt previews`);
+console.log(`wrote favicon.png, 4 icons (+ iOS icon and splash), og/default.jpg and ${n} shirt previews`);

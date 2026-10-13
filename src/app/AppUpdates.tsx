@@ -2,15 +2,15 @@
 // 1. A new version has been downloaded in the background (the service worker
 //    took over): offer to reload now instead of waiting for the next launch.
 // 2. iPhone home-screen apps keep the icon they were added with. Installs
-//    made with the current manifest start at /?app=2; a launch without it is
+//    made with the current manifest start at /?app=3; a launch without it is
 //    an older install, so once we suggest adding MAILLOT again for the new icon.
 import { useEffect, useState } from 'react';
 import { usePrefs } from '../lib/prefs.tsx';
 import { loadJSON, saveJSON } from '../utils/storage.ts';
 
-const ICON_HINT_KEY = 'kv_icon_hint_v2';
+const ICON_HINT_KEY = 'kv_icon_hint_v3';
 // Read once at start: the app moves on to other URLs afterwards.
-const launchedFromCurrentInstall = typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('app') === '2';
+const launchedFromCurrentInstall = typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('app') === '3';
 const iosHomeScreen = typeof navigator !== 'undefined' && (navigator as Navigator & { standalone?: boolean }).standalone === true;
 
 export function AppUpdates() {

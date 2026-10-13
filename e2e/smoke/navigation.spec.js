@@ -72,7 +72,7 @@ test('product pages link to the buying explainer', async ({ page }) => {
   await page.getByRole('link', { name: 'How it works →' }).click();
   await expect(page).toHaveURL(/\/authentication$/);
   await expect(page.getByRole('heading', { level: 1 })).toContainText(/How buying works/i);
-  await expect(page.getByText('Automatic pre-check')).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Automatic pre-check' })).toBeVisible();
   await expect(page.locator('main li').filter({ hasText: '✓' })).toHaveCount(4);
   await expect(page.getByText(/Zürich/)).toHaveCount(0);
 });
