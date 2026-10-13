@@ -10,6 +10,8 @@ const BY_TITLE: Record<string, [MessageKey, MessageKey | null]> = {
   'Payment received': ['notif.paidSeller.title', 'notif.paidSeller.body'],
   'Payment held in escrow': ['notif.paidBuyer.title', 'notif.paidBuyer.body'],
   'On its way to authentication': ['notif.shipped.title', 'notif.shipped.body'],
+  'Your shirt is on its way': ['notif.shipped.title', 'notif.shipped.body'],
+  'Your sale was delivered': ['notif.delivered.title', 'notif.delivered.body'],
   'Escrow released': ['notif.released.title', 'notif.released.body'],
   'Order cancelled': ['notif.cancelled.title', 'notif.cancelled.body'],
   'Order refunded': ['notif.refunded.title', 'notif.refunded.body'],

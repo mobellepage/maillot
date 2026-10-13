@@ -16,8 +16,10 @@
 //      based fee tiers, carrier-quoted shipping, payment-processor cuts) without touching the
 //      call sites in engine.js beyond the two functions below.
 
-export const BUYER_AUTH_FEE_CHF = 9; // Flat per-order authentication fee charged to buyers.
-export const BUYER_SHIPPING_CHF = 12; // Flat insured-shipping fee charged to buyers.
+// No authentication centre yet, so no authentication fee (the database sets
+// orders.auth_fee to 0 for direct shipping — see order_policy().auth_threshold).
+export const BUYER_AUTH_FEE_CHF = 0;
+export const BUYER_SHIPPING_CHF = 12; // Flat shipping fee charged to buyers; paid out to the seller, who ships.
 export const SELLER_FEE_RATE = 0.08; // 8% commission deducted from the seller's payout.
 
 /**

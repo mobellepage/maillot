@@ -1,5 +1,6 @@
-// Where the shirt physically is: inbound to the Zürich centre, being
-// inspected, or forwarded to the buyer — with carrier tracking links.
+// Where the shirt physically is: on its way from the seller to the buyer
+// (or, for orders routed through an authentication centre, inbound / being
+// inspected / forwarded) — with carrier tracking links.
 import { Link } from 'react-router';
 import type { Order } from '../../utils/db.ts';
 import { usePrefs } from '../../lib/prefs.tsx';
@@ -22,6 +23,17 @@ function Track({ carrier, code }: { carrier: string | null; code: string }) {
 export function ShipmentLine({ order: o, isBuyer, certificate }: { order: Order; isBuyer: boolean; certificate?: string }) {
   const { t } = usePrefs();
   const style = { fontSize: 12.5, marginTop: 6, color: 'var(--text-2)', lineHeight: 1.5 };
+  if (o.inspection === 'not_required') {
+    if (o.status === 'shipped' || o.status === 'delivered' || (o.status === 'disputed' && o.shipped_at))
+      return (
+        <div style={style}>
+          {o.status === 'delivered' ? t('shl.delivered') : isBuyer ? t('shl.onWayToYou') : t('shl.onWayToBuyer')}
+          {o.tracking_code ? ' · ' : ''}
+          {o.tracking_code && <Track carrier={o.carrier} code={o.tracking_code} />}
+        </div>
+      );
+    return null;
+  }
   if (o.status === 'shipped' && o.inspection === 'pending')
     return (
       <div style={style}>

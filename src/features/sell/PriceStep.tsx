@@ -1,4 +1,4 @@
-import { SELLER_FEE_RATE, sellerPayout } from '../../fees.ts';
+import { BUYER_SHIPPING_CHF, SELLER_FEE_RATE, sellerPayout } from '../../fees.ts';
 import { usePrefs } from '../../lib/prefs.tsx';
 import { useSession } from '../../lib/session.tsx';
 import { Card, KeyValueList, TextField } from '../../ui/index.ts';
@@ -79,11 +79,11 @@ export function PriceStep({ f }: { f: SellFlow }) {
         <h2 className="title" style={{ margin: '0 0 10px' }}>
           {t('sell.payout')}
         </h2>
-        <KeyValueList rows={[[t('sell.yourAsk'), money(sa)], [t('sell.fee', { pct: Math.round(rate * 1000) / 10 }), '−' + money(payout.commission)], [t('sell.authentication'), t('sell.free')], [t('sell.shipping'), t('sell.prepaid')]]} />
+        <KeyValueList rows={[[t('sell.yourAsk'), money(sa)], [t('sell.fee', { pct: Math.round(rate * 1000) / 10 }), '−' + money(payout.commission)], [t('sell.shipping'), '+' + money(BUYER_SHIPPING_CHF)]]} />
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', paddingTop: 14 }}>
           <span style={{ fontWeight: 600 }}>{t('sell.youEarn')}</span>
           <span className="mono" style={{ fontSize: 26, fontWeight: 700, color: 'var(--accent)' }}>
-            {money(payout.payout)}
+            {money(payout.payout + BUYER_SHIPPING_CHF)}
           </span>
         </div>
         <p style={{ fontSize: 12.5, color: 'var(--muted)', margin: '10px 0 0', lineHeight: 1.5 }}>{t('sell.payoutNote')}</p>

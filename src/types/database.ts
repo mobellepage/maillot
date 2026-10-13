@@ -508,8 +508,11 @@ export type Database = {
           settled_at: string | null;
           carrier: string | null;
           label_path: string | null;
-          inspection: 'pending' | 'passed' | 'failed';
+          inspection: 'not_required' | 'pending' | 'passed' | 'failed';
           inspection_note: string | null;
+          ship_photos: Json;
+          receipt_photos: Json;
+          delivered_by: 'buyer' | 'auto' | null;
           inspected_at: string | null;
           outbound_carrier: string | null;
           outbound_tracking: string | null;
@@ -960,13 +963,14 @@ export type Database = {
       my_payout_status: { Args: never; Returns: { connected: boolean; payouts_enabled: boolean }[] };
       order_cancel: { Args: { p_order_id: string }; Returns: undefined };
       order_confirm_receipt: {
-        Args: { p_order_id: string };
+        Args: { p_order_id: string; p_photos: Json };
         Returns: undefined;
       };
       order_mark_shipped: {
-        Args: { p_order_id: string; p_tracking?: string; p_carrier?: string };
+        Args: { p_order_id: string; p_tracking: string; p_carrier: string; p_photos: Json };
         Returns: undefined;
       };
+      order_mark_delivered: { Args: { p_order_id: string }; Returns: undefined };
       order_open_dispute: {
         Args: { p_order_id: string; p_reason: string };
         Returns: string;

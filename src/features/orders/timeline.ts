@@ -7,25 +7,35 @@ export type StepState = 'done' | 'current' | 'upcoming' | 'failed';
 /** title and detail are message keys; detailVars fill the detail's placeholders. */
 export type Step = { key: string; title: string; detail?: string; detailVars?: Record<string, string>; at: string | null; state: StepState };
 
-type O = Pick<Order, 'status' | 'created_at' | 'paid_at' | 'shipped_at' | 'inspection' | 'inspected_at' | 'forwarded_at' | 'released_at' | 'updated_at' | 'inspection_note'>;
+type O = Pick<Order, 'status' | 'created_at' | 'paid_at' | 'shipped_at' | 'delivered_at' | 'delivered_by' | 'inspection' | 'inspected_at' | 'forwarded_at' | 'released_at' | 'updated_at' | 'inspection_note'>;
 
 export function buildTimeline(o: O, isBuyer: boolean, dispute?: { created_at: string; reason: string | null; resolved_at?: string | null } | null): Step[] {
   const failedInspection = o.inspection === 'failed';
+  // Direct: seller -> buyer. Otherwise the shirt goes through an authentication centre first.
+  const direct = o.inspection === 'not_required';
   const steps: Step[] = [
     { key: 'matched', title: 'tl.matched', detail: isBuyer ? 'tl.matched.buyer' : 'tl.matched.seller', at: o.created_at, state: 'done' },
     { key: 'paid', title: 'tl.paid', detail: isBuyer ? 'tl.paid.buyer' : 'tl.paid.seller', at: o.paid_at, state: o.paid_at ? 'done' : 'upcoming' },
-    { key: 'shipped', title: 'tl.shipped', detail: isBuyer ? 'tl.shipped.buyer' : 'tl.shipped.seller', at: o.shipped_at, state: o.shipped_at ? 'done' : 'upcoming' },
-    {
-      key: 'inspected',
-      title: failedInspection ? 'tl.failed' : 'tl.authenticated',
-      detail: failedInspection ? (o.inspection_note ? 'tl.failed.reason' : undefined) : 'tl.authenticated.detail',
-      detailVars: o.inspection_note ? { reason: o.inspection_note } : undefined,
-      at: o.inspected_at,
-      state: failedInspection ? 'failed' : o.inspection === 'passed' ? 'done' : 'upcoming'
-    },
-    { key: 'forwarded', title: isBuyer ? 'tl.forwarded.buyer' : 'tl.forwarded.seller', at: o.forwarded_at, state: o.forwarded_at ? 'done' : 'upcoming' },
-    { key: 'released', title: isBuyer ? 'tl.released.buyer' : 'tl.released.seller', at: o.released_at, state: o.status === 'released' ? 'done' : 'upcoming' }
+    direct
+      ? { key: 'shipped', title: 'tl.shipped', detail: isBuyer ? 'tl.shipped.buyer' : 'tl.shipped.seller', at: o.shipped_at, state: o.shipped_at ? 'done' : 'upcoming' }
+      : { key: 'shipped', title: 'tl.shippedCentre', detail: isBuyer ? 'tl.shippedCentre.buyer' : 'tl.shippedCentre.seller', at: o.shipped_at, state: o.shipped_at ? 'done' : 'upcoming' }
   ];
+  if (!direct)
+    steps.push(
+      {
+        key: 'inspected',
+        title: failedInspection ? 'tl.failed' : 'tl.authenticated',
+        detail: failedInspection ? (o.inspection_note ? 'tl.failed.reason' : undefined) : 'tl.authenticated.detail',
+        detailVars: o.inspection_note ? { reason: o.inspection_note } : undefined,
+        at: o.inspected_at,
+        state: failedInspection ? 'failed' : o.inspection === 'passed' ? 'done' : 'upcoming'
+      },
+      { key: 'forwarded', title: isBuyer ? 'tl.forwarded.buyer' : 'tl.forwarded.seller', at: o.forwarded_at, state: o.forwarded_at ? 'done' : 'upcoming' }
+    );
+  steps.push(
+    { key: 'delivered', title: 'tl.delivered', detail: o.delivered_by === 'auto' ? 'tl.delivered.auto' : undefined, at: o.delivered_at, state: o.delivered_at ? 'done' : 'upcoming' },
+    { key: 'released', title: isBuyer ? 'tl.released.buyer' : 'tl.released.seller', at: o.released_at, state: o.status === 'released' ? 'done' : 'upcoming' }
+  );
 
   // Terminal side branches replace the steps that will now never happen.
   const cut = (afterKey: string, step: Step) => {
@@ -34,7 +44,7 @@ export function buildTimeline(o: O, isBuyer: boolean, dispute?: { created_at: st
   };
   if (o.status === 'cancelled') cut('matched', { key: 'cancelled', title: o.paid_at ? 'tl.cancelled' : 'tl.cancelledUnpaid', detail: 'tl.cancelled.detail', at: o.updated_at, state: 'failed' });
   if (o.status === 'refunded' && !failedInspection) {
-    const last = o.shipped_at ? 'shipped' : 'paid';
+    const last = o.delivered_at ? 'delivered' : o.shipped_at ? 'shipped' : 'paid';
     cut(last, { key: 'refunded', title: 'tl.refunded', detail: dispute ? 'tl.refunded.dispute' : o.shipped_at ? undefined : 'tl.refunded.unshipped', at: o.updated_at, state: 'failed' });
   }
   if (failedInspection) cut('inspected', { key: 'refunded', title: 'tl.refunded', detail: isBuyer ? undefined : 'tl.refunded.returned', at: o.inspected_at, state: 'failed' });

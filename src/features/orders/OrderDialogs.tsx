@@ -1,20 +1,29 @@
 // Designed replacements for the old window.prompt / window.confirm flows.
 import { useState } from 'react';
-import { useMutation } from '@tanstack/react-query';
-import { COMPANY } from '../../config/company.ts';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { usePrefs } from '../../lib/prefs.tsx';
 import * as db from '../../utils/db.ts';
+import type { Order } from '../../utils/db.ts';
+import { PhotoSlotsField } from './OrderPhotos.tsx';
+import { usePhotoSlots, type PhotoSlots, type Slot } from './photoSlots.ts';
 import { Button, Dialog, Notice, TextField } from '../../ui/index.ts';
 import { CARRIERS, CARRIER_IDS, carrierName, detectCarrier, type Carrier } from './shipping.ts';
 
-export function ShipDialog({ orderId, onClose, onSubmit, busy }: { orderId: string | null; onClose: () => void; onSubmit: (tracking: string, carrier: Carrier | null) => void; busy: boolean }) {
+/** The seller ships straight to the buyer: address, optional prepaid label, shirt photo, carrier and tracking. */
+export function ShipDialog({ order, onClose, onSubmit, busy }: { order: Order | null; onClose: () => void; onSubmit: (tracking: string, carrier: Carrier, photos: PhotoSlots) => void; busy: boolean }) {
   const { t } = usePrefs();
+  const orderId = order?.id ?? null;
   const [tracking, setTracking] = useState('');
   const [picked, setPicked] = useState<Carrier | ''>('');
   const label = useMutation({ mutationFn: () => db.requestShippingLabel(orderId!) });
+  const address = useQuery({ queryKey: ['ship-to', orderId], enabled: !!orderId, queryFn: () => db.loadShipTo(orderId!) });
+  const slots = usePhotoSlots(SHIP_SLOTS);
   const detected = detectCarrier(tracking);
   const carrier = picked || detected;
   const result = label.data;
+  const ready = slots.complete && tracking.trim().length > 0 && !!carrier;
+  const code = orderId ? orderId.slice(0, 8).toUpperCase() : '';
+  const a = address.data?.address;
 
   const getLabel = () =>
     label.mutate(undefined, {
@@ -34,14 +43,26 @@ export function ShipDialog({ orderId, onClose, onSubmit, busy }: { orderId: stri
       <form
         onSubmit={(e) => {
           e.preventDefault();
-          onSubmit(tracking.trim(), carrier || null);
+          if (ready && carrier) onSubmit(tracking.trim(), carrier, slots);
         }}
       >
-        <p style={{ margin: '0 0 14px', fontSize: 14, lineHeight: 1.55, color: 'var(--text-2)' }}>{t('ship.intro')}</p>
+        <p style={{ margin: '0 0 14px', fontSize: 14, lineHeight: 1.55, color: 'var(--text-2)' }}>{t('ship.intro', { code })}</p>
         <address style={{ fontStyle: 'normal', fontSize: 14, lineHeight: 1.6, padding: '12px 14px', borderRadius: 12, background: 'var(--sunken)', border: '1px solid var(--line)' }}>
-          {COMPANY.authCentre.map((l) => (
-            <div key={l}>{l}</div>
-          ))}
+          {address.isLoading ? (
+            t('ship.addressLoading')
+          ) : a ? (
+            <>
+              <div>{address.data?.name}</div>
+              <div>{a.line1}</div>
+              {a.line2 && <div>{a.line2}</div>}
+              <div>
+                {a.postal_code} {a.city}
+                {a.country && a.country !== 'CH' ? ', ' + a.country : ''}
+              </div>
+            </>
+          ) : (
+            t('ship.noAddress')
+          )}
         </address>
         <div style={{ margin: '14px 0 18px' }}>
           <Button variant="ghost" size="sm" busy={label.isPending} busyLabel={t('ship.creatingLabel')} onClick={getLabel}>
@@ -51,19 +72,22 @@ export function ShipDialog({ orderId, onClose, onSubmit, busy }: { orderId: stri
           {result?.configured && result.error && <Notice tone="neg" style={{ marginTop: 10 }}>{result.error}</Notice>}
           {label.isError && <Notice tone="neg" style={{ marginTop: 10 }}>{t('ship.labelFailed')}</Notice>}
         </div>
-        <TextField
-          label={t('ship.tracking')}
-          placeholder={t('ship.trackingPh')}
-          value={tracking}
-          onChange={(e) => setTracking(e.target.value.slice(0, 60))}
-          hint={detected && !picked ? t('ship.looksLike', { carrier: carrierName(detected) }) : t('ship.optional')}
-          autoFocus
-        />
+        <PhotoSlotsField s={slots} legend={t('ship.photos')} hint={t('ship.photosHint')} />
+        <div style={{ marginTop: 18 }}>
+          <TextField
+            label={t('ship.tracking')}
+            placeholder={t('ship.trackingPh')}
+            value={tracking}
+            onChange={(e) => setTracking(e.target.value.slice(0, 60))}
+            hint={detected && !picked ? t('ship.looksLike', { carrier: carrierName(detected) }) : t('ship.required')}
+            required
+          />
+        </div>
         <label htmlFor="ship-carrier" style={{ display: 'block', fontSize: 14, fontWeight: 600, margin: '16px 0 10px' }}>
           {t('ship.carrier')}
         </label>
         <div className="field">
-          <select id="ship-carrier" value={picked || detected || ''} onChange={(e) => setPicked(e.target.value as Carrier | '')}>
+          <select id="ship-carrier" required value={picked || detected || ''} onChange={(e) => setPicked(e.target.value as Carrier | '')}>
             <option value="">{t('ship.choose')}</option>
             {CARRIER_IDS.map((c) => (
               <option key={c} value={c}>
@@ -76,7 +100,7 @@ export function ShipDialog({ orderId, onClose, onSubmit, busy }: { orderId: stri
           <Button variant="ghost" onClick={onClose} style={{ flex: 1 }}>
             {t('common.cancel')}
           </Button>
-          <Button type="submit" busy={busy} busyLabel={t('ship.saving')} style={{ flex: 1.4 }}>
+          <Button type="submit" disabled={!ready} busy={busy} busyLabel={t('ship.saving')} style={{ flex: 1.4 }}>
             {t('ship.markShipped')}
           </Button>
         </div>
@@ -85,17 +109,32 @@ export function ShipDialog({ orderId, onClose, onSubmit, busy }: { orderId: stri
   );
 }
 
-export function ReleaseDialog({ open, onClose, onConfirm, busy, amountFmt }: { open: boolean; onClose: () => void; onConfirm: () => void; busy: boolean; amountFmt: string }) {
+const SHIP_SLOTS: Slot[] = [
+  ['shirt', 'ship.photo.shirt', true],
+  ['parcel', 'ship.photo.parcel', false]
+];
+const RECEIPT_SLOTS: Slot[] = [
+  ['received', 'rel.photo.shirt', true],
+  ['label', 'rel.photo.label', false]
+];
+
+/** The buyer confirms with a photo of the shirt they received; that releases the payment. */
+export function ReceiptDialog({ order, onClose, onConfirm, busy, amountFmt }: { order: Order | null; onClose: () => void; onConfirm: (photos: PhotoSlots) => void; busy: boolean; amountFmt: string }) {
   const { t } = usePrefs();
+  const slots = usePhotoSlots(RECEIPT_SLOTS);
+  const code = order ? order.id.slice(0, 8).toUpperCase() : '';
   return (
-    <Dialog open={open} onClose={onClose} title={t('rel.title')}>
-      <Notice tone="warn">{t('rel.warn', { amount: amountFmt })}</Notice>
+    <Dialog open={!!order} onClose={onClose} title={t('rel.title')}>
+      <PhotoSlotsField s={slots} legend={t('rel.photos')} hint={t('rel.photosHint', { code })} />
+      <Notice tone="warn" style={{ marginTop: 16 }}>
+        {t('rel.warn', { amount: amountFmt })}
+      </Notice>
       <p style={{ margin: '14px 0 0', fontSize: 14, lineHeight: 1.55, color: 'var(--text-2)' }}>{t('rel.body')}</p>
       <div style={{ display: 'flex', gap: 10, marginTop: 22 }}>
         <Button variant="ghost" onClick={onClose} style={{ flex: 1 }}>
           {t('rel.notYet')}
         </Button>
-        <Button busy={busy} busyLabel={t('rel.releasing')} onClick={onConfirm} style={{ flex: 1.4 }}>
+        <Button disabled={!slots.complete} busy={busy} busyLabel={t('rel.releasing')} onClick={() => onConfirm(slots)} style={{ flex: 1.4 }}>
           {t('rel.confirm')}
         </Button>
       </div>

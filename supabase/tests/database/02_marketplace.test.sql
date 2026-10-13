@@ -44,7 +44,7 @@ create or replace function tests.last_dispute()
 returns uuid language sql security definer as $$ select id from public.disputes order by created_at desc limit 1 $$;
 grant execute on function tests.last_dispute() to authenticated;
 
-select plan(42);
+select plan(47);
 
 -- ======================= matching engine ==================================
 -- self-trade: one user's crossing bid and ask must never match
@@ -88,29 +88,35 @@ select is((select count(*)::int from orders where shirt_id = 'boc-81'), 2, 'seco
 
 -- ======================= escrow lifecycle =================================
 select tests.login('00000000-0000-4000-a000-00000000a11c');
-select throws_ok(format('select order_confirm_receipt(%L)', (tests.order_for('liv-2526', 'L')).id), null, 'order cannot be released', 'cannot release an unpaid order');
+select throws_ok(format('select order_confirm_receipt(%L, %L)', (tests.order_for('liv-2526', 'L')).id, '[{"path": "00000000-0000-4000-a000-00000000a11c/r.jpg"}]'), null, 'order cannot be released', 'cannot release an unpaid order');
 select tests.logout();
 update orders set status = 'paid_escrow' where id = (tests.order_for('liv-2526', 'L')).id;  -- what the Stripe webhook does
 select tests.login('00000000-0000-4000-a000-00000000a11c');
-select throws_ok(format('select order_mark_shipped(%L, %L)', (tests.order_for('liv-2526', 'L')).id, 'X'), null, 'order cannot be marked shipped', 'buyer cannot mark shipped');
+select throws_ok(format('select order_mark_shipped(%L, %L, %L, %L)', (tests.order_for('liv-2526', 'L')).id, 'X', 'post', '[{"path": "00000000-0000-4000-a000-00000000a11c/s.jpg"}]'), null, 'order cannot be marked shipped', 'buyer cannot mark shipped');
 select tests.login('00000000-0000-4000-a000-000000000b0b');
-select lives_ok(format('select order_mark_shipped(%L, %L)', (tests.order_for('liv-2526', 'L')).id, '99.00.123456'), 'seller marks shipped');
+select throws_ok(format('select order_mark_shipped(%L, %L, %L, %L)', (tests.order_for('liv-2526', 'L')).id, '99.00.123456', 'post', '[]'), '22023', 'a photo of the shirt is required', 'shipping needs a photo of the shirt');
+select throws_ok(format('select order_mark_shipped(%L, %L, %L, %L)', (tests.order_for('liv-2526', 'L')).id, '99.00.123456', 'post', '[{"path": "00000000-0000-4000-a000-00000000a11c/x.jpg"}]'), '22023', 'a photo of the shirt is required', 'only photos from the seller''s own folder');
+select lives_ok(format('select order_mark_shipped(%L, %L, %L, %L)', (tests.order_for('liv-2526', 'L')).id, '99.00.123456', 'post', '[{"path": "00000000-0000-4000-a000-000000000b0b/orders/o/shirt.jpg"}]'), 'seller ships straight to the buyer with a photo');
 select is((tests.order_for('liv-2526', 'L')).tracking_code, '99.00.123456', 'tracking code stored');
-select throws_ok(format('select order_confirm_receipt(%L)', (tests.order_for('liv-2526', 'L')).id), null, 'order cannot be released', 'seller cannot release their own escrow');
+select throws_ok(format('select order_confirm_receipt(%L, %L)', (tests.order_for('liv-2526', 'L')).id, '[{"path": "00000000-0000-4000-a000-000000000b0b/r.jpg"}]'), null, 'order cannot be released', 'seller cannot release their own escrow');
 select tests.login('00000000-0000-4000-a000-00000000a11c');
-select throws_ok(format('select order_confirm_receipt(%L)', (tests.order_for('liv-2526', 'L')).id), null, 'order cannot be released', 'buyer cannot confirm before authentication');
+select throws_ok(format('select order_confirm_receipt(%L, %L)', (tests.order_for('liv-2526', 'L')).id, '[]'), '22023', 'a photo of the shirt is required', 'confirming needs a photo of the shirt');
 select throws_ok(format('select admin_record_inspection(%L, true)', (tests.order_for('liv-2526', 'L')).id), null, 'not authorized', 'only admins record inspections');
 select tests.login('00000000-0000-4000-a000-0000000ad111');
-select lives_ok(format('select admin_record_inspection(%L, true, null, %L)', (tests.order_for('liv-2526', 'L')).id, '99.00.654321'), 'centre passes and forwards the shirt');
+select throws_ok(format('select admin_record_inspection(%L, true)', (tests.order_for('liv-2526', 'L')).id), null, 'order is not awaiting inspection', 'direct orders never go through a centre');
 select tests.logout();
 insert into order_addresses (order_id, ship_to) values ((tests.order_for('liv-2526', 'L')).id, '{"name": "Alice", "city": "Bern"}');
 select tests.login('00000000-0000-4000-a000-000000000b0b');
-select is((select count(*)::int from order_addresses), 0, 'seller never sees the buyer''s address');
+select is((select count(*)::int from order_addresses), 1, 'the seller sees the address while shipping is their job');
 select tests.login('00000000-0000-4000-a000-00000000a11c');
 select is((select count(*)::int from order_addresses), 1, 'buyer sees their own delivery address');
-select lives_ok(format('select order_confirm_receipt(%L)', (tests.order_for('liv-2526', 'L')).id), 'buyer confirms receipt');
+select lives_ok(format('select order_mark_delivered(%L)', (tests.order_for('liv-2526', 'L')).id), 'buyer reports the parcel arrived');
+select lives_ok(format('select order_confirm_receipt(%L, %L)', (tests.order_for('liv-2526', 'L')).id, '[{"path": "00000000-0000-4000-a000-00000000a11c/orders/o/received.jpg"}]'), 'buyer confirms receipt with a photo');
+select tests.login('00000000-0000-4000-a000-000000000b0b');
+select is((select count(*)::int from order_addresses), 0, 'once released the seller no longer sees the address');
 select tests.logout();
 select is((tests.order_for('liv-2526', 'L')).status, 'released', 'order released');
+select is((tests.order_for('liv-2526', 'L')).auth_fee, 0::numeric, 'no authentication fee without a centre');
 select is((tests.order_for('liv-2526', 'L')).payout_status, 'pending', 'release queues the seller payout');
 select ok(exists (select 1 from notifications where user_id = '00000000-0000-4000-a000-000000000b0b' and type = 'order_released'), 'seller notified of release');
 
@@ -151,9 +157,9 @@ insert into asks (user_id, shirt_id, size, amount) values ('00000000-0000-4000-a
 select tests.login('00000000-0000-4000-a000-00000000a11c');
 insert into bids (user_id, shirt_id, size, amount) values ('00000000-0000-4000-a000-00000000a11c', 'bas-2526', 'M', 80);
 select tests.logout();
-update orders set status = 'paid_escrow' where id = (tests.order_for('bas-2526', 'M')).id;
+update orders set status = 'paid_escrow', inspection = 'pending' where id = (tests.order_for('bas-2526', 'M')).id;  -- routed through a centre
 select tests.login('00000000-0000-4000-a000-000000000b0b');
-select order_mark_shipped((tests.order_for('bas-2526', 'M')).id, 'RR123456789CH', 'post');
+select order_mark_shipped((tests.order_for('bas-2526', 'M')).id, 'RR123456789CH', 'post', '[{"path": "00000000-0000-4000-a000-000000000b0b/orders/b/shirt.jpg"}]');
 select tests.login('00000000-0000-4000-a000-0000000ad111');
 select lives_ok(format('select admin_record_inspection(%L, false, %L)', (tests.order_for('bas-2526', 'M')).id, 'crest stitching'), 'centre rejects a fake');
 select tests.logout();

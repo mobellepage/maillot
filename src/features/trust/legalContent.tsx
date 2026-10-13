@@ -4,7 +4,7 @@ import type { ReactNode } from 'react';
 import { COMPANY } from '../../config/company.ts';
 import type { LegalDoc } from '../../config/legal.ts';
 import { Mail, P, UL } from './legalParts.tsx';
-import { BUYER_AUTH_FEE_CHF, BUYER_SHIPPING_CHF, SELLER_FEE_RATE } from '../../fees.ts';
+import { BUYER_SHIPPING_CHF, SELLER_FEE_RATE } from '../../fees.ts';
 import { ORDER_POLICY } from '../orders/policy.ts';
 
 interface Section {
@@ -65,7 +65,7 @@ export const DOCS: Record<LegalDoc, { title: string; intro?: string; sections: S
   },
   terms: {
     title: 'Terms of use',
-    intro: 'These terms govern your use of Maillot, a marketplace for football shirts where buyers and sellers trade with each other and Maillot handles escrow and authentication.',
+    intro: 'These terms govern your use of Maillot, a marketplace for football shirts where buyers and sellers trade with each other and Maillot holds the payment in escrow.',
     sections: [
       {
         h: '1. Your account',
@@ -85,8 +85,8 @@ export const DOCS: Record<LegalDoc, { title: string; intro?: string; sections: S
           <>
             <P>
               Sellers place asks (the price they will sell at) and buyers place bids (the price they will pay) or buy at the lowest ask. When a bid meets an ask, a binding
-              purchase contract is formed between buyer and seller at the ask price. Maillot is not the seller; we act as an intermediary that holds the payment and
-              authenticates the item.
+              purchase contract is formed between buyer and seller at the ask price. Maillot is not the seller; we act as an intermediary that holds the payment until the
+              buyer has received the item.
             </P>
             <P>You can never be matched with your own listing.</P>
           </>
@@ -97,8 +97,8 @@ export const DOCS: Record<LegalDoc, { title: string; intro?: string; sections: S
         body: (
           <UL
             items={[
-              `Buyers pay the item price plus a CHF ${BUYER_AUTH_FEE_CHF} authentication fee and CHF ${BUYER_SHIPPING_CHF} for insured shipping.`,
-              `Sellers pay a ${sellerPct} commission, deducted from the payout. Authentication and the shipping label to our centre are free for sellers.`,
+              `Buyers pay the item price plus a flat CHF ${BUYER_SHIPPING_CHF} shipping fee, which is paid out to the seller for postage.`,
+              `Sellers pay a ${sellerPct} commission, deducted from the payout.`,
               'All fees are shown before you confirm.'
             ]}
           />
@@ -108,20 +108,21 @@ export const DOCS: Record<LegalDoc, { title: string; intro?: string; sections: S
         h: '4. Payment and escrow',
         body: (
           <P>
-            After a match, the buyer pays through our payment provider. The money is held and only released to the seller after the shirt has passed authentication and
-            the buyer has confirmed delivery, or after a dispute has been resolved in the seller’s favour. Buyers may cancel a matched order at no cost until they have paid.
-            Automatic deadlines keep every order moving: a matched order that isn’t paid within {ORDER_POLICY.paymentHours} hours is cancelled; an order that isn’t
-            shipped within {ORDER_POLICY.shipDays} days of payment is refunded to the buyer; and if the buyer neither confirms delivery nor opens a dispute within{' '}
-            {ORDER_POLICY.releaseDays} days of shipment, the payment is released to the seller. We send a reminder before each deadline.
+            After a match, the buyer pays through our payment provider. The money is held and only released to the seller after the buyer has confirmed delivery, or
+            after a dispute has been resolved in the seller’s favour. Buyers may cancel a matched order at no cost until they have paid. Automatic deadlines keep every
+            order moving: a matched order that isn’t paid within {ORDER_POLICY.paymentHours} hours is cancelled; an order that isn’t shipped within{' '}
+            {ORDER_POLICY.shipDays} days of payment is refunded to the buyer; a shipped order counts as delivered when the buyer says so, or{' '}
+            {ORDER_POLICY.deliveryDays} days after shipment; and if the buyer neither confirms delivery nor opens a dispute within {ORDER_POLICY.releaseDays} days of
+            delivery, the payment is released to the seller. We send reminders before these deadlines.
           </P>
         )
       },
       {
-        h: '5. Shipping and authentication',
+        h: '5. Shipping',
         body: (
           <P>
-            Sellers ship to our authentication centre in Zürich using the label we provide, promptly after payment. We inspect every item (see “How authentication works”).
-            Items that pass are shipped to the buyer; items that fail are returned to the seller and the buyer is refunded in full.
+            Sellers ship the item directly to the buyer with a tracked service, promptly after payment, and record a photo of the item, the carrier and the tracking
+            number. The buyer confirms receipt with a photo of the item. Any automatic authenticity pre-check shown in the app is an indication, not a guarantee.
           </P>
         )
       },
@@ -142,8 +143,8 @@ export const DOCS: Record<LegalDoc, { title: string; intro?: string; sections: S
         h: '8. Liability',
         body: (
           <P>
-            We are liable for intent and gross negligence. Our authentication guarantee (full refund if an item we authenticated is not genuine) applies in addition. Market
-            values and price charts are estimates, not financial advice.
+            We are liable for intent and gross negligence. Market values, price charts and automatic pre-checks are estimates, not financial advice or a guarantee of
+            authenticity.
           </P>
         )
       },
@@ -277,7 +278,7 @@ export const DOCS: Record<LegalDoc, { title: string; intro?: string; sections: S
         h: 'Fees',
         body: (
           <P>
-            Buyers: CHF {BUYER_AUTH_FEE_CHF} authentication + CHF {BUYER_SHIPPING_CHF} insured shipping per order. Sellers: {sellerPct} commission. No listing fees.
+            Buyers: CHF {BUYER_SHIPPING_CHF} shipping per order (paid out to the seller for postage). Sellers: {sellerPct} commission. No listing fees.
           </P>
         )
       },

@@ -67,13 +67,14 @@ test('unknown URLs fall back to the home page', async ({ page }) => {
   await expect(page.getByRole('heading', { level: 1 })).toContainText('Your collection');
 });
 
-test('product pages link to the authentication explainer', async ({ page }) => {
+test('product pages link to the buying explainer', async ({ page }) => {
   await page.goto('/shirt/fra-98');
   await page.getByRole('link', { name: 'How it works →' }).click();
   await expect(page).toHaveURL(/\/authentication$/);
-  await expect(page.getByRole('heading', { level: 1 })).toContainText(/How authentication works/i);
-  await expect(page.getByText('The 14-point checklist')).toBeVisible();
-  await expect(page.locator('main li').filter({ hasText: '✓' })).toHaveCount(14);
+  await expect(page.getByRole('heading', { level: 1 })).toContainText(/How buying works/i);
+  await expect(page.getByText('Automatic pre-check')).toBeVisible();
+  await expect(page.locator('main li').filter({ hasText: '✓' })).toHaveCount(4);
+  await expect(page.getByText(/Zürich/)).toHaveCount(0);
 });
 
 test('footer reaches every legal page and no fonts are fetched from Google @mobile', async ({ page }) => {

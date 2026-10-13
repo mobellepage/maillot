@@ -6,7 +6,7 @@ import { Link, Navigate, useParams } from 'react-router';
 import { LEGAL_DOCS, type LegalDoc } from '../../config/legal.ts';
 import { usePageMeta } from '../../lib/meta.ts';
 import { usePrefs } from '../../lib/prefs.tsx';
-import { BUYER_AUTH_FEE_CHF, BUYER_SHIPPING_CHF, SELLER_FEE_RATE } from '../../fees.ts';
+import { BUYER_SHIPPING_CHF, SELLER_FEE_RATE } from '../../fees.ts';
 import { COMPANY } from '../../config/company.ts';
 import { DOCS } from './legalContent.tsx';
 import { Mail, P, UL } from './legalParts.tsx';
@@ -20,7 +20,7 @@ function HelpSections() {
   const sections = [
     ['help.buying', <UL key="b" items={[t('help.b1'), t('help.b2'), t('help.b3')]} />],
     ['help.selling', <UL key="s" items={[t('help.s1'), t('help.s2'), t('help.s3', { pct })]} />],
-    ['help.fees', <P key="f">{t('help.feesBody', { auth: money(BUYER_AUTH_FEE_CHF), ship: money(BUYER_SHIPPING_CHF), pct })}</P>],
+    ['help.fees', <P key="f">{t('help.feesBody', { ship: money(BUYER_SHIPPING_CHF), pct })}</P>],
     [
       'help.contact',
       <P key="c">

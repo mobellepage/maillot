@@ -15,22 +15,41 @@ export async function loadMyOrders(userId: string): Promise<Order[]> {
   return data || [];
 }
 
-/** What the buyer pays: price + authentication + shipping. */
+/** What the buyer pays: price + authentication (only via a centre) + shipping. */
 export function orderTotal(o: Pick<Order, 'amount' | 'auth_fee' | 'shipping_fee'>): number {
   return Number(o.amount) + Number(o.auth_fee || 0) + Number(o.shipping_fee || 0);
 }
 
-export async function markOrderShipped(orderId: string, tracking?: string | null, carrier?: string | null): Promise<void> {
-  const args: { p_order_id: string; p_tracking?: string; p_carrier?: string } = { p_order_id: orderId };
-  if (tracking) args.p_tracking = tracking;
-  if (carrier) args.p_carrier = carrier;
-  const { error } = await (await sb()).rpc('order_mark_shipped', args);
+/** What the seller receives: price − fee, plus the shipping fee when they ship it themselves. */
+export function sellerNet(o: Pick<Order, 'amount' | 'commission' | 'shipping_fee' | 'inspection'>): number {
+  return Number(o.amount) - Number(o.commission) + (o.inspection === 'not_required' ? Number(o.shipping_fee || 0) : 0);
+}
+
+export type OrderPhoto = { path: string; thumbPath?: string };
+
+/** Seller: shirt photo + carrier + tracking number are all required. */
+export async function markOrderShipped(orderId: string, tracking: string, carrier: string, photos: OrderPhoto[]): Promise<void> {
+  const { error } = await (await sb()).rpc('order_mark_shipped', { p_order_id: orderId, p_tracking: tracking, p_carrier: carrier, p_photos: photos });
   if (error) throw error;
+}
+
+/** Buyer: the parcel arrived (starts the release clock). */
+export async function markOrderDelivered(orderId: string): Promise<void> {
+  const { error } = await (await sb()).rpc('order_mark_delivered', { p_order_id: orderId });
+  if (error) throw error;
+}
+
+/** The buyer's delivery address (Stripe Checkout), readable by the seller while they ship. */
+export type ShipTo = { name?: string; address?: { line1?: string; line2?: string | null; postal_code?: string; city?: string; country?: string } };
+export async function loadShipTo(orderId: string): Promise<ShipTo | null> {
+  const { data, error } = await (await sb()).from('order_addresses').select('ship_to').eq('order_id', orderId).maybeSingle();
+  if (error) throw error;
+  return (data?.ship_to as ShipTo | undefined) ?? null;
 }
 
 export type LabelResult = { configured: false; message?: string } | { configured: true; url?: string; tracking?: string; error?: string };
 
-/** Prepaid Swiss Post label: inbound (seller -> centre) or outbound (centre -> buyer, admins). */
+/** Prepaid Swiss Post label: inbound (seller -> buyer, or -> centre) or outbound (centre -> buyer, admins). */
 export async function requestShippingLabel(orderId: string, leg: 'inbound' | 'outbound' = 'inbound'): Promise<LabelResult> {
   const { data, error } = await (await sb()).functions.invoke<LabelResult>('shipping-label', { body: { orderId, leg } });
   if (error) throw error;
@@ -38,8 +57,9 @@ export async function requestShippingLabel(orderId: string, leg: 'inbound' | 'ou
   return data;
 }
 
-export async function confirmOrderReceipt(orderId: string): Promise<void> {
-  const { error } = await (await sb()).rpc('order_confirm_receipt', { p_order_id: orderId });
+/** Buyer: confirms with a photo of the shirt they received; releases the payment. */
+export async function confirmOrderReceipt(orderId: string, photos: OrderPhoto[]): Promise<void> {
+  const { error } = await (await sb()).rpc('order_confirm_receipt', { p_order_id: orderId, p_photos: photos });
   if (error) throw error;
 }
 

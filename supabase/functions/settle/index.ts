@@ -45,7 +45,7 @@ Deno.serve(async (req: Request) => {
 async function settle(db: any, stripe: Stripe, orderId: string): Promise<string> {
   const { data: o } = await db
     .from("orders")
-    .select("id, status, amount, commission, seller_id, stripe_payment_intent_id, payout_status")
+    .select("id, status, amount, commission, shipping_fee, inspection, seller_id, stripe_payment_intent_id, payout_status")
     .eq("id", orderId)
     .maybeSingle();
   if (!o) return "not_found";
@@ -64,7 +64,10 @@ async function settle(db: any, stripe: Stripe, orderId: string): Promise<string>
     try {
       const pi = await stripe.paymentIntents.retrieve(o.stripe_payment_intent_id);
       const charge = typeof pi.latest_charge === "string" ? pi.latest_charge : pi.latest_charge?.id;
-      const payout = Math.round((Number(o.amount) - Number(o.commission)) * 100);
+      // Shipped directly by the seller: they paid the postage, so the buyer's
+      // shipping fee goes to them with the sale.
+      const postage = o.inspection === "not_required" ? Number(o.shipping_fee) : 0;
+      const payout = Math.round((Number(o.amount) - Number(o.commission) + postage) * 100);
       const transfer = await stripe.transfers.create(
         { amount: payout, currency: "chf", destination: seller.stripe_account_id, transfer_group: o.id, ...(charge ? { source_transaction: charge } : {}), metadata: { order_id: o.id } },
         { idempotencyKey: "payout-" + o.id }

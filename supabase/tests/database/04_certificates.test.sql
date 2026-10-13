@@ -37,7 +37,7 @@ select tests.create_user('00000000-0000-4000-a000-0000000ad111', 'admin@test.loc
 
 insert into asks (user_id, shirt_id, size, amount) values ('00000000-0000-4000-a000-000000000b0b', 'sui-26', 'L', 90);
 insert into bids (user_id, shirt_id, size, amount) values ('00000000-0000-4000-a000-00000000a11c', 'sui-26', 'L', 90);
-update orders set status = 'shipped', shipped_at = now() where id = (tests.order_for('sui-26', 'L')).id;
+update orders set status = 'shipped', shipped_at = now(), inspection = 'pending' where id = (tests.order_for('sui-26', 'L')).id;  -- routed through a centre
 
 select plan(15);
 

@@ -1,16 +1,26 @@
 import { describe, expect, it } from 'vitest';
 import { buildTimeline } from '../features/orders/timeline.ts';
 
-const base = { status: 'pending_payment', created_at: '2026-10-01T10:00:00Z', paid_at: null, shipped_at: null, inspection: 'pending', inspected_at: null, forwarded_at: null, released_at: null, updated_at: '2026-10-01T10:00:00Z', inspection_note: null };
+const base = { status: 'pending_payment', created_at: '2026-10-01T10:00:00Z', paid_at: null, shipped_at: null, delivered_at: null, delivered_by: null, inspection: 'not_required', inspected_at: null, forwarded_at: null, released_at: null, updated_at: '2026-10-01T10:00:00Z', inspection_note: null };
 const states = (steps) => steps.map((s) => `${s.key}:${s.state}`);
 
 describe('buildTimeline', () => {
   it('marks the next step as current', () => {
-    expect(states(buildTimeline(base, true))).toEqual(['matched:done', 'paid:current', 'shipped:upcoming', 'inspected:upcoming', 'forwarded:upcoming', 'released:upcoming']);
+    expect(states(buildTimeline(base, true))).toEqual(['matched:done', 'paid:current', 'shipped:upcoming', 'delivered:upcoming', 'released:upcoming']);
+  });
+
+  it('goes through the centre only when the order is routed there', () => {
+    expect(states(buildTimeline({ ...base, inspection: 'pending' }, true))).toEqual(['matched:done', 'paid:current', 'shipped:upcoming', 'inspected:upcoming', 'forwarded:upcoming', 'delivered:upcoming', 'released:upcoming']);
+  });
+
+  it('notes a delivery counted automatically', () => {
+    const t = buildTimeline({ ...base, status: 'delivered', paid_at: 'x', shipped_at: 'x', delivered_at: 'y', delivered_by: 'auto' }, true);
+    expect(states(t)).toEqual(['matched:done', 'paid:done', 'shipped:done', 'delivered:done', 'released:current']);
+    expect(t[3].detail).toBe('tl.delivered.auto');
   });
 
   it('walks through to release', () => {
-    const o = { ...base, status: 'released', paid_at: 'x', shipped_at: 'x', inspection: 'passed', inspected_at: 'x', forwarded_at: 'x', released_at: 'x' };
+    const o = { ...base, status: 'released', paid_at: 'x', shipped_at: 'x', delivered_at: 'x', released_at: 'x' };
     expect(buildTimeline(o, false).every((s) => s.state === 'done')).toBe(true);
   });
 
@@ -38,8 +48,7 @@ describe('buildTimeline', () => {
       'paid:done',
       'shipped:done',
       'dispute:current',
-      'inspected:upcoming',
-      'forwarded:upcoming',
+      'delivered:upcoming',
       'released:upcoming'
     ]);
   });

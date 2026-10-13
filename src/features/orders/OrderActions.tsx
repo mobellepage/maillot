@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { usePrefs } from '../../lib/prefs.tsx';
 import type { Order } from '../../utils/db.ts';
 import { Button, useConfirm } from '../../ui/index.ts';
-import { DisputeDialog, ReleaseDialog, ShipDialog } from './OrderDialogs.tsx';
+import { DisputeDialog, ReceiptDialog, ShipDialog } from './OrderDialogs.tsx';
 import { useOrderActions } from './useOrders.ts';
 
 export function OrderActions({ order: o, isBuyer }: { order: Order; isBuyer: boolean }) {
@@ -15,6 +15,8 @@ export function OrderActions({ order: o, isBuyer }: { order: Order; isBuyer: boo
   const [open, setOpen] = useState<'ship' | 'release' | 'dispute' | null>(null);
   const close = () => setOpen(null);
   const status = o.status;
+  // On its way to the buyer: shipped directly, or passed and forwarded by a centre.
+  const onTheWay = o.inspection === 'not_required' || o.inspection === 'passed';
 
   const cancel = async () => {
     const ok = await confirm({ title: t('ord.cancelTitle'), body: t('ord.cancelBody'), confirmLabel: t('ord.cancelConfirm'), cancelLabel: t('ord.keep'), tone: 'danger' });
@@ -38,20 +40,27 @@ export function OrderActions({ order: o, isBuyer }: { order: Order; isBuyer: boo
           {t('order.action.markShipped')}
         </Button>
       )}
-      {isBuyer && status === 'shipped' && o.inspection === 'passed' && (
+      {isBuyer && (status === 'shipped' || status === 'delivered') && onTheWay && (
         <Button size="sm" onClick={() => setOpen('release')}>
           {t('order.action.confirmRelease')}
         </Button>
       )}
-      {(status === 'paid_escrow' || status === 'shipped') && (
+      {isBuyer && status === 'shipped' && onTheWay && (
+        <Button size="sm" variant="ghost" busy={act.delivered.isPending} onClick={() => act.delivered.mutate(o.id)}>
+          {t('order.action.arrived')}
+        </Button>
+      )}
+      {(status === 'paid_escrow' || status === 'shipped' || status === 'delivered') && (
         <Button size="sm" variant="ghost" onClick={() => setOpen('dispute')}>
           {t('order.action.dispute')}
         </Button>
       )}
       {open === 'ship' && (
-        <ShipDialog orderId={o.id} onClose={close} busy={act.ship.isPending} onSubmit={(tracking, carrier) => act.ship.mutate({ id: o.id, tracking, carrier }, { onSuccess: close })} />
+        <ShipDialog order={o} onClose={close} busy={act.ship.isPending} onSubmit={(tracking, carrier, photos) => act.ship.mutate({ id: o.id, tracking, carrier, photos }, { onSuccess: close })} />
       )}
-      <ReleaseDialog open={open === 'release'} onClose={close} busy={act.release.isPending} amountFmt={money(Number(o.amount))} onConfirm={() => act.release.mutate(o.id, { onSuccess: close })} />
+      {open === 'release' && (
+        <ReceiptDialog order={o} onClose={close} busy={act.release.isPending} amountFmt={money(Number(o.amount))} onConfirm={(photos) => act.release.mutate({ id: o.id, photos }, { onSuccess: close })} />
+      )}
       {open === 'dispute' && <DisputeDialog open onClose={close} busy={act.dispute.isPending} onSubmit={(reason) => act.dispute.mutate({ id: o.id, reason }, { onSuccess: close })} />}
     </div>
   );

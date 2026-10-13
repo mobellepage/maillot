@@ -1,16 +1,18 @@
-// "How authentication works" — the trust page every purchase links to.
-// The process described here is Maillot's policy; the escrow part is
-// enforced in code (see supabase/migrations/*security_hardening_v1.sql).
+// "How buying works" — the trust page every purchase links to: escrow,
+// direct shipping with photos, and the automatic authenticity pre-check.
+// Deadlines and escrow are enforced in code (order_policy(),
+// run_order_lifecycle(); see supabase/migrations/*direct_shipping.sql).
 
 import { ButtonLink } from '../../ui/index.ts';
 import { usePageMeta } from '../../lib/meta.ts';
 import { usePrefs } from '../../lib/prefs.tsx';
-import { INSPECTION_CHECKLIST } from '../../config/inspection.ts';
-import { BUYER_AUTH_FEE_CHF } from '../../fees.ts';
+import { BUYER_SHIPPING_CHF } from '../../fees.ts';
 
 const ACC = 'var(--accent)';
 const STEPS = [1, 2, 3, 4, 5].map((n) => ({ title: `auth.s${n}.t`, body: `auth.s${n}.b` }));
 const FAQ = [1, 2, 3, 4].map((n) => ({ q: `auth.q${n}`, a: `auth.a${n}` }));
+/** What the automatic pre-check looks at (message keys). */
+const AI_CHECKS = [0, 1, 2, 3].map((n) => `auth.ai.${n}`);
 
 export default function AuthenticationPage() {
   const { t, money } = usePrefs();
@@ -41,9 +43,12 @@ export default function AuthenticationPage() {
           <p style={{ margin: '12px 0 0', fontSize: 14.5, lineHeight: 1.55, color: 'var(--text-2)' }}>
             {t('auth.checklistBody')}
           </p>
+          <p style={{ margin: '12px 0 0', fontSize: 14.5, lineHeight: 1.55, color: 'var(--text-2)' }}>
+            {t('auth.ai.results')}
+          </p>
         </div>
         <ul style={{ flex: '2 1 480px', listStyle: 'none', padding: 0, margin: 0, display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(min(100%,300px),1fr))', gap: 8 }}>
-          {INSPECTION_CHECKLIST.v1.map((c) => (
+          {AI_CHECKS.map((c) => (
             <li key={c} style={{ display: 'flex', gap: 10, alignItems: 'flex-start', padding: '12px 14px', borderRadius: 12, background: 'var(--sunken)', fontSize: 14, lineHeight: 1.45 }}>
               <span aria-hidden="true" style={{ color: ACC, fontWeight: 700 }}>
                 ✓
@@ -75,7 +80,7 @@ export default function AuthenticationPage() {
           {FAQ.map((f) => (
             <details key={f.q} style={{ padding: '16px 18px', borderRadius: 14, background: 'var(--surface)', border: '1px solid rgba(255,255,255,0.06)' }}>
               <summary style={{ cursor: 'pointer', fontWeight: 600, fontSize: 15 }}>{t(f.q)}</summary>
-              <p style={{ margin: '10px 0 0', fontSize: 14, lineHeight: 1.55, color: 'var(--text-2)' }}>{t(f.a, { fee: money(BUYER_AUTH_FEE_CHF) })}</p>
+              <p style={{ margin: '10px 0 0', fontSize: 14, lineHeight: 1.55, color: 'var(--text-2)' }}>{t(f.a, { fee: money(BUYER_SHIPPING_CHF) })}</p>
             </details>
           ))}
         </div>

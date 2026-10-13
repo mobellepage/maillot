@@ -1,13 +1,14 @@
 import { describe, expect, it } from 'vitest';
 import { buyerCheckoutFees, sellerPayout, BUYER_AUTH_FEE_CHF, BUYER_SHIPPING_CHF } from '../fees.ts';
 
-// These numbers are duplicated server-side in match_order_book() (auth 9,
-// shipping 12, 8% commission) — if either side changes, these tests and
-// supabase/tests/database/02_marketplace.test.sql must change together.
+// These numbers are duplicated server-side in match_order_book() (shipping
+// 12, 8% commission; the auth fee is zeroed by the orders_route_inspection
+// trigger while there is no authentication centre) — if either side changes,
+// these tests and supabase/tests/database/02_marketplace.test.sql must change together.
 describe('fees', () => {
-  it('adds the flat authentication and shipping fees to the buyer total', () => {
-    expect(buyerCheckoutFees(120)).toEqual({ authFee: 9, shipping: 12, total: 141 });
-    expect(BUYER_AUTH_FEE_CHF + BUYER_SHIPPING_CHF).toBe(21);
+  it('adds the flat shipping fee (and no authentication fee) to the buyer total', () => {
+    expect(buyerCheckoutFees(120)).toEqual({ authFee: 0, shipping: 12, total: 132 });
+    expect(BUYER_AUTH_FEE_CHF + BUYER_SHIPPING_CHF).toBe(12);
   });
 
   it('deducts an 8% commission, rounded to whole francs, from the seller payout', () => {

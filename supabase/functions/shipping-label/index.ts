@@ -1,12 +1,15 @@
 // Prepaid Swiss Post labels (Digital Commerce API, barcode v1).
-//   inbound  — seller -> Zürich authentication centre (caller: the seller)
+//   inbound  — seller -> buyer (direct shipping, the default), or seller ->
+//              authentication centre for orders routed through it (caller: the seller)
 //   outbound — centre -> buyer, to the address Stripe collected (caller: admin)
 // The PDF is stored in the private shipping-labels bucket and handed back as
 // a short-lived signed URL; asking again re-signs the existing label instead
 // of buying a new one. Inert until the SWISSPOST_* secrets are set.
 //
 // Secrets: SWISSPOST_CLIENT_ID, SWISSPOST_CLIENT_SECRET, SWISSPOST_FRANKING_LICENSE,
-// AUTH_CENTRE_ADDRESS (JSON: {"name1","street","zip","city"}),
+// LABEL_SENDER_ADDRESS (JSON: {"name1","street","zip","city"}; the franking
+// customer printed on the label; AUTH_CENTRE_ADDRESS is used if unset and is
+// the destination for orders that go through a centre),
 // optional SWISSPOST_SERVICE_CODES (comma list, default "PRI").
 import { createClient } from "jsr:@supabase/supabase-js@2";
 
@@ -64,10 +67,12 @@ Deno.serve(async (req: Request) => {
   const clientSecret = Deno.env.get("SWISSPOST_CLIENT_SECRET");
   const license = Deno.env.get("SWISSPOST_FRANKING_LICENSE");
   const centreRaw = Deno.env.get("AUTH_CENTRE_ADDRESS");
-  if (!clientId || !clientSecret || !license || !centreRaw) {
+  const senderRaw = Deno.env.get("LABEL_SENDER_ADDRESS") ?? centreRaw;
+  if (!clientId || !clientSecret || !license || !senderRaw) {
     return json({ configured: false, message: "Prepaid labels aren’t switched on yet — please ship with any tracked service." });
   }
-  const centre = JSON.parse(centreRaw) as PostAddress;
+  const sender = JSON.parse(senderRaw) as PostAddress;
+  const centre = centreRaw ? (JSON.parse(centreRaw) as PostAddress) : null;
   const services = (Deno.env.get("SWISSPOST_SERVICE_CODES") ?? "PRI").split(",").map((s) => s.trim()).filter(Boolean);
 
   let orderId: string | undefined, leg: "inbound" | "outbound" = "inbound";
@@ -105,16 +110,18 @@ Deno.serve(async (req: Request) => {
   const { data: existing } = await db.storage.from("shipping-labels").list(order.id, { search: `${leg}.pdf` });
   if (existing?.length) return json({ configured: true, url: await sign(), tracking: existingTracking });
 
+  // Direct orders go straight to the buyer; only centre orders go to the centre.
+  const toBuyer = leg === "outbound" || order.inspection === "not_required";
   let recipient: PostAddress | null = centre;
-  if (leg === "outbound") {
+  if (toBuyer) {
     const { data: addr } = await db.from("order_addresses").select("ship_to").eq("order_id", order.id).maybeSingle();
     recipient = fromStripe(addr?.ship_to);
-    if (!recipient) return json({ configured: true, error: "No delivery address on file for this order" }, 409);
   }
+  if (!recipient) return json({ configured: true, error: toBuyer ? "No delivery address on file for this order" : "No authentication centre is set up" }, 409);
 
   try {
     const token = await postToken(clientId, clientSecret);
-    const { identCode, pdf } = await generateLabel(token, license, centre, recipient, order.id.slice(0, 8), services);
+    const { identCode, pdf } = await generateLabel(token, license, sender, recipient, order.id.slice(0, 8), services);
     const up = await db.storage.from("shipping-labels").upload(path, pdf, { contentType: "application/pdf", upsert: false });
     if (up.error) throw up.error;
     await db.from("orders").update(

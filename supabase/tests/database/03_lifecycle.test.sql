@@ -25,9 +25,9 @@ end $$;
 select tests.create_user('00000000-0000-4000-a000-00000000a11c', 'alice@test.local');
 select tests.create_user('00000000-0000-4000-a000-000000000b0b', 'bob@test.local');
 
-select plan(17);
+select plan(20);
 
-select is((select row(payment_hours, ship_days, release_days)::text from order_policy()), '(24,5,14)', 'policy windows match the app (src/features/orders/policy.ts)');
+select is((select row(payment_hours, ship_days, delivery_days, release_days, reminder_lead_hours, release_reminder_days, auth_threshold)::text from order_policy()), '(24,5,7,5,48,"{2,4}",)', 'policy matches the app (ORDER_POLICY in src/config/rules.ts)');
 select is((select count(*)::int from cron.job where jobname = 'order-lifecycle'), 1, 'lifecycle job is scheduled');
 
 -- unpaid: 13 h old gets a reminder, 25 h old is cancelled and its ask reopens
@@ -42,14 +42,17 @@ update orders set status = 'paid_escrow', paid_at = now() - interval '4 days' wh
 select tests.trade('fcb-2627', 'M');
 update orders set status = 'paid_escrow', paid_at = now() - interval '6 days' where id = (tests.order_for('fcb-2627', 'M')).id;
 
--- authenticated and forwarded 13 days ago gets a reminder, 15 days ago is
--- released; still at the centre, or disputed, is left alone
+-- shipped 8 days ago without word from the buyer counts as delivered;
+-- delivered 3 days ago gets a reminder, 6 days ago is released; at a centre,
+-- or disputed, is left alone
+select tests.trade('mun-0708', 'M');
+update orders set status = 'shipped', shipped_at = now() - interval '8 days' where id = (tests.order_for('mun-0708', 'M')).id;
 select tests.trade('nap-8788', 'M');
-update orders set status = 'shipped', inspection = 'passed', forwarded_at = now() - interval '13 days' where id = (tests.order_for('nap-8788', 'M')).id;
+update orders set status = 'delivered', shipped_at = now() - interval '5 days', delivered_at = now() - interval '3 days' where id = (tests.order_for('nap-8788', 'M')).id;
 select tests.trade('yb-2526', 'M');
-update orders set status = 'shipped', inspection = 'passed', forwarded_at = now() - interval '15 days' where id = (tests.order_for('yb-2526', 'M')).id;
+update orders set status = 'delivered', shipped_at = now() - interval '9 days', delivered_at = now() - interval '6 days' where id = (tests.order_for('yb-2526', 'M')).id;
 select tests.trade('bas-2526', 'M');
-update orders set status = 'shipped', shipped_at = now() - interval '30 days' where id = (tests.order_for('bas-2526', 'M')).id;
+update orders set status = 'shipped', inspection = 'pending', shipped_at = now() - interval '30 days' where id = (tests.order_for('bas-2526', 'M')).id;
 select tests.trade('ajx-95', 'M');
 update orders set status = 'disputed', shipped_at = now() - interval '30 days' where id = (tests.order_for('ajx-95', 'M')).id;
 
@@ -67,8 +70,11 @@ select ok(exists (select 1 from notifications where type = 'ship_reminder' and d
 select is((tests.order_for('fcb-2627', 'M')).status, 'refunded', 'unshipped order is refunded');
 select is((tests.order_for('fcb-2627', 'M')).payout_status, 'refund_pending', 'refund is queued for settlement');
 
-select ok(exists (select 1 from notifications where type = 'release_reminder' and data->>'order_id' = (tests.order_for('nap-8788', 'M')).id::text), 'buyer reminded to confirm delivery');
-select is((tests.order_for('yb-2526', 'M')).status, 'released', 'undisputed delivery auto-releases after forwarding');
+select is((select row(status, delivered_by)::text from orders where id = (tests.order_for('mun-0708', 'M')).id), '(delivered,auto)', 'no word from the buyer: counts as delivered after delivery_days');
+select ok((tests.order_for('mun-0708', 'M')).delivered_at < now() - interval '20 hours', 'counted from the shipping day, not from today');
+select ok(exists (select 1 from notifications where type = 'release_reminder_2' and data->>'order_id' = (tests.order_for('nap-8788', 'M')).id::text), 'buyer reminded to confirm delivery');
+select is((tests.order_for('nap-8788', 'M')).status, 'delivered', 'not released before release_days');
+select is((tests.order_for('yb-2526', 'M')).status, 'released', 'undisputed delivery auto-releases after release_days');
 select is((tests.order_for('yb-2526', 'M')).payout_status, 'pending', 'auto-release queues the payout');
 select is((tests.order_for('ajx-95', 'M')).status, 'disputed', 'disputed orders are never auto-released');
 select is((tests.order_for('bas-2526', 'M')).status, 'shipped', 'nothing releases before authentication');

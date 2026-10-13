@@ -1,6 +1,7 @@
-// The Zürich authentication centre's worklist: shirts on their way in, then
-// a pass (forward to the buyer, outbound tracking) or fail (buyer refunded,
-// shirt returned) decision per order.
+// The authentication centre's worklist — only used once orders are routed
+// through a centre (order_policy().auth_threshold): shirts on their way in,
+// then a pass (forward to the buyer, outbound tracking) or fail (buyer
+// refunded, shirt returned) decision per order.
 import { useState } from 'react';
 import { BY } from '../../data.ts';
 import { formatDate } from '../../lib/format.ts';

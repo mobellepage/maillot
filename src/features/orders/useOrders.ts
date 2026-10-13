@@ -7,6 +7,7 @@ import { useSession } from '../../lib/session.tsx';
 import { useToast } from '../../lib/toast.tsx';
 import { usePrefs } from '../../lib/prefs.tsx';
 import { useLive } from '../../lib/realtime.ts';
+import { uploadOrderPhotos, type PhotoSlots } from './photoSlots.ts';
 
 export function useOrders(enabled = true) {
   const { user } = useSession();
@@ -50,8 +51,18 @@ export function useOrderActions() {
       },
       onError: fail('toast.paymentStartFailed')
     }),
-    ship: useMutation({ mutationFn: ({ id, tracking, carrier }: { id: string; tracking: string; carrier: string | null }) => db.markOrderShipped(id, tracking, carrier), onSuccess: done('toast.markedShipped'), onError: fail('toast.actionFailed') }),
-    release: useMutation({ mutationFn: (id: string) => db.confirmOrderReceipt(id), onSuccess: done('toast.releaseConfirmed'), onError: fail('toast.actionFailed') }),
+    ship: useMutation({
+      mutationFn: async ({ id, tracking, carrier, photos }: { id: string; tracking: string; carrier: string; photos: PhotoSlots }) =>
+        db.markOrderShipped(id, tracking, carrier, await uploadOrderPhotos(user!.id, id, photos)),
+      onSuccess: done('toast.markedShipped'),
+      onError: fail('toast.actionFailed')
+    }),
+    delivered: useMutation({ mutationFn: (id: string) => db.markOrderDelivered(id), onSuccess: done('toast.markedDelivered'), onError: fail('toast.actionFailed') }),
+    release: useMutation({
+      mutationFn: async ({ id, photos }: { id: string; photos: PhotoSlots }) => db.confirmOrderReceipt(id, await uploadOrderPhotos(user!.id, id, photos)),
+      onSuccess: done('toast.releaseConfirmed'),
+      onError: fail('toast.actionFailed')
+    }),
     cancel: useMutation({ mutationFn: (id: string) => db.cancelOrder(id), onSuccess: done('toast.orderCancelled'), onError: fail('toast.cancelFailed') }),
     dispute: useMutation({ mutationFn: ({ id, reason }: { id: string; reason: string }) => db.openDispute(id, reason), onSuccess: done('toast.disputeFiled'), onError: fail('toast.disputeFailed') })
   };

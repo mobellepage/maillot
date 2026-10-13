@@ -111,7 +111,7 @@ export function BidBuyDialog({ mode, onClose, shirt, size, lowestAsk, topBid, ma
 
           {mode === 'buy' ? (
             <>
-              <KeyValueList rows={[[t('bb.lowestAskSize', { size }), money(lowestAsk ?? 0)], [t('bb.authFee'), money(fees.authFee)], [t('bb.shipping'), money(fees.shipping)]]} />
+              <KeyValueList rows={[[t('bb.lowestAskSize', { size }), money(lowestAsk ?? 0)], ...(fees.authFee > 0 ? [[t('bb.authFee'), money(fees.authFee)] as [string, string]] : []), [t('bb.shipping'), money(fees.shipping)]]} />
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginTop: 12, paddingTop: 12, borderTop: '1px solid var(--line)' }}>
                 <span style={{ fontWeight: 600 }}>{t('bb.total')}</span>
                 <span className="mono" style={{ fontSize: 22, fontWeight: 700 }}>

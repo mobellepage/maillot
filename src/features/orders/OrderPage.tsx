@@ -15,6 +15,7 @@ import { useCatalog } from '../catalog/useCatalog.ts';
 import { Badge, Card, ErrorState, KeyValueList, Page, ShirtGraphic, Skeleton } from '../../ui/index.ts';
 import { DeadlineLine } from './DeadlineLine.tsx';
 import { OrderActions } from './OrderActions.tsx';
+import { OrderPhotoGallery } from './OrderPhotos.tsx';
 import { SettlementLine } from './SettlementLine.tsx';
 import { ShipmentLine } from './ShipmentLine.tsx';
 import { ReviewCard } from './ReviewCard.tsx';
@@ -61,17 +62,19 @@ export default function OrderPage() {
   const steps = buildTimeline(o, isBuyer, dispute);
   const status = o.status as OrderStatus;
   const certificate = isBuyer ? certs.data?.[o.id] : undefined;
+  const direct = o.inspection === 'not_required';
   const breakdown: [ReactNode, ReactNode][] = isBuyer
     ? [
         [t('ord.shirt'), money(Number(o.amount))],
-        [t('ord.auth'), money(Number(o.auth_fee))],
+        ...(Number(o.auth_fee) > 0 ? [[t('ord.auth'), money(Number(o.auth_fee))] as [ReactNode, ReactNode]] : []),
         [t('ord.shipping'), money(Number(o.shipping_fee))],
         [t('ord.total'), <strong key="t">{money(db.orderTotal(o))}</strong>]
       ]
     : [
         [t('ord.salePrice'), money(Number(o.amount))],
         [t('ord.fee', { pct: Number(o.amount) > 0 ? Math.round((Number(o.commission) / Number(o.amount)) * 1000) / 10 : Math.round(SELLER_FEE_RATE * 100) }), '− ' + money(Number(o.commission))],
-        [t('ord.payout'), <strong key="p">{money(Number(o.amount) - Number(o.commission))}</strong>]
+        ...(direct ? [[t('ord.postage'), '+ ' + money(Number(o.shipping_fee))] as [ReactNode, ReactNode]] : []),
+        [t('ord.payout'), <strong key="p">{money(db.sellerNet(o))}</strong>]
       ];
 
   return (
@@ -93,7 +96,7 @@ export default function OrderPage() {
             {t('ord.number', { size: o.size ?? '', id: o.id.slice(0, 8).toUpperCase() })}
           </div>
           <ShipmentLine order={o} isBuyer={isBuyer} certificate={certificate} />
-          <SettlementLine order={o} isBuyer={isBuyer} amountFmt={money(Number(o.amount) - Number(o.commission))} />
+          <SettlementLine order={o} isBuyer={isBuyer} amountFmt={money(db.sellerNet(o))} />
           <DeadlineLine order={o} isBuyer={isBuyer} lang={lang} now={now} />
           <div style={{ marginTop: 14 }}>
             <OrderActions order={o} isBuyer={isBuyer} />
@@ -135,6 +138,14 @@ export default function OrderPage() {
             <Link to="/authentication">{t('ord.howItWorks')}</Link>
           </p>
         </Card>
+        {(Array.isArray(o.ship_photos) && o.ship_photos.length > 0) || (Array.isArray(o.receipt_photos) && o.receipt_photos.length > 0) ? (
+          <Card>
+            <h2 className="title" style={{ margin: '0 0 12px' }}>
+              {t('ordp.title')}
+            </h2>
+            <OrderPhotoGallery order={o} />
+          </Card>
+        ) : null}
       </div>
     </Page>
   );

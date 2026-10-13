@@ -15,9 +15,7 @@ export const COMPANY = {
   representatives: '[Name(s) of the board / managing directors]',
   email: 'hello@maillot.app',
   supportEmail: 'support@maillot.app',
-  privacyEmail: 'privacy@maillot.app',
-  /** Where sellers ship to. Must match AUTH_CENTRE_ADDRESS on the shipping-label function. */
-  authCentre: ['MAILLOT Authentication (planned)', '[Street and number]', '[Postcode and town]', 'Switzerland']
+  privacyEmail: 'privacy@maillot.app'
 } as const;
 
 export const LEGAL_REVIEWED = false;
