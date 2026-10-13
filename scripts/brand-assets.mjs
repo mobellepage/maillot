@@ -88,7 +88,7 @@ if (existsSync('ios/App/App/Assets.xcassets')) {
   for (const [name, w, h] of [['logo.png', 160, 50], ['logo@2x.png', 320, 100]]) {
     const path = `dist/__pass-${name}`;
     const s = h / 50;
-    await shoot(`<div style="display:flex;align-items:center;gap:${8 * s}px;height:${h}px">${mark(30 * s)}<span style="font-weight:800;font-stretch:78%;font-size:${22 * s}px;letter-spacing:.03em;color:#F2F4F1">MAILLOT</span></div>`, w, h, path, { transparent: true });
+    await shoot(`<div style="display:flex;align-items:center;gap:${8 * s}px;height:${h}px">${mark(30 * s)}<span style="font-weight:800;font-stretch:78%;font-size:${22 * s}px;letter-spacing:.03em;color:#F2F4F1">Maillot</span></div>`, w, h, path, { transparent: true });
     shots[name] = readFileSync(path).toString('base64');
   }
   writeFileSync(
@@ -99,7 +99,7 @@ if (existsSync('ios/App/App/Assets.xcassets')) {
 
 // Link previews (1200×630).
 const { shirtArt, PATHS } = await import('../dist-ssr/entry-server.js');
-const logo = `<div style="display:flex;align-items:center;gap:16px">${mark(52)}<span style="font-weight:800;font-stretch:78%;font-size:40px;letter-spacing:.03em;color:var(--text)">MAILLOT</span></div>`;
+const logo = `<div style="display:flex;align-items:center;gap:16px">${mark(52)}<span style="font-weight:800;font-stretch:78%;font-size:40px;letter-spacing:.03em;color:var(--text)">Maillot</span></div>`;
 const shirtBox = (a, size, extra = '') =>
   `<div style="position:relative;width:${size}px;height:${size}px;display:grid;place-items:center;${extra}"><div style="width:78%">${a.html}</div></div>`;
 
@@ -114,7 +114,7 @@ await shoot(
     <div style="position:absolute;right:20px;top:90px;width:520px;height:460px">
       ${featured.map((a, i) => `<div style="position:absolute;left:${[0, 170, 80][i]}px;top:${[40, 0, 170][i]}px;transform:rotate(${[-8, 6, 0][i]}deg)">${shirtBox(a, [300, 300, 320][i])}</div>`).join('')}
     </div>
-    <div class="mono" style="position:absolute;left:72px;bottom:52px;font-size:20px;color:var(--muted);letter-spacing:.08em">MAILLOT-TWO.VERCEL.APP</div>
+    <div class="mono" style="position:absolute;left:72px;bottom:52px;font-size:20px;color:var(--muted);letter-spacing:.08em">maillot-two.vercel.app</div>
   </div>`,
   1200,
   630,

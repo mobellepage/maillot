@@ -1,4 +1,4 @@
-// /demo/partner — a private preview of a partner shop on MAILLOT, built from
+// /demo/partner — a private preview of a partner shop on Maillot, built from
 // public/demo/partner.json (scripts/partner-demo.mjs). Development builds
 // only: the route is not part of production, and the data (the partner's
 // photos and texts) is git-ignored. Plain German copy on purpose: it is a
@@ -137,7 +137,7 @@ export default function PartnerDemoPage() {
             </h2>
             <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13.5, cursor: 'pointer' }}>
               <input type="checkbox" checked={studioLook} onChange={(e) => setStudioLook(e.target.checked)} style={{ width: 18, height: 18, accentColor: 'var(--accent)' }} />
-              MAILLOT Studio-Look
+              Maillot Studio-Look
             </label>
           </div>
           <ul className="grid-cards" style={{ listStyle: 'none', padding: 0, margin: '14px 0 0' }}>

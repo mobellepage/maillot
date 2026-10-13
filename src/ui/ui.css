@@ -16,7 +16,7 @@
   src: url('../assets/fonts/jetbrains-mono-var.woff2') format('woff2-variations');
 }
 
-/* MAILLOT design system. Tokens first, then base, then components.
+/* Maillot design system. Tokens first, then base, then components.
    Components are plain classes so hover / focus-visible / disabled states
    live in one place instead of being re-implemented inline per screen. */
 
@@ -39,7 +39,7 @@
 
   --accent: #4aff8b;
   /* Fills (buttons, dots, bars) — in the light theme the text accent is a
-     darker green, but fills stay the MAILLOT green. */
+     darker green, but fills stay the Maillot green. */
   --accent-fill: var(--accent);
   --accent-ink: #06110a;
   --accent-soft: rgba(74, 255, 139, 0.1);

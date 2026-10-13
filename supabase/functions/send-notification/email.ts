@@ -27,14 +27,14 @@ export function deepLink({ data, appUrl }: Pick<EmailInput, "data" | "appUrl">):
   if (order) return { href: `${base}/orders/${order}`, label: "View order" };
   const shirt = id(data?.shirt_id);
   if (shirt) return { href: `${base}/shirt/${shirt}`, label: "View shirt" };
-  return { href: `${base}/`, label: "Open MAILLOT" };
+  return { href: `${base}/`, label: "Open Maillot" };
 }
 
 export function renderEmail(input: EmailInput): { subject: string; html: string; text: string } {
   const body = input.body ?? "";
   const base = input.appUrl.replace(/\/$/, "");
   const link = base ? deepLink(input) : null;
-  const footer = "You get this email because you have a MAILLOT account and something changed on your orders, bids or listings.";
+  const footer = "You get this email because you have a Maillot account and something changed on your orders, bids or listings.";
 
   const html =
     `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${escapeHtml(input.title)}</title></head>` +
@@ -45,7 +45,7 @@ export function renderEmail(input: EmailInput): { subject: string; html: string;
     `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#FFFFFF;border-radius:16px;overflow:hidden;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif">` +
     `<tr><td style="background:#0A0C0B;padding:20px 28px">` +
     (base ? `<img src="${escapeHtml(base)}/icons/icon-192.png" width="28" height="28" alt="" style="vertical-align:middle;border:0;border-radius:7px">` : "") +
-    `<span style="vertical-align:middle;margin-left:10px;color:#F2F4F1;font-weight:800;font-size:18px;letter-spacing:.06em">MAILLOT</span></td></tr>` +
+    `<span style="vertical-align:middle;margin-left:10px;color:#F2F4F1;font-weight:800;font-size:18px;letter-spacing:.06em">Maillot</span></td></tr>` +
     `<tr><td style="padding:28px 28px 8px"><h1 style="margin:0 0 10px;font-size:22px;line-height:1.25;color:#0A0C0B">${escapeHtml(input.title)}</h1>` +
     `<p style="margin:0;font-size:15px;line-height:1.55;color:#3A403C">${escapeHtml(body)}</p></td></tr>` +
     (link

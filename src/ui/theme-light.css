@@ -1,5 +1,5 @@
 /* Light theme ("KitVault v3 Light"), the default look: white surfaces,
-   Apple-style type, pill buttons in MAILLOT green (#4AFF8B, where the design
+   Apple-style type, pill buttons in Maillot green (#4AFF8B, where the design
    has its blue) with dark ink. Green text would not read on white, so text
    accents use a darker green (5.4:1); fills use --accent-fill.
    ?theme=dark switches to the dark look and remembers it (src/lib/theme.ts).

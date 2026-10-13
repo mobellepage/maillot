@@ -1,7 +1,7 @@
 import { PROTOTYPE } from '../config/site.ts';
 import { usePrefs } from '../lib/prefs.tsx';
 
-/** While MAILLOT is a prototype: pictures, prices and figures are examples. */
+/** While Maillot is a prototype: pictures, prices and figures are examples. */
 export function PrototypeBar() {
   const { t } = usePrefs();
   if (!PROTOTYPE) return null;

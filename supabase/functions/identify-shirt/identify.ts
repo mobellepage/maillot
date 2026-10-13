@@ -60,7 +60,7 @@ export type Lang = keyof typeof LANGUAGE;
 
 export function systemPrompt(catalog: CatalogEntry[], lang: Lang): string {
   const lines = catalog.map((c) => `${c.id} | ${c.club} | ${c.name} | ${c.season} | ${c.brand} | ${c.type}`).join("\n");
-  return `You identify football shirts from a collector's photos for MAILLOT, a Swiss marketplace and price index for football shirts. Your answer prefills the listing, so a wrong guess costs the member more than an honest "unknown".
+  return `You identify football shirts from a collector's photos for Maillot, a Swiss marketplace and price index for football shirts. Your answer prefills the listing, so a wrong guess costs the member more than an honest "unknown".
 
 How to read the photos:
 - The inner label is the strongest evidence. Read the manufacturer's article code exactly (adidas e.g. "H35675", Nike e.g. "DM1844-100", Puma e.g. "765123 01"), the size and any production date. Codes and dates pin down the season.

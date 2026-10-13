@@ -32,7 +32,7 @@ describe('ValuationCard', () => {
     show(shirt({ value: 310, low: 306, high: 340, confidence: 'medium', nTrades: 1, nExact: 5, nSimilar: 1, computedAt: '2026-10-07T04:30:00Z' }));
     expect(screen.getByText('Medium confidence')).toBeTruthy();
     expect(screen.getByText(/Range .*306.*340/)).toBeTruthy();
-    expect(screen.getByText('• 1 sale on MAILLOT')).toBeTruthy();
+    expect(screen.getByText('• 1 sale on Maillot')).toBeTruthy();
     expect(screen.getByText('• 5 matching offers on other marketplaces')).toBeTruthy();
     expect(screen.getByText('• 1 related shirt')).toBeTruthy();
     expect(await screen.findByText('Holland Trikot 1988 adidas Gr. L')).toBeTruthy();

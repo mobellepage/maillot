@@ -1,5 +1,5 @@
 // "Market value" on the product page: the valuation model's value and range,
-// how sure it is and why — MAILLOT sales, comparable offers on other
+// how sure it is and why — Maillot sales, comparable offers on other
 // marketplaces (with links) and related shirts.
 import { useQuery } from '@tanstack/react-query';
 import type { Shirt } from '../../../data.ts';

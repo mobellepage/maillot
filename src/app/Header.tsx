@@ -20,7 +20,7 @@ export function Logo() {
   return (
     <Link to="/" aria-label={t('header.home')} style={{ display: 'flex', alignItems: 'center', gap: 10, flex: 'none', color: 'var(--text)' }}>
       <img src="/icons/logo-96.png" alt="" width={28} height={28} className="logo-mark" style={{ display: 'block', flex: 'none' }} />
-      <span className="logo-word" style={{ fontWeight: 800, fontStretch: '78%', fontSize: 22, letterSpacing: '0.03em' }}>MAILLOT</span>
+      <span className="logo-word" style={{ fontWeight: 800, fontStretch: '78%', fontSize: 22, letterSpacing: '0.03em' }}>Maillot</span>
     </Link>
   );
 }

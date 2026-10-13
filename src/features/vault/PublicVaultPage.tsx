@@ -37,7 +37,7 @@ export default function PublicVaultPage({ data }: { data: unknown }) {
   const owner = text(pv?.owner, 60) || t('vault.aCollector');
 
   useEffect(() => {
-    document.title = (pv ? t('pub.title', { owner }) : t('pub.invalid')) + ' · MAILLOT';
+    document.title = (pv ? t('pub.title', { owner }) : t('pub.invalid')) + ' · Maillot';
   }, [pv, owner, t]);
 
   return (

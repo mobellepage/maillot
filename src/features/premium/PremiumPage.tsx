@@ -78,7 +78,7 @@ export default function PremiumPage() {
   return (
     <Page narrow>
       <div style={{ textAlign: 'center' }}>
-        <div style={{ fontSize: 15, fontWeight: 600, color: 'var(--accent)' }}>MAILLOT Premium</div>
+        <div style={{ fontSize: 15, fontWeight: 600, color: 'var(--accent)' }}>Maillot Premium</div>
         <h1 className="display display--lg" style={{ margin: '8px auto 0', maxWidth: 640, textWrap: 'balance' }}>
           {t('premium.title')}
         </h1>

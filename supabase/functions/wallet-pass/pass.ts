@@ -1,4 +1,4 @@
-// The Apple Wallet card for a MAILLOT certificate of authenticity: what goes
+// The Apple Wallet card for a Maillot certificate of authenticity: what goes
 // into pass.json and the manifest. Pure TypeScript using Web Crypto, so the
 // app's unit tests cover it (src/__tests__/walletPass.test.js).
 
@@ -21,7 +21,7 @@ export interface PassConfig {
 
 const date = (iso: string) => new Date(iso).toISOString().slice(0, 10);
 
-/** pass.json: a generic pass in MAILLOT colours with a QR code to the public certificate page. */
+/** pass.json: a generic pass in Maillot colours with a QR code to the public certificate page. */
 export function buildPassJson(c: CertificateInfo, cfg: PassConfig) {
   const verifyUrl = `${cfg.siteUrl.replace(/\/$/, "")}/verify/${encodeURIComponent(c.code)}`;
   return {
@@ -29,9 +29,9 @@ export function buildPassJson(c: CertificateInfo, cfg: PassConfig) {
     passTypeIdentifier: cfg.passTypeIdentifier,
     teamIdentifier: cfg.teamIdentifier,
     serialNumber: c.code,
-    organizationName: "MAILLOT",
-    description: `MAILLOT certificate of authenticity — ${c.shirtName}`,
-    logoText: "MAILLOT",
+    organizationName: "Maillot",
+    description: `Maillot certificate of authenticity — ${c.shirtName}`,
+    logoText: "Maillot",
     foregroundColor: "rgb(242, 244, 241)",
     backgroundColor: "rgb(10, 12, 11)",
     labelColor: "rgb(75, 255, 139)",
@@ -50,7 +50,7 @@ export function buildPassJson(c: CertificateInfo, cfg: PassConfig) {
       ],
       backFields: [
         { key: "code", label: "Certificate", value: c.code },
-        { key: "checks", label: "Inspection", value: `${c.checksPassed} checks passed at the MAILLOT authentication centre in Zürich.` },
+        { key: "checks", label: "Inspection", value: `${c.checksPassed} checks passed in the Maillot authentication.` },
         { key: "verify", label: "Verify", value: verifyUrl, attributedValue: `<a href="${verifyUrl}">${verifyUrl}</a>` },
       ],
     },

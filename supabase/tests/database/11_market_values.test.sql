@@ -38,7 +38,7 @@ select ok((select low < value and value < high from shirt_valuations where catal
 select is((select value from shirt_valuations where catalog_id = 'sui-26'), 95::numeric, 'without evidence the index price stands');
 select ok((select low <= 81 and high >= 109 and confidence = 'low' from shirt_valuations where catalog_id = 'sui-26'), '…with a wide range and low confidence');
 
--- A completed sale on MAILLOT moves the value at once.
+-- A completed sale on Maillot moves the value at once.
 select tests.create_user('00000000-0000-4000-a000-00000000a11c', 'alice@test.local');
 select tests.create_user('00000000-0000-4000-a000-000000000b0b', 'bob@test.local');
 insert into asks (user_id, shirt_id, size, amount) values ('00000000-0000-4000-a000-000000000b0b', 'sui-26', 'L', 160);

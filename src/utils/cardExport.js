@@ -134,7 +134,7 @@ export function renderVaultCard(data) {
 
   ctx.font = '700 22px "Archivo Variable",Archivo,system-ui,sans-serif';
   ctx.fillStyle = HEX.accent;
-  ctx.fillText('MAILLOT', 28, H - 32);
+  ctx.fillText('Maillot', 28, H - 32);
   ctx.font = '500 16px "JetBrains Mono Variable","JetBrains Mono",monospace';
   ctx.fillStyle = HEX.faint;
   ctx.fillText('maillot.app', W - 28 - ctx.measureText('maillot.app').width, H - 32);

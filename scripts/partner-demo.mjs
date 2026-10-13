@@ -1,5 +1,5 @@
 // Private partner demo: reads a Shopify shop's public product feed and writes
-// its shirts, mapped to MAILLOT's listing fields, to public/demo/partner.json
+// its shirts, mapped to Maillot's listing fields, to public/demo/partner.json
 // for the dev-only page /demo/partner. The output stays on this machine
 // (public/demo/ is git-ignored and the page only exists in `npm run dev`):
 // the shop's photos and texts are theirs, so nothing here is published
@@ -20,7 +20,7 @@ if (!domain) {
   process.exit(2);
 }
 const OUT = 'public/demo';
-const UA = { 'User-Agent': 'MAILLOT partner demo (private preview)' };
+const UA = { 'User-Agent': 'Maillot partner demo (private preview)' };
 
 // The shop's "Produktdetails" block: label → field. Labels appear in this order.
 const LABELS = [

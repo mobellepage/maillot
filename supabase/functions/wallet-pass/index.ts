@@ -1,4 +1,4 @@
-// Apple Wallet pass for a MAILLOT certificate of authenticity:
+// Apple Wallet pass for a Maillot certificate of authenticity:
 //   GET ?code=MLT-XXXX-XXXX-XXXX → signed .pkpass (shirt, size, inspection
 //   date, QR code to the public certificate page; voided once revoked)
 //   GET ?probe=1 → { configured } so the app only offers the button when
@@ -69,7 +69,7 @@ Deno.serve(async (req: Request) => {
     headers: {
       ...CORS,
       "Content-Type": "application/vnd.apple.pkpass",
-      "Content-Disposition": `attachment; filename="MAILLOT-${code}.pkpass"`,
+      "Content-Disposition": `attachment; filename="Maillot-${code}.pkpass"`,
       // A revoked certificate must not keep circulating as a valid pass.
       "Cache-Control": "no-store",
     },

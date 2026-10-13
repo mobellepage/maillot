@@ -209,7 +209,7 @@ export default function AccountPage() {
           </>
         )}
         <p className="mono" style={{ color: 'var(--muted)', fontSize: 12, textAlign: 'center' }}>
-          MAILLOT · {RELEASE}
+          Maillot · {RELEASE}
         </p>
       </div>
     </Page>

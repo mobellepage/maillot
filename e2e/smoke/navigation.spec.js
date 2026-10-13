@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test';
 
 test('home page renders the hero and trending shirts @mobile', async ({ page }) => {
   await page.goto('/');
-  await expect(page).toHaveTitle(/MAILLOT/);
+  await expect(page).toHaveTitle(/Maillot/);
   await expect(page.getByRole('heading', { level: 1 })).toContainText('Your collection');
   await expect(page.getByText('Trending shirts', { exact: false })).toBeVisible();
   // Nothing may stick out sideways: on a phone the browser would zoom out
@@ -58,7 +58,7 @@ test('a malformed share link shows an error page instead of crashing @mobile', a
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   await page.goto('/#/vault/%%%broken');
-  await expect(page.getByText('MAILLOT').first()).toBeVisible();
+  await expect(page.getByText('Maillot').first()).toBeVisible();
   expect(errors).toEqual([]);
 });
 

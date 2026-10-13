@@ -22,8 +22,8 @@ export default defineConfig(({ mode }) => ({
       // Registering the service worker must never hold up the first paint.
       injectRegister: 'script-defer',
       manifest: {
-        name: 'MAILLOT — your football shirt collection',
-        short_name: 'MAILLOT',
+        name: 'Maillot — your football shirt collection',
+        short_name: 'Maillot',
         description: 'Capture your football shirt collection, see what it’s worth and have it with you everywhere.',
         // ?app=3 marks installs made with the green app icon (app/AppUpdates.tsx).
         start_url: '/?app=3',

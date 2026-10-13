@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { usePrefs } from './prefs.tsx';
 
-const SITE = 'MAILLOT';
+const SITE = 'Maillot';
 
 /** What the page asked for during a server render (read by scripts/prerender.mjs). */
 export const ssrHead = { title: '', description: '' };

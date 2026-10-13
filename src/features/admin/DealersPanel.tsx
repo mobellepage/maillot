@@ -1,4 +1,4 @@
-// Dealers: shops selling on MAILLOT. Mark a member as a verified dealer and
+// Dealers: shops selling on Maillot. Mark a member as a verified dealer and
 // set their commission rate (pilot terms); clear both to make them a regular
 // seller again. Rates apply to sales matched from now on.
 import { useState } from 'react';

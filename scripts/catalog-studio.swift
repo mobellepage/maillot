@@ -1,4 +1,4 @@
-// Catalogue photos in MAILLOT's studio look, made on a Mac (macOS 14+):
+// Catalogue photos in Maillot's studio look, made on a Mac (macOS 14+):
 // Apple's Vision subject lifting cuts the shirt out, then it is placed in a
 // square like members' photos (src/features/vault/addshirt/studio.ts: 78 %
 // box, a little above centre). Nothing leaves the machine.

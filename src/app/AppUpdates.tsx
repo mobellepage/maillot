@@ -1,9 +1,9 @@
-// Two notices for people using MAILLOT from the home screen.
+// Two notices for people using Maillot from the home screen.
 // 1. A new version has been downloaded in the background (the service worker
 //    took over): offer to reload now instead of waiting for the next launch.
 // 2. iPhone home-screen apps keep the icon they were added with. Installs
 //    made with the current manifest start at /?app=3; a launch without it is
-//    an older install, so once we suggest adding MAILLOT again for the new icon.
+//    an older install, so once we suggest adding Maillot again for the new icon.
 import { useEffect, useState } from 'react';
 import { usePrefs } from '../lib/prefs.tsx';
 import { loadJSON, saveJSON } from '../utils/storage.ts';

@@ -1,6 +1,6 @@
 // Cuts the shirt out of a member's main photo (Photoroom Remove Background
 // API) and returns it with a transparent background, cropped to the shirt.
-// The app then places it on MAILLOT's dark studio background, so every
+// The app then places it on Maillot's dark studio background, so every
 // collection looks alike. The original photo stays untouched (and is what
 // authentication looks at). Rate-limited (consume_studio_quota); inert until
 // PHOTOROOM_API_KEY is set.

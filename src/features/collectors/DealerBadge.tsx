@@ -1,4 +1,4 @@
-// Marks a verified dealer (a shop selling on MAILLOT, checked by the team)
+// Marks a verified dealer (a shop selling on Maillot, checked by the team)
 // wherever the member appears: profile, search, "sold by" on a shirt.
 import { usePrefs } from '../../lib/prefs.tsx';
 import { Badge } from '../../ui/index.ts';

@@ -40,7 +40,7 @@ export interface Trades {
 }
 
 /**
- * Market value from the valuation model (shirt_valuations): MAILLOT sales,
+ * Market value from the valuation model (shirt_valuations): Maillot sales,
  * comparables on other marketplaces and the index, blended server-side.
  */
 export interface MarketValuation {
@@ -61,7 +61,7 @@ export interface MarketValuation {
  */
 export interface Shirt extends RawShirt, MarketData {
   indexPrice: number;
-  /** market: the valuation model has evidence; trades: MAILLOT sales only (no model yet); estimate: index. */
+  /** market: the valuation model has evidence; trades: Maillot sales only (no model yet); estimate: index. */
   priceSource: 'market' | 'trades' | 'estimate';
   trades: Trades;
   valuation: MarketValuation | null;

@@ -39,7 +39,7 @@ function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: numbe
   ctx.closePath();
 }
 
-/** The shirt outline used across MAILLOT (same proportions as ShirtGraphic). */
+/** The shirt outline used across Maillot (same proportions as ShirtGraphic). */
 function shirt(ctx: CanvasRenderingContext2D, x: number, y: number, size: number, color: string) {
   const p = [[31, 5], [39, 3], [50, 9], [61, 3], [69, 5], [97, 21], [88, 41], [78, 35], [78, 97], [22, 97], [22, 35], [12, 41], [3, 21]];
   ctx.beginPath();
@@ -87,7 +87,7 @@ export async function renderCard(m: CardModel): Promise<Blob> {
   ctx.fillStyle = TEXT;
   ctx.font = '800 52px "Archivo Variable", system-ui, sans-serif';
   ctx.textBaseline = 'middle';
-  ctx.fillText('MAILLOT', 176, 118);
+  ctx.fillText('Maillot', 176, 118);
 
   // Value
   ctx.textBaseline = 'alphabetic';

@@ -6,7 +6,7 @@
 // Prototype phase: there is no registered company yet, so nothing here may
 // read like one. Replace every [placeholder] once the company is founded.
 export const COMPANY = {
-  name: 'MAILLOT – Prototyp',
+  name: 'Maillot – Prototyp',
   street: '[Street and number — follows once the company is registered]',
   city: '[Postcode and town]',
   country: 'Switzerland',

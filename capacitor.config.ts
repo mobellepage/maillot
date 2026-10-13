@@ -5,7 +5,7 @@ import type { CapacitorConfig } from '@capacitor/cli';
 // bundle identifier: final once the first build is uploaded.
 const config: CapacitorConfig = {
   appId: 'ch.maillot.app',
-  appName: 'MAILLOT',
+  appName: 'Maillot',
   webDir: 'dist',
   backgroundColor: '#FFFFFF',
   ios: {

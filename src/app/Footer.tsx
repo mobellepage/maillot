@@ -33,7 +33,7 @@ export default function Footer() {
     <footer style={{ borderTop: '1px solid rgba(255,255,255,0.07)', marginTop: 'clamp(48px,6vw,96px)', background: 'var(--bg)' }}>
       <div style={{ maxWidth: 1360, margin: '0 auto', padding: '40px clamp(16px,4vw,40px) 32px', display: 'flex', flexWrap: 'wrap', gap: 'clamp(28px,5vw,64px)' }}>
         <div style={{ flex: '1 1 260px', maxWidth: 340 }}>
-          <div style={{ fontWeight: 800, fontStretch: '78%', fontSize: 20, letterSpacing: '0.03em' }}>MAILLOT</div>
+          <div style={{ fontWeight: 800, fontStretch: '78%', fontSize: 20, letterSpacing: '0.03em' }}>Maillot</div>
           <p style={{ margin: '10px 0 0', fontSize: 14, lineHeight: 1.55, color: 'var(--muted)' }}>
             {t('footer.tagline')}
           </p>

@@ -1,4 +1,4 @@
-# MAILLOT
+# Maillot
 
 The catalogue, marketplace and price index for football shirts.
 
@@ -201,7 +201,7 @@ wires them up locally. In production (Supabase dashboard):
    Redirect URLs `https://maillot-two.vercel.app/**` and `http://localhost:5173/**`.
 2. **Authentication → Emails → SMTP**: a custom sender (e.g. Resend:
    `smtp.resend.com`, port 465, user `resend`, password = Resend API key,
-   sender name `MAILLOT`, a verified domain). Supabase's built-in sender is for
+   sender name `Maillot`, a verified domain). Supabase's built-in sender is for
    testing only — it's rate-limited, shows "Supabase Auth" and doesn't reach
    ordinary sign-ups.
 3. **Authentication → Emails → Templates**: for Confirm sign up, Reset password
@@ -211,7 +211,7 @@ wires them up locally. In production (Supabase dashboard):
 ## Studio photos
 
 Each shirt's main photo is cut out (edge function `studio-photo` →
-Photoroom Remove Background API, `crop=true`) and placed on MAILLOT's dark
+Photoroom Remove Background API, `crop=true`) and placed on Maillot's dark
 background with a soft spotlight and shadow (`addshirt/studio.ts`), stored as
 `photos.front_studio` next to the untouched original (which authentication
 uses). Collections and item pages show the studio photo first
@@ -221,7 +221,7 @@ uses). Collections and item pages show the studio photo first
 ## Market value
 
 Every catalogue shirt has a market value from `refresh_shirt_valuation`
-(`shirt_valuations`, public): MAILLOT sales weigh most (recent ones more),
+(`shirt_valuations`, public): Maillot sales weigh most (recent ones more),
 then comparable offers for this exact shirt, then related shirts; the
 catalogue index anchors it. Prices are normalised to a very good replica,
 asking prices discounted 15 %, outliers dropped; value = weighted median,

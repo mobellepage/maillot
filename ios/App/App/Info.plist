@@ -7,7 +7,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
-	<string>MAILLOT</string>
+	<string>Maillot</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -44,7 +44,7 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
-	<string>MAILLOT uses the camera to photograph your shirts, so they can be identified, valued and authenticated.</string>
+	<string>Maillot uses the camera to photograph your shirts, so they can be identified, valued and authenticated.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Choose shirt photos you already took.</string>
 	<key>UIApplicationSceneManifest</key>

@@ -45,7 +45,7 @@ const LANGUAGE = { en: "English", de: "German (Swiss spelling: ss, never ß)", f
 export type Lang = keyof typeof LANGUAGE;
 
 export function systemPrompt(lang: Lang): string {
-  return `You pre-check football shirts for MAILLOT, a Swiss app where collectors keep and trade their shirts. A collector photographed their shirt and says what it is. Look for visible signs that the shirt is not what it claims to be, so they (and later a buyer) know what deserves a closer look.
+  return `You pre-check football shirts for Maillot, a Swiss app where collectors keep and trade their shirts. A collector photographed their shirt and says what it is. Look for visible signs that the shirt is not what it claims to be, so they (and later a buyer) know what deserves a closer look.
 
 What to look at:
 - Inner label: read the manufacturer's article code exactly. Does it fit the claimed maker, season and kit? Is the label's layout, font and production information plausible for that maker and year?
