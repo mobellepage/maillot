@@ -178,3 +178,20 @@ test('store badges show "coming soon" until the store links are set', async ({ p
   await expect(hero.getByRole('img', { name: 'Google Play — coming soon' })).toBeVisible();
   await expect(page.locator('a.store-badge')).toHaveCount(0);
 });
+
+test('the daily shirt puzzle can be played to the end and shared', async ({ page }) => {
+  await page.goto('/daily');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Daily shirt puzzle');
+  for (let i = 1; i <= 5; i++) {
+    const button = page.getByRole('button', { name: `Guess (${i}/5)` });
+    if (!(await button.isVisible())) break; // solved early by chance
+    await page.getByLabel('Club', { exact: true }).selectOption({ index: 1 });
+    await page.getByLabel('Season', { exact: true }).selectOption({ index: 1 });
+    await button.click();
+  }
+  await expect(page.getByRole('button', { name: 'Share result' })).toBeVisible();
+  await expect(page.getByText('Played').locator('..')).toContainText('1');
+  // Coming back the same day shows the finished puzzle, not a new one.
+  await page.reload();
+  await expect(page.getByRole('button', { name: 'Share result' })).toBeVisible();
+});

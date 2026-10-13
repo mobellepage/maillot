@@ -8,6 +8,7 @@ import { ShirtRow } from '../catalog/ShirtGrid.tsx';
 import { useCollection } from '../vault/useCollection.ts';
 import { Hero } from './Hero.tsx';
 import { HomeBento } from './HomeBento.tsx';
+import { HomePlay } from './HomePlay.tsx';
 import { SecondLife } from './SecondLife.tsx';
 import { TopCollectors } from './TopCollectors.tsx';
 import { IndexTicker } from './IndexTicker.tsx';
@@ -27,6 +28,7 @@ export default function HomePage() {
     <main id="main" style={{ animation: 'kvIn .45s ease both' }}>
       <Hero featured={BY['ger-26']!} />
       <HomeBento />
+      <HomePlay />
       <SecondLife />
       {recommended.length > 0 && (
         <section aria-labelledby="rec-title" style={section}>

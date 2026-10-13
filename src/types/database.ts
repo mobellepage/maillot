@@ -342,6 +342,12 @@ export type Database = {
         Update: { id?: never; at?: string; actor?: string | null; action?: string; target?: string; details?: Json };
         Relationships: [];
       };
+      daily_game_results: {
+        Row: { user_id: string; day: string; won: boolean; tries: number; created_at: string };
+        Insert: { user_id: string; day: string; won: boolean; tries: number; created_at?: string };
+        Update: { user_id?: string; day?: string; won?: boolean; tries?: number; created_at?: string };
+        Relationships: [];
+      };
       order_addresses: {
         Row: { order_id: string; ship_to: Json; created_at: string };
         Insert: { order_id: string; ship_to: Json; created_at?: string };

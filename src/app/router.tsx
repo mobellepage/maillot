@@ -27,6 +27,7 @@ import {
   PremiumPage,
   PublicShirtPage,
   FeedPage,
+  DailyPage,
   ReturnPage,
   AccountPage,
   ResetPasswordPage
@@ -46,6 +47,7 @@ export const routes: RouteObject[] = [
         children: [
           { index: true, element: <HomePage /> },
           { path: 'feed', element: <FeedPage /> },
+          { path: 'daily', element: <DailyPage /> },
           { path: 'market', element: <BrowsePage /> },
           { path: 'shirt/:id', element: <DetailPage /> },
           { path: 'sell', element: <SellPage /> },
