@@ -212,12 +212,6 @@ html[data-theme='light'] .nav-link[aria-current='page'] {
   color: var(--text);
   font-weight: 600;
 }
-html[data-theme='light'] .logo-mark {
-  background: #1d1d1f !important;
-}
-html[data-theme='light'] .logo-mark > svg {
-  color: #ffffff !important;
-}
 html[data-theme='light'] .logo-word {
   font-stretch: normal !important;
   letter-spacing: -0.02em !important;

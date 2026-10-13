@@ -13,19 +13,13 @@ import { useNavItems } from './nav.ts';
 import { focusMain } from './focusMain.ts';
 import { Avatar } from '../features/avatars/Avatar.tsx';
 
-// The header mark: a shirt outline (24×24). The favicon and app icons come
-// from brand/app-icon.webp (scripts/brand-assets.mjs).
-const JERSEY = 'M8.8 3L12 6.6L15.2 3L20.6 5.3L22.8 10.4L19.2 11.8L18.2 9.8V20.2Q18.2 21 17.4 21H6.6Q5.8 21 5.8 20.2V9.8L4.8 11.8L1.2 10.4L3.4 5.3Z';
-
+// The header mark is the app icon (brand/app-icon.webp → public/icons/logo-96.png,
+// made by scripts/brand-assets.mjs together with the favicon and app icons).
 export function Logo() {
   const { t } = usePrefs();
   return (
     <Link to="/" aria-label={t('header.home')} style={{ display: 'flex', alignItems: 'center', gap: 10, flex: 'none', color: 'var(--text)' }}>
-      <span aria-hidden="true" className="logo-mark" style={{ width: 28, height: 28, borderRadius: 8, background: 'var(--accent-fill)', display: 'grid', placeItems: 'center' }}>
-        <svg width="18" height="18" viewBox="0 0 24 24" style={{ color: 'var(--bg)' }}>
-          <path d={JERSEY} fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinejoin="round" />
-        </svg>
-      </span>
+      <img src="/icons/logo-96.png" alt="" width={28} height={28} className="logo-mark" style={{ display: 'block', flex: 'none' }} />
       <span className="logo-word" style={{ fontWeight: 800, fontStretch: '78%', fontSize: 22, letterSpacing: '0.03em' }}>MAILLOT</span>
     </Link>
   );

@@ -61,6 +61,7 @@ async function shoot(body, width, height, path, opts = {}) {
 
 // Favicon and app icons.
 await shoot(mark(64), 64, 64, 'public/favicon.png', { transparent: true });
+await shoot(mark(96), 96, 96, 'public/icons/logo-96.png', { transparent: true }); // header logo (28 px at 3×)
 await shoot(mark(192), 192, 192, 'public/icons/icon-192.png', { transparent: true });
 await shoot(mark(512), 512, 512, 'public/icons/icon-512.png', { transparent: true });
 await shoot(mark(512, { bleed: true }), 512, 512, 'public/icons/maskable-512.png');
