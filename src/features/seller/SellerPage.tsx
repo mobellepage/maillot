@@ -12,6 +12,7 @@ import { useCatalog } from '../catalog/useCatalog.ts';
 import { Card, EmptyState, ErrorState, Page, ShirtGraphic, Skeleton, StatTile } from '../../ui/index.ts';
 import { Stars } from '../../ui/Stars.tsx';
 import { PublicCollection } from '../collectors/PublicCollection.tsx';
+import { LevelBadge } from '../levels/LevelBadge.tsx';
 import { FollowButton } from '../collectors/FollowButton.tsx';
 import { DealerBadge } from '../collectors/DealerBadge.tsx';
 import { publicCollectionValue } from '../collectors/collectionValue.ts';
@@ -54,7 +55,6 @@ export default function SellerPage() {
       </Page>
     );
 
-  const pct = (x: number | null) => (x === null ? t('seller.na') : Math.round(x * 100) + '%');
   return (
     <Page>
       <div style={{ display: 'flex', alignItems: 'center', gap: 20, flexWrap: 'wrap' }}>
@@ -65,6 +65,7 @@ export default function SellerPage() {
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
             <span className="eyebrow">{stats.data?.dealer ? t('dealer.eyebrow') : t('seller.eyebrow')}</span>
             {stats.data?.dealer && <DealerBadge />}
+            {!!collection.data?.length && <LevelBadge shirts={collection.data.length} value={value?.total ?? 0} />}
           </div>
           <h1 className="display" style={{ fontSize: p.handle.length > 14 ? 'clamp(18px,5vw,40px)' : 'clamp(28px,4vw,44px)', margin: '6px 0 0', overflowWrap: 'anywhere' }}>
             @{p.handle}
@@ -89,7 +90,6 @@ export default function SellerPage() {
         {value && value.counted > 0 && <StatTile highlight label={t('coll.value')} value={money(value.total)} sub={t('coll.valueSub', { n: value.counted })} />}
         <StatTile label={t('coll.statShirts')} value={collection.data?.length ?? '–'} />
         <StatTile label={t('seller.sales')} value={p.sales} />
-        <StatTile label={t('seller.passRate')} value={pct(p.pass_rate === null ? null : Number(p.pass_rate))} />
         <StatTile label={t('seller.shipTime')} value={p.avg_ship_days === null ? t('seller.na') : t('seller.days', { n: Math.max(1, Math.ceil(Number(p.avg_ship_days))) })} />
       </div>
 

@@ -25,3 +25,18 @@ export const ORDER_POLICY = {
   releaseReminderDays: [2, 4],
   authThreshold: null as number | null
 } as const;
+
+/**
+ * Collector levels: reached with EITHER enough shirts OR enough collection
+ * value (CHF, the app's market values). Free members can climb by value
+ * too, even with the 10-shirt limit. Names are message keys level.<key>.
+ */
+export const COLLECTOR_LEVELS = [
+  { key: 'rookie', shirts: 1, value: 0, color: '#8A8F8B' },
+  { key: 'fan', shirts: 5, value: 400, color: '#2FAE63' },
+  { key: 'collector', shirts: 15, value: 1500, color: '#2F7DE1' },
+  { key: 'connoisseur', shirts: 30, value: 4000, color: '#7A4FE0' },
+  { key: 'curator', shirts: 60, value: 10000, color: '#E0702F' },
+  { key: 'legend', shirts: 100, value: 25000, color: '#C9A227' },
+  { key: 'hall', shirts: 200, value: 60000, color: '#1D1D1F' }
+] as const;
