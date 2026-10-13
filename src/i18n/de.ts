@@ -1547,5 +1547,7 @@ export const de: Messages = {
   'as.pc.ai.rate_limited': 'Die KI-Vorprüfung ist gerade ausgelastet — dieses Ergebnis stammt nur aus den Grundprüfungen. Versuche es später erneut.',
   'as.pc.ai.failed': 'Die KI-Vorprüfung hat nicht geantwortet — dieses Ergebnis stammt nur aus den Grundprüfungen.',
   'pc.codeMismatch': 'Die Artikelnummer auf dem inneren Label scheint nicht zu diesem Trikot zu gehören.',
+  'store.soon': '{store} – bald verfügbar',
+  'store.soonShort': 'Bald verfügbar',
   // @@end
 };

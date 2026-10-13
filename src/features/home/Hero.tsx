@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router';
 import { BY, pct, type Shirt } from '../../data.ts';
 import type { MessageKey } from '../../i18n/index.ts';
 import { usePrefs } from '../../lib/prefs.tsx';
+import { StoreBadges } from '../../app/StoreBadges.tsx';
 import { Button, ButtonLink, SearchIcon, ShirtGraphic, alpha } from '../../ui/index.ts';
 import { search } from '../catalog/model.ts';
 import { HeroStats } from './HeroStats.tsx';
@@ -52,6 +53,9 @@ export function Hero({ featured }: { featured: Shirt }) {
           <ButtonLink to="/vault" size="lg" variant="secondary">
             {t('home.cta.mine')}
           </ButtonLink>
+        </div>
+        <div style={{ marginTop: 18 }}>
+          <StoreBadges />
         </div>
 
         <HeroCards featured={featured} />

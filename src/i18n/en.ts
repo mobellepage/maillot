@@ -1546,6 +1546,8 @@ export const en = {
   'as.pc.ai.rate_limited': 'The AI pre-check is busy for now — this result comes from the basic checks only. Try again later.',
   'as.pc.ai.failed': 'The AI pre-check didn’t answer — this result comes from the basic checks only.',
   'pc.codeMismatch': 'The product code on the inner label doesn’t seem to belong to this shirt.',
+  'store.soon': '{store} — coming soon',
+  'store.soonShort': 'Coming soon',
   // @@end
 };
 

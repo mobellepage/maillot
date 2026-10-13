@@ -1547,5 +1547,7 @@ export const fr: Messages = {
   'as.pc.ai.rate_limited': 'La pré-vérification IA est occupée — ce résultat ne provient que des contrôles de base. Réessayez plus tard.',
   'as.pc.ai.failed': 'La pré-vérification IA n’a pas répondu — ce résultat ne provient que des contrôles de base.',
   'pc.codeMismatch': 'La référence sur l’étiquette intérieure ne semble pas correspondre à ce maillot.',
+  'store.soon': '{store} – bientôt disponible',
+  'store.soonShort': 'Bientôt disponible',
   // @@end
 };

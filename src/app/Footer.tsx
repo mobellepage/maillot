@@ -3,6 +3,7 @@ import { Link } from 'react-router';
 import { COMPANY } from '../config/company.ts';
 import { LANG_NAMES, type Lang } from '../i18n/index.ts';
 import { usePrefs } from '../lib/prefs.tsx';
+import { StoreBadges } from './StoreBadges.tsx';
 import type { Currency } from '../utils/currency.ts';
 
 const MONO = "'JetBrains Mono Variable','JetBrains Mono',monospace";
@@ -36,6 +37,9 @@ export default function Footer() {
           <p style={{ margin: '10px 0 0', fontSize: 14, lineHeight: 1.55, color: 'var(--muted)' }}>
             {t('footer.tagline')}
           </p>
+          <div style={{ marginTop: 16 }}>
+            <StoreBadges align="start" height={36} />
+          </div>
         </div>
         <Col
           title={t('footer.marketplace')}

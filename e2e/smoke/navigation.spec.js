@@ -170,3 +170,11 @@ test('the market can show a compact list instead of cards, and remembers it', as
   await expect(page.getByRole('button', { name: 'Compact list' })).toHaveAttribute('aria-pressed', 'true');
   expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBeLessThanOrEqual(0);
 });
+
+test('store badges show "coming soon" until the store links are set', async ({ page }) => {
+  await page.goto('/');
+  const hero = page.locator('main .store-badges').first();
+  await expect(hero.getByRole('img', { name: 'App Store — coming soon' })).toBeVisible();
+  await expect(hero.getByRole('img', { name: 'Google Play — coming soon' })).toBeVisible();
+  await expect(page.locator('a.store-badge')).toHaveCount(0);
+});

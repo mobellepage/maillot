@@ -1185,3 +1185,17 @@ main:focus {
     bottom: 24px;
   }
 }
+
+/* App store badges: the official artwork; a hairline keeps the black badge
+   visible on dark backgrounds. */
+.store-badge {
+  display: block;
+  border-radius: 8px;
+  transition: transform 0.15s ease;
+}
+a.store-badge:hover {
+  transform: translateY(-1px);
+}
+html:not([data-theme='light']) .store-badge > img {
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.28);
+}

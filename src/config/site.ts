@@ -10,3 +10,13 @@ export function shareOrigin(): string {
 
 /** Prototype phase: a notice across the top says pictures and figures are examples. Turn off before launch. */
 export const PROTOTYPE = true;
+
+/**
+ * Store links for the badges (app/StoreBadges.tsx). Set them in Vercel
+ * (VITE_APP_STORE_URL / VITE_GOOGLE_PLAY_URL) — or here — once the apps are
+ * live; until then each badge says "coming soon" and links nowhere.
+ */
+export const STORE_LINKS: { appStore: string | null; googlePlay: string | null } = {
+  appStore: import.meta.env.VITE_APP_STORE_URL || null,
+  googlePlay: import.meta.env.VITE_GOOGLE_PLAY_URL || null
+};
