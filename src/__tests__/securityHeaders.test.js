@@ -21,3 +21,17 @@ describe('security headers', () => {
     expect(csp).not.toMatch(/script-src[^;]*'unsafe-inline'/);
   });
 });
+
+describe('asset caching', () => {
+  // Headers apply to 404s too: a year-long "immutable" on /assets made a
+  // browser that hit a deploy mid-rollout keep a missing chunk's 404 for a
+  // year (blank app). Revalidate instead; the service worker keeps assets
+  // for repeat visits anyway.
+  it('never pins /assets responses (including 404s) in the browser cache', () => {
+    const cfg = JSON.parse(readFileSync('vercel.json', 'utf8'));
+    const rule = cfg.headers.find((h) => h.source === '/assets/(.*)');
+    const cc = rule.headers.find((h) => h.key === 'Cache-Control').value;
+    expect(cc).not.toMatch(/immutable/);
+    expect(cc).toMatch(/must-revalidate/);
+  });
+});
