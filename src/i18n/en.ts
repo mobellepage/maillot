@@ -1748,6 +1748,10 @@ export const en = {
   'footer.library': 'Kit library',
   'footer.daily': 'Daily shirt puzzle',
   'footer.tryon': 'Try-on studio',
+  'auth.or': 'or',
+  'auth.withApple': 'Continue with Apple',
+  'auth.withGoogle': 'Continue with Google',
+  'auth.socialFailed': 'Couldn’t start the sign-in. Please try again or use your email.',
   // @@end
 };
 

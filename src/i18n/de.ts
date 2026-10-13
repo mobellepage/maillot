@@ -1749,5 +1749,9 @@ export const de: Messages = {
   'footer.library': 'Trikot-Bibliothek',
   'footer.daily': 'Trikot-Rätsel',
   'footer.tryon': 'Anprobe',
+  'auth.or': 'oder',
+  'auth.withApple': 'Weiter mit Apple',
+  'auth.withGoogle': 'Weiter mit Google',
+  'auth.socialFailed': 'Anmeldung konnte nicht gestartet werden. Bitte versuche es erneut oder nutze deine E-Mail.',
   // @@end
 };

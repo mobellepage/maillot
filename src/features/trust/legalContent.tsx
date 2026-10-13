@@ -177,6 +177,9 @@ export const DOCS: Record<LegalDoc, { title: string; intro?: string; sections: S
           <UL
             items={[
               'Account: email address and password (stored only as a hash).',
+              'If you sign in with Apple or Google: the email address (and name, if you share it) that they pass to us. We never see your Apple or Google password.',
+              'Try-on studio: the figure you build (body type, skin tone, hair, outfit) and your saved looks, to show them on all your devices.',
+              'Daily shirt puzzle: your results per day, for your streak.',
               'Marketplace activity: bids, asks, orders, disputes and their status history.',
               'Collection: shirts you add, including photos you upload and their condition details.',
               'Usage signals: which shirts you view, watch, bid on or buy, used for trending lists and your recommendations.',

@@ -20,3 +20,14 @@ export const STORE_LINKS: { appStore: string | null; googlePlay: string | null }
   appStore: import.meta.env.VITE_APP_STORE_URL || null,
   googlePlay: import.meta.env.VITE_GOOGLE_PLAY_URL || null
 };
+
+/**
+ * Social sign-in shown on the sign-in page, e.g. VITE_AUTH_PROVIDERS="apple,google".
+ * Only list providers that are switched on in Supabase (Authentication →
+ * Sign In / Providers); empty = email and password only. Instagram can't be
+ * offered: Meta has no sign-in for personal Instagram accounts.
+ */
+export const AUTH_PROVIDERS = String(import.meta.env.VITE_AUTH_PROVIDERS ?? '')
+  .split(',')
+  .map((s) => s.trim())
+  .filter((s): s is 'apple' | 'google' => s === 'apple' || s === 'google');

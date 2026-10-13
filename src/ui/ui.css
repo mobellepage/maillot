@@ -1261,3 +1261,31 @@ html:not([data-theme='light']) .store-badge > img {
     max-width: min(340px, 33vh);
   }
 }
+
+/* "Continue with Apple / Google" */
+.social-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  height: 48px;
+  border-radius: 999px;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.social-btn:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+.social-btn--apple {
+  background: #000000;
+  color: #ffffff;
+  border: 1px solid #000000;
+}
+.social-btn--google {
+  background: #ffffff;
+  color: #1f1f1f;
+  border: 1px solid #747775;
+}

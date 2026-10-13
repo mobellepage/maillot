@@ -1749,5 +1749,9 @@ export const fr: Messages = {
   'footer.library': 'Bibliothèque de maillots',
   'footer.daily': 'Devinette maillot',
   'footer.tryon': 'Cabine d’essayage',
+  'auth.or': 'ou',
+  'auth.withApple': 'Continuer avec Apple',
+  'auth.withGoogle': 'Continuer avec Google',
+  'auth.socialFailed': 'Impossible de lancer la connexion. Réessaie ou utilise ton e-mail.',
   // @@end
 };

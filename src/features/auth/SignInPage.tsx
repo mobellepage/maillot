@@ -6,6 +6,7 @@ import { usePrefs } from '../../lib/prefs.tsx';
 import { useSession } from '../../lib/session.tsx';
 import { useToast } from '../../lib/toast.tsx';
 import { Button, Notice, TextField } from '../../ui/index.ts';
+import { SocialSignIn } from './SocialSignIn.tsx';
 
 export default function SignInPage() {
   const { t, lang } = usePrefs();
@@ -142,6 +143,7 @@ export default function SignInPage() {
           {resetting ? t('auth.backToSignIn') : signingIn ? t('auth.noAccount') : t('auth.haveAccount')}
         </button>
       </form>
+      {!resetting && <SocialSignIn next={state.from} />}
       <Link to="/" className="btn btn--ghost btn--sm" style={{ marginTop: 32 }}>
         {t('auth.back')}
       </Link>
