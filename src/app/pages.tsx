@@ -27,3 +27,4 @@ export const ReturnPage = lazy(() => import('../features/native/ReturnPage.tsx')
 export const PublicVaultPage = lazy(() => import('../features/vault/PublicVaultPage.tsx'));
 export const FeedPage = lazy(() => import('../features/feed/FeedPage.tsx'));
 export const DailyPage = lazy(() => import('../features/daily/DailyPage.tsx'));
+export const TryOnPage = lazy(() => import('../features/tryon/TryOnPage.tsx'));

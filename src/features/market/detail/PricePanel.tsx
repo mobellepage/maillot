@@ -115,6 +115,9 @@ export function PricePanel({ s, size, setSize, book, myUserId, stats, watched, t
         <WatchButton watched={watched} onToggle={toggleWatch} name={s.name} size={58} style={{ borderRadius: 14, border: '1.5px solid rgba(255,255,255,0.14)', background: 'none' }} />
       </div>
       <AlertButton s={s} size={size} />
+      <Link to={'/try-on?shirt=' + s.id} className="btn btn--ghost btn--sm" style={{ marginTop: 10 }}>
+        {t('try.cta')}
+      </Link>
 
       <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start', marginTop: 18, padding: 16, borderRadius: 14, background: 'var(--surface)', border: '1px solid var(--line)' }}>
         <span aria-hidden="true" style={{ width: 34, height: 34, flex: 'none', borderRadius: 10, background: 'var(--accent-soft)', display: 'grid', placeItems: 'center', color: 'var(--accent)' }}>

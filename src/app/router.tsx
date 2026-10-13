@@ -28,6 +28,7 @@ import {
   PublicShirtPage,
   FeedPage,
   DailyPage,
+  TryOnPage,
   ReturnPage,
   AccountPage,
   ResetPasswordPage
@@ -48,6 +49,7 @@ export const routes: RouteObject[] = [
           { index: true, element: <HomePage /> },
           { path: 'feed', element: <FeedPage /> },
           { path: 'daily', element: <DailyPage /> },
+          { path: 'try-on', element: <TryOnPage /> },
           { path: 'market', element: <BrowsePage /> },
           { path: 'shirt/:id', element: <DetailPage /> },
           { path: 'sell', element: <SellPage /> },

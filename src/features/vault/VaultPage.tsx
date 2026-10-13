@@ -91,7 +91,10 @@ export default function VaultPage({ tab }: { tab: Tab }) {
       <Page>
         <h1 className="display display--lg">{t('vault.title.watchlist')}</h1>
         <p style={{ color: 'var(--muted)', marginTop: 10 }}>{t('vault.guestBody')}</p>
-        <div style={{ marginTop: 24 }}>{watched.length ? <ShirtGrid shirts={watched} /> : <EmptyState title={t('vault.nothingWatched')}>{t('vault.tapHeart')}</EmptyState>}</div>
+        <div style={{ marginTop: 24 }}>
+          {watched.length > 0 && <TryOnHint />}
+          {watched.length ? <ShirtGrid shirts={watched} /> : <EmptyState title={t('vault.nothingWatched')}>{t('vault.tapHeart')}</EmptyState>}
+        </div>
       </Page>
     );
   }
@@ -167,6 +170,7 @@ export default function VaultPage({ tab }: { tab: Tab }) {
       {tab === 'watchlist' && (
         <div style={{ marginTop: 24 }}>
           <AlertsList />
+          {watched.length > 0 && <TryOnHint />}
           {watched.length ? <ShirtGrid shirts={watched} /> : <EmptyState title={t('vault.watchEmpty')}>{t('vault.tapHeart')}</EmptyState>}
         </div>
       )}
@@ -178,5 +182,21 @@ export default function VaultPage({ tab }: { tab: Tab }) {
         <PayoutsCard />
       </div>
     </Page>
+  );
+}
+
+/** Wishlist: try the shirts on before deciding. */
+function TryOnHint() {
+  const { t } = usePrefs();
+  return (
+    <Link to="/try-on" className="card play-card" style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', borderRadius: 16, marginBottom: 16, color: 'var(--text)', textDecoration: 'none' }}>
+      <span aria-hidden="true" style={{ fontSize: 24 }}>
+        🪞
+      </span>
+      <span style={{ flex: 1, fontSize: 14 }}>
+        <strong>{t('try.hintTitle')}</strong> {t('try.hintBody')}
+      </span>
+      <span aria-hidden="true">→</span>
+    </Link>
   );
 }

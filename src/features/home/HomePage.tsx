@@ -28,7 +28,9 @@ export default function HomePage() {
     <main id="main" style={{ animation: 'kvIn .45s ease both' }}>
       <Hero featured={BY['ger-26']!} />
       <HomeBento />
-      <HomePlay />
+      <HomePlay
+        extra={[{ to: '/try-on', kicker: t('home.play.try.kicker'), title: t('home.play.try.title'), body: t('home.play.try.body'), emoji: '🪞' }]}
+      />
       <SecondLife />
       {recommended.length > 0 && (
         <section aria-labelledby="rec-title" style={section}>
