@@ -3,15 +3,25 @@
 // (minus photos) survives reloads in localStorage.
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { SIZE_GROUPS } from '../../../addShirtData.js';
-import { enqueueReview, findReview, identifyShirt, removePhotos, type Identification } from '../../../utils/db.ts';
+import { BY } from '../../../data.ts';
+import { checkAuthenticity, enqueueReview, findReview, identifyShirt, removePhotos, type AuthCheck, type CheckKind, type Identification } from '../../../utils/db.ts';
 import { loadJSON, saveJSON } from '../../../utils/storage.ts';
 import { useLive } from '../../../lib/realtime.ts';
-import { precheck } from './precheck.ts';
+import { precheck, withAiCheck } from './precheck.ts';
 import { wizardPatch } from '../../identify/prefill.ts';
 import type { Condition, Flock, Photo, Precheck, Review, Signature, Verification, Visibility } from '../../../types/domain.ts';
 export { precheck } from './precheck.ts';
 
 const DRAFT_KEY = 'kv_add_shirt_draft_v1';
+
+/** Required photo slot → what the AI pre-check calls it. */
+const CHECK_PHOTOS: [string, CheckKind][] = [
+  ['front', 'front'],
+  ['back', 'back'],
+  ['crest', 'crest'],
+  ['flock_closeup', 'flock'],
+  ['product_code', 'label']
+];
 
 export interface ScanState {
   /** off: recognition isn't switched on; limited: too many tries this hour. */
@@ -95,6 +105,9 @@ export function useAddShirtForm(userId: string | undefined) {
     return draft ? { ...emptyForm(), ...draft, precheck: null, scan: emptyForm().scan, step: 0 } : emptyForm();
   });
   const scanToken = useRef(0);
+  const checkToken = useRef(0);
+  /** The AI pre-check is running, or why it couldn't (the local check still ran). */
+  const [check, setCheck] = useState<{ busy: boolean; skipped: 'off' | 'rate_limited' | 'failed' | null }>({ busy: false, skipped: null });
   const set = (patch: Partial<AddShirtForm> | ((s: AddShirtForm) => Partial<AddShirtForm>)) => setRaw((s) => ({ ...s, ...(typeof patch === 'function' ? patch(s) : patch) }));
 
   useEffect(() => {
@@ -173,12 +186,36 @@ export function useAddShirtForm(userId: string | undefined) {
         if (scanToken.current === token) set((s) => ({ scan: { ...s.scan, status: 'error' } }));
       }
     },
-    runPrecheck: () =>
+    check,
+    /** Local checks plus, when switched on, the AI pre-check of the required photos. */
+    runPrecheck: async (lang: string) => {
+      const token = ++checkToken.current;
+      setCheck({ busy: true, skipped: null });
+      const photos = CHECK_PHOTOS.flatMap(([key, kind]) => (f.photos[key]?.path ? [{ kind, path: f.photos[key]!.path! }] : []));
+      const name = f.catalogId ? BY[f.catalogId]?.name ?? null : [f.proposedClub, f.proposedSeason, f.proposedVariant].filter(Boolean).join(' ') || null;
+      const claim = {
+        shirt: name,
+        version: f.version || null,
+        print: f.flock.source !== 'Keine' ? [f.flock.name, f.flock.number].filter(Boolean).join(' ') || null : null,
+        patches: f.patches
+      };
+      let ai: AuthCheck | null = null;
+      let skipped: 'off' | 'rate_limited' | 'failed' | null = null;
+      try {
+        const r = await checkAuthenticity(photos, claim, lang);
+        if (r.ok) ai = r.result;
+        else skipped = r.reason;
+      } catch {
+        skipped = 'failed';
+      }
+      if (checkToken.current !== token) return;
+      setCheck({ busy: false, skipped });
       set((s) => {
-        const p = precheck(s);
+        const p = withAiCheck(precheck(s), ai);
         const level = p.status === 'ok' ? (s.verification.level === 'expert' ? 'expert' : 'precheck') : s.verification.level;
         return { precheck: p, verification: { ...s.verification, level } };
-      }),
+      });
+    },
     requestVerification: () => {
       if (!userId) return;
       set((s) => ({ verification: { ...s.verification, status: 'angefragt' } }));

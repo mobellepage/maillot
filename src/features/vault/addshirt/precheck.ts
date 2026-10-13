@@ -3,6 +3,7 @@ import type { Precheck } from '../../../types/domain.ts';
 import type { AddShirtForm } from './useAddShirtForm.ts';
 
 import { AI_MATCH_THRESHOLD } from '../../identify/prefill.ts';
+import type { AuthCheck } from '../../../utils/db.ts';
 
 type Input = Pick<AddShirtForm, 'photos' | 'scan' | 'catalogId' | 'version' | 'proposed'>;
 
@@ -54,3 +55,24 @@ export function precheck(s: Input): Precheck {
   return { status, notes };
 }
 
+
+const RANK: Record<Precheck['status'], number> = { ok: 0, review: 1, fake: 2 };
+const FROM_AI: Record<AuthCheck['verdict'], Precheck['status']> = { no_issues: 'ok', please_check: 'review', possible_fake: 'fake' };
+
+/**
+ * Adds the AI pre-check to the local one: the stricter verdict wins, and the
+ * AI's own reasons are kept. When the AI read the inner label, the local
+ * "label not readable / no text" notes no longer apply.
+ */
+export function withAiCheck(local: Precheck, ai: AuthCheck | null): Precheck {
+  if (!ai) return local;
+  const readLabel = !!ai.productCode;
+  const notes = local.notes.filter((n) => !(readLabel && (n === 'pc.codeUnreadable' || n === 'pc.noText')) && n !== 'pc.clean');
+  if (ai.codeFits === 'no') notes.push('pc.codeMismatch');
+  let status: Precheck['status'] = FROM_AI[ai.verdict];
+  // Recompute the local verdict from what's left of its notes.
+  const localStatus: Precheck['status'] = notes.includes('pc.otherItem') || notes.length >= 3 ? 'fake' : notes.some((n) => n !== 'pc.proposed') ? 'review' : 'ok';
+  if (RANK[localStatus] > RANK[status]) status = localStatus;
+  if (!notes.length && !ai.reasons.length) notes.push('pc.clean');
+  return { status, notes, reasons: ai.reasons, productCode: ai.productCode };
+}

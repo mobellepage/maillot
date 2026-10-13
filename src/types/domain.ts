@@ -64,6 +64,10 @@ export interface Precheck {
   status: 'ok' | 'review' | 'fake';
   /** Message keys (older items: German text, shown as is). */
   notes: string[];
+  /** The AI pre-check's own observations, in the member's language (absent when it didn't run). */
+  reasons?: string[];
+  /** Article code the AI pre-check read on the inner label. */
+  productCode?: string | null;
 }
 
 export type Visibility = 'private' | 'public' | 'offers' | 'forsale';

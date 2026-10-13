@@ -74,8 +74,8 @@ export default function AddShirtPage() {
 
   const catalogItem = f.catalogId ? BY[f.catalogId] ?? null : null;
   const valuation = estimateValue({ catalogItem, version: f.version, conditionGrade: f.condition.grade, flock: f.flock, patches: f.patches, signature: f.signature, verificationLevel: f.verification.level }) as Valuation;
-  const specs = buildPhotoSpecs(f, t) as { key: string }[];
-  const canNext = [f.scan.status !== 'scanning', !!f.catalogId || (f.proposed && !!f.proposedClub.trim() && !!f.proposedSeason.trim()), !!f.version, specs.every((s) => f.photos[s.key]), !!f.precheck, true, false][f.step];
+  const specs = buildPhotoSpecs(f, t) as { key: string; required: boolean }[];
+  const canNext = [f.scan.status !== 'scanning', !!f.catalogId || (f.proposed && !!f.proposedClub.trim() && !!f.proposedSeason.trim()), !!f.version, specs.every((s) => !s.required || f.photos[s.key]), !!f.precheck, true, false][f.step];
 
   // Compress on the device (strips EXIF/GPS), upload the full image and a
   // thumbnail to private storage, keep the data URL only as a local preview.

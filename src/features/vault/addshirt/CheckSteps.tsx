@@ -12,12 +12,17 @@ import type { Wizard } from './useAddShirtForm.ts';
 export function PhotosStep({ w, busyKey, onPhoto }: { w: Wizard; busyKey: string | null; onPhoto: (spec: { key: string; label: string }, f: File) => Promise<Photo | null> }) {
   const [guided, setGuided] = useState(false);
   const { t } = usePrefs();
-  const specs = buildPhotoSpecs(w.f, t) as { key: string; label: string; hint?: string }[];
-  const done = specs.filter((s) => w.f.photos[s.key]).length;
+  const specs = buildPhotoSpecs(w.f, t) as { key: string; label: string; hint?: string; required: boolean }[];
+  const required = specs.filter((s) => s.required);
+  const extras = specs.filter((s) => !s.required);
+  const done = required.filter((s) => w.f.photos[s.key]).length;
+  const slot = (spec: (typeof specs)[number]) => (
+    <PhotoSlot key={spec.key} spec={spec} data={w.f.photos[spec.key]} busy={busyKey === spec.key} onFile={(file) => onPhoto(spec, file)} onRemove={() => w.removePhoto(spec.key)} />
+  );
   return (
     <div>
       <p style={{ fontSize: 13.5, color: 'var(--text-2)', margin: '0 0 16px' }}>{t('as.p.intro')}</p>
-      {done < specs.length && (
+      {done < required.length && (
         <Card tight accent style={{ display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap', marginBottom: 16 }}>
           <div style={{ flex: '1 1 240px', fontSize: 13.5, color: 'var(--text-2)' }}>{t('gc.startBody')}</div>
           <Button size="sm" onClick={() => setGuided(true)}>
@@ -25,32 +30,39 @@ export function PhotosStep({ w, busyKey, onPhoto }: { w: Wizard; busyKey: string
           </Button>
         </Card>
       )}
-      {guided && <GuidedCapture specs={specs} photos={w.f.photos} startKey={null} onShot={onPhoto} onClose={() => setGuided(false)} />}
+      {guided && <GuidedCapture specs={required} photos={w.f.photos} startKey={null} onShot={onPhoto} onClose={() => setGuided(false)} />}
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 18 }}>
-        <div role="progressbar" aria-valuemin={0} aria-valuemax={specs.length} aria-valuenow={done} aria-label={t('as.p.progress')} style={{ flex: 1, height: 6, borderRadius: 6, background: 'rgba(255,255,255,0.08)', overflow: 'hidden' }}>
-          <div style={{ height: '100%', width: (done / specs.length) * 100 + '%', background: 'var(--accent-fill)', transition: 'width .3s' }} />
+        <div role="progressbar" aria-valuemin={0} aria-valuemax={required.length} aria-valuenow={done} aria-label={t('as.p.progress')} style={{ flex: 1, height: 6, borderRadius: 6, background: 'rgba(255,255,255,0.08)', overflow: 'hidden' }}>
+          <div style={{ height: '100%', width: (done / required.length) * 100 + '%', background: 'var(--accent-fill)', transition: 'width .3s' }} />
         </div>
         <span className="mono" style={{ fontSize: 12.5, color: 'var(--muted)', flex: 'none' }}>
-          {t('as.p.count', { done, total: specs.length })}
+          {t('as.p.count', { done, total: required.length })}
         </span>
       </div>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-        {specs.map((spec) => (
-          <PhotoSlot key={spec.key} spec={spec} data={w.f.photos[spec.key]} busy={busyKey === spec.key} onFile={(file) => onPhoto(spec, file)} onRemove={() => w.removePhoto(spec.key)} />
-        ))}
-      </div>
+      <h3 style={{ fontSize: 14, fontWeight: 700, margin: '0 0 10px' }}>{t('as.p.required')}</h3>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>{required.map(slot)}</div>
+      {extras.length > 0 && (
+        <>
+          <h3 style={{ fontSize: 14, fontWeight: 700, margin: '24px 0 4px' }}>{t('as.p.extras')}</h3>
+          <p style={{ fontSize: 13, color: 'var(--muted)', margin: '0 0 10px', lineHeight: 1.45 }}>{t('as.p.extrasHint')}</p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>{extras.map(slot)}</div>
+        </>
+      )}
     </div>
   );
 }
 
 export function PrecheckStep({ w }: { w: Wizard }) {
-  const { t } = usePrefs();
+  const { t, lang } = usePrefs();
   const p = w.f.precheck;
-  if (!p) {
+  const run = () => void w.runPrecheck(lang);
+  if (!p || w.check.busy) {
     return (
       <div style={{ textAlign: 'center', padding: '40px 20px' }}>
         <p style={{ fontSize: 14.5, color: 'var(--text-2)', margin: '0 0 20px', lineHeight: 1.5 }}>{t('as.pc.intro')}</p>
-        <Button onClick={w.runPrecheck}>{t('as.pc.start')}</Button>
+        <Button onClick={run} busy={w.check.busy} busyLabel={t('as.pc.checking')}>
+          {t('as.pc.start')}
+        </Button>
       </div>
     );
   }
@@ -64,9 +76,16 @@ export function PrecheckStep({ w }: { w: Wizard }) {
             {t(n)}
           </li>
         ))}
+        {(p.reasons ?? []).map((r, i) => (
+          <li key={'ai' + i} style={{ marginBottom: 6 }}>
+            {r}
+          </li>
+        ))}
       </ul>
+      {p.productCode && <p style={{ fontSize: 12.5, color: 'var(--text-2)', margin: '8px 0 0' }}>{t('as.pc.code', { code: p.productCode })}</p>}
+      {w.check.skipped && <p style={{ fontSize: 12.5, color: 'var(--muted)', margin: '8px 0 0' }}>{t('as.pc.ai.' + w.check.skipped)}</p>}
       <p style={{ fontSize: 12, color: 'var(--muted)', margin: '14px 0 0' }}>{t('as.pc.disclaimer')}</p>
-      <button type="button" className="link-btn link-btn--muted" onClick={w.runPrecheck} style={{ marginTop: 14, fontSize: 12.5, textDecoration: 'underline' }}>
+      <button type="button" className="link-btn link-btn--muted" onClick={run} style={{ marginTop: 14, fontSize: 12.5, textDecoration: 'underline' }}>
         {t('as.pc.again')}
       </button>
     </Notice>

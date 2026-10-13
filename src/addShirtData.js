@@ -43,14 +43,20 @@ export const DEFECTS = ['Flock rissig/abblätternd', 'Sponsor abgerieben', 'Flec
 // label/desc are message keys.
 export const VISIBILITIES = ['private', 'public', 'offers', 'forsale'].map((key) => ({ key, label: 'vault.vis.' + key, desc: 'as.vis.' + key + '.desc' }));
 
-// Builds the exact list of photos required for this specific shirt, in the order
-// they should be captured. Base 7 are always required; the rest depend on what the
-// collector entered in the details step. `t` translates the labels (the label is
-// stored with the photo, so it's in the language the collector used).
+// Builds the list of photos for this specific shirt, in the order they should
+// be captured. Five are required (REQUIRED_PHOTOS: front, back, badge, inner
+// label, and the print if the shirt has one); the rest are optional extras
+// that help the pre-check and depend on what the collector entered in the
+// details step. `t` translates the labels (the label is stored with the
+// photo, so it's in the language the collector used).
+export const REQUIRED_PHOTOS = ['front', 'back', 'crest', 'flock_closeup', 'product_code'];
+
 export function buildPhotoSpecs(f, t = (k) => k) {
-  const spec = (key, msg = key, vars) => ({ key, label: t('as.photo.' + msg, vars), hint: t('as.photo.' + msg + '.hint', vars) });
-  const specs = ['front', 'back', 'crest', 'sponsor', 'collar', 'product_code', 'seams'].map((k) => spec(k));
+  const spec = (key, msg = key, vars) => ({ key, label: t('as.photo.' + msg, vars), hint: t('as.photo.' + msg + '.hint', vars), required: REQUIRED_PHOTOS.includes(key) });
+  const specs = ['front', 'back', 'crest'].map((k) => spec(k));
   if (f.flock.source !== 'Keine') specs.push(spec('flock_closeup'));
+  specs.push(spec('product_code'));
+  ['sponsor', 'collar', 'seams'].forEach((k) => specs.push(spec(k)));
   f.patches.forEach((p) => specs.push(spec('patch_' + p, 'patch', { name: t('opt.' + p) === 'opt.' + p ? p : t('opt.' + p) })));
   if (f.signature.signed) {
     specs.push(spec('signature_closeup'));

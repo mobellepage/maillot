@@ -90,6 +90,9 @@ verify_jwt = true
 [functions.identify-shirt]
 verify_jwt = true
 
+[functions.authenticity-check]
+verify_jwt = true
+
 [functions.fetch-comps]
 verify_jwt = false
 
