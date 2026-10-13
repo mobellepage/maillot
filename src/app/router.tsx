@@ -29,6 +29,8 @@ import {
   FeedPage,
   DailyPage,
   TryOnPage,
+  LibraryPage,
+  ClubLibraryPage,
   ReturnPage,
   AccountPage,
   ResetPasswordPage
@@ -50,6 +52,8 @@ export const routes: RouteObject[] = [
           { path: 'feed', element: <FeedPage /> },
           { path: 'daily', element: <DailyPage /> },
           { path: 'try-on', element: <TryOnPage /> },
+          { path: 'library', element: <LibraryPage /> },
+          { path: 'library/:club', element: <ClubLibraryPage /> },
           { path: 'market', element: <BrowsePage /> },
           { path: 'shirt/:id', element: <DetailPage /> },
           { path: 'sell', element: <SellPage /> },

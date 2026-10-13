@@ -28,3 +28,5 @@ export const PublicVaultPage = lazy(() => import('../features/vault/PublicVaultP
 export const FeedPage = lazy(() => import('../features/feed/FeedPage.tsx'));
 export const DailyPage = lazy(() => import('../features/daily/DailyPage.tsx'));
 export const TryOnPage = lazy(() => import('../features/tryon/TryOnPage.tsx'));
+export const LibraryPage = lazy(() => import('../features/library/LibraryPage.tsx'));
+export const ClubLibraryPage = lazy(() => import('../features/library/ClubLibraryPage.tsx'));

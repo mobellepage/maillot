@@ -1,0 +1,78 @@
+// /library — the kit library: every club of the top five leagues (and more),
+// each with its kits season by season. For inspiration: which shirt do I
+// want next?
+import { useState } from 'react';
+import { Link } from 'react-router';
+import { useQuery } from '@tanstack/react-query';
+import { usePageMeta } from '../../lib/meta.ts';
+import { usePrefs } from '../../lib/prefs.tsx';
+import * as db from '../../utils/db.ts';
+import { ErrorState, Page, Skeleton } from '../../ui/index.ts';
+import { ClubBand } from './ClubBand.tsx';
+import { TOP5 } from './model.ts';
+
+const OTHER = 'other';
+
+export default function LibraryPage() {
+  const { t } = usePrefs();
+  usePageMeta(t('lib.meta'), t('lib.metaDesc'));
+  const clubs = useQuery({ queryKey: ['kitClubs'], queryFn: db.loadKitClubs, staleTime: 10 * 60_000 });
+  const counts = useQuery({ queryKey: ['kitCounts'], queryFn: db.loadKitCounts, staleTime: 5 * 60_000 });
+  const [league, setLeague] = useState<string>(TOP5[0]);
+  const [q, setQ] = useState('');
+
+  const needle = q.trim().toLowerCase();
+  const list = (clubs.data ?? []).filter((c) => (needle ? (c.name + ' ' + c.country).toLowerCase().includes(needle) : league === OTHER ? !(TOP5 as readonly string[]).includes(c.league) : c.league === league));
+  const total = Object.values(counts.data ?? {}).reduce((a, n) => a + n, 0);
+
+  return (
+    <Page>
+      <div className="eyebrow">{t('lib.eyebrow')}</div>
+      <h1 className="display" style={{ fontSize: 'clamp(30px,5vw,48px)', margin: '6px 0 0' }}>
+        {t('lib.title')}
+      </h1>
+      <p style={{ color: 'var(--text-2)', margin: '8px 0 0', fontSize: 15, lineHeight: 1.5, maxWidth: 680 }}>{t('lib.intro')}</p>
+      {counts.data && (
+        <p className="mono" style={{ fontSize: 12.5, color: 'var(--muted)', margin: '8px 0 0' }}>
+          {t('lib.stats', { kits: total, clubs: clubs.data?.length ?? 0 })}
+        </p>
+      )}
+
+      <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center', marginTop: 22 }}>
+        <div className="field" style={{ flex: '1 1 240px', maxWidth: 360 }}>
+          <label htmlFor="lib-search" className="sr-only">
+            {t('lib.search')}
+          </label>
+          <input id="lib-search" type="search" value={q} onChange={(e) => setQ(e.target.value)} placeholder={t('lib.search')} />
+        </div>
+      </div>
+      {!needle && (
+        <div role="group" aria-label={t('lib.leagues')} style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 14 }}>
+          {[...TOP5, OTHER].map((l) => (
+            <button key={l} type="button" className="option-btn" aria-pressed={league === l} onClick={() => setLeague(l)} style={{ padding: '8px 14px', fontSize: 13.5 }}>
+              {l === OTHER ? t('lib.other') : l}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {clubs.isLoading && <Skeleton height={320} radius={20} style={{ marginTop: 20 }} />}
+      {clubs.isError && <ErrorState what={t('lib.title')} onRetry={() => clubs.refetch()} />}
+      <ul style={{ listStyle: 'none', padding: 0, margin: '20px 0 0', display: 'grid', gap: 12, gridTemplateColumns: 'repeat(auto-fill,minmax(min(100%,210px),1fr))' }}>
+        {list.map((c) => {
+          const n = counts.data?.[c.id] ?? 0;
+          return (
+            <li key={c.id}>
+              <Link to={'/library/' + c.id} className="card play-card" style={{ display: 'block', padding: 16, borderRadius: 18, color: 'var(--text)', textDecoration: 'none' }}>
+                <ClubBand colors={c.colors} />
+                <div style={{ fontWeight: 700, fontSize: 15.5, marginTop: 12 }}>{c.name}</div>
+                <div style={{ fontSize: 12.5, color: 'var(--muted)', marginTop: 2 }}>{n ? t('lib.kitCount', { n }) : t('lib.emptyClub')}</div>
+              </Link>
+            </li>
+          );
+        })}
+      </ul>
+      {clubs.data && !list.length && <p style={{ color: 'var(--muted)', marginTop: 16 }}>{t('lib.noClub')}</p>}
+    </Page>
+  );
+}

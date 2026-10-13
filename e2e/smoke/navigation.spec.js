@@ -214,3 +214,9 @@ test('try-on: dress the figure, put a shirt on and save the look', async ({ page
   await page.getByRole('tab', { name: 'You' }).click();
   await expect(page.getByText('192 cm')).toBeVisible();
 });
+
+test('the kit library says so when it can’t load', async ({ page }) => {
+  await page.goto('/library');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Kit library');
+  await expect(page.getByRole('button', { name: /try again/i }).first()).toBeVisible({ timeout: 15000 });
+});

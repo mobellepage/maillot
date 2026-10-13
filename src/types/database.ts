@@ -342,6 +342,18 @@ export type Database = {
         Update: { id?: never; at?: string; actor?: string | null; action?: string; target?: string; details?: Json };
         Relationships: [];
       };
+      kit_clubs: {
+        Row: { id: string; name: string; league: string; country: string; colors: string[]; aliases: string[]; top5: boolean };
+        Insert: { id: string; name: string; league: string; country: string; colors: string[]; aliases?: string[]; top5?: boolean };
+        Update: { id?: string; name?: string; league?: string; country?: string; colors?: string[]; aliases?: string[]; top5?: boolean };
+        Relationships: [];
+      };
+      kits: {
+        Row: { id: string; club_id: string; season: string; season_year: number; kind: string; brand: string | null; sponsor: string | null; pattern: string; colors: string[]; note: string | null; catalog_id: string | null; source: string; status: string; suggested_by: string | null; created_at: string };
+        Insert: { id?: string; club_id: string; season: string; season_year: number; kind: string; brand?: string | null; sponsor?: string | null; pattern?: string; colors: string[]; note?: string | null; catalog_id?: string | null; source: string; status?: string; suggested_by?: string | null; created_at?: string };
+        Update: { id?: string; club_id?: string; season?: string; season_year?: number; kind?: string; brand?: string | null; sponsor?: string | null; pattern?: string; colors?: string[]; note?: string | null; catalog_id?: string | null; source?: string; status?: string; suggested_by?: string | null; created_at?: string };
+        Relationships: [];
+      };
       daily_game_results: {
         Row: { user_id: string; day: string; won: boolean; tries: number; created_at: string };
         Insert: { user_id: string; day: string; won: boolean; tries: number; created_at?: string };
@@ -979,6 +991,16 @@ export type Database = {
         Returns: undefined;
       };
       order_mark_delivered: { Args: { p_order_id: string }; Returns: undefined };
+      suggest_kit: {
+        Args: { p_club: string; p_season: string; p_kind: string; p_brand: string; p_sponsor: string; p_pattern: string; p_colors: string[]; p_note: string };
+        Returns: string;
+      };
+      admin_review_kit: { Args: { p_id: string; p_approve: boolean }; Returns: undefined };
+      admin_import_kits: { Args: { p_kits: Json }; Returns: number };
+      list_kit_suggestions_for_admin: {
+        Args: never;
+        Returns: { id: string; club: string; season: string; kind: string; brand: string | null; sponsor: string | null; pattern: string; colors: string[]; note: string | null; created_at: string }[];
+      };
       order_open_dispute: {
         Args: { p_order_id: string; p_reason: string };
         Returns: string;
