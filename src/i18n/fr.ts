@@ -1673,5 +1673,18 @@ export const fr: Messages = {
   'rail.label': 'Les extras du jour',
   'rail.daily': 'Devinette maillot',
   'rail.library': 'Bibliothèque de maillots',
+  'lib.credit': 'Image :',
+  'lib.v.gkHome': 'Domicile',
+  'lib.v.gkAway': 'Extérieur',
+  'lib.v.gk': 'Tenue',
+  'lib.v.trackJacket': 'Veste de survêtement',
+  'lib.v.trainingShirt': 'Maillot d’entraînement',
+  'lib.v.benchJacket': 'Veste de banc',
+  'lib.v.travelPolo': 'Polo de voyage',
+  'lib.v.anniversary': 'Anniversaire',
+  'lib.v.pride': 'Pride',
+  'lib.v.special': 'Spécial',
+  'lib.v.swissCup': 'Coupe de Suisse',
+  'lib.v.home': 'Domicile',
   // @@end
 };

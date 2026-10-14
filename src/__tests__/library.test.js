@@ -21,3 +21,15 @@ describe('kit library', () => {
     expect(['98', '2025-26', '2025/2026'].some(validSeason)).toBe(false);
   });
 });
+
+describe('variantLabel', () => {
+  const t = (k) => ({ 'lib.v.gk': 'Kit', 'lib.v.gkAway': 'Away', 'lib.v.trackJacket': 'Track jacket' })[k] ?? k;
+  it('translates known variants and keeps their number', async () => {
+    const { variantLabel } = await import('../features/library/model.ts');
+    expect(variantLabel('GK 2', t)).toBe('Kit 2');
+    expect(variantLabel('GK Away', t)).toBe('Away');
+    expect(variantLabel('Track Jacket 2', t)).toBe('Track jacket 2');
+    expect(variantLabel('V2', t)).toBe('V2');
+    expect(variantLabel('', t)).toBe('');
+  });
+});

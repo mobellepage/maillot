@@ -1673,5 +1673,18 @@ export const de: Messages = {
   'rail.label': 'Tägliche Extras',
   'rail.daily': 'Trikot-Rätsel',
   'rail.library': 'Trikot-Bibliothek',
+  'lib.credit': 'Bild:',
+  'lib.v.gkHome': 'Heim',
+  'lib.v.gkAway': 'Auswärts',
+  'lib.v.gk': 'Trikot',
+  'lib.v.trackJacket': 'Trainingsjacke',
+  'lib.v.trainingShirt': 'Trainingsshirt',
+  'lib.v.benchJacket': 'Bankjacke',
+  'lib.v.travelPolo': 'Reise-Polo',
+  'lib.v.anniversary': 'Jubiläum',
+  'lib.v.pride': 'Pride',
+  'lib.v.special': 'Spezial',
+  'lib.v.swissCup': 'Schweizer Cup',
+  'lib.v.home': 'Heim',
   // @@end
 };

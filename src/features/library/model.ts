@@ -41,13 +41,13 @@ export interface SeasonGroup<K> {
 }
 
 /** Kits grouped by season (newest first), each season in kit order (home, away, third…). */
-export function bySeason<K extends { season: string; season_year: number; kind: string }>(kits: K[]): SeasonGroup<K>[] {
+export function bySeason<K extends { season: string; season_year: number; kind: string; variant?: string }>(kits: K[]): SeasonGroup<K>[] {
   const order = (k: string) => {
     const i = (KIT_KINDS as readonly string[]).indexOf(k);
     return i < 0 ? 99 : i;
   };
   const map = new Map<string, K[]>();
-  for (const k of [...kits].sort((x, y) => y.season_year - x.season_year || y.season.localeCompare(x.season) || order(x.kind) - order(y.kind))) {
+  for (const k of [...kits].sort((x, y) => y.season_year - x.season_year || y.season.localeCompare(x.season) || order(x.kind) - order(y.kind) || (x.variant ?? '').localeCompare(y.variant ?? ''))) {
     map.set(k.season, [...(map.get(k.season) ?? []), k]);
   }
   return [...map.entries()].map(([season, ks]) => ({ season, kits: ks }));
@@ -55,3 +55,27 @@ export function bySeason<K extends { season: string; season_year: number; kind: 
 
 /** A valid season: "1998", "2025/26" or "1991/93". */
 export const validSeason = (s: string) => /^[0-9]{4}(\/[0-9]{2})?$/.test(s.trim());
+
+/** Message key for a kit variant ("GK 2", "Track Jacket", "V2" …) plus its number, or the raw text. */
+const VARIANT_KEYS: Record<string, string> = {
+  'GK Home': 'lib.v.gkHome',
+  'GK Away': 'lib.v.gkAway',
+  GK: 'lib.v.gk',
+  'Track Jacket': 'lib.v.trackJacket',
+  'Training Shirt': 'lib.v.trainingShirt',
+  'Bench Jacket': 'lib.v.benchJacket',
+  'Travel Polo': 'lib.v.travelPolo',
+  Anniversary: 'lib.v.anniversary',
+  Pride: 'lib.v.pride',
+  Special: 'lib.v.special',
+  'Swiss Cup': 'lib.v.swissCup',
+  Home: 'lib.v.home'
+};
+export function variantLabel(variant: string, t: (key: string) => string): string {
+  if (!variant) return '';
+  const m = /^(.*?)\s*(\d+)$/.exec(variant);
+  const base = m ? m[1]! : variant;
+  const key = VARIANT_KEYS[base];
+  if (!key) return variant;
+  return t(key) + (m ? ' ' + m[2] : '');
+}

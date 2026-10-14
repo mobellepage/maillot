@@ -12,7 +12,7 @@ import * as db from '../../utils/db.ts';
 import { Button, ErrorState, Page, ShirtGraphic, Skeleton } from '../../ui/index.ts';
 import { useCatalog } from '../catalog/useCatalog.ts';
 import { ClubBand } from './ClubBand.tsx';
-import { KIT_KINDS, bySeason, kitLook } from './model.ts';
+import { KIT_KINDS, bySeason, kitLook, variantLabel } from './model.ts';
 import { SuggestKitDialog } from './SuggestKitDialog.tsx';
 
 export default function ClubLibraryPage() {
@@ -88,13 +88,34 @@ export default function ClubLibraryPage() {
             {g.kits.map((k) => {
               const s = k.catalog_id ? BY[k.catalog_id] : undefined;
               const look = s ? { pat: s.pat, trim: s.trim, crest: s.crest, photo: s.photo } : kitLook(k.pattern, k.colors);
+              const variant = variantLabel(k.variant, t);
+              const title = `${c?.name ?? ''} ${k.season} ${t('lib.kind.' + k.kind)}${variant ? ' · ' + variant : ''}`;
               return (
                 <li key={k.id} className="card" style={{ padding: 12, borderRadius: 18 }}>
-                  <div style={{ aspectRatio: '1/1', borderRadius: 14, background: 'var(--sunken)', display: 'grid', placeItems: 'center' }}>
-                    <ShirtGraphic {...look} flat style={{ width: '76%' }} title={`${c?.name ?? ''} ${k.season} ${t('lib.kind.' + k.kind)}`} />
+                  <div style={{ aspectRatio: '1/1', borderRadius: 14, background: 'var(--sunken)', display: 'grid', placeItems: 'center', overflow: 'hidden' }}>
+                    {k.image_path ? (
+                      <img src={k.image_path} alt={title} loading="lazy" decoding="async" style={{ width: '88%', height: '88%', objectFit: 'contain' }} />
+                    ) : (
+                      <ShirtGraphic {...look} flat style={{ width: '76%' }} title={title} />
+                    )}
                   </div>
-                  <div style={{ fontWeight: 700, fontSize: 14, marginTop: 10 }}>{t('lib.kind.' + k.kind)}</div>
-                  <div style={{ fontSize: 12.5, color: 'var(--muted)', marginTop: 2 }}>{[k.brand, k.sponsor].filter(Boolean).join(' · ') || '—'}</div>
+                  <div style={{ fontWeight: 700, fontSize: 14, marginTop: 10 }}>
+                    {t('lib.kind.' + k.kind)}
+                    {variant && <span style={{ fontWeight: 500, color: 'var(--text-2)' }}> · {variant}</span>}
+                  </div>
+                  <div style={{ fontSize: 12.5, color: 'var(--muted)', marginTop: 2 }}>{[k.brand, k.sponsor].filter(Boolean).join(' · ') || (k.image_credit ? '' : '—')}</div>
+                  {k.image_credit && (
+                    <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 4 }}>
+                      {t('lib.credit')}{' '}
+                      {k.image_credit_url ? (
+                        <a href={k.image_credit_url} target="_blank" rel="noopener noreferrer">
+                          {k.image_credit}
+                        </a>
+                      ) : (
+                        k.image_credit
+                      )}
+                    </div>
+                  )}
                   {k.note && <div style={{ fontSize: 12.5, color: 'var(--text-2)', marginTop: 4, lineHeight: 1.4 }}>{k.note}</div>}
                   {s && (
                     <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 8, fontSize: 12.5 }}>

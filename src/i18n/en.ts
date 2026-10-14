@@ -1672,6 +1672,19 @@ export const en = {
   'rail.label': 'Daily features',
   'rail.daily': 'Daily shirt puzzle',
   'rail.library': 'Kit library',
+  'lib.credit': 'Picture:',
+  'lib.v.gkHome': 'Home',
+  'lib.v.gkAway': 'Away',
+  'lib.v.gk': 'Kit',
+  'lib.v.trackJacket': 'Track jacket',
+  'lib.v.trainingShirt': 'Training shirt',
+  'lib.v.benchJacket': 'Bench jacket',
+  'lib.v.travelPolo': 'Travel polo',
+  'lib.v.anniversary': 'Anniversary',
+  'lib.v.pride': 'Pride',
+  'lib.v.special': 'Special',
+  'lib.v.swissCup': 'Swiss Cup',
+  'lib.v.home': 'Home',
   // @@end
 };
 

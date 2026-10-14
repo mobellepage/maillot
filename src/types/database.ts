@@ -349,7 +349,7 @@ export type Database = {
         Relationships: [];
       };
       kits: {
-        Row: { id: string; club_id: string; season: string; season_year: number; kind: string; brand: string | null; sponsor: string | null; pattern: string; colors: string[]; note: string | null; catalog_id: string | null; source: string; status: string; suggested_by: string | null; created_at: string };
+        Row: { id: string; club_id: string; season: string; season_year: number; kind: string; variant: string; image_path: string | null; image_credit: string | null; image_credit_url: string | null; brand: string | null; sponsor: string | null; pattern: string; colors: string[]; note: string | null; catalog_id: string | null; source: string; status: string; suggested_by: string | null; created_at: string };
         Insert: { id?: string; club_id: string; season: string; season_year: number; kind: string; brand?: string | null; sponsor?: string | null; pattern?: string; colors: string[]; note?: string | null; catalog_id?: string | null; source: string; status?: string; suggested_by?: string | null; created_at?: string };
         Update: { id?: string; club_id?: string; season?: string; season_year?: number; kind?: string; brand?: string | null; sponsor?: string | null; pattern?: string; colors?: string[]; note?: string | null; catalog_id?: string | null; source?: string; status?: string; suggested_by?: string | null; created_at?: string };
         Relationships: [];
