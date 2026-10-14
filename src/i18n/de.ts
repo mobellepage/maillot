@@ -1611,7 +1611,7 @@ export const de: Messages = {
   'lib.stats': '{kits} Trikots · {clubs} Vereine',
   'lib.search': 'Vereine suchen',
   'lib.leagues': 'Ligen',
-  'lib.other': 'Weitere Vereine & Nationen',
+  'lib.other': 'Weitere Vereine',
   'lib.kitCount': '{n} Trikots',
   'lib.emptyClub': 'Noch leer — hilf mit',
   'lib.noClub': 'Kein Verein gefunden.',

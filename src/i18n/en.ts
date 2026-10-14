@@ -1610,7 +1610,7 @@ export const en = {
   'lib.stats': '{kits} kits · {clubs} clubs',
   'lib.search': 'Search clubs',
   'lib.leagues': 'Leagues',
-  'lib.other': 'More clubs & nations',
+  'lib.other': 'More clubs',
   'lib.kitCount': '{n} kits',
   'lib.emptyClub': 'No kits yet — help out',
   'lib.noClub': 'No club matches.',
