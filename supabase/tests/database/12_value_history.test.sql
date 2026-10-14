@@ -39,7 +39,7 @@ select is((select count(*)::int from notifications where user_id = '00000000-000
 select is(notify_collection_movers(), 0, 'each move is reported once a week');
 
 set local role anon;
-select ok((select count(*) > 0 from shirt_value_history), 'value history is public');
+select ok((select count(*) > 0 from value_history(array['ned-88'], 30)), 'value history is public, a month at a time');
 reset role;
 
 select * from finish();

@@ -48,7 +48,7 @@ update orders set status = 'released', paid_at = now(), shipped_at = now(), rele
 select ok((select n_trades = 1 and value > 95 from shirt_valuations where catalog_id = 'sui-26'), 'a released order revalues its shirt');
 
 set local role anon;
-select ok((select count(*) > 0 from shirt_valuations) and (select count(*) > 0 from market_comps), 'values and comparables are public');
+select ok((select count(*) > 0 from public_valuations()) and (select count(*) > 0 from shirt_comps('ned-88')), 'values and comparables are public, one call at a time');
 select throws_ok($$ insert into market_comps (source, external_id, catalog_id, marketplace, kind, match, title, price, currency, price_chf) values ('ebay','x','ned-88','EBAY_DE','listing','exact','x',1,'CHF',1) $$, '42501', null, '…but only the collector writes comparables');
 select throws_ok($$ select refresh_shirt_valuations() $$, '42501', null, '…and visitors can’t trigger recomputation');
 reset role;

@@ -34,7 +34,7 @@ select tests.create_user('00000000-0000-4000-a000-00000000c1ad', 'admin@kits.tes
 
 select plan(13);
 
-select is((select count(*)::int from kit_clubs where top5), 96, 'all clubs of the top five leagues are listed');
+select is((select count(*)::int from library_clubs() where top5), 96, 'all clubs of the top five leagues are listed');
 select ok((select count(*) from kits where source = 'catalogue' and status = 'approved') >= 1, 'catalogue shirts are in the library');
 
 select tests.login('00000000-0000-4000-a000-00000000c1b1');
@@ -56,8 +56,8 @@ select is(admin_import_kits('[{"club":"arsenal","season":"2003/04","kind":"home"
 select tests.logout();
 
 set local role anon;
-select is((select count(*)::int from kits where club_id = 'arsenal' and season = '2003/04'), 1, 'a repeated import updates the kit instead of adding it twice');
-select is((select note from kits where club_id = 'milan' and season = '2003/04'), 'Champions League', 'approved suggestions are public');
+select is((select count(*)::int from library_kits('arsenal') where season = '2003/04'), 1, 'a repeated import updates the kit instead of adding it twice');
+select is((select note from library_kits('milan') where season = '2003/04'), 'Champions League', 'approved suggestions are public');
 reset role;
 
 select * from finish();
