@@ -1,4 +1,4 @@
--- Kit library: 4533 Serie A kits (20 clubs) with pictures,
+-- Kit library: 4534 Serie A kits (20 clubs) with pictures,
 -- supplied by the owner from the Football Kit Archive (credited on every kit).
 -- To take them out again: delete from public.kits where image_credit = 'Football Kit Archive';
 insert into public.kits (club_id, season, season_year, kind, variant, pattern, colors, image_path, image_credit, image_credit_url, source, status)
@@ -1403,6 +1403,7 @@ from (
     ('lazio', '2007/08', 2007, 'home', 'V2', '{#D7EFF8,#C5DFEA}', '/library/sa/lazio/2007-08-home-v2-kit.webp'),
     ('lazio', '2007/08', 2007, 'away', 'V2', '{#89989F,#ABBDC5}', '/library/sa/lazio/2007-08-away-v2-kit.webp'),
     ('lazio', '2006/07', 2006, 'home', '', '{#A3D0EC,#8DBCDE}', '/library/sa/lazio/2006-07-home-kit.webp'),
+    ('lazio', '2006/07', 2006, 'away', '', '{#EBECED,#F0F0F2}', '/library/sa/lazio/2006-07-away-kit.webp'),
     ('lazio', '2006/07', 2006, 'third', '', '{#18223E,#151E3A}', '/library/sa/lazio/2006-07-third-kit.webp'),
     ('lazio', '2006/07', 2006, 'goalkeeper', 'GK 1', '{#A2866E,#5A4D42}', '/library/sa/lazio/2006-07-gk-1-kit.webp'),
     ('lazio', '2006/07', 2006, 'goalkeeper', 'GK Home', '{#98E1AC,#ACE4B9}', '/library/sa/lazio/2006-07-gk-home-kit.webp'),
