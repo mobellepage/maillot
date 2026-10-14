@@ -38,26 +38,26 @@ select is((select count(*)::int from library_clubs() where top5), 96, 'all clubs
 select ok((select count(*) from kits where source = 'catalogue' and status = 'approved') >= 1, 'catalogue shirts are in the library');
 
 select tests.login('00000000-0000-4000-a000-00000000c1b1');
-select lives_ok($$select suggest_kit('milan', '2003/04', 'european', 'adidas', 'Opel', 'stripes', '{#FB090B,#000000}', 'Champions League')$$, 'a member suggests a kit');
-select throws_ok($$select suggest_kit('milan', '2003/04', 'home', null, null, 'plain', '{red}', null)$$, '23514', null, 'colours must be hex');
+select lives_ok($$select suggest_kit('milan', '1890/91', 'european', 'adidas', 'Opel', 'stripes', '{#FB090B,#000000}', 'Champions League')$$, 'a member suggests a kit');
+select throws_ok($$select suggest_kit('milan', '1890/91', 'home', null, null, 'plain', '{red}', null)$$, '23514', null, 'colours must be hex');
 select throws_ok($$select suggest_kit('nowhere-fc', '2003/04', 'home', null, null, 'plain', '{#FFFFFF}', null)$$, '22023', 'unknown club', 'only known clubs');
-select is((select count(*)::int from kits where club_id = 'milan' and season = '2003/04'), 1, 'members see their own suggestion');
-select throws_ok(format('select admin_review_kit(%L, true)', (tests.kit('milan', '2003/04', 'european')).id), '42501', null, 'members cannot approve');
+select is((select count(*)::int from kits where club_id = 'milan' and season = '1890/91'), 1, 'members see their own suggestion');
+select throws_ok(format('select admin_review_kit(%L, true)', (tests.kit('milan', '1890/91', 'european')).id), '42501', null, 'members cannot approve');
 select tests.logout();
 
 select tests.login('00000000-0000-4000-a000-00000000c1b2');
-select is((select count(*)::int from kits where club_id = 'milan' and season = '2003/04'), 0, 'nobody else sees an unchecked suggestion');
+select is((select count(*)::int from kits where club_id = 'milan' and season = '1890/91'), 0, 'nobody else sees an unchecked suggestion');
 select throws_ok($$select admin_import_kits('[]')$$, '42501', null, 'members cannot import');
 select tests.logout();
 
 select tests.login('00000000-0000-4000-a000-00000000c1ad');
-select lives_ok(format('select admin_review_kit(%L, true)', (tests.kit('milan', '2003/04', 'european')).id), 'an admin approves it');
+select lives_ok(format('select admin_review_kit(%L, true)', (tests.kit('milan', '1890/91', 'european')).id), 'an admin approves it');
 select is(admin_import_kits('[{"club":"arsenal","season":"2003/04","kind":"home","brand":"Nike","sponsor":"O2","pattern":"plain","colors":["#EF0107","#FFFFFF"]},{"club":"arsenal","season":"2003/04","kind":"home","brand":"Nike","sponsor":"O2","pattern":"plain","colors":["#EF0107","#FFFFFF"],"note":"The Invincibles"}]'), 2, 'an admin imports kits');
 select tests.logout();
 
 set local role anon;
 select is((select count(*)::int from library_kits('arsenal') where season = '2003/04' and kind = 'home' and variant = ''), 1, 'a repeated import updates the kit instead of adding it twice');
-select is((select note from library_kits('milan') where season = '2003/04'), 'Champions League', 'approved suggestions are public');
+select is((select note from library_kits('milan') where season = '1890/91'), 'Champions League', 'approved suggestions are public');
 reset role;
 
 select * from finish();

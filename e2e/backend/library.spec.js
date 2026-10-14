@@ -21,12 +21,12 @@ test('kit library: browse to a club and suggest a missing kit', async ({ page })
 
   await page.getByRole('button', { name: 'Suggest a missing kit' }).click();
   const dialog = page.getByRole('dialog');
-  await dialog.getByLabel('Season').fill('2003/04');
+  await dialog.getByLabel('Season').fill('1890/91');
   await dialog.getByLabel('Kit').selectOption('european');
   await dialog.getByLabel('Maker').fill('adidas');
   await dialog.getByRole('button', { name: 'Stripes', exact: true }).click();
   await dialog.getByRole('button', { name: 'Send suggestion' }).click();
   await expect(page.getByText('Thanks! We’ll check your suggestion.')).toBeVisible();
   // Not public until an admin has checked it.
-  await expect(page.getByRole('heading', { name: '2003/04' })).toHaveCount(0);
+  await expect(page.getByRole('heading', { name: '1890/91' })).toHaveCount(0);
 });
