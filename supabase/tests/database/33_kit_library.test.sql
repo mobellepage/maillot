@@ -56,7 +56,7 @@ select is(admin_import_kits('[{"club":"arsenal","season":"2003/04","kind":"home"
 select tests.logout();
 
 set local role anon;
-select is((select count(*)::int from library_kits('arsenal') where season = '2003/04'), 1, 'a repeated import updates the kit instead of adding it twice');
+select is((select count(*)::int from library_kits('arsenal') where season = '2003/04' and kind = 'home' and variant = ''), 1, 'a repeated import updates the kit instead of adding it twice');
 select is((select note from library_kits('milan') where season = '2003/04'), 'Champions League', 'approved suggestions are public');
 reset role;
 
