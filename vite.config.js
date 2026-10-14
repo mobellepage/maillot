@@ -37,6 +37,12 @@ export default defineConfig(({ mode }) => ({
         ]
       },
       workbox: {
+        // A new version takes over at once instead of waiting until every
+        // tab is closed (the plain register script never asks it to);
+        // pages still on the old build reload on a missing chunk (app/chunkError.ts).
+        skipWaiting: true,
+        clientsClaim: true,
+        cleanupOutdatedCaches: true,
         globPatterns: ['**/*.{js,css,html,svg,woff2}', 'favicon.png'],
         // Offline/repeat navigations get the empty shell; prerendered pages
         // are for first visits, crawlers and link previews.
