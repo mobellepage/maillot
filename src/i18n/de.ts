@@ -1698,5 +1698,6 @@ export const de: Messages = {
   'lib.v.preSeasonAway': 'Vorbereitung Auswärts',
   'lib.v.centenary': '100 Jahre',
   'lib.v.testimonial': 'Abschiedsspiel',
+  'lib.nations': 'Nationalteams',
   // @@end
 };

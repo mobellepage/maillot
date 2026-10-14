@@ -1698,5 +1698,6 @@ export const fr: Messages = {
   'lib.v.preSeasonAway': 'Pré-saison extérieur',
   'lib.v.centenary': 'Centenaire',
   'lib.v.testimonial': 'Jubilé',
+  'lib.nations': 'Équipes nationales',
   // @@end
 };

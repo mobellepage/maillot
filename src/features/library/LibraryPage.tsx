@@ -11,6 +11,9 @@ import { ErrorState, Page, Skeleton } from '../../ui/index.ts';
 import { ClubBand } from './ClubBand.tsx';
 import { TOP5 } from './model.ts';
 
+const NATIONS = 'National Teams';
+// Tabs with their own button; every other league sits under "Other".
+const TABS: readonly string[] = [...TOP5, 'Swiss Super League', NATIONS];
 const OTHER = 'other';
 
 export default function LibraryPage() {
@@ -22,7 +25,7 @@ export default function LibraryPage() {
   const [q, setQ] = useState('');
 
   const needle = q.trim().toLowerCase();
-  const list = (clubs.data ?? []).filter((c) => (needle ? (c.name + ' ' + c.country).toLowerCase().includes(needle) : league === OTHER ? !(TOP5 as readonly string[]).includes(c.league) : c.league === league));
+  const list = (clubs.data ?? []).filter((c) => (needle ? [c.name, c.country, ...(c.aliases ?? [])].join(' ').toLowerCase().includes(needle) : league === OTHER ? !TABS.includes(c.league) : c.league === league));
   const total = Object.values(counts.data ?? {}).reduce((a, n) => a + n, 0);
 
   return (
@@ -48,9 +51,9 @@ export default function LibraryPage() {
       </div>
       {!needle && (
         <div role="group" aria-label={t('lib.leagues')} style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 14 }}>
-          {[...TOP5, OTHER].map((l) => (
+          {[...TABS, OTHER].map((l) => (
             <button key={l} type="button" className="option-btn" aria-pressed={league === l} onClick={() => setLeague(l)} style={{ padding: '8px 14px', fontSize: 13.5 }}>
-              {l === OTHER ? t('lib.other') : l}
+              {l === OTHER ? t('lib.other') : l === NATIONS ? t('lib.nations') : l}
             </button>
           ))}
         </div>

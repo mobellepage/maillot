@@ -1697,6 +1697,7 @@ export const en = {
   'lib.v.preSeasonAway': 'Pre-season away',
   'lib.v.centenary': 'Centenary',
   'lib.v.testimonial': 'Testimonial',
+  'lib.nations': 'National teams',
   // @@end
 };
 
