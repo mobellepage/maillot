@@ -15,8 +15,8 @@ type Spec = { key: string; label: string; hint?: string };
 const hasCamera = () => typeof navigator !== 'undefined' && typeof navigator.mediaDevices?.getUserMedia === 'function';
 
 /**
- * A shirt lying flat, sleeves spread — the same proportions the try-on
- * studio expects (photoInfo.ts), so a framed front photo fits the figure.
+ * A shirt lying flat, sleeves spread, filling the frame — so every front
+ * photo in the collection looks alike.
  */
 const FLAT_SHIRT = 'M40 9 Q50 16 60 9 L68 11 L84 26 L77 38 L69 32 L70 88 L30 88 L31 32 L23 38 L16 26 L32 11 Z';
 

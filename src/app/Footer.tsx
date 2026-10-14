@@ -47,7 +47,6 @@ export default function Footer() {
             [t('footer.browse'), '/market'],
             [t('footer.library'), '/library'],
             [t('footer.daily'), '/daily'],
-            [t('footer.tryon'), '/try-on'],
             [t('footer.sell'), '/sell'],
             [t('footer.howAuth'), '/authentication'],
             [t('footer.verify'), '/verify']

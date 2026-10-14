@@ -30,7 +30,6 @@ export default function HomePage() {
       <HomeBento />
       <HomePlay
         extra={[
-          { to: '/try-on', kicker: t('home.play.try.kicker'), title: t('home.play.try.title'), body: t('home.play.try.body'), emoji: '🪞' },
           { to: '/library', kicker: t('home.play.lib.kicker'), title: t('home.play.lib.title'), body: t('home.play.lib.body'), emoji: '📚' }
         ]}
       />

@@ -1,6 +1,6 @@
 // /library/:club — one club's kits, season by season, every kind (home,
 // away, third, goalkeeper, cup, European, training, special). Kits that are
-// in the catalogue link to the market and the try-on studio.
+// in the catalogue link to the market.
 import { useState } from 'react';
 import { Link, Navigate, useParams } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
@@ -99,7 +99,6 @@ export default function ClubLibraryPage() {
                   {s && (
                     <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 8, fontSize: 12.5 }}>
                       <Link to={'/shirt/' + s.id}>{t('lib.toMarket')}</Link>
-                      <Link to={'/try-on?shirt=' + s.id}>{t('try.cta')}</Link>
                     </div>
                   )}
                 </li>

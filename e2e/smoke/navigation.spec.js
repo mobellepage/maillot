@@ -196,36 +196,15 @@ test('the daily shirt puzzle can be played to the end and shared', async ({ page
   await expect(page.getByRole('button', { name: 'Share result' })).toBeVisible();
 });
 
-test('try-on: dress the figure, put a shirt on and save the look', async ({ page }) => {
-  await page.goto('/shirt/ned-88');
-  await page.getByRole('link', { name: 'Try it on' }).click();
-  await expect(page).toHaveURL(/\/try-on\?shirt=ned-88$/);
-  await expect(page.getByRole('img', { name: /Your figure wearing Netherlands/ })).toBeVisible();
-  await page.getByRole('tab', { name: 'You' }).click();
-  await page.getByRole('button', { name: 'Full beard' }).click();
-  await page.getByLabel('Height').fill('192');
-  await page.getByRole('tab', { name: 'Outfit' }).click();
-  await page.getByRole('button', { name: 'Shorts', exact: true }).click();
-  await page.getByRole('button', { name: 'Save look' }).click();
-  await expect(page.getByRole('heading', { name: 'Your looks' })).toBeVisible();
-  // Everything is kept in the browser for guests.
-  await page.reload();
-  await expect(page.getByRole('button', { name: /Wear the look with Netherlands/ })).toBeVisible();
-  await page.getByRole('tab', { name: 'You' }).click();
-  await expect(page.getByText('192 cm')).toBeVisible();
-});
-
 test('the kit library says so when it can’t load', async ({ page }) => {
   await page.goto('/library');
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Kit library');
   await expect(page.getByRole('button', { name: /try again/i }).first()).toBeVisible({ timeout: 15000 });
 });
 
-test('the side rail leads to the puzzle, the try-on studio and the library', async ({ page }) => {
+test('the side rail leads to the puzzle and the library', async ({ page }) => {
   await page.goto('/market');
   const rail = page.getByRole('navigation', { name: 'Daily features' });
-  await rail.getByRole('link', { name: 'Try-on studio' }).click();
-  await expect(page).toHaveURL(/\/try-on$/);
   await rail.getByRole('link', { name: 'Kit library' }).click();
   await expect(page).toHaveURL(/\/library$/);
   await rail.getByRole('link', { name: 'Daily shirt puzzle' }).click();

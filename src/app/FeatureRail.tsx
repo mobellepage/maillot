@@ -1,13 +1,12 @@
-// A small tab on the right edge of every page with the three "come back
-// every day" features — the daily puzzle, the try-on studio and the kit
-// library — so people find them from anywhere. Hidden in focused flows
+// A small tab on the right edge of every page with the "come back every
+// day" features — the daily puzzle and the kit library — so people find
+// them from anywhere. Hidden in focused flows
 // (adding a shirt, signing in, onboarding).
 import { NavLink, useLocation } from 'react-router';
 import { usePrefs } from '../lib/prefs.tsx';
 
 const ITEMS = [
   { to: '/daily', emoji: '🧩', label: 'rail.daily' },
-  { to: '/try-on', emoji: '🪞', label: 'rail.tryon' },
   { to: '/library', emoji: '📚', label: 'rail.library' }
 ] as const;
 

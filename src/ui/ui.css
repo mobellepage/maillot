@@ -1209,59 +1209,6 @@ html:not([data-theme='light']) .store-badge > img {
   box-shadow: 0 14px 30px rgba(0, 0, 0, 0.12);
 }
 
-/* Try-on studio */
-.tryon-grid {
-  grid-template-columns: minmax(0, 1fr);
-}
-@media (min-width: 860px) {
-  .tryon-grid {
-    grid-template-columns: minmax(280px, 400px) minmax(0, 1fr);
-  }
-  .tryon-stage {
-    position: sticky;
-    top: 84px;
-  }
-}
-.tryon-tab {
-  border: 0;
-  background: transparent;
-  color: var(--text-2);
-  font: inherit;
-  font-size: 14px;
-  font-weight: 600;
-  padding: 8px 16px;
-  border-radius: 999px;
-  cursor: pointer;
-}
-.tryon-tab[aria-selected='true'] {
-  background: var(--bg);
-  color: var(--text);
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
-}
-.tryon-shirt {
-  aspect-ratio: 1 / 1;
-  display: grid;
-  place-items: center;
-  border-radius: 14px;
-  border: 1px solid var(--line);
-  background: var(--sunken);
-  cursor: pointer;
-  padding: 4px;
-}
-.tryon-shirt[aria-pressed='true'] {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 2px var(--accent);
-}
-/* The figure is 200 : 480; keep it to about 60 % of the screen height. */
-.tryon-figure {
-  max-width: min(340px, 20vh);
-}
-@media (min-width: 860px) {
-  .tryon-figure {
-    max-width: min(340px, 33vh);
-  }
-}
-
 /* "Continue with Apple / Google" */
 .social-btn {
   display: flex;
@@ -1290,7 +1237,7 @@ html:not([data-theme='light']) .store-badge > img {
   border: 1px solid #747775;
 }
 
-/* Feature rail: puzzle, try-on, library — a tab on the right edge. */
+/* Feature rail: puzzle and library — a tab on the right edge. */
 .feature-rail {
   position: fixed;
   right: 0;

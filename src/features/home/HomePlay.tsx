@@ -1,5 +1,5 @@
 // "Every day something new": the daily shirt puzzle and the other reasons to
-// come back (try-on studio, kit library), as a row of cards on the home page.
+// come back (the kit library), as a row of cards on the home page.
 import { useState } from 'react';
 import { Link } from 'react-router';
 import { usePrefs } from '../../lib/prefs.tsx';

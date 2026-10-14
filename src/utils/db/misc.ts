@@ -1,6 +1,6 @@
 // Notifications, behaviour events, public stats and API keys.
 import { sb } from '../supabase.ts';
-import type { Json, RpcReturns, Tables } from '../../types/database.ts';
+import type { RpcReturns, Tables } from '../../types/database.ts';
 import type { EventType, Visibility } from '../../types/domain.ts';
 import type { ApiKeyRow, Notification } from './types.ts';
 
@@ -151,16 +151,4 @@ export async function loadAuditLog(): Promise<AuditEntry[]> {
   const { data, error } = await (await sb()).from('audit_log').select('*').order('at', { ascending: false }).limit(50);
   if (error) throw error;
   return data ?? [];
-}
-
-/** The member's try-on character and saved looks (profiles.character). */
-export async function loadCharacter(userId: string): Promise<unknown> {
-  const { data, error } = await (await sb()).from('profiles').select('character').eq('id', userId).maybeSingle();
-  if (error) throw error;
-  return data?.character ?? null;
-}
-
-export async function saveCharacter(userId: string, character: Json): Promise<void> {
-  const { error } = await (await sb()).from('profiles').update({ character }).eq('id', userId);
-  if (error) throw error;
 }
