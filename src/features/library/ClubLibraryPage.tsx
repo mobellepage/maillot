@@ -94,7 +94,7 @@ export default function ClubLibraryPage() {
                 <li key={k.id} className="card" style={{ padding: 12, borderRadius: 18 }}>
                   <div style={{ aspectRatio: '1/1', borderRadius: 14, background: 'var(--sunken)', display: 'grid', placeItems: 'center', overflow: 'hidden' }}>
                     {k.image_path ? (
-                      <img src={k.image_path} alt={title} loading="lazy" decoding="async" style={{ width: '88%', height: '88%', objectFit: 'contain' }} />
+                      <img src={k.image_path} alt={title} loading="lazy" decoding="async" style={{ width: '88%', height: '88%', objectFit: 'contain', borderRadius: 10 }} />
                     ) : (
                       <ShirtGraphic {...look} flat style={{ width: '76%' }} title={title} />
                     )}

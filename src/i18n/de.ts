@@ -1686,5 +1686,17 @@ export const de: Messages = {
   'lib.v.special': 'Spezial',
   'lib.v.swissCup': 'Schweizer Cup',
   'lib.v.home': 'Heim',
+  'lib.v.anthemJacket': 'Hymnenjacke',
+  'lib.v.rainJacket': 'Regenjacke',
+  'lib.v.trainingSweatshirt': 'Trainingspullover',
+  'lib.v.faCupFinal': 'FA-Cup-Final',
+  'lib.v.eflCupFinal': 'Ligapokal-Final',
+  'lib.v.clFinal': 'Champions-League-Final',
+  'lib.v.elFinal': 'Europa-League-Final',
+  'lib.v.communityShield': 'Community Shield',
+  'lib.v.preSeasonHome': 'Vorbereitung Heim',
+  'lib.v.preSeasonAway': 'Vorbereitung Auswärts',
+  'lib.v.centenary': '100 Jahre',
+  'lib.v.testimonial': 'Abschiedsspiel',
   // @@end
 };

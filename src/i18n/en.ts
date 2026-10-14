@@ -1685,6 +1685,18 @@ export const en = {
   'lib.v.special': 'Special',
   'lib.v.swissCup': 'Swiss Cup',
   'lib.v.home': 'Home',
+  'lib.v.anthemJacket': 'Anthem jacket',
+  'lib.v.rainJacket': 'Rain jacket',
+  'lib.v.trainingSweatshirt': 'Training sweatshirt',
+  'lib.v.faCupFinal': 'FA Cup final',
+  'lib.v.eflCupFinal': 'League Cup final',
+  'lib.v.clFinal': 'Champions League final',
+  'lib.v.elFinal': 'Europa League final',
+  'lib.v.communityShield': 'Community Shield',
+  'lib.v.preSeasonHome': 'Pre-season home',
+  'lib.v.preSeasonAway': 'Pre-season away',
+  'lib.v.centenary': 'Centenary',
+  'lib.v.testimonial': 'Testimonial',
   // @@end
 };
 

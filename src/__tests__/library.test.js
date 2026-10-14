@@ -30,6 +30,8 @@ describe('variantLabel', () => {
     expect(variantLabel('GK Away', t)).toBe('Away');
     expect(variantLabel('Track Jacket 2', t)).toBe('Track jacket 2');
     expect(variantLabel('V2', t)).toBe('V2');
+    expect(variantLabel('FA Cup Final', t)).toBe('lib.v.faCupFinal');
+    expect(variantLabel('Training Sweatshirt 2', t)).toBe('lib.v.trainingSweatshirt 2');
     expect(variantLabel('', t)).toBe('');
   });
 });

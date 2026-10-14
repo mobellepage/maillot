@@ -69,7 +69,19 @@ const VARIANT_KEYS: Record<string, string> = {
   Pride: 'lib.v.pride',
   Special: 'lib.v.special',
   'Swiss Cup': 'lib.v.swissCup',
-  Home: 'lib.v.home'
+  Home: 'lib.v.home',
+  'Anthem Jacket': 'lib.v.anthemJacket',
+  'Rain Jacket': 'lib.v.rainJacket',
+  'Training Sweatshirt': 'lib.v.trainingSweatshirt',
+  'FA Cup Final': 'lib.v.faCupFinal',
+  'EFL Cup Final': 'lib.v.eflCupFinal',
+  'Champions League Final': 'lib.v.clFinal',
+  'Europa League Final': 'lib.v.elFinal',
+  'Community Shield': 'lib.v.communityShield',
+  'Pre Season Home': 'lib.v.preSeasonHome',
+  'Pre Season Away': 'lib.v.preSeasonAway',
+  Centenary: 'lib.v.centenary',
+  Testimonial: 'lib.v.testimonial'
 };
 export function variantLabel(variant: string, t: (key: string) => string): string {
   if (!variant) return '';
