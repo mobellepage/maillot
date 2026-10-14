@@ -6,7 +6,8 @@ export type CatalogRow = Tables<'catalog_shirts'>;
 export type CatalogMarketRow = RpcReturns<'catalog_market'>[number];
 
 export async function loadCatalog(): Promise<CatalogRow[]> {
-  const { data, error } = await (await sb()).from('catalog_shirts').select('*').eq('active', true).order('added_at', { ascending: false });
+  // Through a throttled function: the tables can't be read directly (bulk copying).
+  const { data, error } = await (await sb()).rpc('public_catalog');
   if (error) throw error;
   return data || [];
 }
@@ -22,22 +23,14 @@ export type CompRow = Pick<Tables<'market_comps'>, 'source' | 'external_id' | 'm
 
 /** Market values from the valuation model, one per catalogue shirt. */
 export async function loadValuations(): Promise<ValuationRow[]> {
-  const { data, error } = await (await sb()).from('shirt_valuations').select('*');
+  const { data, error } = await (await sb()).rpc('public_valuations');
   if (error) throw error;
   return data || [];
 }
 
 /** The comparables behind a shirt's value: this exact shirt first, then the newest. */
 export async function loadComps(shirtId: string): Promise<CompRow[]> {
-  const since = new Date(Date.now() - 14 * 864e5).toISOString();
-  const { data, error } = await (await sb())
-    .from('market_comps')
-    .select('source, external_id, marketplace, kind, match, edition, condition, title, url, price, currency, price_chf, seen_at, sold_at')
-    .eq('catalog_id', shirtId)
-    .gte('seen_at', since)
-    .order('match', { ascending: true })
-    .order('seen_at', { ascending: false })
-    .limit(12);
+  const { data, error } = await (await sb()).rpc('shirt_comps', { p_shirt: shirtId });
   if (error) throw error;
   return data || [];
 }
@@ -45,8 +38,8 @@ export async function loadComps(shirtId: string): Promise<CompRow[]> {
 /** Daily market values of the given shirts since `days` ago (for collection moves). */
 export async function loadValueHistory(shirtIds: string[], days = 35): Promise<Tables<'shirt_value_history'>[]> {
   if (!shirtIds.length) return [];
-  const since = new Date(Date.now() - days * 864e5).toISOString().slice(0, 10);
-  const { data, error } = await (await sb()).from('shirt_value_history').select('catalog_id, day, value').in('catalog_id', shirtIds).gte('day', since).order('day');
+  // Visitors get about a month, members about a year (value_history caps it).
+  const { data, error } = await (await sb()).rpc('value_history', { p_ids: shirtIds, p_days: days });
   if (error) throw error;
   return data || [];
 }

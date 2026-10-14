@@ -4,7 +4,8 @@ import * as db from '../../utils/db.ts';
 import { useLive } from '../../lib/realtime.ts';
 
 export function useOrderBook(shirtId: string | undefined, size: string | undefined) {
-  // Any new/cancelled/matched bid or ask on this shirt refreshes the book and stats live.
+  // Your own bids and asks refresh the book live; other people's (not
+  // readable directly — data protection) show up within half a minute.
   useLive(
     [
       { table: 'bids', filter: 'shirt_id=eq.' + shirtId },
@@ -17,7 +18,9 @@ export function useOrderBook(shirtId: string | undefined, size: string | undefin
     queryKey: ['orderBook', shirtId, size],
     enabled: !!shirtId && !!size,
     queryFn: () => db.loadOrderBook(shirtId!, size!),
-    placeholderData: { bids: [], asks: [] }
+    placeholderData: { bids: [], asks: [] },
+    refetchInterval: 30_000,
+    refetchIntervalInBackground: false
   });
 }
 

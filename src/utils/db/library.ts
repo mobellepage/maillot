@@ -7,22 +7,20 @@ export type KitClub = Tables<'kit_clubs'>;
 export type Kit = Tables<'kits'>;
 
 export async function loadKitClubs(): Promise<KitClub[]> {
-  const { data, error } = await (await sb()).from('kit_clubs').select('*').order('name');
+  const { data, error } = await (await sb()).rpc('library_clubs');
   if (error) throw error;
   return data || [];
 }
 
 /** How many kits each club has in the library. */
 export async function loadKitCounts(): Promise<Record<string, number>> {
-  const { data, error } = await (await sb()).from('kits').select('club_id').eq('status', 'approved').limit(20000);
+  const { data, error } = await (await sb()).rpc('library_kit_counts');
   if (error) throw error;
-  const out: Record<string, number> = {};
-  for (const r of data || []) out[r.club_id] = (out[r.club_id] ?? 0) + 1;
-  return out;
+  return Object.fromEntries((data || []).map((r) => [r.club_id, r.n]));
 }
 
 export async function loadClubKits(clubId: string): Promise<Kit[]> {
-  const { data, error } = await (await sb()).from('kits').select('*').eq('club_id', clubId).eq('status', 'approved').order('season_year', { ascending: false });
+  const { data, error } = await (await sb()).rpc('library_kits', { p_club: clubId });
   if (error) throw error;
   return data || [];
 }

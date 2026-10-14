@@ -66,5 +66,12 @@ writeFileSync(
     PATHS.map((p) => `  <url><loc>${site}${p === '/' ? '/' : p}</loc><lastmod>${today}</lastmod></url>`).join('\n') +
     `\n</urlset>\n`
 );
-writeFileSync('dist/robots.txt', `User-agent: *\nDisallow: /admin\nDisallow: /vault\nDisallow: /orders\nDisallow: /welcome\nDisallow: /return\nDisallow: /reset-password\nAllow: /\n\nSitemap: ${site}/sitemap.xml\n`);
+// AI training and bulk-data crawlers may not collect Maillot's data
+// (prices, values, collections); search engines may index the public pages.
+const NO_AI = ['GPTBot', 'ClaudeBot', 'anthropic-ai', 'Claude-Web', 'CCBot', 'Google-Extended', 'Applebot-Extended', 'PerplexityBot', 'Bytespider', 'Amazonbot', 'meta-externalagent', 'FacebookBot', 'Diffbot', 'Omgilibot', 'cohere-ai', 'ImagesiftBot', 'Timpibot', 'DataForSeoBot', 'PetalBot'];
+writeFileSync(
+  'dist/robots.txt',
+  NO_AI.map((ua) => `User-agent: ${ua}\nDisallow: /\n`).join('\n') +
+    `\nUser-agent: *\nDisallow: /admin\nDisallow: /vault\nDisallow: /orders\nDisallow: /welcome\nDisallow: /return\nDisallow: /reset-password\nAllow: /\n\nSitemap: ${site}/sitemap.xml\n`
+);
 console.log(`prerendered ${n} pages, wrote sitemap.xml and robots.txt`);

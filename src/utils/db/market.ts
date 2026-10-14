@@ -61,18 +61,11 @@ export async function findOrderForBid(bidId: string): Promise<OrderRef | null> {
 // Expired bids are excluded: the matcher ignores them, so showing one as
 // "highest bid" would advertise a price nobody can actually sell at.
 export async function loadOrderBook(shirtId: string, size: string): Promise<OrderBook> {
-  const now = new Date().toISOString();
+  // One shirt and size at a time, through throttled functions (no bulk reads).
   const supabase = await sb();
   const [{ data: bids, error: be }, { data: asks, error: ae }] = await Promise.all([
-    supabase
-      .from('bids')
-      .select('*')
-      .eq('shirt_id', shirtId)
-      .eq('size', size)
-      .eq('status', 'open')
-      .or(`expires_at.is.null,expires_at.gt.${now}`)
-      .order('amount', { ascending: false }),
-    (await sb()).from('asks').select('*').eq('shirt_id', shirtId).eq('size', size).eq('status', 'open').order('amount', { ascending: true })
+    supabase.rpc('open_bids', { p_shirt: shirtId, p_size: size }),
+    supabase.rpc('open_asks', { p_shirt: shirtId, p_size: size })
   ]);
   if (be) throw be;
   if (ae) throw ae;

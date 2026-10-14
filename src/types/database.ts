@@ -991,6 +991,15 @@ export type Database = {
         Returns: undefined;
       };
       order_mark_delivered: { Args: { p_order_id: string }; Returns: undefined };
+      public_catalog: { Args: never; Returns: PublicSchema['Tables']['catalog_shirts']['Row'][] };
+      public_valuations: { Args: never; Returns: PublicSchema['Tables']['shirt_valuations']['Row'][] };
+      shirt_comps: { Args: { p_shirt: string }; Returns: PublicSchema['Tables']['market_comps']['Row'][] };
+      value_history: { Args: { p_ids: string[]; p_days: number }; Returns: PublicSchema['Tables']['shirt_value_history']['Row'][] };
+      open_bids: { Args: { p_shirt: string; p_size: string }; Returns: PublicSchema['Tables']['bids']['Row'][] };
+      open_asks: { Args: { p_shirt: string; p_size: string }; Returns: PublicSchema['Tables']['asks']['Row'][] };
+      library_clubs: { Args: never; Returns: PublicSchema['Tables']['kit_clubs']['Row'][] };
+      library_kit_counts: { Args: never; Returns: { club_id: string; n: number }[] };
+      library_kits: { Args: { p_club: string }; Returns: PublicSchema['Tables']['kits']['Row'][] };
       suggest_kit: {
         Args: { p_club: string; p_season: string; p_kind: string; p_brand: string; p_sponsor: string; p_pattern: string; p_colors: string[]; p_note: string };
         Returns: string;

@@ -149,7 +149,27 @@ export const DOCS: Record<LegalDoc, { title: string; intro?: string; sections: S
         )
       },
       {
-        h: '9. Changes and governing law',
+        h: '9. Maillot’s content and data',
+        body: (
+          <>
+            <P>
+              The catalogue, market values, price histories, comparables, the kit library, texts, graphics and photos on Maillot are compiled with considerable effort and
+              are protected (in particular by copyright and by the Swiss Unfair Competition Act, which forbids taking over another’s market-ready work by technical
+              reproduction).
+            </P>
+            <UL
+              items={[
+                'You may view and share individual pages and your own collection for personal use.',
+                'Without our written permission you may not scrape, crawl or otherwise extract data automatically, copy substantial parts of our databases, use them to train AI models, or build a competing database or service with them.',
+                'Data for other uses is available under licence through our API (see Developers).',
+                'We may block access, delete accounts and claim damages if these rules are broken.'
+              ]}
+            />
+          </>
+        )
+      },
+      {
+        h: '10. Changes and governing law',
         body: (
           <P>
             We may update these terms and will tell you about material changes before they apply. Swiss law applies; the place of jurisdiction is Zürich, subject to mandatory
