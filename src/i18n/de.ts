@@ -1753,5 +1753,14 @@ export const de: Messages = {
   'auth.withApple': 'Weiter mit Apple',
   'auth.withGoogle': 'Weiter mit Google',
   'auth.socialFailed': 'Anmeldung konnte nicht gestartet werden. Bitte versuche es erneut oder nutze deine E-Mail.',
+  'try.yours': 'Aus deiner Sammlung — mit deinem Foto',
+  'try.toItem': 'In deiner Sammlung öffnen',
+  'gc.flatHint': 'Flach hinlegen · Ärmel ausbreiten · Rahmen füllen',
+  'as.scan.framed': 'Vorderseite im Rahmen fotografieren',
+  'as.scan.framedHint': 'Mit dem Rahmen passt das Trikot perfekt in deine Sammlung und in die Anprobe.',
+  'rail.label': 'Tägliche Extras',
+  'rail.daily': 'Trikot-Rätsel',
+  'rail.tryon': 'Anprobe',
+  'rail.library': 'Trikot-Bibliothek',
   // @@end
 };

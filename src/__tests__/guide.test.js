@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { guideFor, nextMissing, photoIssues } from '../features/vault/addshirt/guide.ts';
+import { frameCrop, guideFor, nextMissing, photoIssues } from '../features/vault/addshirt/guide.ts';
 
 describe('guided capture rules', () => {
   it('frames each shot with the right outline', () => {
@@ -18,5 +18,15 @@ describe('guided capture rules', () => {
     expect(nextMissing(keys, { back: 1 }, 'back')).toBe('crest');
     expect(nextMissing(keys, { crest: 1 }, 'crest')).toBe('front');
     expect(nextMissing(keys, { front: 1, back: 1, crest: 1 })).toBeNull();
+  });
+});
+
+describe('frameCrop', () => {
+  it('crops the square frame out of a 4:3 camera image shown 4:3', () => {
+    expect(frameCrop(1920, 1440, 640, 480)).toEqual({ x: 298, y: 58, size: 1325 });
+  });
+  it('accounts for a viewfinder that crops the video (cover)', () => {
+    // 16:9 video in a 4:3 box: the sides are cut off, the height is shown in full.
+    expect(frameCrop(1920, 1080, 640, 480).size).toBe(Math.round(0.92 * 1080));
   });
 });

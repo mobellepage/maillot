@@ -6,7 +6,7 @@ import { useEffect, useRef, useState } from 'react';
 import { usePrefs } from '../../../lib/prefs.tsx';
 import type { Photo } from '../../../types/domain.ts';
 import { Button, Dialog, Notice } from '../../../ui/index.ts';
-import { guideFor, nextMissing, photoIssues, type GuideShape } from './guide.ts';
+import { FRAME, frameCrop, guideFor, nextMissing, photoIssues, type GuideShape } from './guide.ts';
 import { usePhotoUrls } from '../../../lib/usePhotoUrls.ts';
 
 type Spec = { key: string; label: string; hint?: string };
@@ -14,11 +14,26 @@ type Spec = { key: string; label: string; hint?: string };
 // Insecure origins and some in-app browsers have no camera API at all.
 const hasCamera = () => typeof navigator !== 'undefined' && typeof navigator.mediaDevices?.getUserMedia === 'function';
 
+/**
+ * A shirt lying flat, sleeves spread — the same proportions the try-on
+ * studio expects (photoInfo.ts), so a framed front photo fits the figure.
+ */
+const FLAT_SHIRT = 'M40 9 Q50 16 60 9 L68 11 L84 26 L77 38 L69 32 L70 88 L30 88 L31 32 L23 38 L16 26 L32 11 Z';
+
 function Outline({ shape }: { shape: GuideShape }) {
+  const { t } = usePrefs();
   const stroke = { fill: 'none', stroke: 'rgba(255,255,255,0.85)', strokeWidth: 2.5, strokeDasharray: '10 8' } as const;
+  if (shape === 'shirt')
+    return (
+      <div aria-hidden="true" style={{ position: 'absolute', top: '50%', left: '50%', height: FRAME * 100 + '%', aspectRatio: '1 / 1', transform: 'translate(-50%,-50%)', borderRadius: 12, boxShadow: '0 0 0 9999px rgba(0,0,0,0.45)', border: '2px solid rgba(255,255,255,0.9)', pointerEvents: 'none' }}>
+        <svg viewBox="0 0 100 100" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', filter: 'drop-shadow(0 0 6px rgba(0,0,0,0.6))' }}>
+          <path {...stroke} d={FLAT_SHIRT} vectorEffect="non-scaling-stroke" />
+        </svg>
+        <span style={{ position: 'absolute', left: 0, right: 0, bottom: 8, textAlign: 'center', fontSize: 12, fontWeight: 600, color: '#fff', textShadow: '0 1px 4px rgba(0,0,0,0.8)' }}>{t('gc.flatHint')}</span>
+      </div>
+    );
   return (
     <svg aria-hidden="true" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet" style={{ position: 'absolute', inset: '6%', width: '88%', height: '88%', pointerEvents: 'none', filter: 'drop-shadow(0 0 6px rgba(0,0,0,0.6))' }}>
-      {shape === 'shirt' && <path {...stroke} d="M36 12 L22 18 L8 32 L18 44 L26 38 L26 90 L74 90 L74 38 L82 44 L92 32 L78 18 L64 12 Q50 22 36 12 Z" vectorEffect="non-scaling-stroke" />}
       {shape === 'square' && <rect {...stroke} x="18" y="18" width="64" height="64" rx="6" vectorEffect="non-scaling-stroke" />}
       {shape === 'label' && <rect {...stroke} x="30" y="10" width="40" height="80" rx="4" vectorEffect="non-scaling-stroke" />}
     </svg>
@@ -70,9 +85,16 @@ export function GuidedCapture({ specs, photos, startKey, onShot, onClose }: { sp
     const v = video.current;
     if (!v || !v.videoWidth) return;
     const c = document.createElement('canvas');
-    c.width = v.videoWidth;
-    c.height = v.videoHeight;
-    c.getContext('2d')?.drawImage(v, 0, 0);
+    if (spec && guideFor(spec.key) === 'shirt') {
+      // Keep just what's inside the shirt frame: a square with the shirt filling it.
+      const r = frameCrop(v.videoWidth, v.videoHeight, v.clientWidth || v.videoWidth, v.clientHeight || v.videoHeight);
+      c.width = c.height = r.size;
+      c.getContext('2d')?.drawImage(v, r.x, r.y, r.size, r.size, 0, 0, r.size, r.size);
+    } else {
+      c.width = v.videoWidth;
+      c.height = v.videoHeight;
+      c.getContext('2d')?.drawImage(v, 0, 0);
+    }
     c.toBlob((b) => b && handle(new File([b], (spec?.key ?? 'photo') + '.jpg', { type: 'image/jpeg' })), 'image/jpeg', 0.92);
   };
 

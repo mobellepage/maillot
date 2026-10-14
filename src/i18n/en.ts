@@ -1752,6 +1752,15 @@ export const en = {
   'auth.withApple': 'Continue with Apple',
   'auth.withGoogle': 'Continue with Google',
   'auth.socialFailed': 'Couldn’t start the sign-in. Please try again or use your email.',
+  'try.yours': 'From your collection — with your photo',
+  'try.toItem': 'Open in your collection',
+  'gc.flatHint': 'Lay it flat · spread the sleeves · fill the frame',
+  'as.scan.framed': 'Photograph the front in the frame',
+  'as.scan.framedHint': 'With the frame the shirt fits your collection and the try-on studio perfectly.',
+  'rail.label': 'Daily features',
+  'rail.daily': 'Daily shirt puzzle',
+  'rail.tryon': 'Try-on studio',
+  'rail.library': 'Kit library',
   // @@end
 };
 

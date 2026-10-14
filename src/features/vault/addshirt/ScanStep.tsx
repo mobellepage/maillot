@@ -4,6 +4,8 @@
 import { BY } from '../../../data.ts';
 import { usePrefs } from '../../../lib/prefs.tsx';
 import { Badge, Button, Card, Notice } from '../../../ui/index.ts';
+import { useState } from 'react';
+import { GuidedCapture } from './GuidedCapture.tsx';
 import { PhotoInput, Section } from './parts.tsx';
 import type { Wizard } from './useAddShirtForm.ts';
 import type { Valuation } from '../../../types/domain.ts';
@@ -53,8 +55,9 @@ function StudioPreview({ w, studio, onStudioOff }: { w: Wizard; studio: StudioSt
   );
 }
 
-export function ScanStep({ w, busyKey, onScanFile, valuation, studio, onStudioOff }: { w: Wizard; busyKey: string | null; onScanFile: (key: Key, f: File) => void; valuation: Valuation; studio: StudioState; onStudioOff: (off: boolean) => void }) {
+export function ScanStep({ w, busyKey, onScanFile, valuation, studio, onStudioOff }: { w: Wizard; busyKey: string | null; onScanFile: (key: Key, f: File) => Promise<void> | void; valuation: Valuation; studio: StudioState; onStudioOff: (off: boolean) => void }) {
   const { money, t } = usePrefs();
+  const [framed, setFramed] = useState(false);
   const { f } = w;
   const r = f.scan.result;
   const catalogItem = f.catalogId ? BY[f.catalogId] : undefined;
@@ -73,6 +76,23 @@ export function ScanStep({ w, busyKey, onScanFile, valuation, studio, onStudioOf
             </div>
           ))}
         </div>
+        <Button size="sm" variant="secondary" onClick={() => setFramed(true)} style={{ marginTop: 12 }}>
+          {t('as.scan.framed')}
+        </Button>
+        <p style={{ fontSize: 12.5, color: 'var(--muted)', margin: '6px 0 0', lineHeight: 1.45 }}>{t('as.scan.framedHint')}</p>
+        {framed && (
+          <GuidedCapture
+            specs={[{ key: 'front', label: t('as.scan.front'), hint: t('gc.flatHint') }]}
+            photos={f.photos}
+            startKey="front"
+            onShot={async (_spec, file) => {
+              await onScanFile('front', file);
+              setFramed(false);
+              return null;
+            }}
+            onClose={() => setFramed(false)}
+          />
+        )}
         <div aria-live="polite" style={{ marginTop: 16 }}>
           {f.scan.status === 'idle' && !f.photos.front && !f.photos.product_code && <p style={{ fontSize: 13.5, color: 'var(--muted)' }}>{t('as.scan.idle')}</p>}
           {busy && (

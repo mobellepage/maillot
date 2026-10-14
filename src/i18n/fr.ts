@@ -1753,5 +1753,14 @@ export const fr: Messages = {
   'auth.withApple': 'Continuer avec Apple',
   'auth.withGoogle': 'Continuer avec Google',
   'auth.socialFailed': 'Impossible de lancer la connexion. Réessaie ou utilise ton e-mail.',
+  'try.yours': 'De ta collection — avec ta photo',
+  'try.toItem': 'Ouvrir dans ta collection',
+  'gc.flatHint': 'À plat · manches écartées · remplis le cadre',
+  'as.scan.framed': 'Photographier le devant dans le cadre',
+  'as.scan.framedHint': 'Avec le cadre, le maillot s’intègre parfaitement à ta collection et à la cabine d’essayage.',
+  'rail.label': 'Les extras du jour',
+  'rail.daily': 'Devinette maillot',
+  'rail.tryon': 'Cabine d’essayage',
+  'rail.library': 'Bibliothèque de maillots',
   // @@end
 };

@@ -1,7 +1,7 @@
 // The try-on figure: body, face, hair, trousers and shoes as SVG; the jersey
 // as clipped layers in the shirt's own colours (the same pattern the
 // catalogue draws), with the real photo on the torso when the shirt has one.
-import type { Shirt } from '../../data.ts';
+import { stretch, usePhotoInfo, type PhotoInfo } from './photoInfo.ts';
 import {
   CLOTH_COLORS,
   HAIR_COLORS,
@@ -26,7 +26,19 @@ const shade = (hex: string, k: number) => {
   return `rgb(${c((n >> 16) & 255)},${c((n >> 8) & 255)},${c(n & 255)})`;
 };
 
-export function Figure({ c, shirt, label }: { c: Character; shirt: Shirt | null; label: string }) {
+/** What the figure wears: a shirt's colours and, when there is one, its photo. */
+export interface Wear {
+  pat: string;
+  trim: string;
+  crest: string;
+  photoUrl?: string | undefined;
+}
+
+/** Where the shirt usually sits in a catalogue photo, until the photo has been measured. */
+const DEFAULT_BOX: PhotoInfo['box'] = { l: 0.17, t: 0.09, r: 0.83, b: 0.87 };
+
+export function Figure({ c, shirt, label }: { c: Character; shirt: Wear | null; label: string }) {
+  const info = usePhotoInfo(shirt?.photoUrl);
   const g = geometry(c);
   const skin = SKIN[c.skin]!;
   const hair = HAIR_COLORS[c.hairColor]!;
@@ -34,7 +46,6 @@ export function Figure({ c, shirt, label }: { c: Character; shirt: Shirt | null;
   const shoes = CLOTH_COLORS[c.shoesColor]!;
   const j = jerseyOutline(g, c.fit, c.gender);
   const box = bbox(j.all);
-  const torsoBox = bbox(j.torso);
   const pos = (b: { x: number; y: number; w: number; h: number }) => ({
     left: (b.x / STAGE.w) * 100 + '%',
     top: (b.y / STAGE.h) * 100 + '%',
@@ -64,20 +75,12 @@ export function Figure({ c, shirt, label }: { c: Character; shirt: Shirt | null;
 
       {shirt ? (
         <>
-          <div style={{ position: 'absolute', ...pos(box), clipPath: clipPolygon(j.all, box), background: shirt.pat }} />
-          {shirt.photo && (
-            <div
-              style={{
-                position: 'absolute',
-                ...pos(torsoBox),
-                clipPath: clipPolygon(j.torso, torsoBox),
-                backgroundImage: `url(${shirt.photo}.webp)`,
-                backgroundRepeat: 'no-repeat',
-                ...photoFit(torsoBox, j.collar.y, j.hemY)
-              }}
-            />
+          <div style={{ position: 'absolute', ...pos(box), clipPath: clipPolygon(j.all, box), background: shirt.photoUrl ? (info?.base ?? shirt.pat) : shirt.pat }} />
+          {shirt.photoUrl && (
+            // The photo stretched so the shirt in it fills the whole jersey, sleeves included.
+            <div style={{ position: 'absolute', ...pos(box), clipPath: clipPolygon(j.all, box), backgroundImage: `url(${shirt.photoUrl})`, backgroundRepeat: 'no-repeat', ...stretch(info?.box ?? DEFAULT_BOX) }} />
           )}
-          <div style={{ position: 'absolute', ...pos(box), clipPath: clipPolygon(j.all, box), background: SHADE }} />
+          <div style={{ position: 'absolute', ...pos(box), clipPath: clipPolygon(j.all, box), background: SHADE, opacity: shirt.photoUrl ? 0.55 : 1 }} />
         </>
       ) : (
         // No jersey picked yet: a plain white tee.
@@ -92,29 +95,16 @@ export function Figure({ c, shirt, label }: { c: Character; shirt: Shirt | null;
   );
 }
 
-/**
- * Places the catalogue photo on the torso: the shirt in the photo runs from
- * its collar (9 % down) to its hem (87 %), and its body is about 46 % of the
- * photo wide — stretched to match this torso.
- */
-function photoFit(b: { x: number; y: number; w: number; h: number }, collarY: number, hemY: number) {
-  const sy = (hemY - collarY) / 0.78; // photo height in stage units
-  const sx = (b.w * 0.92) / 0.46; // photo width in stage units
-  const left = STAGE.cx - sx / 2;
-  const top = collarY - 0.09 * sy;
-  const px = b.w === sx ? 0 : ((left - b.x) / (b.w - sx)) * 100;
-  const py = b.h === sy ? 0 : ((top - b.y) / (b.h - sy)) * 100;
-  return { backgroundSize: `${(sx / b.w) * 100}% ${(sy / b.h) * 100}%`, backgroundPosition: `${px}% ${py}%` };
-}
-
-function JerseyDetails({ g, shirt, collar }: { g: Geometry; shirt: Shirt; collar: { y: number; half: number } }) {
+function JerseyDetails({ g, shirt, collar }: { g: Geometry; shirt: Wear; collar: { y: number; half: number } }) {
   const { cx } = STAGE;
   const d = `M ${cx - collar.half} ${collar.y} Q ${cx - collar.half * 0.5} ${collar.y + g.hh * 0.2} ${cx} ${collar.y + g.hh * 0.21} Q ${cx + collar.half * 0.5} ${collar.y + g.hh * 0.2} ${cx + collar.half} ${collar.y}`;
   const crestSize = g.hh * 0.2;
+  // A photo brings its own collar, crest and maker logo.
+  if (shirt.photoUrl) return null;
   return (
     <g>
       <path d={d} fill="none" stroke={shirt.trim} strokeWidth={g.hh * 0.05} strokeLinecap="round" />
-      {!shirt.photo && (
+      {(
         <>
           <rect x={cx + g.sw * 0.32} y={g.shoulderY + g.hh * 0.35} width={crestSize * 0.85} height={crestSize} rx={crestSize * 0.25} fill={shirt.crest} />
           <rect x={cx - g.sw * 0.32 - crestSize * 0.8} y={g.shoulderY + g.hh * 0.42} width={crestSize * 0.8} height={crestSize * 0.36} rx={1.5} fill={shirt.trim} opacity={0.85} />

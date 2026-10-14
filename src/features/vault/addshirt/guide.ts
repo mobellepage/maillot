@@ -30,3 +30,13 @@ export function nextMissing(keys: string[], have: Record<string, unknown>, fromK
   }
   return null;
 }
+
+/** The shirt frame: a square in the middle of the viewfinder, this share of its height (the photo is cropped to it). */
+export const FRAME = 0.92;
+
+/** The part of the video frame inside the square shirt frame (the viewfinder shows the video "cover"-scaled). */
+export function frameCrop(vw: number, vh: number, ew: number, eh: number): { x: number; y: number; size: number } {
+  const scale = Math.max(ew / vw, eh / vh);
+  const size = Math.min((FRAME * eh) / scale, vw, vh);
+  return { x: Math.round(vw / 2 - size / 2), y: Math.round(vh / 2 - size / 2), size: Math.round(size) };
+}

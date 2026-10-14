@@ -6,7 +6,7 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import { Link, useSearchParams } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
-import { SHIRTS } from '../../data.ts';
+import { SHIRTS, type Shirt } from '../../data.ts';
 import { usePageMeta } from '../../lib/meta.ts';
 import { usePrefs } from '../../lib/prefs.tsx';
 import { useSession } from '../../lib/session.tsx';
@@ -37,7 +37,10 @@ import {
   type Character,
   type Look
 } from './character.ts';
-import { Figure } from './Figure.tsx';
+import { Figure, type Wear } from './Figure.tsx';
+import { usePhotoUrls } from '../../lib/usePhotoUrls.ts';
+import { itemLook, itemName, mainPhoto } from '../vault/model.ts';
+import type { CustomItem } from '../../types/domain.ts';
 
 const LOCAL_KEY = 'kv_tryon_v1';
 type Stored = { character: Character; looks: Look[] };
@@ -75,6 +78,35 @@ function useStudio() {
 
 type Tab = 'you' | 'outfit' | 'shirt';
 
+/** Something to put on: a catalogue shirt or one of the member's own shirts (with their photo). */
+interface Garment {
+  key: string;
+  name: string;
+  wear: Wear;
+  thumbUrl: string | undefined;
+  shirt?: Shirt;
+  item?: CustomItem;
+}
+
+const catalogWear = (s: Shirt): Wear => ({ pat: s.pat, trim: s.trim, crest: s.crest, photoUrl: s.photo ? s.photo + '.webp' : undefined });
+
+/** Resolves a jersey key (catalogue id or "item:<id>") to what the figure wears. */
+function useWardrobe(items: CustomItem[]) {
+  const photos = items.map(mainPhoto);
+  const full = usePhotoUrls(photos);
+  const thumbs = usePhotoUrls(photos, true);
+  return (key: string | null): Garment | null => {
+    if (!key) return null;
+    if (key.startsWith('item:')) {
+      const item = items.find((i) => i.id === key.slice(5));
+      if (!item) return null;
+      return { key, name: itemName(item), wear: { ...itemLook(item).look, photoUrl: full(mainPhoto(item)) }, thumbUrl: thumbs(mainPhoto(item)), item };
+    }
+    const s = SHIRTS.find((x) => x.id === key);
+    return s ? { key, name: s.name, wear: catalogWear(s), thumbUrl: undefined, shirt: s } : null;
+  };
+}
+
 export default function TryOnPage() {
   useCatalog();
   const { t, money } = usePrefs();
@@ -96,12 +128,14 @@ export default function TryOnPage() {
   }
 
   const set = (patch: Partial<Character>) => setState((s) => ({ ...s, character: { ...s.character, ...patch } }));
-  const shirt = c.jersey ? (SHIRTS.find((s) => s.id === c.jersey) ?? null) : null;
-  const saved = !!shirt && state.looks.some((l) => l.jersey === c.jersey && l.pants === c.pants && l.pantsColor === c.pantsColor && l.shoes === c.shoes && l.shoesColor === c.shoesColor && l.fit === c.fit);
+  const wardrobe = useWardrobe(items);
+  const garment = wardrobe(c.jersey);
+  const shirt = garment?.shirt ?? null;
+  const saved = !!garment && state.looks.some((l) => l.jersey === c.jersey && l.pants === c.pants && l.pantsColor === c.pantsColor && l.shoes === c.shoes && l.shoesColor === c.shoesColor && l.fit === c.fit);
 
   const saveLook = () => {
-    if (!shirt) return;
-    const look: Look = { pants: c.pants, pantsColor: c.pantsColor, shoes: c.shoes, shoesColor: c.shoesColor, fit: c.fit, jersey: shirt.id };
+    if (!garment) return;
+    const look: Look = { pants: c.pants, pantsColor: c.pantsColor, shoes: c.shoes, shoesColor: c.shoesColor, fit: c.fit, jersey: garment.key };
     setState((s) => ({ ...s, looks: [look, ...s.looks].slice(0, MAX_LOOKS) }));
     toast(t('try.lookSaved'));
   };
@@ -118,27 +152,37 @@ export default function TryOnPage() {
         <div className="tryon-stage">
           <div className="card" style={{ padding: '12px 12px 4px', borderRadius: 24, background: 'linear-gradient(180deg,var(--surface),var(--sunken))' }}>
             <div className="tryon-figure" style={{ margin: '0 auto' }}>
-              <Figure c={c} shirt={shirt} label={shirt ? t('try.figureWith', { shirt: shirt.name }) : t('try.figure')} />
+              <Figure c={c} shirt={garment?.wear ?? null} label={garment ? t('try.figureWith', { shirt: garment.name }) : t('try.figure')} />
             </div>
           </div>
-          {shirt && (
+          {garment && (
             <div className="card" style={{ padding: 16, borderRadius: 18, marginTop: 12 }}>
-              <div style={{ fontWeight: 700, fontSize: 15.5 }}>{shirt.name}</div>
-              <div className="mono" style={{ fontSize: 13, color: 'var(--text-2)', marginTop: 4 }}>{t('try.value', { price: money(shirt.price) })}</div>
+              <div style={{ fontWeight: 700, fontSize: 15.5 }}>{garment.name}</div>
+              {shirt && <div className="mono" style={{ fontSize: 13, color: 'var(--text-2)', marginTop: 4 }}>{t('try.value', { price: money(shirt.price) })}</div>}
+              {garment.item && <div style={{ fontSize: 13, color: 'var(--text-2)', marginTop: 4 }}>{t('try.yours')}</div>}
               <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 12 }}>
-                <ButtonLink to={'/shirt/' + shirt.id} size="sm">
-                  {t('try.toShirt')}
-                </ButtonLink>
-                <Button size="sm" variant="secondary" onClick={() => watch.toggle(shirt.id)} aria-pressed={watch.has(shirt.id)}>
-                  <HeartIcon filled={watch.has(shirt.id)} size={15} /> {watch.has(shirt.id) ? t('try.onWishlist') : t('try.addWishlist')}
-                </Button>
+                {shirt && (
+                  <>
+                    <ButtonLink to={'/shirt/' + shirt.id} size="sm">
+                      {t('try.toShirt')}
+                    </ButtonLink>
+                    <Button size="sm" variant="secondary" onClick={() => watch.toggle(shirt.id)} aria-pressed={watch.has(shirt.id)}>
+                      <HeartIcon filled={watch.has(shirt.id)} size={15} /> {watch.has(shirt.id) ? t('try.onWishlist') : t('try.addWishlist')}
+                    </Button>
+                  </>
+                )}
+                {garment.item && (
+                  <ButtonLink to={'/vault/item/' + garment.item.id} size="sm" variant="secondary">
+                    {t('try.toItem')}
+                  </ButtonLink>
+                )}
                 <Button size="sm" variant="ghost" onClick={saveLook} disabled={saved}>
                   {saved ? t('try.lookSavedShort') : t('try.saveLook')}
                 </Button>
               </div>
             </div>
           )}
-          {state.looks.length > 0 && <Looks looks={state.looks} current={c} onPick={(l) => set(l)} onRemove={(i) => setState((s) => ({ ...s, looks: s.looks.filter((_, k) => k !== i) }))} />}
+          {state.looks.length > 0 && <Looks looks={state.looks} current={c} wardrobe={wardrobe} onPick={(l) => set(l)} onRemove={(i) => setState((s) => ({ ...s, looks: s.looks.filter((_, k) => k !== i) }))} />}
         </div>
 
         <div>
@@ -177,7 +221,7 @@ export default function TryOnPage() {
                 <Choice label={t('try.fit')} options={FITS} value={c.fit} onChange={(fit) => set({ fit })} text={(v) => t('try.fit.' + v)} />
               </>
             )}
-            {tab === 'shirt' && <ShirtPicker value={c.jersey} onPick={(jersey) => set({ jersey })} wishlist={watch.ids} owned={items.map((i) => i.catalogId).filter((x): x is string => !!x)} />}
+            {tab === 'shirt' && <ShirtPicker value={c.jersey} onPick={(jersey) => set({ jersey })} wishlist={watch.ids} items={items} wardrobe={wardrobe} />}
           </div>
           <button type="button" className="link-btn link-btn--muted" onClick={() => setState((s) => ({ ...s, character: { ...DEFAULT_CHARACTER, jersey: s.character.jersey } }))} style={{ marginTop: 20, fontSize: 12.5 }}>
             {t('try.reset')}
@@ -230,17 +274,18 @@ function Swatches({ label, colors, value, onChange, name }: { label: string; col
   );
 }
 
-function ShirtPicker({ value, onPick, wishlist, owned }: { value: string | null; onPick: (id: string) => void; wishlist: string[]; owned: string[] }) {
+function ShirtPicker({ value, onPick, wishlist, items, wardrobe }: { value: string | null; onPick: (key: string) => void; wishlist: string[]; items: CustomItem[]; wardrobe: (key: string | null) => Garment | null }) {
   const { t } = usePrefs();
   const [q, setQ] = useState('');
   const needle = q.trim().toLowerCase();
-  const match = (id: string) => {
+  const matchShirt = (id: string) => {
     const s = SHIRTS.find((x) => x.id === id);
     return !!s && (!needle || s.hay.includes(needle));
   };
-  const wl = wishlist.filter(match);
-  const own = [...new Set(owned)].filter((id) => match(id) && !wl.includes(id));
-  const rest = SHIRTS.map((s) => s.id).filter((id) => match(id) && !wl.includes(id) && !own.includes(id));
+  const wl = wishlist.filter(matchShirt);
+  // Your own shirts (with your photos) — catalogue ones and the ones not in the catalogue.
+  const own = items.filter((i) => !needle || itemName(i).toLowerCase().includes(needle)).map((i) => 'item:' + i.id);
+  const rest = SHIRTS.map((s) => s.id).filter((id) => matchShirt(id) && !wl.includes(id));
   const groups = [
     ['try.pick.wishlist', wl],
     ['try.pick.owned', own],
@@ -254,18 +299,23 @@ function ShirtPicker({ value, onPick, wishlist, owned }: { value: string | null;
       <div className="field">
         <input id="try-search" type="search" value={q} onChange={(e) => setQ(e.target.value)} placeholder={t('try.search')} />
       </div>
-      {groups.map(([key, ids]) =>
-        ids.length ? (
+      {groups.map(([key, keys]) =>
+        keys.length ? (
           <section key={key} style={{ marginTop: 16 }}>
             <h2 style={{ fontSize: 13.5, fontWeight: 700, margin: '0 0 8px', color: 'var(--text-2)' }}>
-              {t(key)} <span className="mono" style={{ color: 'var(--muted)' }}>{ids.length}</span>
+              {t(key)} <span className="mono" style={{ color: 'var(--muted)' }}>{keys.length}</span>
             </h2>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(84px,1fr))', gap: 8 }}>
-              {ids.map((id) => {
-                const s = SHIRTS.find((x) => x.id === id)!;
+              {keys.map((k) => {
+                const g = wardrobe(k);
+                if (!g) return null;
                 return (
-                  <button key={id} type="button" aria-pressed={value === id} aria-label={s.name} title={s.name} onClick={() => onPick(id)} className="tryon-shirt">
-                    <ShirtGraphic pat={s.pat} trim={s.trim} crest={s.crest} photo={s.photo} flat style={{ width: '82%' }} />
+                  <button key={k} type="button" aria-pressed={value === k} aria-label={g.name} title={g.name} onClick={() => onPick(k)} className="tryon-shirt">
+                    {g.thumbUrl ? (
+                      <img src={g.thumbUrl} alt="" style={{ width: '86%', height: '86%', objectFit: 'contain' }} />
+                    ) : (
+                      <ShirtGraphic pat={g.wear.pat} trim={g.wear.trim} crest={g.wear.crest} photo={g.shirt?.photo} flat style={{ width: '82%' }} />
+                    )}
                   </button>
                 );
               })}
@@ -273,7 +323,7 @@ function ShirtPicker({ value, onPick, wishlist, owned }: { value: string | null;
           </section>
         ) : null
       )}
-      {groups.every(([, ids]) => !ids.length) && <p style={{ color: 'var(--muted)', fontSize: 14, marginTop: 16 }}>{t('try.noMatch')}</p>}
+      {groups.every(([, keys]) => !keys.length) && <p style={{ color: 'var(--muted)', fontSize: 14, marginTop: 16 }}>{t('try.noMatch')}</p>}
       <p style={{ fontSize: 12.5, color: 'var(--muted)', marginTop: 14 }}>
         <Link to="/watchlist">{t('try.toWishlist')}</Link>
       </p>
@@ -281,7 +331,7 @@ function ShirtPicker({ value, onPick, wishlist, owned }: { value: string | null;
   );
 }
 
-function Looks({ looks, current, onPick, onRemove }: { looks: Look[]; current: Character; onPick: (l: Look) => void; onRemove: (i: number) => void }) {
+function Looks({ looks, current, wardrobe, onPick, onRemove }: { looks: Look[]; current: Character; wardrobe: (key: string | null) => Garment | null; onPick: (l: Look) => void; onRemove: (i: number) => void }) {
   const { t } = usePrefs();
   return (
     <section aria-labelledby="looks-title" style={{ marginTop: 16 }}>
@@ -290,14 +340,14 @@ function Looks({ looks, current, onPick, onRemove }: { looks: Look[]; current: C
       </h2>
       <div style={{ display: 'flex', gap: 10, overflowX: 'auto', paddingBottom: 4 }}>
         {looks.map((l, i) => {
-          const s = SHIRTS.find((x) => x.id === l.jersey);
-          if (!s) return null;
+          const g = wardrobe(l.jersey);
+          if (!g) return null;
           return (
             <div key={i} style={{ flex: 'none', width: 92, position: 'relative' }}>
-              <button type="button" onClick={() => onPick(l)} aria-label={t('try.wearLook', { shirt: s.name })} className="card" style={{ width: 92, padding: 4, borderRadius: 14, cursor: 'pointer', display: 'block' }}>
-                <Figure c={{ ...current, ...l }} shirt={s} label={s.name} />
+              <button type="button" onClick={() => onPick(l)} aria-label={t('try.wearLook', { shirt: g.name })} className="card" style={{ width: 92, padding: 4, borderRadius: 14, cursor: 'pointer', display: 'block' }}>
+                <Figure c={{ ...current, ...l }} shirt={g.wear} label={g.name} />
               </button>
-              <button type="button" onClick={() => onRemove(i)} aria-label={t('try.removeLook', { shirt: s.name })} style={{ position: 'absolute', top: 4, right: 4, width: 22, height: 22, borderRadius: '50%', border: 0, background: 'rgba(0,0,0,0.55)', color: '#fff', fontSize: 13, lineHeight: '22px', cursor: 'pointer' }}>
+              <button type="button" onClick={() => onRemove(i)} aria-label={t('try.removeLook', { shirt: g.name })} style={{ position: 'absolute', top: 4, right: 4, width: 22, height: 22, borderRadius: '50%', border: 0, background: 'rgba(0,0,0,0.55)', color: '#fff', fontSize: 13, lineHeight: '22px', cursor: 'pointer' }}>
                 ×
               </button>
             </div>

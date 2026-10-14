@@ -1289,3 +1289,89 @@ html:not([data-theme='light']) .store-badge > img {
   color: #1f1f1f;
   border: 1px solid #747775;
 }
+
+/* Feature rail: puzzle, try-on, library — a tab on the right edge. */
+.feature-rail {
+  position: fixed;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 6px 4px 6px 6px;
+  border-radius: 16px 0 0 16px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-right: 0;
+  box-shadow: -4px 6px 24px rgba(0, 0, 0, 0.12);
+}
+.feature-rail__item {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  font-size: 22px;
+  line-height: 1;
+  text-decoration: none;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+.feature-rail__item:hover,
+.feature-rail__item:focus-visible {
+  background: var(--sunken);
+  transform: translateX(-2px);
+}
+.feature-rail__item.active {
+  background: var(--accent-soft);
+  box-shadow: inset 0 0 0 2px var(--accent-fill);
+}
+/* The name slides out on hover (pointer devices). */
+.feature-rail__label {
+  position: absolute;
+  right: calc(100% + 10px);
+  white-space: nowrap;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 6px 12px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(6px);
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+@media (hover: hover) {
+  .feature-rail__item:hover .feature-rail__label,
+  .feature-rail__item:focus-visible .feature-rail__label {
+    opacity: 1;
+    transform: none;
+  }
+}
+/* Phones: a slim tab at the edge, so it doesn't cover buttons in lists. */
+@media (max-width: 720px) {
+  .feature-rail {
+    top: auto;
+    bottom: calc(104px + env(safe-area-inset-bottom));
+    transform: none;
+    gap: 2px;
+    padding: 3px 1px 3px 3px;
+    border-radius: 12px 0 0 12px;
+  }
+  .feature-rail__item {
+    width: 26px;
+    height: 34px;
+    border-radius: 9px;
+    font-size: 16px;
+  }
+}
+@media print {
+  .feature-rail {
+    display: none;
+  }
+}

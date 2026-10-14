@@ -28,7 +28,7 @@ export interface Character {
   shoes: (typeof SHOES)[number];
   shoesColor: number;
   fit: (typeof FITS)[number];
-  /** Catalogue shirt id being tried on. */
+  /** Catalogue shirt id being tried on, or "item:<id>" for a shirt from the member's collection. */
   jersey: string | null;
 }
 
@@ -81,7 +81,7 @@ export function sanitizeCharacter(raw: unknown): Character {
     shoes: pick(r.shoes, SHOES, d.shoes),
     shoesColor: idx(r.shoesColor, CLOTH_COLORS.length, d.shoesColor),
     fit: pick(r.fit, FITS, d.fit),
-    jersey: typeof r.jersey === 'string' && /^[a-z0-9-]{1,40}$/.test(r.jersey) ? r.jersey : null
+    jersey: typeof r.jersey === 'string' && /^(item:)?[a-z0-9-]{1,60}$/.test(r.jersey) ? r.jersey : null
   };
 }
 

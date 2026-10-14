@@ -220,3 +220,17 @@ test('the kit library says so when it can’t load', async ({ page }) => {
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Kit library');
   await expect(page.getByRole('button', { name: /try again/i }).first()).toBeVisible({ timeout: 15000 });
 });
+
+test('the side rail leads to the puzzle, the try-on studio and the library', async ({ page }) => {
+  await page.goto('/market');
+  const rail = page.getByRole('navigation', { name: 'Daily features' });
+  await rail.getByRole('link', { name: 'Try-on studio' }).click();
+  await expect(page).toHaveURL(/\/try-on$/);
+  await rail.getByRole('link', { name: 'Kit library' }).click();
+  await expect(page).toHaveURL(/\/library$/);
+  await rail.getByRole('link', { name: 'Daily shirt puzzle' }).click();
+  await expect(page).toHaveURL(/\/daily$/);
+  // Not while adding a shirt.
+  await page.goto('/signin');
+  await expect(rail).toHaveCount(0);
+});
