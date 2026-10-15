@@ -11,7 +11,11 @@ test('the daily shirt puzzle can be played to the end and shared', async ({ page
     if (!(await button.isVisible())) break; // solved early by chance
     // Type a few letters, pick the first suggestion.
     await page.getByRole('combobox', { name: 'Club' }).fill(['Ba', 'Ju', 'Ar', 'Ch', 'Li'][i - 1]);
-    await page.getByRole('listbox', { name: 'Club' }).getByRole('option').first().click();
+    const box = page.getByRole('listbox', { name: 'Club' });
+    await box.waitFor({ timeout: 10000 }).catch(async () => {
+      throw new Error('no club suggestions; page: ' + (await page.locator('main').innerText()).slice(0, 600).replace(/\n/g, ' / '));
+    });
+    await box.getByRole('option').first().click();
     await page.getByLabel('Season', { exact: true }).selectOption({ index: 1 });
     await button.click();
   }

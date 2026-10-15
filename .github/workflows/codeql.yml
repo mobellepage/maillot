@@ -10,6 +10,9 @@ on:
 jobs:
   analyze:
     name: Analyze (javascript-typescript)
+    # Code scanning on a private repository needs GitHub Code Security (paid);
+    # without it the upload fails, so it only runs while the repo is public.
+    if: ${{ !github.event.repository.private }}
     runs-on: ubuntu-latest
     permissions:
       security-events: write

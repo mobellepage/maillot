@@ -11,7 +11,11 @@ test('picking a favourite team shows its kits, the owned one lit up', async ({ p
   await page.locator('form').getByRole('button', { name: /sign in|anmelden/i }).click();
   await expect(page).toHaveURL(/\/vault$/, { timeout: 10000 });
 
-  await page.getByRole('combobox', { name: 'Favourite team' }).fill('Ajax');
+  const field = page.getByRole('combobox', { name: 'Favourite team' });
+  await field.waitFor({ timeout: 10000 }).catch(async () => {
+    throw new Error('no favourite team field; page: ' + (await page.locator('main').innerText()).slice(0, 600).replace(/\n/g, ' / '));
+  });
+  await field.fill('Ajax');
   await page.getByRole('listbox', { name: 'Favourite team' }).getByRole('option', { name: /^Ajax/ }).click();
   await expect(page.getByRole('heading', { name: '⭐ Ajax' })).toBeVisible();
   await expect(page.getByText(/You have 1 of \d+ kits/)).toBeVisible();

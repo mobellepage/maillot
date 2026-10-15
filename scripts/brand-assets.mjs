@@ -14,7 +14,6 @@ import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 
 import { extname, join } from 'node:path';
 import { chromium } from '@playwright/test';
 
-const ACCENT = '#4BFF8B';
 const INK = '#0A0C0B';
 
 // The icon source and where its green tile sits in it (pixels of the 1254 px source).
@@ -50,7 +49,7 @@ const base = `http://localhost:${server.address().port}`;
 const browser = await chromium.launch();
 const page = await browser.newPage();
 async function shoot(body, width, height, path, opts = {}) {
-  current = `<!doctype html><html><head><meta charset="utf-8">${css.map((f) => `<link rel="stylesheet" href="/assets/${f}">`).join('')}
+  current = `<!doctype html><html${opts.light ? ' data-theme="light"' : ''}><head><meta charset="utf-8">${css.map((f) => `<link rel="stylesheet" href="/assets/${f}">`).join('')}
     <style>html,body{margin:0;width:${width}px;height:${height}px;overflow:hidden;background:${opts.transparent ? 'transparent' : (opts.bg ?? INK)}}</style></head><body>${body}</body></html>`;
   await page.setViewportSize({ width, height });
   await page.goto(base + '/__brand');
@@ -97,46 +96,49 @@ if (existsSync('ios/App/App/Assets.xcassets')) {
   );
 }
 
-// Link previews (1200×630).
+// Link previews (1200×630): white like the site, real kits from the library.
 const { shirtArt, PATHS } = await import('../dist-ssr/entry-server.js');
 const logo = `<div style="display:flex;align-items:center;gap:16px">${mark(52)}<span style="font-weight:800;font-stretch:78%;font-size:40px;letter-spacing:.03em;color:var(--text)">Maillot</span></div>`;
 const shirtBox = (a, size, extra = '') =>
   `<div style="position:relative;width:${size}px;height:${size}px;display:grid;place-items:center;${extra}"><div style="width:78%">${a.html}</div></div>`;
 
-const featured = ['bra-70', 'ned-88', 'boc-81'].filter((id) => PATHS.includes('/shirt/' + id)).map(shirtArt);
+// Cut-out kits (transparent around the shirt), so they sit on the white.
+const KITS = ['/library/wc/brazil/2002-home-kit.webp', '/library/yb/2018-19-home-kit.webp', '/library/sa/milan/2006-07-home-kit.webp'];
 await shoot(
-  `<div style="position:relative;width:1200px;height:630px;background:radial-gradient(circle at 78% 50%,rgba(75,255,139,.16),rgba(0,0,0,0) 55%),${INK};font-family:var(--font-sans);color:var(--text)">
+  `<div style="position:relative;width:1200px;height:630px;background:radial-gradient(circle at 78% 50%,rgba(75,255,139,.18),rgba(255,255,255,0) 55%),#FFFFFF;font-family:var(--font-sans);color:var(--text)">
     <div style="position:absolute;left:72px;top:64px">${logo}</div>
-    <div style="position:absolute;left:72px;top:190px;width:600px">
-      <div class="display" style="font-size:84px;line-height:.95;font-weight:800">Your collection,<br><span style="color:${ACCENT}">in your pocket.</span></div>
-      <div style="margin-top:28px;font-size:24px;line-height:1.4;color:var(--text-2)">Photograph, value and show off every football shirt you own.</div>
+    <div style="position:absolute;left:72px;top:190px;width:620px">
+      <div class="display" style="font-size:84px;line-height:.95;font-weight:800">Deine Sammlung<br><span style="color:var(--accent)">in der Tasche.</span></div>
+      <div style="margin-top:28px;font-size:26px;line-height:1.4;color:var(--text-2)">Jedes Trikot erfassen, bewerten, zeigen – und über 29'000 Trikots entdecken.</div>
     </div>
-    <div style="position:absolute;right:20px;top:90px;width:520px;height:460px">
-      ${featured.map((a, i) => `<div style="position:absolute;left:${[0, 170, 80][i]}px;top:${[40, 0, 170][i]}px;transform:rotate(${[-8, 6, 0][i]}deg)">${shirtBox(a, [300, 300, 320][i])}</div>`).join('')}
+    <div style="position:absolute;right:30px;top:80px;width:520px;height:480px">
+      ${KITS.map((src, i) => `<div style="position:absolute;left:${[0, 200, 95][i]}px;top:${[30, 0, 190][i]}px;width:${[270, 270, 290][i]}px;transform:rotate(${[-8, 6, 0][i]}deg);filter:drop-shadow(0 24px 30px rgba(0,0,0,.18))"><img src="${src}" alt="" style="width:100%;display:block"></div>`).join('')}
     </div>
     <div class="mono" style="position:absolute;left:72px;bottom:52px;font-size:20px;color:var(--muted);letter-spacing:.08em">maillot-two.vercel.app</div>
   </div>`,
   1200,
   630,
-  'public/og/default.jpg'
+  'public/og/default.jpg',
+  { light: true, bg: '#FFFFFF' }
 );
 
 let n = 0;
 for (const path of PATHS.filter((p) => p.startsWith('/shirt/'))) {
   const a = shirtArt(path.slice('/shirt/'.length));
   await shoot(
-    `<div style="position:relative;width:1200px;height:630px;background:${INK};font-family:var(--font-sans);color:var(--text)">
-      <div style="position:absolute;left:0;top:0;width:600px;height:630px;background:radial-gradient(circle at 50% 50%,${a.glow} 0%,rgba(0,0,0,0) 62%),var(--sunken);display:grid;place-items:center">${shirtBox(a, 520)}</div>
+    `<div style="position:relative;width:1200px;height:630px;background:#FFFFFF;font-family:var(--font-sans);color:var(--text)">
+      <div style="position:absolute;left:0;top:0;width:600px;height:630px;background:radial-gradient(circle at 50% 50%,${a.glow} 0%,rgba(255,255,255,0) 62%),var(--surface);display:grid;place-items:center">${existsSync(`public/catalog/${a.id}.webp`) ? `<img src="/catalog/${a.id}.webp" alt="" style="width:470px;height:470px;object-fit:contain;filter:drop-shadow(0 24px 30px rgba(0,0,0,.18))">` : shirtBox(a, 520)}</div>
       <div style="position:absolute;left:660px;top:64px">${logo}</div>
       <div style="position:absolute;left:660px;right:64px;top:200px">
         <div class="mono" style="font-size:20px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)">${a.brand} · ${a.season} · ${a.type}</div>
         <div class="display" style="margin-top:16px;font-size:64px;line-height:.98;font-weight:800">${a.name}</div>
       </div>
-      <div style="position:absolute;left:660px;bottom:64px;display:inline-flex;align-items:center;gap:10px;padding:12px 18px;border-radius:999px;border:1.5px solid var(--accent-line);color:${ACCENT};font-size:20px;font-weight:600">✓ Value · price history · offers</div>
+      <div style="position:absolute;left:660px;bottom:64px;display:inline-flex;align-items:center;gap:10px;padding:12px 18px;border-radius:999px;border:1.5px solid var(--accent);color:var(--accent);font-size:20px;font-weight:600">✓ Marktwert · Preisverlauf · Angebote</div>
     </div>`,
     1200,
     630,
-    `public/og/shirt/${a.id}.jpg`
+    `public/og/shirt/${a.id}.jpg`,
+    { light: true, bg: '#FFFFFF' }
   );
   n++;
 }
