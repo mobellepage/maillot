@@ -48,13 +48,12 @@ export default function HomePage() {
 }
 
 function VisitorPage() {
-  const { t } = usePrefs();
   const { trending } = useHomeLists();
   return (
     <main id="main" style={{ animation: 'kvIn .45s ease both' }}>
       <Hero />
       <Trending shirts={trending} grid />
-      <HomePlay extra={[{ to: '/library', kicker: t('home.play.lib.kicker'), title: t('home.play.lib.title'), body: t('home.play.lib.body'), emoji: '📚' }]} />
+      <HomePlay />
       <HomeBento />
       <SecondLife />
       <TopCollectors />

@@ -1592,8 +1592,7 @@ export const en = {
   'daily.signInWhy': 'to keep your streak on every device.',
   'home.play.title': 'Something new every day',
   'home.play.daily.kicker': 'Puzzle #{n} · today',
-  'home.play.daily.title': 'Guess the shirt',
-  'home.play.daily.body': 'A close-up, five tries: which club, which season? Keep your streak going.',
+  'home.play.daily.body': 'A close-up, five tries: which club, which season? Keep your streak alive.',
   'lib.meta': 'Kit library',
   'lib.metaDesc': 'Every kit of the clubs in the top five leagues, season by season — home, away, third, goalkeeper, cup, European, training and special editions.',
   'lib.eyebrow': 'Need inspiration?',
@@ -1651,7 +1650,7 @@ export const en = {
   'lib.failed': 'Couldn’t send the suggestion. Please try again.',
   'home.play.lib.kicker': 'Kit library',
   'home.play.lib.title': 'Need inspiration?',
-  'home.play.lib.body': 'Every club of the top five leagues, kit by kit and season by season.',
+  'home.play.lib.body': 'Top 5 leagues, Swiss Super League and 48 national teams – every kit with its picture. See who owns it and make an offer.',
   'footer.library': 'Kit library',
   'footer.daily': 'Daily shirt puzzle',
   'auth.or': 'or',
@@ -1736,6 +1735,12 @@ export const en = {
   'lib.own.askCta': 'Ask',
   'lib.own.view': 'View',
   'lib.own.mine': 'Yours',
+  'home.play.daily.question': 'Which shirt is this?',
+  'home.play.daily.rule': 'Try 1/{n}',
+  'home.play.daily.cta': 'Guess now',
+  'home.play.daily.cropLabel': 'A close-up of today’s mystery shirt',
+  'home.play.lib.count': '{n} kits, season by season',
+  'home.play.lib.cta': 'Open the library',
   // @@end
 };
 

@@ -1593,7 +1593,6 @@ export const de: Messages = {
   'daily.signInWhy': 'damit deine Serie auf jedem Gerät zählt.',
   'home.play.title': 'Jeden Tag etwas Neues',
   'home.play.daily.kicker': 'Rätsel #{n} · heute',
-  'home.play.daily.title': 'Errate das Trikot',
   'home.play.daily.body': 'Ein Ausschnitt, fünf Versuche: welcher Verein, welche Saison? Halte deine Serie am Leben.',
   'lib.meta': 'Trikot-Bibliothek',
   'lib.metaDesc': 'Alle Trikots der Vereine aus den Top-5-Ligen, Saison für Saison — Heim, Auswärts, Ausweich, Torwart, Pokal, Europa, Training und Sondereditionen.',
@@ -1652,7 +1651,7 @@ export const de: Messages = {
   'lib.failed': 'Vorschlag konnte nicht gesendet werden. Bitte versuche es erneut.',
   'home.play.lib.kicker': 'Trikot-Bibliothek',
   'home.play.lib.title': 'Brauchst du Inspiration?',
-  'home.play.lib.body': 'Alle Vereine der Top-5-Ligen, Trikot für Trikot, Saison für Saison.',
+  'home.play.lib.body': 'Top-5-Ligen, Super League und 48 Nationalteams – jedes Trikot mit Bild. Sieh, wer es besitzt, und mach ein Angebot.',
   'footer.library': 'Trikot-Bibliothek',
   'footer.daily': 'Trikot-Rätsel',
   'auth.or': 'oder',
@@ -1737,5 +1736,11 @@ export const de: Messages = {
   'lib.own.askCta': 'Anfragen',
   'lib.own.view': 'Ansehen',
   'lib.own.mine': 'Deins',
+  'home.play.daily.question': 'Welches Trikot ist das?',
+  'home.play.daily.rule': 'Versuch 1/{n}',
+  'home.play.daily.cta': 'Jetzt raten',
+  'home.play.daily.cropLabel': 'Ausschnitt des heutigen Rätsel-Trikots',
+  'home.play.lib.count': '{n} Trikots, Saison für Saison',
+  'home.play.lib.cta': 'Bibliothek öffnen',
   // @@end
 };
