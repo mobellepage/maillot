@@ -24,6 +24,7 @@ import { mainColor, renderCard, shareCard } from './shareCard.ts';
 import { Avatar } from '../avatars/Avatar.tsx';
 import { FREE_SHIRT_LIMIT } from '../../config/plans.ts';
 import { LevelCard } from '../levels/LevelBadge.tsx';
+import { FavoriteClub } from '../library/FavoriteClub.tsx';
 
 type Tab = 'collection' | 'watchlist' | 'orders';
 const TITLES = { collection: 'vault.title.collection', watchlist: 'vault.title.watchlist', orders: 'vault.title.orders' } as const;
@@ -146,6 +147,9 @@ export default function VaultPage({ tab }: { tab: Tab }) {
         <ButtonLink to={full ? '/premium' : '/vault/add'}>{t('vault.add')}</ButtonLink>
       </div>
 
+      <div style={{ marginTop: 24 }}>
+        <FavoriteClub />
+      </div>
       {!loading && !error && <LevelCard shirts={items.length} value={items.reduce((a, c) => a + (valueOf(c) ?? 0), 0)} />}
 
       <nav aria-label={t('vault.sections')} style={{ display: 'flex', gap: 28, marginTop: 32, borderBottom: '1px solid rgba(255,255,255,0.08)' }}>

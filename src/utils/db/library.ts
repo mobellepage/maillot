@@ -43,6 +43,19 @@ export async function loadKitOwners(clubId: string): Promise<KitOwner[]> {
   return data || [];
 }
 
+/** Saves (or with null clears) the member's favourite team. */
+export async function setFavoriteClub(clubId: string | null): Promise<void> {
+  const { error } = await (await sb()).rpc('set_favorite_club', { p_club: clubId });
+  if (error) throw error;
+}
+
+/** The kits of a club the signed-in member has in their collection. */
+export async function loadMyClubKits(clubId: string): Promise<{ kit_id: string; item_id: string }[]> {
+  const { data, error } = await (await sb()).rpc('my_club_kits', { p_club: clubId });
+  if (error) throw error;
+  return data || [];
+}
+
 /** One hit of the home-page search across the library. */
 export interface KitHit {
   id: string;

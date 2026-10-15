@@ -1,4 +1,4 @@
-// The club field of the daily puzzle: type a few letters, pick from the
+// A club field (daily puzzle, favourite team): type a few letters, pick from the
 // clubs that match below (names and short names: "YB", "BVB", "Juve" …).
 // Arrow keys and Enter work as in any combobox.
 import { useId, useState } from 'react';
@@ -13,7 +13,7 @@ export interface PickerClub {
 
 const norm = (s: string) => s.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLowerCase();
 
-export function ClubPicker({ clubs, value, onChange, label }: { clubs: PickerClub[]; value: string; onChange: (id: string) => void; label: string }) {
+export function ClubPicker({ clubs, value, onChange, label, id = 'daily-club', placeholder }: { clubs: PickerClub[]; value: string; onChange: (id: string) => void; label: string; id?: string; placeholder?: string }) {
   const { t } = usePrefs();
   const listId = useId();
   const chosen = clubs.find((c) => c.id === value);
@@ -52,7 +52,7 @@ export function ClubPicker({ clubs, value, onChange, label }: { clubs: PickerClu
     <div style={{ position: 'relative' }}>
       <div className="field">
         <input
-          id="daily-club"
+          id={id}
           value={text}
           onChange={(e) => {
             setText(e.target.value);
@@ -75,7 +75,7 @@ export function ClubPicker({ clubs, value, onChange, label }: { clubs: PickerClu
               pick(hits[active]!);
             } else if (e.key === 'Escape') setOpen(false);
           }}
-          placeholder={t('daily.clubPlaceholder')}
+          placeholder={placeholder ?? t('daily.clubPlaceholder')}
           aria-label={label}
           role="combobox"
           aria-expanded={shown}

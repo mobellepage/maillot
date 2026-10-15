@@ -83,7 +83,8 @@ export default function WelcomePage() {
     try {
       await db.saveOnboarding(user.id, {
         goals: skipAll ? [] : goals,
-        interests: skipAll ? { leagues: [], types: [] } : { leagues, types },
+        // Keeps the favourite team, chosen elsewhere.
+        interests: { ...(profile?.interests.club ? { club: profile.interests.club } : {}), ...(skipAll ? { leagues: [], types: [] } : { leagues, types }) },
         handle: !skipAll && handleState === 'ok' ? handle.trim() : null
       });
     } catch {

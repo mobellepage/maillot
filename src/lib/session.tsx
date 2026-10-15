@@ -24,7 +24,8 @@ export interface AuthResult {
 export interface Profile {
   handle: string | null;
   goals: string[];
-  interests: { leagues?: string[]; types?: string[] };
+  /** club: the favourite team (a kit_clubs id). */
+  interests: { leagues?: string[]; types?: string[]; club?: string };
   onboardedAt: string | null;
   /** The public profile shows the total value of the shirts on display. */
   showCollectionValue: boolean;

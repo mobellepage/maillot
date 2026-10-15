@@ -1745,5 +1745,16 @@ export const de: Messages = {
   'daily.hint.decade': 'Jahrzehnt',
   'daily.decade': '{n}er',
   'daily.clubPlaceholder': 'Verein oder Land eintippen…',
+  'fav.title': 'Deine Lieblingsmannschaft',
+  'fav.body': 'Wähle sie – wir zeigen dir alle ihre Trikots: Deine leuchten, die fehlenden bleiben grau.',
+  'fav.pick': 'Lieblingsmannschaft',
+  'fav.placeholder': 'Verein oder Land eintippen…',
+  'fav.change': 'Ändern',
+  'fav.progress': 'Du hast {have} von {total} Trikots',
+  'fav.progressLabel': 'Trikots deiner Lieblingsmannschaft, die du hast',
+  'fav.kits': 'Alle Trikots von {club}',
+  'fav.have': 'in deiner Sammlung',
+  'fav.missing': 'fehlt noch',
+  'fav.showAll': 'Alle {n} Trikots zeigen',
   // @@end
 };

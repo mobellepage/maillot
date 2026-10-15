@@ -998,6 +998,8 @@ export type Database = {
       library_clubs: { Args: never; Returns: PublicSchema['Tables']['kit_clubs']['Row'][] };
       library_kit_counts: { Args: never; Returns: { club_id: string; n: number }[] };
       library_kits: { Args: { p_club: string }; Returns: PublicSchema['Tables']['kits']['Row'][] };
+      set_favorite_club: { Args: { p_club: string | null }; Returns: undefined };
+      my_club_kits: { Args: { p_club: string }; Returns: { kit_id: string; item_id: string }[] };
       daily_kit: {
         Args: { p_day: string };
         Returns: { day: string; image: string; club_id: string; club_name: string; league: string; country: string; season: string; season_year: number; kind: string; library_image: string }[];

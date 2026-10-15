@@ -89,8 +89,8 @@ export async function isHandleAvailable(handle: string): Promise<boolean> {
   return !!data;
 }
 
-export async function saveOnboarding(userId: string, answers: { goals: string[]; interests: { leagues: string[]; types: string[] }; handle?: string | null }): Promise<void> {
-  const patch: { goals: string[]; interests: { leagues: string[]; types: string[] }; onboarded_at: string; handle?: string } = { goals: answers.goals, interests: answers.interests, onboarded_at: new Date().toISOString() };
+export async function saveOnboarding(userId: string, answers: { goals: string[]; interests: { leagues: string[]; types: string[]; club?: string }; handle?: string | null }): Promise<void> {
+  const patch: { goals: string[]; interests: { leagues: string[]; types: string[]; club?: string }; onboarded_at: string; handle?: string } = { goals: answers.goals, interests: answers.interests, onboarded_at: new Date().toISOString() };
   if (answers.handle) patch.handle = answers.handle;
   const { error } = await (await sb()).from('profiles').update(patch).eq('id', userId);
   if (error) throw error;

@@ -11,6 +11,7 @@ import * as db from '../../utils/db.ts';
 import { ButtonLink, ShirtGraphic } from '../../ui/index.ts';
 import { useDailyStatus } from '../daily/useDailyStatus.ts';
 import { LevelBadge } from '../levels/LevelBadge.tsx';
+import { FavoriteClub } from '../library/FavoriteClub.tsx';
 import { itemLook, itemName, mainPhoto, valueOf } from '../vault/model.ts';
 import { weeklyMoves } from '../vault/moves.ts';
 import { useCollection } from '../vault/useCollection.ts';
@@ -31,7 +32,10 @@ export function MemberHome() {
         </h1>
         <LevelBadge shirts={items.length} value={value} />
       </div>
-      <div style={{ display: 'grid', gap: 14, marginTop: 20, gridTemplateColumns: 'repeat(auto-fit,minmax(min(100%,300px),1fr))' }}>
+      <div style={{ marginTop: 20 }}>
+        <FavoriteClub />
+      </div>
+      <div style={{ display: 'grid', gap: 14, marginTop: 14, gridTemplateColumns: 'repeat(auto-fit,minmax(min(100%,300px),1fr))' }}>
         <CollectionCard />
         <DailyCard />
         <ExploreCard />

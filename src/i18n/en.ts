@@ -1744,6 +1744,17 @@ export const en = {
   'daily.hint.decade': 'Decade',
   'daily.decade': '{n}s',
   'daily.clubPlaceholder': 'Type a club or country…',
+  'fav.title': 'Your favourite team',
+  'fav.body': 'Pick it – we show you all its kits: the ones you have light up, the ones you’re missing stay grey.',
+  'fav.pick': 'Favourite team',
+  'fav.placeholder': 'Type a club or country…',
+  'fav.change': 'Change',
+  'fav.progress': 'You have {have} of {total} kits',
+  'fav.progressLabel': 'Kits of your favourite team you have',
+  'fav.kits': 'All kits of {club}',
+  'fav.have': 'in your collection',
+  'fav.missing': 'still missing',
+  'fav.showAll': 'Show all {n} kits',
   // @@end
 };
 
