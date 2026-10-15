@@ -1726,5 +1726,16 @@ export const de: Messages = {
   'home.me.wishEyebrow': 'Für dich',
   'home.me.wishTitle': 'Deine Wunschliste – aktuelle Preise',
   'home.me.wishAll': 'Ganze Wunschliste →',
+  'lib.owners': 'Besitzer: {n}',
+  'lib.ownersOpen': 'Angebot möglich: {n}',
+  'lib.withOwners': 'Mit Besitzern ({n})',
+  'lib.own.forsale': 'Zu verkaufen',
+  'lib.own.offers': 'Offen für Angebote',
+  'lib.own.ask': 'Nicht zu verkaufen – Anfrage möglich',
+  'lib.own.keeps': 'Nicht zu verkaufen',
+  'lib.own.offerCta': 'Angebot machen',
+  'lib.own.askCta': 'Anfragen',
+  'lib.own.view': 'Ansehen',
+  'lib.own.mine': 'Deins',
   // @@end
 };

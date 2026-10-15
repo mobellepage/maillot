@@ -14,6 +14,7 @@ import { useCatalog } from '../catalog/useCatalog.ts';
 import { ClubBand } from './ClubBand.tsx';
 import { KIT_KINDS, bySeason, kitLook, variantLabel } from './model.ts';
 import { SuggestKitDialog } from './SuggestKitDialog.tsx';
+import { KitOwners } from './KitOwners.tsx';
 
 export default function ClubLibraryPage() {
   useCatalog();
@@ -22,12 +23,15 @@ export default function ClubLibraryPage() {
   const { user } = useSession();
   const clubs = useQuery({ queryKey: ['kitClubs'], queryFn: db.loadKitClubs, staleTime: 10 * 60_000 });
   const kits = useQuery({ queryKey: ['clubKits', club], queryFn: () => db.loadClubKits(club) });
+  // Who has which kit in their collection (shown collections only).
+  const owners = useQuery({ queryKey: ['kitOwners', club], queryFn: () => db.loadKitOwners(club), staleTime: 60_000, retry: false });
   const { hash } = useLocation();
   // Coming from a search hit ("#season-2006/07"): jump to that season once the kits are there.
   useEffect(() => {
     if (kits.data && hash) document.getElementById(decodeURIComponent(hash.slice(1)))?.scrollIntoView({ block: 'start' });
   }, [kits.data, hash]);
   const [kind, setKind] = useState<string>('all');
+  const [ownedOnly, setOwnedOnly] = useState(false);
   const [suggest, setSuggest] = useState(false);
   const c = clubs.data?.find((x) => x.id === club);
   usePageMeta(c ? t('lib.clubMeta', { club: c.name }) : t('lib.meta'));
@@ -35,7 +39,9 @@ export default function ClubLibraryPage() {
   if (clubs.data && !c) return <Navigate to="/library" replace />;
   const all = kits.data ?? [];
   const kinds = KIT_KINDS.filter((k) => all.some((x) => x.kind === k));
-  const groups = bySeason(kind === 'all' ? all : all.filter((x) => x.kind === kind));
+  const ownersOf = new Map<string, db.KitOwner[]>();
+  for (const o of owners.data ?? []) ownersOf.set(o.kit_id, [...(ownersOf.get(o.kit_id) ?? []), o]);
+  const groups = bySeason(all.filter((x) => (kind === 'all' || x.kind === kind) && (!ownedOnly || ownersOf.has(x.id))));
 
   return (
     <Page>
@@ -63,6 +69,11 @@ export default function ClubLibraryPage() {
               {k === 'all' ? t('lib.allKinds') : t('lib.kind.' + k)}
             </button>
           ))}
+        {ownersOf.size > 0 && (
+          <button type="button" className="option-btn" aria-pressed={ownedOnly} onClick={() => setOwnedOnly((v) => !v)} style={{ padding: '7px 13px', fontSize: 13 }}>
+            👤 {t('lib.withOwners', { n: ownersOf.size })}
+          </button>
+        )}
         <span style={{ flex: 1 }} />
         {user ? (
           <Button size="sm" variant="secondary" onClick={() => setSuggest(true)}>
@@ -121,6 +132,7 @@ export default function ClubLibraryPage() {
                       <Link to={'/shirt/' + s.id}>{t('lib.toMarket')}</Link>
                     </div>
                   )}
+                  {ownersOf.has(k.id) && <KitOwners owners={ownersOf.get(k.id)!} kitId={k.id} />}
                 </li>
               );
             })}

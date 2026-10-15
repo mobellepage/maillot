@@ -30,3 +30,11 @@ test('kit library: browse to a club and suggest a missing kit', async ({ page })
   // Not public until an admin has checked it.
   await expect(page.getByRole('heading', { name: '1890/91' })).toHaveCount(0);
 });
+
+test('kit library: a kit shows its owners and leads to their shirt for an offer', async ({ page }) => {
+  await page.goto('/library/ajax');
+  await page.getByRole('button', { name: /Owners: 1/ }).click();
+  await page.getByRole('link', { name: 'Make an offer: @zurich_kits' }).click();
+  await expect(page).toHaveURL(/\/u\/zurich_kits\/seed-ajax-offers$/);
+  await expect(page.getByRole('link', { name: 'Make an offer' }).or(page.getByRole('button', { name: 'Make an offer' })).first()).toBeVisible();
+});

@@ -1725,6 +1725,17 @@ export const en = {
   'home.me.wishEyebrow': 'For you',
   'home.me.wishTitle': 'Your wishlist – current prices',
   'home.me.wishAll': 'Whole wishlist →',
+  'lib.owners': 'Owners: {n}',
+  'lib.ownersOpen': 'Open to offers: {n}',
+  'lib.withOwners': 'With owners ({n})',
+  'lib.own.forsale': 'For sale',
+  'lib.own.offers': 'Open to offers',
+  'lib.own.ask': 'Not for sale – you can ask',
+  'lib.own.keeps': 'Not for sale',
+  'lib.own.offerCta': 'Make an offer',
+  'lib.own.askCta': 'Ask',
+  'lib.own.view': 'View',
+  'lib.own.mine': 'Yours',
   // @@end
 };
 

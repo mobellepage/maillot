@@ -998,6 +998,10 @@ export type Database = {
       library_clubs: { Args: never; Returns: PublicSchema['Tables']['kit_clubs']['Row'][] };
       library_kit_counts: { Args: never; Returns: { club_id: string; n: number }[] };
       library_kits: { Args: { p_club: string }; Returns: PublicSchema['Tables']['kits']['Row'][] };
+      library_kit_owners: {
+        Args: { p_club: string };
+        Returns: { kit_id: string; item_id: string; handle: string; avatar: string | null; visibility: string; size: string | null; can_ask: boolean }[];
+      };
       library_search: {
         Args: { p_club: string; p_year: number | null; p_season: string | null; p_kind: string | null };
         Returns: { id: string; club_id: string; club_name: string; season: string; kind: string; variant: string; image_path: string | null; colors: string[] }[];

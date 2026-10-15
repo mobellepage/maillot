@@ -25,6 +25,24 @@ export async function loadClubKits(clubId: string): Promise<Kit[]> {
   return data || [];
 }
 
+/** A member who has a library kit in their (shown) collection. */
+export interface KitOwner {
+  kit_id: string;
+  item_id: string;
+  handle: string;
+  avatar: string | null;
+  visibility: string;
+  size: string | null;
+  /** An offer or an inquiry is possible (the owner allows it). */
+  can_ask: boolean;
+}
+
+export async function loadKitOwners(clubId: string): Promise<KitOwner[]> {
+  const { data, error } = await (await sb()).rpc('library_kit_owners', { p_club: clubId });
+  if (error) throw error;
+  return data || [];
+}
+
 /** One hit of the home-page search across the library. */
 export interface KitHit {
   id: string;
