@@ -106,14 +106,8 @@ export default function ClubLibraryPage() {
                   <div style={{ fontSize: 12.5, color: 'var(--muted)', marginTop: 2 }}>{[k.brand, k.sponsor].filter(Boolean).join(' · ') || (k.image_credit ? '' : '—')}</div>
                   {k.image_credit && (
                     <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 4 }}>
-                      {t('lib.credit')}{' '}
-                      {k.image_credit_url ? (
-                        <a href={k.image_credit_url} target="_blank" rel="noopener noreferrer">
-                          {k.image_credit}
-                        </a>
-                      ) : (
-                        k.image_credit
-                      )}
+                      {/* Credited as plain text: no link that leads people away from Maillot. */}
+                      {t('lib.credit')} {k.image_credit}
                     </div>
                   )}
                   {k.note && <div style={{ fontSize: 12.5, color: 'var(--text-2)', marginTop: 4, lineHeight: 1.4 }}>{k.note}</div>}
