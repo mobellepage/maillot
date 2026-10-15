@@ -1,6 +1,7 @@
 // The home page is the app, not a teaser. Visitors start with the search
 // ("which shirt do you have, or want?") and the live market; the pitch
 // comes last. Members get their cockpit instead, then their wishlist.
+import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router';
 import { useCatalog } from '../catalog/useCatalog.ts';
 import { BY, type Shirt } from '../../data.ts';
@@ -108,8 +109,30 @@ function MemberPage() {
   );
 }
 
+/** At most this many shirts in the grid, cut to whole rows (7 columns on a desktop → 7, 2 on a phone → 6). */
+const GRID_MAX = 7;
+
+/** How many columns the grid inside `ref` lays out right now. */
+function useGridColumns(ref: React.RefObject<HTMLElement | null>) {
+  const [cols, setCols] = useState(GRID_MAX);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof ResizeObserver === 'undefined') return;
+    const ro = new ResizeObserver(() => {
+      const grid = el.querySelector('ul');
+      if (grid) setCols(Math.max(1, getComputedStyle(grid).gridTemplateColumns.split(' ').filter(Boolean).length));
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [ref]);
+  return cols;
+}
+
 function Trending({ shirts, grid = false }: { shirts: Shirt[]; grid?: boolean }) {
   const { t } = usePrefs();
+  const wrap = useRef<HTMLDivElement>(null);
+  const cols = useGridColumns(wrap);
+  const shown = grid ? shirts.slice(0, Math.max(cols, Math.floor(GRID_MAX / cols) * cols)) : shirts;
   return (
     <section aria-labelledby="trending-title" style={{ ...section, padding: grid ? 'clamp(24px,3vw,40px) var(--gutter) 0' : section.padding }}>
       <SectionHeader
@@ -122,7 +145,7 @@ function Trending({ shirts, grid = false }: { shirts: Shirt[]; grid?: boolean })
           </Link>
         }
       />
-      {grid ? <ShirtGrid shirts={shirts} /> : <ShirtRow shirts={shirts} />}
+      <div ref={wrap}>{grid ? <ShirtGrid shirts={shown} /> : <ShirtRow shirts={shown} />}</div>
     </section>
   );
 }
