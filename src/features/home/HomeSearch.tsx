@@ -2,7 +2,7 @@
 // One field searches the marketplace (shirts with a market value) and the
 // kit library (every kit, with its picture) at once; Enter without a pick
 // opens the market search, so results stay shareable.
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import type { Shirt } from '../../data.ts';
@@ -24,6 +24,7 @@ export function HomeSearch() {
   const [q, setQ] = useState('');
   const [active, setActive] = useState(-1);
   const [open, setOpen] = useState(false);
+  const blurTimer = useRef(0);
   // The library is asked once typing pauses.
   const [settled, setSettled] = useState('');
   useEffect(() => {
@@ -68,9 +69,18 @@ export function HomeSearch() {
           <SearchIcon size={20} />
           <input
             value={q}
-            onChange={(e) => pick(e.target.value)}
-            onFocus={() => setOpen(true)}
-            onBlur={() => setTimeout(() => setOpen(false), 150)}
+            onChange={(e) => {
+              window.clearTimeout(blurTimer.current);
+              pick(e.target.value);
+            }}
+            onFocus={() => {
+            window.clearTimeout(blurTimer.current);
+            setOpen(true);
+          }}
+            onBlur={() => {
+            // Late enough for a click on a suggestion; cancelled if the field is used again.
+            blurTimer.current = window.setTimeout(() => setOpen(false), 150);
+          }}
             onKeyDown={(e) => {
               if (e.key === 'ArrowDown') {
                 e.preventDefault();

@@ -1,7 +1,7 @@
 // A club field (daily puzzle, favourite team): type a few letters, pick from the
 // clubs that match below (names and short names: "YB", "BVB", "Juve" …).
 // Arrow keys and Enter work as in any combobox.
-import { useId, useState } from 'react';
+import { useId, useRef, useState } from 'react';
 import { usePrefs } from '../../lib/prefs.tsx';
 
 export interface PickerClub {
@@ -19,6 +19,7 @@ export function ClubPicker({ clubs, value, onChange, label, id = 'daily-club', p
   const chosen = clubs.find((c) => c.id === value);
   const [text, setText] = useState(chosen?.name ?? '');
   const [open, setOpen] = useState(false);
+  const blurTimer = useRef(0);
   const [active, setActive] = useState(0);
   // A parent reset (after a guess) empties the field again.
   const [lastValue, setLastValue] = useState(value);
@@ -55,13 +56,20 @@ export function ClubPicker({ clubs, value, onChange, label, id = 'daily-club', p
           id={id}
           value={text}
           onChange={(e) => {
+            window.clearTimeout(blurTimer.current);
             setText(e.target.value);
             setActive(0);
             setOpen(true);
             if (value) onChange('');
           }}
-          onFocus={() => setOpen(true)}
-          onBlur={() => setTimeout(() => setOpen(false), 150)}
+          onFocus={() => {
+            window.clearTimeout(blurTimer.current);
+            setOpen(true);
+          }}
+          onBlur={() => {
+            // Late enough for a click on a suggestion; cancelled if the field is used again.
+            blurTimer.current = window.setTimeout(() => setOpen(false), 150);
+          }}
           onKeyDown={(e) => {
             if (!shown) return;
             if (e.key === 'ArrowDown') {
