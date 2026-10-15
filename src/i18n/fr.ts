@@ -1564,7 +1564,7 @@ export const fr: Messages = {
   'daily.metaDesc': 'Devine le club et la saison à partir d’un gros plan de maillot. Un nouveau maillot chaque jour.',
   'daily.eyebrow': 'Devinette n°{n}',
   'daily.title': 'Devinette maillot',
-  'daily.intro': 'Quel est ce maillot ? Devine le club et la saison (première année) — {n} essais. Chaque erreur dézoome et donne un indice.',
+  'daily.intro': 'Quel est ce maillot ? Devine le club et la saison – {n} essais. Chaque erreur dézoome et donne un indice.',
   'daily.cropLabel': 'Gros plan du maillot du jour, essai {n}',
   'daily.guesses': 'Tes essais',
   'daily.club': 'Club',
@@ -1744,5 +1744,6 @@ export const fr: Messages = {
   'daily.hint.country': 'Pays',
   'daily.hint.decade': 'Décennie',
   'daily.decade': 'années {n}',
+  'daily.clubPlaceholder': 'Tape un club ou un pays…',
   // @@end
 };

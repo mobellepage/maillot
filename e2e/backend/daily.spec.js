@@ -9,7 +9,9 @@ test('the daily shirt puzzle can be played to the end and shared', async ({ page
     const button = page.getByRole('button', { name: `Guess (${i}/5)` });
     await expect(button.or(page.getByRole('button', { name: 'Share result' }))).toBeVisible();
     if (!(await button.isVisible())) break; // solved early by chance
-    await page.getByLabel('Club', { exact: true }).selectOption({ index: 1 + i });
+    // Type a few letters, pick the first suggestion.
+    await page.getByRole('combobox', { name: 'Club' }).fill(['Ba', 'Ju', 'Ar', 'Ch', 'Li'][i - 1]);
+    await page.getByRole('option').first().click();
     await page.getByLabel('Season', { exact: true }).selectOption({ index: 1 });
     await button.click();
   }

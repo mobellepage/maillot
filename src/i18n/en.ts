@@ -1563,7 +1563,7 @@ export const en = {
   'daily.metaDesc': 'Guess the club and season from a close-up of a football shirt. A new shirt every day.',
   'daily.eyebrow': 'Puzzle #{n}',
   'daily.title': 'Daily shirt puzzle',
-  'daily.intro': 'Which shirt is this? Guess the club and the season’s first year — {n} tries. Every miss zooms out and gives you a hint.',
+  'daily.intro': 'Which shirt is this? Guess club and season – {n} tries. Every miss zooms out and gives you a hint.',
   'daily.cropLabel': 'Close-up of today’s shirt, try {n}',
   'daily.guesses': 'Your guesses',
   'daily.club': 'Club',
@@ -1743,6 +1743,7 @@ export const en = {
   'daily.hint.country': 'Country',
   'daily.hint.decade': 'Decade',
   'daily.decade': '{n}s',
+  'daily.clubPlaceholder': 'Type a club or country…',
   // @@end
 };
 

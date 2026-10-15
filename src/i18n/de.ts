@@ -1564,7 +1564,7 @@ export const de: Messages = {
   'daily.metaDesc': 'Errate Verein und Saison anhand eines Ausschnitts eines Fussballtrikots. Jeden Tag ein neues Trikot.',
   'daily.eyebrow': 'Rätsel #{n}',
   'daily.title': 'Trikot-Rätsel',
-  'daily.intro': 'Welches Trikot ist das? Errate Verein und Saison (erstes Jahr) — {n} Versuche. Jeder Fehlversuch zoomt heraus und gibt dir einen Tipp.',
+  'daily.intro': 'Welches Trikot ist das? Errate Verein und Saison – {n} Versuche. Jeder Fehlversuch zoomt heraus und gibt dir einen Tipp.',
   'daily.cropLabel': 'Ausschnitt des heutigen Trikots, Versuch {n}',
   'daily.guesses': 'Deine Tipps',
   'daily.club': 'Verein',
@@ -1744,5 +1744,6 @@ export const de: Messages = {
   'daily.hint.country': 'Land',
   'daily.hint.decade': 'Jahrzehnt',
   'daily.decade': '{n}er',
+  'daily.clubPlaceholder': 'Verein oder Land eintippen…',
   // @@end
 };

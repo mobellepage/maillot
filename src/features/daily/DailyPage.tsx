@@ -15,6 +15,7 @@ import { useToast } from '../../lib/toast.tsx';
 import { loadJSON, saveJSON } from '../../utils/storage.ts';
 import type { DailyKit } from '../../utils/db.ts';
 import { useDailyKit } from './useDailyKit.ts';
+import { ClubPicker } from './ClubPicker.tsx';
 import * as db from '../../utils/db.ts';
 import { Button, Card, ErrorState, Page, Skeleton } from '../../ui/index.ts';
 import { MAX_TRIES, RESULTS_KEY, ZOOMS, focusFor, judge, puzzleNumber, shareText, solved, stats, type DayResult, type Guess, type Verdict } from './game.ts';
@@ -35,7 +36,8 @@ function useDaily() {
   return { today, n, answer: kit, loading, error, retry, play, setPlay };
 }
 
-const yearLabel = (y: number) => String(y);
+/** Clubs play seasons ("2013/14"), national teams years ("2022") — as the library writes them. */
+const seasonLabel = (y: number, nation: boolean) => (nation ? String(y) : y + '/' + String((y + 1) % 100).padStart(2, '0'));
 
 export default function DailyPage() {
   const { t, lang } = usePrefs();
@@ -45,16 +47,19 @@ export default function DailyPage() {
   const qc = useQueryClient();
   const { today, n, answer, loading, error, retry, play, setPlay } = useDaily();
 
-  // The clubs and national teams of the library, grouped by league.
+  // The clubs and national teams that can be the answer (the schedule's pool:
+  // top five leagues, Swiss Super League, national teams).
   const clubList = useQuery({ queryKey: ['kitClubs'], queryFn: db.loadKitClubs, staleTime: 10 * 60_000 });
+  const pool = useMemo(
+    () =>
+      (clubList.data ?? [])
+        .filter((x) => x.top5 || x.league === 'Swiss Super League' || x.league === 'National Teams')
+        .map((c) => ({ id: c.id, name: c.name, league: c.league, aliases: c.aliases ?? [] }))
+        .sort((a, b) => a.name.localeCompare(b.name, lang)),
+    [clubList.data, lang]
+  );
   const clubName = useMemo(() => new Map((clubList.data ?? []).map((c) => [c.id, c.name])), [clubList.data]);
-  const leagues = useMemo(() => {
-    const m = new Map<string, { id: string; name: string }[]>();
-    // Only clubs that can be the answer (the schedule's pool: top five leagues, Swiss Super League, national teams).
-    for (const c of (clubList.data ?? []).filter((x) => x.top5 || x.league === 'Swiss Super League' || x.league === 'National Teams'))
-      m.set(c.league, [...(m.get(c.league) ?? []), { id: c.id, name: c.name }]);
-    return [...m.entries()].map(([league, cs]) => ({ league, clubs: cs.sort((a, b) => a.name.localeCompare(b.name, lang)) })).sort((a, b) => a.league.localeCompare(b.league, lang));
-  }, [clubList.data, lang]);
+  const isNation = (id: string) => clubList.data?.find((c) => c.id === id)?.league === 'National Teams';
   const years = useMemo(() => {
     const hi = Number(today.slice(0, 4));
     return Array.from({ length: hi - 1960 + 1 }, (_, i) => hi - i);
@@ -151,10 +156,10 @@ export default function DailyPage() {
               const g = play.guesses[i];
               const v = verdicts[i];
               return (
-                <li key={i} style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1fr) 92px', gap: 8 }}>
+                <li key={i} style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1fr) 120px', gap: 8 }}>
                   <Cell tone={!v ? 'empty' : v.club ? 'ok' : 'bad'}>{g ? clubName.get(g.club) ?? g.club : ''}</Cell>
                   <Cell tone={!v ? 'empty' : v.season === 'exact' ? 'ok' : v.season === 'close' ? 'close' : 'bad'}>
-                    {g ? yearLabel(g.year) : ''}
+                    {g ? seasonLabel(g.year, isNation(g.club)) : ''}
                     {v?.dir && <span aria-label={t(v.dir === 'later' ? 'daily.later' : 'daily.earlier')}>{v.dir === 'later' ? ' ↑' : ' ↓'}</span>}
                   </Cell>
                 </li>
@@ -163,24 +168,8 @@ export default function DailyPage() {
           </ol>
 
           {!done ? (
-            <form onSubmit={submit} style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1fr) 110px', gap: 8, marginTop: 14 }}>
-              <label className="sr-only" htmlFor="daily-club">
-                {t('daily.club')}
-              </label>
-              <div className="field">
-                <select id="daily-club" value={club} onChange={(e) => setClub(e.target.value)} required>
-                  <option value="">{t('daily.club')}</option>
-                  {leagues.map((l) => (
-                    <optgroup key={l.league} label={l.league === 'National Teams' ? t('lib.nations') : l.league}>
-                      {l.clubs.map((c) => (
-                        <option key={c.id} value={c.id}>
-                          {c.name}
-                        </option>
-                      ))}
-                    </optgroup>
-                  ))}
-                </select>
-              </div>
+            <form onSubmit={submit} style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1fr) 120px', gap: 8, marginTop: 14 }}>
+              <ClubPicker clubs={pool} value={club} onChange={setClub} label={t('daily.club')} />
               <label className="sr-only" htmlFor="daily-year">
                 {t('daily.year')}
               </label>
@@ -189,7 +178,7 @@ export default function DailyPage() {
                   <option value="">{t('daily.year')}</option>
                   {years.map((y) => (
                     <option key={y} value={y}>
-                      {yearLabel(y)}
+                      {seasonLabel(y, isNation(club))}
                     </option>
                   ))}
                 </select>
