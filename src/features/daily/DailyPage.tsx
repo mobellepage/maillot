@@ -16,10 +16,9 @@ import { loadJSON, saveJSON } from '../../utils/storage.ts';
 import * as db from '../../utils/db.ts';
 import { Button, Card, Page, ShirtGraphic } from '../../ui/index.ts';
 import { useCatalog } from '../catalog/useCatalog.ts';
-import { MAX_TRIES, ZOOMS, dayKey, focusFor, judge, pickShirt, puzzleNumber, shareText, solved, stats, type DayResult, type Guess, type Verdict } from './game.ts';
+import { MAX_TRIES, RESULTS_KEY, ZOOMS, dayKey, focusFor, judge, pickShirt, puzzleNumber, shareText, solved, stats, type DayResult, type Guess, type Verdict } from './game.ts';
 
 const PLAY_KEY = 'kv_daily_play_v1';
-const RESULTS_KEY = 'kv_daily_results_v1';
 
 type Play = { day: string; guesses: Guess[] };
 

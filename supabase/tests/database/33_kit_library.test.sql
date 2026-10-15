@@ -32,7 +32,7 @@ select tests.create_user('00000000-0000-4000-a000-00000000c1b1', 'fan@kits.test'
 select tests.create_user('00000000-0000-4000-a000-00000000c1b2', 'other@kits.test');
 select tests.create_user('00000000-0000-4000-a000-00000000c1ad', 'admin@kits.test', true);
 
-select plan(13);
+select plan(16);
 
 select is((select count(*)::int from library_clubs() where top5), 96, 'all clubs of the top five leagues are listed');
 select ok((select count(*) from kits where source = 'catalogue' and status = 'approved') >= 1, 'catalogue shirts are in the library');
@@ -58,6 +58,9 @@ select tests.logout();
 set local role anon;
 select is((select count(*)::int from library_kits('arsenal') where season = '2003/04' and kind = 'home' and variant = ''), 1, 'a repeated import updates the kit instead of adding it twice');
 select is((select note from library_kits('milan') where season = '1890/91'), 'Champions League', 'approved suggestions are public');
+select ok((select count(*) from library_search('milan', 2006, '2006/07', null)) >= 1, 'the search finds a club''s kit by season');
+select is((select count(*)::int from library_search('m', null, null, null)), 0, 'one letter is not a search');
+select ok((select bool_and(kind = 'home') from library_search('milan', null, null, 'home')), 'the kind narrows the search');
 reset role;
 
 select * from finish();

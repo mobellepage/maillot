@@ -25,6 +25,24 @@ export async function loadClubKits(clubId: string): Promise<Kit[]> {
   return data || [];
 }
 
+/** One hit of the home-page search across the library. */
+export interface KitHit {
+  id: string;
+  club_id: string;
+  club_name: string;
+  season: string;
+  kind: string;
+  variant: string;
+  image_path: string | null;
+  colors: string[];
+}
+
+export async function searchLibrary(q: { club: string; year: number | null; season: string | null; kind: string | null }): Promise<KitHit[]> {
+  const { data, error } = await (await sb()).rpc('library_search', { p_club: q.club, p_year: q.year, p_season: q.season, p_kind: q.kind });
+  if (error) throw error;
+  return data || [];
+}
+
 export interface KitSuggestion {
   club: string;
   season: string;

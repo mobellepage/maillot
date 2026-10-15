@@ -1,8 +1,8 @@
 // /library/:club — one club's kits, season by season, every kind (home,
 // away, third, goalkeeper, cup, European, training, special). Kits that are
 // in the catalogue link to the market.
-import { useState } from 'react';
-import { Link, Navigate, useParams } from 'react-router';
+import { useEffect, useState } from 'react';
+import { Link, Navigate, useLocation, useParams } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
 import { BY } from '../../data.ts';
 import { usePageMeta } from '../../lib/meta.ts';
@@ -22,6 +22,11 @@ export default function ClubLibraryPage() {
   const { user } = useSession();
   const clubs = useQuery({ queryKey: ['kitClubs'], queryFn: db.loadKitClubs, staleTime: 10 * 60_000 });
   const kits = useQuery({ queryKey: ['clubKits', club], queryFn: () => db.loadClubKits(club) });
+  const { hash } = useLocation();
+  // Coming from a search hit ("#season-2006/07"): jump to that season once the kits are there.
+  useEffect(() => {
+    if (kits.data && hash) document.getElementById(decodeURIComponent(hash.slice(1)))?.scrollIntoView({ block: 'start' });
+  }, [kits.data, hash]);
   const [kind, setKind] = useState<string>('all');
   const [suggest, setSuggest] = useState(false);
   const c = clubs.data?.find((x) => x.id === club);
@@ -81,7 +86,7 @@ export default function ClubLibraryPage() {
 
       {groups.map((g) => (
         <section key={g.season} aria-labelledby={'season-' + g.season} style={{ marginTop: 28 }}>
-          <h2 id={'season-' + g.season} className="title" style={{ margin: '0 0 12px' }}>
+          <h2 id={'season-' + g.season} className="title" style={{ margin: '0 0 12px', scrollMarginTop: 96 }}>
             {g.season}
           </h2>
           <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'grid', gap: 12, gridTemplateColumns: 'repeat(auto-fill,minmax(min(100%,170px),1fr))' }}>

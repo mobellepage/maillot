@@ -1,9 +1,12 @@
 import { expect, test } from '@playwright/test';
 
-test('home page renders the hero and trending shirts @mobile', async ({ page }) => {
+test('home page starts with the search, then trending shirts @mobile', async ({ page }) => {
   await page.goto('/');
   await expect(page).toHaveTitle(/Maillot/);
-  await expect(page.getByRole('heading', { level: 1 })).toContainText('Your collection');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Which shirt do you have – or want?');
+  await expect(page.getByRole('combobox', { name: 'Search any shirt' })).toBeVisible();
+  // The pitch is still there, at the end.
+  await expect(page.getByRole('heading', { level: 2, name: /Your collection/ })).toBeAttached();
   await expect(page.getByText('Trending shirts', { exact: false })).toBeVisible();
   // Nothing may stick out sideways: on a phone the browser would zoom out
   // and taps would land on the wrong element.
@@ -13,7 +16,9 @@ test('home page renders the hero and trending shirts @mobile', async ({ page }) 
 
 test('search leads to a shareable product URL and Back works', async ({ page }) => {
   await page.goto('/');
-  await page.getByPlaceholder('Or look up any shirt…').fill('maradona');
+  await page.getByRole('combobox', { name: 'Search any shirt' }).fill('maradona');
+  // Suggestions from the marketplace show while typing (the library needs the backend).
+  await expect(page.getByRole('option', { name: /Boca Juniors 1981 Home/ })).toBeVisible();
   await page.getByRole('button', { name: 'Search', exact: true }).click();
   // The search lives in the URL, so results are shareable.
   await expect(page).toHaveURL(/\/market\?q=maradona$/);
@@ -64,7 +69,7 @@ test('a malformed share link shows an error page instead of crashing @mobile', a
 
 test('unknown URLs fall back to the home page', async ({ page }) => {
   await page.goto('/this/does/not/exist');
-  await expect(page.getByRole('heading', { level: 1 })).toContainText('Your collection');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Which shirt do you have – or want?');
 });
 
 test('product pages link to the buying explainer', async ({ page }) => {

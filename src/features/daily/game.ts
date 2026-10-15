@@ -3,6 +3,8 @@
 // club and the season. Pure, so it's unit-tested; the page is DailyPage.tsx.
 
 export const MAX_TRIES = 5;
+/** This browser's results (guests play too); members' are also saved server-side. */
+export const RESULTS_KEY = 'kv_daily_results_v1';
 /** Zoom per attempt (1 = the whole shirt). After the last try the whole shirt shows. */
 export const ZOOMS = [4.2, 3, 2.1, 1.5, 1.12] as const;
 /** Puzzle #1 was this day (Europe/Zurich). */
