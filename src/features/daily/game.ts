@@ -1,12 +1,13 @@
-// The daily shirt puzzle ("Trikot-Rätsel"): one catalogue shirt a day,
-// shown as a zoomed-in crop that widens with every wrong guess. Guess the
-// club and the season. Pure, so it's unit-tested; the page is DailyPage.tsx.
+// The daily shirt puzzle ("Trikot-Rätsel"): one kit of the library a day
+// (the server keeps the schedule, daily_kit()), shown as a zoomed-in crop
+// that widens with every wrong guess. Guess the club and the season. Pure,
+// so it's unit-tested; the page is DailyPage.tsx.
 
 export const MAX_TRIES = 5;
 /** This browser's results (guests play too); members' are also saved server-side. */
 export const RESULTS_KEY = 'kv_daily_results_v1';
 /** Zoom per attempt (1 = the whole shirt). After the last try the whole shirt shows. */
-export const ZOOMS = [4.2, 3, 2.1, 1.5, 1.12] as const;
+export const ZOOMS = [3.4, 2.6, 2, 1.5, 1.1] as const;
 /** Puzzle #1 was this day (Europe/Zurich). */
 const FIRST_DAY = Date.UTC(2026, 9, 13);
 const DAY = 86_400_000;
@@ -31,19 +32,12 @@ export function hash(s: string): number {
   return h >>> 0;
 }
 
-/** The shirt for a puzzle: the catalogue in a fixed shuffled order, one a day. */
-export function pickShirt(ids: readonly string[], n: number): string | null {
-  if (!ids.length) return null;
-  const order = [...ids].sort((a, b) => hash('kit:' + a) - hash('kit:' + b) || a.localeCompare(b));
-  return order[(((n - 1) % order.length) + order.length) % order.length]!;
-}
-
-/** Where the crop is centred, in % of the picture: crest, collar, sponsor/chest or sleeve. */
+/** Where the crop is centred, in % of the picture: collar, chest/sponsor, sleeve or hem — never the crest, that would give it away at once. */
 export const FOCI = [
-  { key: 'crest', x: 61, y: 27 },
   { key: 'collar', x: 50, y: 12 },
-  { key: 'chest', x: 45, y: 45 },
-  { key: 'sleeve', x: 80, y: 28 }
+  { key: 'chest', x: 42, y: 50 },
+  { key: 'sleeve', x: 84, y: 30 },
+  { key: 'hem', x: 50, y: 84 }
 ] as const;
 export function focusFor(id: string, n: number) {
   return FOCI[hash(id + ':' + n) % FOCI.length]!;

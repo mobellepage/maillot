@@ -1579,7 +1579,6 @@ export const en = {
   'daily.copied': 'Result copied — paste it anywhere',
   'daily.next': 'A new shirt every day at midnight.',
   'daily.hint.league': 'League',
-  'daily.hint.brand': 'Maker',
   'daily.hint.kit': 'Kit',
   'daily.hintsLater': 'Hints appear after a wrong guess.',
   'daily.stats': 'Your stats',
@@ -1741,6 +1740,9 @@ export const en = {
   'home.play.daily.cropLabel': 'A close-up of today’s mystery shirt',
   'home.play.lib.count': '{n} kits, season by season',
   'home.play.lib.cta': 'Open the library',
+  'daily.hint.country': 'Country',
+  'daily.hint.decade': 'Decade',
+  'daily.decade': '{n}s',
   // @@end
 };
 

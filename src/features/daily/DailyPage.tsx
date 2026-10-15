@@ -1,43 +1,38 @@
-// /daily — the daily shirt puzzle. A zoomed-in crop of one catalogue shirt;
-// every wrong guess zooms out and reveals a hint (league, maker, kit). Guess
+// /daily — the daily shirt puzzle. A zoomed-in crop of one kit from the
+// library; every wrong guess zooms out and reveals a hint (kit, league,
+// country or decade). Guess
 // club and season in five tries; streaks and a shareable grid keep people
 // coming back. Guests play too (stored in this browser); members' results
 // are saved so streaks follow them across devices.
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import { Link } from 'react-router';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { SHIRTS, type Shirt } from '../../data.ts';
 import { shareOrigin } from '../../config/site.ts';
 import { usePageMeta } from '../../lib/meta.ts';
 import { usePrefs } from '../../lib/prefs.tsx';
 import { useSession } from '../../lib/session.tsx';
 import { useToast } from '../../lib/toast.tsx';
 import { loadJSON, saveJSON } from '../../utils/storage.ts';
+import type { DailyKit } from '../../utils/db.ts';
+import { useDailyKit } from './useDailyKit.ts';
 import * as db from '../../utils/db.ts';
-import { Button, Card, Page, ShirtGraphic } from '../../ui/index.ts';
-import { useCatalog } from '../catalog/useCatalog.ts';
-import { MAX_TRIES, RESULTS_KEY, ZOOMS, dayKey, focusFor, judge, pickShirt, puzzleNumber, shareText, solved, stats, type DayResult, type Guess, type Verdict } from './game.ts';
+import { Button, Card, ErrorState, Page, Skeleton } from '../../ui/index.ts';
+import { MAX_TRIES, RESULTS_KEY, ZOOMS, focusFor, judge, puzzleNumber, shareText, solved, stats, type DayResult, type Guess, type Verdict } from './game.ts';
 
-const PLAY_KEY = 'kv_daily_play_v1';
+// v2: guesses are library club ids (v1 held catalogue club names).
+const PLAY_KEY = 'kv_daily_play_v2';
 
 type Play = { day: string; guesses: Guess[] };
 
 function useDaily() {
-  useCatalog();
-  const [today] = useState(() => dayKey());
+  const { today, kit, loading, error, retry } = useDailyKit();
   const n = puzzleNumber(today);
-  // Not memoised: SHIRTS grows when the live catalogue loads (useCatalog re-renders).
-  const id = pickShirt(
-    SHIRTS.map((s) => s.id),
-    n
-  );
-  const answer = SHIRTS.find((s) => s.id === id) ?? null;
   const [play, setPlay] = useState<Play>(() => {
     const saved = loadJSON<Play | null>(PLAY_KEY, null);
     return saved?.day === today ? saved : { day: today, guesses: [] };
   });
   useEffect(() => saveJSON(PLAY_KEY, play), [play]);
-  return { today, n, answer, play, setPlay };
+  return { today, n, answer: kit, loading, error, retry, play, setPlay };
 }
 
 const yearLabel = (y: number) => String(y);
@@ -48,20 +43,27 @@ export default function DailyPage() {
   const { user } = useSession();
   const toast = useToast();
   const qc = useQueryClient();
-  const { today, n, answer, play, setPlay } = useDaily();
+  const { today, n, answer, loading, error, retry, play, setPlay } = useDaily();
 
-  const clubs = useMemo(() => [...new Set(SHIRTS.map((s) => s.club))].sort((a, b) => a.localeCompare(b, lang)), [lang]);
+  // The clubs and national teams of the library, grouped by league.
+  const clubList = useQuery({ queryKey: ['kitClubs'], queryFn: db.loadKitClubs, staleTime: 10 * 60_000 });
+  const clubName = useMemo(() => new Map((clubList.data ?? []).map((c) => [c.id, c.name])), [clubList.data]);
+  const leagues = useMemo(() => {
+    const m = new Map<string, { id: string; name: string }[]>();
+    // Only clubs that can be the answer (the schedule's pool: top five leagues, Swiss Super League, national teams).
+    for (const c of (clubList.data ?? []).filter((x) => x.top5 || x.league === 'Swiss Super League' || x.league === 'National Teams'))
+      m.set(c.league, [...(m.get(c.league) ?? []), { id: c.id, name: c.name }]);
+    return [...m.entries()].map(([league, cs]) => ({ league, clubs: cs.sort((a, b) => a.name.localeCompare(b.name, lang)) })).sort((a, b) => a.league.localeCompare(b.league, lang));
+  }, [clubList.data, lang]);
   const years = useMemo(() => {
-    const ys = SHIRTS.map((s) => s.year).filter(Boolean);
-    const lo = Math.min(...ys, 1970) - 2;
-    const hi = Math.max(...ys, Number(today.slice(0, 4))) + 1;
-    return Array.from({ length: hi - lo + 1 }, (_, i) => hi - i);
+    const hi = Number(today.slice(0, 4));
+    return Array.from({ length: hi - 1960 + 1 }, (_, i) => hi - i);
   }, [today]);
 
   const [club, setClub] = useState('');
   const [year, setYear] = useState('');
 
-  const verdicts: Verdict[] = answer ? play.guesses.map((g) => judge(g, { club: answer.club, year: answer.year })) : [];
+  const verdicts: Verdict[] = answer ? play.guesses.map((g) => judge(g, { club: answer.club_id, year: answer.season_year })) : [];
   const won = verdicts.some(solved);
   const done = won || play.guesses.length >= MAX_TRIES;
 
@@ -87,6 +89,8 @@ export default function DailyPage() {
     return (
       <Page narrow>
         <h1 className="display">{t('daily.title')}</h1>
+        {loading && <Skeleton height={360} radius={22} style={{ marginTop: 24 }} />}
+        {error && <ErrorState what={t('daily.title')} onRetry={retry} />}
       </Page>
     );
 
@@ -96,14 +100,15 @@ export default function DailyPage() {
     if (!club || !y || done) return;
     const guesses = [...play.guesses, { club, year: y }];
     setPlay({ ...play, guesses });
-    const nowWon = solved(judge({ club, year: y }, { club: answer.club, year: answer.year }));
+    const nowWon = solved(judge({ club, year: y }, { club: answer.club_id, year: answer.season_year }));
     if (nowWon || guesses.length >= MAX_TRIES) record({ day: today, won: nowWon, tries: guesses.length });
     setClub('');
     setYear('');
   };
 
   const zoom = done ? 1 : ZOOMS[Math.min(play.guesses.length, ZOOMS.length - 1)]!;
-  const focus = focusFor(answer.id, n);
+  const focus = focusFor(answer.club_id + answer.season, n);
+  const title = `${answer.club_name} ${answer.season} · ${t('lib.kind.' + answer.kind)}`;
   const s = stats(results, today);
   const share = async () => {
     const text = shareText(n, verdicts, won, t('daily.shareTitle'), shareOrigin() + '/daily');
@@ -130,11 +135,11 @@ export default function DailyPage() {
           <div
             className="card"
             role="img"
-            aria-label={done ? answer.name : t('daily.cropLabel', { n: play.guesses.length + 1 })}
-            style={{ position: 'relative', aspectRatio: '1/1', overflow: 'hidden', borderRadius: 22, padding: 0 }}
+            aria-label={done ? title : t('daily.cropLabel', { n: play.guesses.length + 1 })}
+            style={{ position: 'relative', aspectRatio: '1/1', overflow: 'hidden', borderRadius: 22, padding: 0, background: 'var(--sunken)' }}
           >
             <div style={{ position: 'absolute', inset: '6%', transform: `scale(${zoom})`, transformOrigin: `${focus.x}% ${focus.y}%`, transition: 'transform .6s cubic-bezier(.2,.7,.2,1)' }}>
-              <ShirtGraphic pat={answer.pat} trim={answer.trim} crest={answer.crest} num={answer.num} photo={answer.photo} hero flat />
+              <PuzzleImage kit={answer} />
             </div>
           </div>
           <Hints answer={answer} shown={done ? 3 : play.guesses.length} />
@@ -147,7 +152,7 @@ export default function DailyPage() {
               const v = verdicts[i];
               return (
                 <li key={i} style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1fr) 92px', gap: 8 }}>
-                  <Cell tone={!v ? 'empty' : v.club ? 'ok' : 'bad'}>{g ? g.club : ''}</Cell>
+                  <Cell tone={!v ? 'empty' : v.club ? 'ok' : 'bad'}>{g ? clubName.get(g.club) ?? g.club : ''}</Cell>
                   <Cell tone={!v ? 'empty' : v.season === 'exact' ? 'ok' : v.season === 'close' ? 'close' : 'bad'}>
                     {g ? yearLabel(g.year) : ''}
                     {v?.dir && <span aria-label={t(v.dir === 'later' ? 'daily.later' : 'daily.earlier')}>{v.dir === 'later' ? ' ↑' : ' ↓'}</span>}
@@ -165,10 +170,14 @@ export default function DailyPage() {
               <div className="field">
                 <select id="daily-club" value={club} onChange={(e) => setClub(e.target.value)} required>
                   <option value="">{t('daily.club')}</option>
-                  {clubs.map((c) => (
-                    <option key={c} value={c}>
-                      {c}
-                    </option>
+                  {leagues.map((l) => (
+                    <optgroup key={l.league} label={l.league === 'National Teams' ? t('lib.nations') : l.league}>
+                      {l.clubs.map((c) => (
+                        <option key={c.id} value={c.id}>
+                          {c.name}
+                        </option>
+                      ))}
+                    </optgroup>
                   ))}
                 </select>
               </div>
@@ -194,7 +203,7 @@ export default function DailyPage() {
             <Card style={{ marginTop: 14 }}>
               <div style={{ fontSize: 18, fontWeight: 800 }}>{won ? t('daily.won', { n: play.guesses.length }) : t('daily.lost')}</div>
               <p style={{ margin: '6px 0 0', fontSize: 14.5 }}>
-                <Link to={'/shirt/' + answer.id}>{answer.name}</Link>
+                <Link to={'/library/' + answer.club_id + '#season-' + answer.season}>{title}</Link>
               </p>
               <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 14 }}>
                 <Button onClick={share}>{t('daily.share')}</Button>
@@ -220,13 +229,20 @@ function Cell({ tone, children }: { tone: 'empty' | 'ok' | 'close' | 'bad'; chil
   );
 }
 
-/** One more fact after every wrong guess: league, then maker, then kit. */
-function Hints({ answer, shown }: { answer: Shirt; shown: number }) {
-  const { t, label } = usePrefs();
+/** The puzzle picture; the library one if today's sharper copy is missing. */
+function PuzzleImage({ kit }: { kit: DailyKit }) {
+  const [src, setSrc] = useState(kit.image);
+  return <img src={src} alt="" onError={() => setSrc(kit.library_image)} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />;
+}
+
+/** One more fact after every wrong guess: the kit, then the league, then country (clubs) or decade (national teams). */
+function Hints({ answer, shown }: { answer: DailyKit; shown: number }) {
+  const { t } = usePrefs();
+  const nation = answer.league === 'National Teams';
   const facts = [
-    [t('daily.hint.league'), label('league', answer.league)],
-    [t('daily.hint.brand'), answer.brand],
-    [t('daily.hint.kit'), label('type', answer.type)]
+    [t('daily.hint.kit'), t('lib.kind.' + answer.kind)],
+    [t('daily.hint.league'), nation ? t('lib.nations') : answer.league],
+    nation ? [t('daily.hint.decade'), t('daily.decade', { n: Math.floor(answer.season_year / 10) * 10 })] : [t('daily.hint.country'), answer.country]
   ] as const;
   if (shown < 1) return <p style={{ fontSize: 12.5, color: 'var(--muted)', margin: '10px 0 0' }}>{t('daily.hintsLater')}</p>;
   return (

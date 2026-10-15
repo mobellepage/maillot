@@ -28,7 +28,7 @@ grant execute on all functions in schema tests to authenticated, anon;
 select tests.create_user('00000000-0000-4000-a000-0000000da111', 'player@daily.test');
 select tests.create_user('00000000-0000-4000-a000-0000000da222', 'other@daily.test');
 
-select plan(6);
+select plan(10);
 
 select tests.login('00000000-0000-4000-a000-0000000da111');
 select lives_ok($$insert into daily_game_results (user_id, day, won, tries) values ('00000000-0000-4000-a000-0000000da111', (now() at time zone 'Europe/Zurich')::date, true, 3)$$, 'today''s result is saved');
@@ -41,6 +41,13 @@ select tests.login('00000000-0000-4000-a000-0000000da222');
 select is((select count(*)::int from daily_game_results), 0, 'members see only their own results');
 select throws_ok($$insert into daily_game_results (user_id, day, won, tries) values ('00000000-0000-4000-a000-0000000da111', (now() at time zone 'Europe/Zurich')::date - 1, true, 1)$$, '42501', null, 'nobody records results for someone else');
 select tests.logout();
+
+set local role anon;
+select is((select count(*)::int from daily_kit((now() at time zone 'Europe/Zurich')::date)), 1, 'everyone gets today''s kit from the library');
+select ok((select kind in ('home', 'away') and image like '/library/%' from daily_kit((now() at time zone 'Europe/Zurich')::date)), 'a home or away kit with its picture');
+select throws_ok($$select * from daily_kit((now() at time zone 'Europe/Zurich')::date + 1)$$, '22023', null, 'tomorrow''s kit stays secret');
+reset role;
+select is((select count(distinct kit_id)::int from private.daily_kits), (select count(*)::int from private.daily_kits), 'no kit twice in the schedule');
 
 select * from finish();
 rollback;

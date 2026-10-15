@@ -1580,7 +1580,6 @@ export const de: Messages = {
   'daily.copied': 'Ergebnis kopiert — füge es irgendwo ein',
   'daily.next': 'Jeden Tag um Mitternacht ein neues Trikot.',
   'daily.hint.league': 'Liga',
-  'daily.hint.brand': 'Ausrüster',
   'daily.hint.kit': 'Trikot',
   'daily.hintsLater': 'Tipps erscheinen nach einem Fehlversuch.',
   'daily.stats': 'Deine Statistik',
@@ -1742,5 +1741,8 @@ export const de: Messages = {
   'home.play.daily.cropLabel': 'Ausschnitt des heutigen Rätsel-Trikots',
   'home.play.lib.count': '{n} Trikots, Saison für Saison',
   'home.play.lib.cta': 'Bibliothek öffnen',
+  'daily.hint.country': 'Land',
+  'daily.hint.decade': 'Jahrzehnt',
+  'daily.decade': '{n}er',
   // @@end
 };

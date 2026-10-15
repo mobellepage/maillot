@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { dayKey, judge, pickShirt, puzzleNumber, shareText, solved, stats } from '../features/daily/game.ts';
+import { dayKey, judge, puzzleNumber, shareText, solved, stats } from '../features/daily/game.ts';
 
 describe('daily puzzle', () => {
   it('changes at midnight in Zurich', () => {
@@ -7,12 +7,6 @@ describe('daily puzzle', () => {
     expect(dayKey(new Date('2026-10-14T22:01:00Z'))).toBe('2026-10-15');
     expect(puzzleNumber('2026-10-13')).toBe(1);
     expect(puzzleNumber('2026-11-12')).toBe(31);
-  });
-  it('gives everyone the same shirt and goes through the whole catalogue', () => {
-    const ids = ['a', 'b', 'c', 'd'];
-    expect(pickShirt(ids, 3)).toBe(pickShirt([...ids].reverse(), 3));
-    expect(new Set([1, 2, 3, 4].map((n) => pickShirt(ids, n))).size).toBe(4);
-    expect(pickShirt([], 1)).toBeNull();
   });
   it('judges club and season', () => {
     const answer = { club: 'Bayern München', year: 1997 };

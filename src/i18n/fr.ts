@@ -1580,7 +1580,6 @@ export const fr: Messages = {
   'daily.copied': 'Résultat copié — colle-le où tu veux',
   'daily.next': 'Un nouveau maillot chaque jour à minuit.',
   'daily.hint.league': 'Ligue',
-  'daily.hint.brand': 'Équipementier',
   'daily.hint.kit': 'Tenue',
   'daily.hintsLater': 'Les indices apparaissent après une erreur.',
   'daily.stats': 'Tes statistiques',
@@ -1742,5 +1741,8 @@ export const fr: Messages = {
   'home.play.daily.cropLabel': 'Détail du maillot mystère du jour',
   'home.play.lib.count': '{n} maillots, saison par saison',
   'home.play.lib.cta': 'Ouvrir la bibliothèque',
+  'daily.hint.country': 'Pays',
+  'daily.hint.decade': 'Décennie',
+  'daily.decade': 'années {n}',
   // @@end
 };

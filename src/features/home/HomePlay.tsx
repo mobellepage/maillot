@@ -3,11 +3,10 @@
 // and a row of real kits from the library.
 import { Link } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
-import { SHIRTS } from '../../data.ts';
 import { usePrefs } from '../../lib/prefs.tsx';
 import * as db from '../../utils/db.ts';
-import { ShirtGraphic } from '../../ui/index.ts';
-import { MAX_TRIES, ZOOMS, focusFor, pickShirt } from '../daily/game.ts';
+import { MAX_TRIES, ZOOMS, focusFor } from '../daily/game.ts';
+import { useDailyKit } from '../daily/useDailyKit.ts';
 import { useDailyStatus } from '../daily/useDailyStatus.ts';
 
 /** Kits everyone knows, to show what the library holds. */
@@ -43,11 +42,9 @@ export function HomePlay() {
 function PuzzleTile() {
   const { t } = usePrefs();
   const d = useDailyStatus();
-  // Today's shirt, cropped exactly as the puzzle starts — never more. Not
-  // memoised: like the puzzle page, it follows the catalogue as it loads.
-  const id = pickShirt(SHIRTS.map((s) => s.id), d.n);
-  const shirt = SHIRTS.find((s) => s.id === id);
-  const focus = shirt ? focusFor(shirt.id, d.n) : null;
+  // Today's kit, cropped exactly as the puzzle starts — never more.
+  const { kit } = useDailyKit();
+  const focus = kit ? focusFor(kit.club_id + kit.season, d.n) : null;
   const status = d.played ? (d.played.won ? t('home.me.dailyWon', { n: d.played.tries }) : t('home.me.dailyLost')) : d.streak > 0 ? t('home.me.streak', { n: d.streak }) : null;
   return (
     <Link to="/daily" className="play-card" style={{ ...tile, gridTemplateColumns: 'minmax(0,1fr) clamp(120px,32%,200px)', alignItems: 'center', background: '#0A0C0B', color: '#F2F4F1' }}>
@@ -63,10 +60,10 @@ function PuzzleTile() {
         {status && <span style={{ fontSize: 13.5, color: '#9AA39D' }}>{status}</span>}
         <span style={{ ...cta, background: '#4BFF8B', color: '#06110A', marginTop: 4 }}>{d.played ? t('home.me.dailySee') : t('home.play.daily.cta')} →</span>
       </div>
-      <div role="img" aria-label={t('home.play.daily.cropLabel')} style={{ position: 'relative', aspectRatio: '1/1', borderRadius: 22, overflow: 'hidden', background: '#141816', boxShadow: 'inset 0 0 0 2px rgba(75,255,139,0.35)' }}>
-        {shirt && focus && (
+      <div role="img" aria-label={t('home.play.daily.cropLabel')} style={{ position: 'relative', aspectRatio: '1/1', borderRadius: 22, overflow: 'hidden', background: '#F2F4F1', boxShadow: 'inset 0 0 0 2px rgba(75,255,139,0.35)' }}>
+        {kit && focus && (
           <div style={{ position: 'absolute', inset: '6%', transform: `scale(${ZOOMS[0]})`, transformOrigin: `${focus.x}% ${focus.y}%` }}>
-            <ShirtGraphic pat={shirt.pat} trim={shirt.trim} crest={shirt.crest} num={shirt.num} photo={shirt.photo} hero flat />
+            <img src={kit.image} alt="" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
           </div>
         )}
         <span aria-hidden="true" style={{ position: 'absolute', left: 8, top: 8, padding: '3px 8px', borderRadius: 999, background: 'rgba(10,12,11,0.75)', color: '#F2F4F1', fontSize: 11, fontWeight: 650 }}>
