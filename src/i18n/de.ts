@@ -1756,5 +1756,8 @@ export const de: Messages = {
   'fav.have': 'in deiner Sammlung',
   'fav.missing': 'fehlt noch',
   'fav.showAll': 'Alle {n} Trikots zeigen',
+  'feed.library': 'Aus der Trikot-Bibliothek',
+  'wish.kits': 'Gemerkte Trikots ({n})',
+  'wish.unlike': '{name} von der Wunschliste nehmen',
   // @@end
 };

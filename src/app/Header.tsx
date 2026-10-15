@@ -5,6 +5,7 @@ import { usePrefs } from '../lib/prefs.tsx';
 import { useSession } from '../lib/session.tsx';
 import { useToast } from '../lib/toast.tsx';
 import { useWatchlist } from '../features/watchlist/useWatchlist.ts';
+import { useKitLikes } from '../features/watchlist/useKitLikes.ts';
 import type { Currency } from '../utils/currency.ts';
 import type { Lang } from '../i18n/index.ts';
 // Signed-in only, so it isn't part of the first download for visitors.
@@ -31,6 +32,8 @@ export default function Header() {
   const { t, currency, setCurrency, currencies, lang, setLang, langs } = usePrefs();
   const { user, profile, signOut } = useSession();
   const watch = useWatchlist();
+  const kitLikes = useKitLikes();
+  const wished = watch.ids.length + kitLikes.kits.length;
   const toast = useToast();
   const navigate = useNavigate();
   const { pathname } = useLocation();
@@ -89,9 +92,9 @@ export default function Header() {
             </option>
           ))}
         </select>
-        <Link to="/watchlist" aria-label={t('header.watchlist', { n: watch.ids.length })} className="icon-btn" style={{ width: 'auto', padding: '0 12px', borderRadius: 999, gap: 6, display: 'flex', alignItems: 'center', fontFamily: 'var(--font-mono)', fontSize: 13, color: 'var(--text)' }}>
+        <Link to="/watchlist" aria-label={t('header.watchlist', { n: wished })} className="icon-btn" style={{ width: 'auto', padding: '0 12px', borderRadius: 999, gap: 6, display: 'flex', alignItems: 'center', fontFamily: 'var(--font-mono)', fontSize: 13, color: 'var(--text)' }}>
           <HeartIcon size={15} filled style={{ color: 'var(--accent)' }} />
-          {watch.ids.length}
+          {wished}
         </Link>
         {user ? (
           <>

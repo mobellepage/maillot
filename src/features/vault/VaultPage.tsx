@@ -12,6 +12,8 @@ import { OrdersTab } from '../orders/OrdersTab.tsx';
 import { useOrders } from '../orders/useOrders.ts';
 import { useWatchlist } from '../watchlist/useWatchlist.ts';
 import { AlertsList } from '../watchlist/AlertsList.tsx';
+import { LikedKits } from '../watchlist/LikedKits.tsx';
+import { useKitLikes } from '../watchlist/useKitLikes.ts';
 import { OffersPanel } from './OffersPanel.tsx';
 import { InquiriesPanel } from './InquiriesPanel.tsx';
 import { CollectionTab } from './CollectionTab.tsx';
@@ -38,6 +40,7 @@ export default function VaultPage({ tab }: { tab: Tab }) {
   const toast = useToast();
   const { items, loading, error, refetch } = useCollection();
   const watch = useWatchlist();
+  const kitLikes = useKitLikes();
   const orders = useOrders(!!user);
   const watched = watch.ids.map((id) => getShirt(id)).filter((s) => !!s);
 
@@ -93,7 +96,8 @@ export default function VaultPage({ tab }: { tab: Tab }) {
         <h1 className="display display--lg">{t('vault.title.watchlist')}</h1>
         <p style={{ color: 'var(--muted)', marginTop: 10 }}>{t('vault.guestBody')}</p>
         <div style={{ marginTop: 24 }}>
-          {watched.length ? <ShirtGrid shirts={watched} /> : <EmptyState title={t('vault.nothingWatched')}>{t('vault.tapHeart')}</EmptyState>}
+          <LikedKits />
+          {watched.length ? <ShirtGrid shirts={watched} /> : !kitLikes.kits.length && <EmptyState title={t('vault.nothingWatched')}>{t('vault.tapHeart')}</EmptyState>}
         </div>
       </Page>
     );
@@ -103,7 +107,7 @@ export default function VaultPage({ tab }: { tab: Tab }) {
   const since = user.created_at ? new Date(user.created_at).toLocaleDateString(locale, { month: 'long', year: 'numeric' }) : '';
   const tabs: [Tab, string, number][] = [
     ['collection', t('vault.tab.collection'), items.length],
-    ['watchlist', t('vault.title.watchlist'), watch.ids.length],
+    ['watchlist', t('vault.title.watchlist'), watch.ids.length + kitLikes.kits.length],
     ['orders', t('vault.title.orders'), orders.data?.length ?? 0]
   ];
   const path: Record<Tab, string> = { collection: '/vault', watchlist: '/watchlist', orders: '/orders' };
@@ -173,7 +177,8 @@ export default function VaultPage({ tab }: { tab: Tab }) {
       {tab === 'watchlist' && (
         <div style={{ marginTop: 24 }}>
           <AlertsList />
-          {watched.length ? <ShirtGrid shirts={watched} /> : <EmptyState title={t('vault.watchEmpty')}>{t('vault.tapHeart')}</EmptyState>}
+          <LikedKits />
+          {watched.length ? <ShirtGrid shirts={watched} /> : !kitLikes.kits.length && <EmptyState title={t('vault.watchEmpty')}>{t('vault.tapHeart')}</EmptyState>}
         </div>
       )}
       {tab === 'orders' && <OrdersTab />}

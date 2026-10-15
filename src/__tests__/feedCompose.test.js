@@ -59,3 +59,22 @@ describe('composeFeed', () => {
     expect(seenFirst / 400).toBeLessThan(0.65);
   });
 });
+
+describe('composeFeed with library kits', () => {
+  const kit = (id, club, league) => ({ id, club_id: club, club_name: club, league, season: '2001/02', season_year: 2001, kind: 'home', variant: '', image_path: null });
+  const kits = [kit('a', 'young-boys', 'Swiss Super League'), ...Array.from({ length: 30 }, (_, i) => kit('x' + i, 'other' + i, 'Serie A'))];
+  it('swipes through the kits instead of catalogue shirts', () => {
+    const feed = composeFeed({ listings: [], catalog: [{ id: 'c1', club: 'X', league: 'Y', type: 'Retro' }], liked: [], seen: new Set(), kits });
+    expect(feed.every((i) => i.kind === 'kit')).toBe(true);
+    expect(feed).toHaveLength(31);
+  });
+  it('brings the favourite team forward', () => {
+    let early = 0;
+    for (let i = 0; i < 300; i++) {
+      const feed = composeFeed({ listings: [], catalog: [], liked: [], seen: new Set(), kits, interests: { club: 'young-boys' } });
+      if (feed.findIndex((f) => f.kind === 'kit' && f.kit.club_id === 'young-boys') < 8) early++;
+    }
+    // Without a favourite it would be in the first 8 about a quarter of the time.
+    expect(early).toBeGreaterThan(300 * 0.5);
+  });
+});

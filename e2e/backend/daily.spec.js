@@ -9,13 +9,12 @@ test('the daily shirt puzzle can be played to the end and shared', async ({ page
     const button = page.getByRole('button', { name: `Guess (${i}/5)` });
     await expect(button.or(page.getByRole('button', { name: 'Share result' }))).toBeVisible();
     if (!(await button.isVisible())) break; // solved early by chance
-    // Type a few letters, pick the first suggestion.
-    await page.getByRole('combobox', { name: 'Club' }).fill(['Ba', 'Ju', 'Ar', 'Ch', 'Li'][i - 1]);
-    const box = page.getByRole('listbox', { name: 'Club' });
-    await box.waitFor({ timeout: 10000 }).catch(async () => {
-      throw new Error('no club suggestions; page: ' + (await page.locator('main').innerText()).slice(0, 600).replace(/\n/g, ' / '));
-    });
-    await box.getByRole('option').first().click();
+    // Type a few letters, take the first suggestion with Enter.
+    const field = page.getByRole('combobox', { name: 'Club' });
+    await field.fill(['Ba', 'Ju', 'Ar', 'Ch', 'Li'][i - 1]);
+    await expect(page.getByRole('listbox', { name: 'Club' })).toBeVisible();
+    await field.press('Enter');
+    await expect(page.getByRole('listbox', { name: 'Club' })).toHaveCount(0);
     await page.getByLabel('Season', { exact: true }).selectOption({ index: 1 });
     await button.click();
   }

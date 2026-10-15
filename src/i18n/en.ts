@@ -1755,6 +1755,9 @@ export const en = {
   'fav.have': 'in your collection',
   'fav.missing': 'still missing',
   'fav.showAll': 'Show all {n} kits',
+  'feed.library': 'From the kit library',
+  'wish.kits': 'Kits you liked ({n})',
+  'wish.unlike': 'Remove {name} from your wishlist',
   // @@end
 };
 

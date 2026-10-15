@@ -1756,5 +1756,8 @@ export const fr: Messages = {
   'fav.have': 'dans ta collection',
   'fav.missing': 'manque encore',
   'fav.showAll': 'Voir les {n} maillots',
+  'feed.library': 'De la bibliothèque',
+  'wish.kits': 'Maillots aimés ({n})',
+  'wish.unlike': 'Retirer {name} de ta liste',
   // @@end
 };

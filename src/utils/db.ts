@@ -21,3 +21,4 @@ export * from './db/feed.ts';
 export * from './db/offers.ts';
 export * from './db/daily.ts';
 export * from './db/library.ts';
+export * from './db/kitLikes.ts';

@@ -793,6 +793,12 @@ export type Database = {
         };
         Relationships: [];
       };
+      kit_likes: {
+        Row: { user_id: string; kit_id: string; created_at: string };
+        Insert: { user_id?: string; kit_id: string; created_at?: string };
+        Update: { user_id?: string; kit_id?: string; created_at?: string };
+        Relationships: [];
+      };
       watchlist: {
         Row: {
           created_at: string;
@@ -998,6 +1004,8 @@ export type Database = {
       library_clubs: { Args: never; Returns: PublicSchema['Tables']['kit_clubs']['Row'][] };
       library_kit_counts: { Args: never; Returns: { club_id: string; n: number }[] };
       library_kits: { Args: { p_club: string }; Returns: PublicSchema['Tables']['kits']['Row'][] };
+      feed_kits: { Args: { p_clubs: string[]; p_leagues: string[] }; Returns: { id: string; club_id: string; club_name: string; league: string; season: string; season_year: number; kind: string; variant: string; image_path: string | null }[] };
+      my_liked_kits: { Args: never; Returns: ({ id: string; club_id: string; club_name: string; league: string; season: string; season_year: number; kind: string; variant: string; image_path: string | null; liked_at: string })[] };
       set_favorite_club: { Args: { p_club: string | null }; Returns: undefined };
       my_club_kits: { Args: { p_club: string }; Returns: { kit_id: string; item_id: string }[] };
       daily_kit: {
