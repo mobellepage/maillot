@@ -127,7 +127,7 @@ for (const path of PATHS.filter((p) => p.startsWith('/shirt/'))) {
   const a = shirtArt(path.slice('/shirt/'.length));
   await shoot(
     `<div style="position:relative;width:1200px;height:630px;background:#FFFFFF;font-family:var(--font-sans);color:var(--text)">
-      <div style="position:absolute;left:0;top:0;width:600px;height:630px;background:radial-gradient(circle at 50% 50%,${a.glow} 0%,rgba(255,255,255,0) 62%),var(--surface);display:grid;place-items:center">${existsSync(`public/catalog/${a.id}.webp`) ? `<img src="/catalog/${a.id}.webp" alt="" style="width:470px;height:470px;object-fit:contain;filter:drop-shadow(0 24px 30px rgba(0,0,0,.18))">` : shirtBox(a, 520)}</div>
+      <div style="position:absolute;left:0;top:0;width:600px;height:630px;background:radial-gradient(circle at 50% 50%,${a.glow} 0%,rgba(255,255,255,0) 62%),var(--surface);display:grid;place-items:center">${a.photo ? `<img src="${a.photo.endsWith('.webp') ? a.photo : a.photo + '.webp'}" alt="" style="width:470px;height:470px;object-fit:contain;filter:drop-shadow(0 24px 30px rgba(0,0,0,.18))">` : shirtBox(a, 520)}</div>
       <div style="position:absolute;left:660px;top:64px">${logo}</div>
       <div style="position:absolute;left:660px;right:64px;top:200px">
         <div class="mono" style="font-size:20px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)">${a.brand} · ${a.season} · ${a.type}</div>

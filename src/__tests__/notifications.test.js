@@ -38,10 +38,10 @@ describe('localizeNotification', () => {
     expect(localizeNotification(n, t, money)).toEqual({ title: 'Ein gesuchtes Trikot ist im Angebot', body: 'Netherlands 1988 Home (M) ist jetzt für CHF 280 im Angebot.' });
   });
   it('tells members about offers and wanted shirts in collections', () => {
-    const offer = { title: 'New offer for your shirt', body: '…', data: { offer_id: 'o', catalog_id: 'ajx-95', size: 'M', amount: 175, handle: 'fan' } };
-    expect(localizeNotification(offer, t, money).body).toBe('@fan bietet CHF 175 für Ajax 1994/95 Home (M).');
-    const wanted = { title: 'A shirt you want is in a collection', body: '…', data: { handle: 'owner', catalog_id: 'ajx-95', size: 'M' } };
-    expect(localizeNotification(wanted, t, money)).toEqual({ title: 'Ein Wunschtrikot ist in einer Sammlung', body: '@owner hat Ajax 1994/95 Home (M) und ist offen für Angebote.' });
+    const offer = { title: 'New offer for your shirt', body: '…', data: { offer_id: 'o', catalog_id: 'juv-9697', size: 'M', amount: 175, handle: 'fan' } };
+    expect(localizeNotification(offer, t, money).body).toBe('@fan bietet CHF 175 für Juventus 1996/97 Home (M).');
+    const wanted = { title: 'A shirt you want is in a collection', body: '…', data: { handle: 'owner', catalog_id: 'juv-9697', size: 'M' } };
+    expect(localizeNotification(wanted, t, money)).toEqual({ title: 'Ein Wunschtrikot ist in einer Sammlung', body: '@owner hat Juventus 1996/97 Home (M) und ist offen für Angebote.' });
   });
   it('shows free text and unknown titles as sent', () => {
     expect(localizeNotification({ title: 'Dispute opened against your order', body: 'Never arrived', data: {} }, t, money)).toEqual({ title: 'Reklamation zu deiner Bestellung eröffnet', body: 'Never arrived' });

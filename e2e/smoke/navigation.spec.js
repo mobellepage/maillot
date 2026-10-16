@@ -16,17 +16,17 @@ test('home page starts with the search, then trending shirts @mobile', async ({ 
 
 test('search leads to a shareable product URL and Back works', async ({ page }) => {
   await page.goto('/');
-  await page.getByRole('combobox', { name: 'Search any shirt' }).fill('maradona');
+  await page.getByRole('combobox', { name: 'Search any shirt' }).fill('zidane');
   // Suggestions from the marketplace show while typing (the library needs the backend).
-  await expect(page.getByRole('option', { name: /Boca Juniors 1981 Home/ })).toBeVisible();
+  await expect(page.getByRole('option', { name: /France 1998 Home/ })).toBeVisible();
   await page.getByRole('button', { name: 'Search', exact: true }).click();
   // The search lives in the URL, so results are shareable.
-  await expect(page).toHaveURL(/\/market\?q=maradona$/);
-  await page.getByRole('link', { name: 'Boca Juniors 1981 Home' }).click();
-  await expect(page).toHaveURL(/\/shirt\/boc-81$/);
-  await expect(page).toHaveTitle(/^Boca Juniors 1981 Home/);
+  await expect(page).toHaveURL(/\/market\?q=zidane$/);
+  await page.getByRole('link', { name: 'France 1998 Home' }).click();
+  await expect(page).toHaveURL(/\/shirt\/fra-98$/);
+  await expect(page).toHaveTitle(/^France 1998 Home/);
   await page.goBack();
-  await expect(page).toHaveURL(/\/market\?q=maradona$/);
+  await expect(page).toHaveURL(/\/market\?q=zidane$/);
 });
 
 test('deep link to a product shows market value and an honest empty order book', async ({ page }) => {

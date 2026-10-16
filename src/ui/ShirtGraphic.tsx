@@ -37,9 +37,10 @@ export function ShirtGraphic({ pat, trim, crest, num, photo, view = 'front', her
     const width = Number.isFinite(pct) ? Math.min(100, Math.round(pct / 0.78)) + '%' : '100%';
     return (
       <img
-        src={photo + (hero ? '.webp' : '-400.webp')}
-        srcSet={`${photo}-400.webp 400w, ${photo}.webp 1000w`}
-        sizes={hero ? '(max-width: 900px) 100vw, 640px' : flat ? '120px' : '(max-width: 600px) 50vw, 320px'}
+        // A library picture is one file; a studio photo comes in two sizes.
+        {...(photo.endsWith('.webp')
+          ? { src: photo }
+          : { src: photo + (hero ? '.webp' : '-400.webp'), srcSet: `${photo}-400.webp 400w, ${photo}.webp 1000w`, sizes: hero ? '(max-width: 900px) 100vw, 640px' : flat ? '120px' : '(max-width: 600px) 50vw, 320px' })}
         alt={title ?? ''}
         loading={hero ? 'eager' : 'lazy'}
         decoding="async"

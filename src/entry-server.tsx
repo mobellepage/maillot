@@ -59,5 +59,6 @@ export function shirtArt(id: string) {
   const s = SHIRTS.find((x) => x.id === id);
   if (!s) throw new Error('unknown shirt ' + id);
   const html = renderToStaticMarkup(<ShirtGraphic hero pat={s.pat} trim={s.trim} crest={s.crest} />);
-  return { id: s.id, name: s.name, brand: s.brand, season: s.season, type: s.type, glow: s.glow, html };
+  // photo: the studio base path or a library picture (catalogPhotos.ts), for link previews.
+  return { id: s.id, name: s.name, brand: s.brand, season: s.season, type: s.type, glow: s.glow, html, photo: s.photo ?? null };
 }
