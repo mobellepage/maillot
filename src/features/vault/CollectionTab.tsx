@@ -8,6 +8,7 @@ import type { Photo } from '../../types/domain.ts';
 import { isCutout } from './addshirt/studio.ts';
 import { PhotoStrip } from './PhotoStrip.tsx';
 import { usePhotoUrls } from '../../lib/usePhotoUrls.ts';
+import { PendingPhotos } from './PendingPhotos.tsx';
 
 // The studio cut-out first, then the camera photos (front, back, details).
 const ORDER = ['front_studio', 'front', 'back'];
@@ -73,6 +74,8 @@ export function CollectionTab({ items, loading, error, onRetry }: { items: Custo
                 <div style={{ aspectRatio: '1/1.08', display: 'grid', placeItems: 'center', position: 'relative', background: `radial-gradient(circle at 50% 46%,${glow},rgba(0,0,0,0) 62%),var(--sunken)` }}>
                   {slides.length ? (
                     <PhotoStrip slides={slides} to={'/vault/item/' + c.id} label={name} prevLabel={t('common.scrollPrev')} nextLabel={t('common.scrollNext')} />
+                  ) : c.kitImage ? (
+                    <PendingPhotos src={c.kitImage} />
                   ) : (
                     <ShirtGraphic {...look} style={{ width: '66%' }} />
                   )}

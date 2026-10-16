@@ -41,6 +41,8 @@ export interface AddShirtForm {
   proposedClub: string;
   proposedSeason: string;
   proposedVariant: string;
+  /** The kit of the library chosen in the search, if any. */
+  kitId: string | null;
   searchQ: string;
   version: string;
   sizeGroup: string;
@@ -72,6 +74,7 @@ function emptyForm(): AddShirtForm {
     proposedClub: '',
     proposedSeason: '',
     proposedVariant: '',
+    kitId: null,
     searchQ: '',
     version: '',
     sizeGroup: 'Herren',

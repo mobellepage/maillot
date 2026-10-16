@@ -162,6 +162,8 @@ export type Database = {
       custom_items: {
         Row: {
           catalog_id: string | null;
+          kit_id: string | null;
+          kit_image: string | null;
           condition: Json | null;
           created_at: string;
           flock: Json | null;
@@ -191,6 +193,8 @@ export type Database = {
         };
         Insert: {
           catalog_id?: string | null;
+          kit_id?: string | null;
+          kit_image?: string | null;
           condition?: Json | null;
           created_at?: string;
           flock?: Json | null;
@@ -220,6 +224,8 @@ export type Database = {
         };
         Update: {
           catalog_id?: string | null;
+          kit_id?: string | null;
+          kit_image?: string | null;
           condition?: Json | null;
           created_at?: string;
           flock?: Json | null;
@@ -948,6 +954,8 @@ export type Database = {
           signature: Json | null;
           verification_level: string | null;
           inquiries_enabled: boolean;
+          /** The library picture of a shirt listed without photos. */
+          kit_image: string | null;
         }[];
       };
       top_collectors: { Args: { p_limit?: number }; Returns: { handle: string; avatar: string | null; shirts: number; followers: number; dealer: boolean }[] };

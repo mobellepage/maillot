@@ -104,6 +104,10 @@ export interface CustomItem {
   salePrice: string;
   /** Others may send a non-binding inquiry while the shirt is not for sale. */
   inquiriesEnabled?: boolean;
+  /** The kit of the library this shirt is (listed without photos, or named when adding). */
+  kitId?: string | null;
+  /** That kit's library picture (set by the server): shown until the owner adds photos. */
+  kitImage?: string | null;
   valuation: Valuation | null;
   initialValuation: Valuation | null;
   createdAt: number;

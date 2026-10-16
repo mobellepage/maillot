@@ -91,3 +91,6 @@ export function variantLabel(variant: string, t: (key: string) => string): strin
   if (!key) return variant;
   return t(key) + (m ? ' ' + m[2] : '');
 }
+
+/** How a kit's kind is written into a collection shirt's name (the library's matching reads it back). */
+export const KIND_WORD: Record<string, string> = { home: 'Home', away: 'Away', third: 'Third', fourth: 'Fourth', goalkeeper: 'Goalkeeper', cup: 'Cup', european: 'European', training: 'Training', special: 'Special' };

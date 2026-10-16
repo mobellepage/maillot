@@ -6,6 +6,7 @@ import { formatDate } from '../../lib/format.ts';
 import { usePageMeta } from '../../lib/meta.ts';
 import { usePrefs } from '../../lib/prefs.tsx';
 import { downloadVaultCard } from '../../utils/cardExport.js';
+import { PendingPhotos } from './PendingPhotos.tsx';
 import { Badge, Button, Card, ErrorState, KeyValueList, Notice, Page, ShirtGraphic, Skeleton, HEX, useConfirm } from '../../ui/index.ts';
 import { badgeFor, itemLook, itemName, valueOf } from './model.ts';
 import { VisibilityEditor } from './VisibilityEditor.tsx';
@@ -71,7 +72,7 @@ export default function VaultItemPage() {
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 28 }}>
         <div style={{ flex: '1 1 360px', minWidth: 0 }}>
           <div style={{ position: 'relative', aspectRatio: '1/1', borderRadius: 24, overflow: 'hidden', background: photo?.url && !isCutout(photo.key) ? `url(${photo.url}) center/cover` : `radial-gradient(circle at 50% 45%,${glow},rgba(0,0,0,0) 62%),var(--sunken)`, border: '1px solid var(--line)', display: 'grid', placeItems: 'center' }} role="img" aria-label={photo ? photo.label : name}>
-            {!photo?.url && <ShirtGraphic hero {...look} style={{ width: '58%' }} />}
+            {!photo?.url && (c.kitImage ? <PendingPhotos src={c.kitImage} /> : <ShirtGraphic hero {...look} style={{ width: '58%' }} />)}
             {photo?.url && isCutout(photo.key) && <img src={photo.url} alt="" className="shirt-photo" style={{ width: '86%', height: '86%', objectFit: 'contain' }} />}
             <Badge tone={badge.tone} title={t(badge.desc)} style={{ position: 'absolute', top: 14, left: 14 }}>
               {t(badge.label)}

@@ -16,6 +16,7 @@ import { Badge, EmptyState, ErrorState, HEX, Page, ShirtGraphic, Skeleton, alpha
 import { useCatalog } from '../catalog/useCatalog.ts';
 import { marketValue } from '../catalog/model.ts';
 import { OfferButton } from './OfferButton.tsx';
+import { PendingPhotos } from '../vault/PendingPhotos.tsx';
 import { InquiryButton } from './InquiryButton.tsx';
 import { isCutoutPath } from '../vault/addshirt/studio.ts';
 
@@ -80,6 +81,8 @@ export default function PublicShirtPage() {
               <img src={src} alt={current?.kind === 'back' ? t('pshirt.backPhoto') : name} className={isCutoutPath(current?.photo.path) ? 'shirt-photo' : undefined} style={isCutoutPath(current?.photo.path) ? { width: '86%', height: '86%', objectFit: 'contain' } : { width: '100%', height: '100%', objectFit: 'cover' }} />
             ) : photos.isLoading ? (
               <Skeleton height="100%" radius={0} />
+            ) : s.kit_image ? (
+              <PendingPhotos src={s.kit_image} />
             ) : (
               <ShirtGraphic hero pat={cat?.pat ?? HEX.placeholderPat} trim={cat?.trim ?? HEX.muted} crest={cat?.crest ?? HEX.muted} photo={cat?.photo} title={name} style={{ width: '66%' }} />
             )}

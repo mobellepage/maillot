@@ -13,6 +13,7 @@ import { marketValue } from '../catalog/model.ts';
 import { OfferButton } from './OfferButton.tsx';
 import { InquiryButton } from './InquiryButton.tsx';
 import { isCutoutPath } from '../vault/addshirt/studio.ts';
+import { PendingPhotos } from '../vault/PendingPhotos.tsx';
 
 const photoOf = (s: PublicShirt): Photo | undefined => (s.photo_path ? { path: s.photo_path, thumbPath: s.thumb_path ?? undefined } : undefined);
 
@@ -36,6 +37,8 @@ export function PublicCollection({ shirts, owner, canOffer }: { shirts: PublicSh
                 ) : (
                   <img src={src} alt="" loading="lazy" decoding="async" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                 )
+              ) : s.kit_image ? (
+                <PendingPhotos src={s.kit_image} />
               ) : (
                 <ShirtGraphic pat={cat?.pat ?? HEX.placeholderPat} trim={cat?.trim ?? HEX.muted} crest={cat?.crest ?? HEX.muted} photo={cat?.photo} style={{ width: '64%' }} />
               )}

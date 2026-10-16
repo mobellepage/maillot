@@ -101,6 +101,7 @@ export default function AddShirtPage() {
         proposedClub: f.proposedClub,
         proposedSeason: f.proposedSeason,
         proposedVariant: f.proposedVariant,
+        kitId: f.kitId,
         version: f.version,
         sizeGroup: f.sizeGroup,
         size: f.size,

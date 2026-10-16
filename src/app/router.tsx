@@ -8,6 +8,7 @@ import RouteError from './RouteError.tsx';
 import { RequireAuth } from './RequireAuth.tsx';
 import {
   AddShirtPage,
+  QuickAddPage,
   AdminPage,
   AuthenticationPage,
   BrowsePage,
@@ -85,6 +86,14 @@ export const routes: RouteObject[] = [
             element: (
               <RequireAuth>
                 <AddShirtPage />
+              </RequireAuth>
+            )
+          },
+          {
+            path: 'vault/add/library',
+            element: (
+              <RequireAuth>
+                <QuickAddPage />
               </RequireAuth>
             )
           },

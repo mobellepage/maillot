@@ -3,6 +3,7 @@ import React from 'react'; // test files are compiled with the classic JSX runti
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { MemoryRouter } from 'react-router';
 import { PrefsProvider } from '../lib/prefs.tsx';
 import { ScanStep } from '../features/vault/addshirt/ScanStep.tsx';
 
@@ -20,11 +21,13 @@ function setup(scan, form = {}, studio = 'idle', onStudioOff = () => {}) {
   const set = vi.fn();
   const w = { f: { photos: {}, catalogId: null, proposed: false, studioOff: false, scan, ...form }, set };
   render(
-    <QueryClientProvider client={new QueryClient()}>
-      <PrefsProvider>
-        <ScanStep w={w} busyKey={null} onScanFile={() => {}} valuation={{ blocked: false, low: 240, high: 320 }} studio={studio} onStudioOff={onStudioOff} />
-      </PrefsProvider>
-    </QueryClientProvider>
+    <MemoryRouter>
+      <QueryClientProvider client={new QueryClient()}>
+        <PrefsProvider>
+          <ScanStep w={w} busyKey={null} onScanFile={() => {}} valuation={{ blocked: false, low: 240, high: 320 }} studio={studio} onStudioOff={onStudioOff} />
+        </PrefsProvider>
+      </QueryClientProvider>
+    </MemoryRouter>
   );
   return set;
 }

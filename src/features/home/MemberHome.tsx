@@ -15,6 +15,7 @@ import { FavoriteClub } from '../library/FavoriteClub.tsx';
 import { itemLook, itemName, mainPhoto, valueOf } from '../vault/model.ts';
 import { weeklyMoves } from '../vault/moves.ts';
 import { useCollection } from '../vault/useCollection.ts';
+import { PendingPhotos } from '../vault/PendingPhotos.tsx';
 
 const card = { borderRadius: 24, padding: 'clamp(20px,2.4vw,28px)', display: 'flex', flexDirection: 'column', gap: 8, minWidth: 0 } as const;
 const kicker = { fontSize: 13, fontWeight: 650, color: 'var(--accent)' } as const;
@@ -90,7 +91,7 @@ function CollectionCard() {
             return (
               <li key={c.id}>
                 <Link to={'/vault/item/' + c.id} aria-label={itemName(c)} style={{ display: 'grid', placeItems: 'center', width: 64, height: 64, borderRadius: 14, overflow: 'hidden', background: `radial-gradient(circle,${glow},transparent 70%),var(--sunken)` }}>
-                  {src ? <img src={src} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <ShirtGraphic {...look} flat style={{ width: '82%' }} />}
+                  {src ? <img src={src} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : c.kitImage ? <PendingPhotos src={c.kitImage} compact /> : <ShirtGraphic {...look} flat style={{ width: '82%' }} />}
                 </Link>
               </li>
             );

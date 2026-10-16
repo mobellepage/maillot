@@ -8,6 +8,7 @@ export const SellPage = lazy(() => import('../features/sell/SellPage.tsx'));
 export const VaultPage = lazy(() => import('../features/vault/VaultPage.tsx'));
 export const VaultItemPage = lazy(() => import('../features/vault/VaultItemPage.tsx'));
 export const AddShirtPage = lazy(() => import('../features/vault/AddShirtPage.tsx'));
+export const QuickAddPage = lazy(() => import('../features/vault/QuickAddPage.tsx'));
 export const AdminPage = lazy(() => import('../features/admin/AdminPage.tsx'));
 export const SignInPage = lazy(() => import('../features/auth/SignInPage.tsx'));
 export const AuthenticationPage = lazy(() => import('../features/trust/AuthenticationPage.tsx'));

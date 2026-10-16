@@ -136,6 +136,11 @@ export default function ClubLibraryPage() {
                         {t('lib.searchMarket')} ›
                       </Link>
                     )}
+                    {k.image_path && (
+                      <Link to={'/vault/add/library?club=' + encodeURIComponent(club) + '&kit=' + k.id} aria-label={t('lib.haveItFor', { name: title })}>
+                        ✓ {t('lib.haveIt')}
+                      </Link>
+                    )}
                   </div>
                   {ownersOf.has(k.id) && <KitOwners owners={ownersOf.get(k.id)!} kitId={k.id} />}
                 </li>

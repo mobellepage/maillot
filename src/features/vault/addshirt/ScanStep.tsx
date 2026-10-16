@@ -5,6 +5,7 @@ import { BY } from '../../../data.ts';
 import { usePrefs } from '../../../lib/prefs.tsx';
 import { Badge, Button, Card, Notice } from '../../../ui/index.ts';
 import { useState } from 'react';
+import { Link } from 'react-router';
 import { GuidedCapture } from './GuidedCapture.tsx';
 import { PhotoInput, Section } from './parts.tsx';
 import type { Wizard } from './useAddShirtForm.ts';
@@ -90,6 +91,9 @@ export function ScanStep({ w, busyKey, onScanFile, valuation, studio, onStudioOf
             onClose={() => setFramed(false)}
           />
         )}
+        <p style={{ margin: '14px 0 0', fontSize: 13.5 }}>
+          <Link to="/vault/add/library">{t('qa.entry')} ›</Link>
+        </p>
         <div aria-live="polite" style={{ marginTop: 16 }}>
           {f.scan.status === 'idle' && !f.photos.front && !f.photos.product_code && <p style={{ fontSize: 13.5, color: 'var(--muted)' }}>{t('as.scan.idle')}</p>}
           {busy && (

@@ -33,6 +33,8 @@ function rowToCustomItem(r: Tables<'custom_items'>): CustomItem {
     salePrice: r.sale_price || '',
     // Set on its own (setInquiriesEnabled), never written back by an upsert.
     inquiriesEnabled: r.inquiries_enabled !== false,
+    kitId: r.kit_id ?? null,
+    kitImage: r.kit_image ?? null,
     valuation: fromJson(r.valuation, null),
     initialValuation: fromJson(r.initial_valuation, null),
     createdAt: new Date(r.created_at).getTime(),
@@ -66,6 +68,7 @@ function customItemToRow(userId: string, c: CustomItem) {
     sale_price: c.salePrice,
     valuation: toJson(c.valuation),
     initial_valuation: toJson(c.initialValuation),
+    kit_id: c.kitId ?? null,
     updated_at: new Date().toISOString()
   };
 }
