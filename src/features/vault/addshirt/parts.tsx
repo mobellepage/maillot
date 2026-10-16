@@ -25,13 +25,18 @@ export function Pills({ children }: { children: ReactNode }) {
   return <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 10 }}>{children}</div>;
 }
 
-export function PhotoInput({ data, busy, onFile, size = 84, label }: { data: Photo | undefined; busy: boolean; onFile: (file: File) => void; size?: number; label: string }) {
+/** A photo box. With `guided`, a tap opens the framed camera (GuidedCapture) instead of the file picker. */
+export function PhotoInput({ data, busy, onFile, size = 84, label, guided }: { data: Photo | undefined; busy: boolean; onFile: (file: File) => void; size?: number; label: string; guided?: (() => void) | undefined }) {
   const { t } = usePrefs();
   const warn = data && (data.lowRes || data.blurry || data.tooDark || data.tooBright);
   const src = usePhotoUrls([data], true)(data);
+  const Box = guided ? 'button' : 'label';
   return (
-    <label
+    <Box
+      {...(guided ? { type: 'button' as const, onClick: guided, 'aria-label': data ? `${t('as.photo.replace')}: ${label}` : label } : {})}
       style={{
+        padding: 0,
+        font: 'inherit',
         position: 'relative',
         flex: 'none',
         width: size,
@@ -46,17 +51,19 @@ export function PhotoInput({ data, busy, onFile, size = 84, label }: { data: Pho
       }}
     >
       {/* No capture attribute: phones offer camera *and* photo library. */}
-      <input
-        type="file"
-        accept="image/*"
-        className="sr-only"
-        aria-label={data ? `${t('as.photo.replace')}: ${label}` : label}
-        onChange={(e: ChangeEvent<HTMLInputElement>) => {
-          const file = e.target.files?.[0];
-          e.target.value = '';
-          if (file) onFile(file);
-        }}
-      />
+      {!guided && (
+        <input
+          type="file"
+          accept="image/*"
+          className="sr-only"
+          aria-label={data ? `${t('as.photo.replace')}: ${label}` : label}
+          onChange={(e: ChangeEvent<HTMLInputElement>) => {
+            const file = e.target.files?.[0];
+            e.target.value = '';
+            if (file) onFile(file);
+          }}
+        />
+      )}
       {!data && !busy && <span aria-hidden="true" style={{ fontSize: 22, color: 'var(--faint)' }}>+</span>}
       {busy && <span className="mono" style={{ fontSize: 10, color: 'var(--muted)' }}>…</span>}
       {data && !busy && (
@@ -66,15 +73,15 @@ export function PhotoInput({ data, busy, onFile, size = 84, label }: { data: Pho
           </svg>
         </span>
       )}
-    </label>
+    </Box>
   );
 }
 
-export function PhotoSlot({ spec, data, busy, onFile, onRemove }: { spec: { key: string; label: string; hint?: string }; data: Photo | undefined; busy: boolean; onFile: (f: File) => void; onRemove: () => void }) {
+export function PhotoSlot({ spec, data, busy, onFile, onRemove, guided }: { spec: { key: string; label: string; hint?: string }; data: Photo | undefined; busy: boolean; onFile: (f: File) => void; onRemove: () => void; guided?: (() => void) | undefined }) {
   const { t } = usePrefs();
   return (
     <div style={{ display: 'flex', gap: 14, alignItems: 'flex-start', padding: 14, borderRadius: 16, background: 'var(--surface)', border: '1px solid var(--line)' }}>
-      <PhotoInput data={data} busy={busy} onFile={onFile} label={spec.label} />
+      <PhotoInput data={data} busy={busy} onFile={onFile} label={spec.label} guided={guided} />
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ fontSize: 14, fontWeight: 600 }}>{spec.label}</div>
         {spec.hint && <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 2, lineHeight: 1.4 }}>{spec.hint}</div>}
@@ -85,7 +92,7 @@ export function PhotoSlot({ spec, data, busy, onFile, onRemove }: { spec: { key:
             {data.blurry && <span className="badge badge--warn">{t('as.p.blurry')}</span>}
             {data.tooDark && <span className="badge badge--warn">{t('as.p.dark')}</span>}
             {data.tooBright && <span className="badge badge--warn">{t('as.p.bright')}</span>}
-            <button type="button" className="link-btn link-btn--muted" onClick={onRemove} style={{ fontSize: 11, textDecoration: 'underline' }}>
+            <button type="button" className="link-btn link-btn--muted" onClick={guided ?? onRemove} style={{ fontSize: 11, textDecoration: 'underline' }}>
               {t('as.p.retake')}
             </button>
           </div>

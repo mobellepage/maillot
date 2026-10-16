@@ -16,28 +16,7 @@ export function IdentifyStep({ f }: { f: SellFlow }) {
 
   return (
     <div style={{ display: 'flex', flexWrap: 'wrap', gap: 24, alignItems: 'flex-start' }}>
-      <Card style={{ flex: '1 1 440px', minWidth: 0 }}>
-        <h2 className="display display--sm">{t('sell.which')}</h2>
-        <p style={{ fontSize: 14, color: 'var(--text-2)', margin: '8px 0 18px' }}>{t('sell.whichBody')}</p>
-        <SearchField srLabel={t('sell.searchLabel')} placeholder={t('sell.searchPlaceholder')} value={q} onChange={(e) => setQ(e.target.value)} autoFocus />
-        <div style={{ marginTop: 10 }}>
-          {hits.map((s) => (
-            <ShirtPickRow key={s.id} s={s} onPick={f.pick} />
-          ))}
-          {q.trim() && !hits.length && <p style={{ padding: '14px 4px', margin: 0, fontSize: 14, color: 'var(--muted)' }}>{t('sell.noMatch')}</p>}
-          {!q.trim() && (
-            <>
-              <div className="mono" style={{ fontSize: 11, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--muted)', margin: '12px 4px 4px' }}>
-                {t('sell.inDemand')}
-              </div>
-              {trendingByMarket(6).map((s) => (
-                <ShirtPickRow key={s.id} s={s} onPick={f.pick} />
-              ))}
-            </>
-          )}
-        </div>
-      </Card>
-
+      {/* The photo comes first; searching by name is the fallback below it. */}
       <div style={{ flex: '1 1 340px', minWidth: 0, display: 'flex', flexDirection: 'column', gap: 16 }}>
         <label
           style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 12, minHeight: 280, borderRadius: 24, overflow: 'hidden', border: '1.5px dashed rgba(75,255,139,0.45)', background: 'radial-gradient(circle at 50% 40%,rgba(75,255,139,0.08),rgba(0,0,0,0) 60%),var(--sunken)', cursor: reading ? 'progress' : 'pointer', textAlign: 'center', padding: 24 }}
@@ -77,6 +56,28 @@ export function IdentifyStep({ f }: { f: SellFlow }) {
         )}
         {f.scan.status === 'done' && f.scan.message && <Notice tone="warn">{t(f.scan.message)}</Notice>}
       </div>
+      <Card style={{ flex: '1 1 440px', minWidth: 0 }}>
+        <h2 className="display display--sm">{t('sell.which')}</h2>
+        <p style={{ fontSize: 14, color: 'var(--text-2)', margin: '8px 0 18px' }}>{t('sell.whichBody')}</p>
+        <SearchField srLabel={t('sell.searchLabel')} placeholder={t('sell.searchPlaceholder')} value={q} onChange={(e) => setQ(e.target.value)} />
+        <div style={{ marginTop: 10 }}>
+          {hits.map((s) => (
+            <ShirtPickRow key={s.id} s={s} onPick={f.pick} />
+          ))}
+          {q.trim() && !hits.length && <p style={{ padding: '14px 4px', margin: 0, fontSize: 14, color: 'var(--muted)' }}>{t('sell.noMatch')}</p>}
+          {!q.trim() && (
+            <>
+              <div className="mono" style={{ fontSize: 11, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--muted)', margin: '12px 4px 4px' }}>
+                {t('sell.inDemand')}
+              </div>
+              {trendingByMarket(6).map((s) => (
+                <ShirtPickRow key={s.id} s={s} onPick={f.pick} />
+              ))}
+            </>
+          )}
+        </div>
+      </Card>
+
     </div>
   );
 }

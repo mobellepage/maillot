@@ -13,8 +13,8 @@ import { ClubPicker } from '../daily/ClubPicker.tsx';
 import { ClubBand } from './ClubBand.tsx';
 import { KIT_KINDS, variantLabel } from './model.ts';
 
-/** Shown before "show all" (about three rows on a phone). */
-const FIRST = 24;
+/** One round picture with its gap: folded, the list shows a single row of them. */
+const ROW = 52 + 2 * 6;
 const GOLD = '#D4A72C';
 
 export function FavoriteClub() {
@@ -66,8 +66,8 @@ export function FavoriteClub() {
   const list = [...(kits.data ?? [])].sort((a, b) => b.season_year - a.season_year || b.season.localeCompare(a.season) || order(a.kind) - order(b.kind) || a.variant.localeCompare(b.variant));
   const owned = new Set((mine.data ?? []).map((m) => m.kit_id));
   const have = list.filter((k) => owned.has(k.id)).length;
-  // Owned kits always show, even when the list is folded.
-  const shown = all ? list : list.filter((k, i) => i < FIRST || owned.has(k.id));
+  // Folded: one row, the kits in the collection first.
+  const shown = all ? list : [...list.filter((k) => owned.has(k.id)), ...list.filter((k) => !owned.has(k.id))];
 
   return (
     <section aria-labelledby="fav-title" className="card" style={{ padding: 'clamp(18px,2.4vw,26px)', borderRadius: 24 }}>
@@ -87,7 +87,7 @@ export function FavoriteClub() {
           <div style={{ width: (list.length ? (have / list.length) * 100 : 0) + '%', height: '100%', background: GOLD, borderRadius: 6 }} />
         </div>
       )}
-      <ul aria-label={t('fav.kits', { club: club?.name ?? '' })} style={{ listStyle: 'none', padding: 0, margin: '14px 0 0', display: 'flex', flexWrap: 'wrap', gap: 10 }}>
+      <ul aria-label={t('fav.kits', { club: club?.name ?? '' })} style={{ listStyle: 'none', padding: 6, margin: '8px -6px 0', display: 'flex', flexWrap: 'wrap', gap: 10, ...(all ? {} : { maxHeight: ROW, overflow: 'hidden' }) }}>
         {shown.map((k) => {
           const has = owned.has(k.id);
           const variant = variantLabel(k.variant, t);
@@ -120,9 +120,9 @@ export function FavoriteClub() {
           );
         })}
       </ul>
-      {list.length > shown.length && (
-        <button type="button" className="link-btn" style={{ marginTop: 12, fontSize: 13.5, fontWeight: 650 }} onClick={() => setAll(true)}>
-          {t('fav.showAll', { n: list.length })}
+      {list.length > 0 && (
+        <button type="button" className="link-btn" aria-expanded={all} style={{ marginTop: 8, fontSize: 13.5, fontWeight: 650 }} onClick={() => setAll((v) => !v)}>
+          {all ? t('fav.showLess') : t('fav.showAll', { n: list.length })}
         </button>
       )}
     </section>

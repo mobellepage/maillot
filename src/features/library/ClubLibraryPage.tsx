@@ -127,11 +127,16 @@ export default function ClubLibraryPage() {
                     </div>
                   )}
                   {k.note && <div style={{ fontSize: 12.5, color: 'var(--text-2)', marginTop: 4, lineHeight: 1.4 }}>{k.note}</div>}
-                  {s && (
-                    <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 8, fontSize: 12.5 }}>
+                  {/* Offers for this kit from every seller: the catalogue shirt when there is one, else a market search. */}
+                  <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 8, fontSize: 12.5 }}>
+                    {s ? (
                       <Link to={'/shirt/' + s.id}>{t('lib.toMarket')}</Link>
-                    </div>
-                  )}
+                    ) : (
+                      <Link to={'/market?q=' + encodeURIComponent(`${c?.name ?? ''} ${k.season}`.trim())} aria-label={t('lib.searchMarketFor', { name: title })}>
+                        {t('lib.searchMarket')} ›
+                      </Link>
+                    )}
+                  </div>
                   {ownersOf.has(k.id) && <KitOwners owners={ownersOf.get(k.id)!} kitId={k.id} />}
                 </li>
               );

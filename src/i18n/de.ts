@@ -1658,8 +1658,6 @@ export const de: Messages = {
   'auth.withGoogle': 'Weiter mit Google',
   'auth.socialFailed': 'Anmeldung konnte nicht gestartet werden. Bitte versuche es erneut oder nutze deine E-Mail.',
   'gc.flatHint': 'Flach hinlegen · Ärmel ausbreiten · Rahmen füllen',
-  'as.scan.framed': 'Vorderseite im Rahmen fotografieren',
-  'as.scan.framedHint': 'Mit dem Rahmen sehen alle Trikots in deiner Sammlung einheitlich aus — flach, mittig, ganz im Bild.',
   'rail.label': 'Tägliche Extras',
   'rail.daily': 'Trikot-Rätsel',
   'rail.library': 'Trikot-Bibliothek',
@@ -1759,5 +1757,8 @@ export const de: Messages = {
   'feed.library': 'Aus der Trikot-Bibliothek',
   'wish.kits': 'Gemerkte Trikots ({n})',
   'wish.unlike': '{name} von der Wunschliste nehmen',
+  'fav.showLess': 'Weniger anzeigen',
+  'lib.searchMarket': 'Im Markt suchen',
+  'lib.searchMarketFor': 'Im Markt suchen: {name}',
   // @@end
 };

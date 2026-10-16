@@ -71,15 +71,12 @@ export function ScanStep({ w, busyKey, onScanFile, valuation, studio, onStudioOf
         <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap' }}>
           {(['front', 'product_code'] as const).map((key) => (
             <div key={key} style={{ display: 'grid', justifyItems: 'center', gap: 6 }}>
-              <PhotoInput size={112} data={f.photos[key]} busy={busyKey === key} onFile={(file) => onScanFile(key, file)} label={t(key === 'front' ? 'as.scan.front' : 'as.scan.label')} />
+              {/* The front is always taken in the frame, so every collection photo looks alike. */}
+              <PhotoInput size={112} data={f.photos[key]} busy={busyKey === key} onFile={(file) => onScanFile(key, file)} label={t(key === 'front' ? 'as.scan.front' : 'as.scan.label')} guided={key === 'front' ? () => setFramed(true) : undefined} />
               <span style={{ fontSize: 12.5, color: 'var(--text-2)' }}>{t(key === 'front' ? 'as.scan.front' : 'as.scan.label')}</span>
             </div>
           ))}
         </div>
-        <Button size="sm" variant="secondary" onClick={() => setFramed(true)} style={{ marginTop: 12 }}>
-          {t('as.scan.framed')}
-        </Button>
-        <p style={{ fontSize: 12.5, color: 'var(--muted)', margin: '6px 0 0', lineHeight: 1.45 }}>{t('as.scan.framedHint')}</p>
         {framed && (
           <GuidedCapture
             specs={[{ key: 'front', label: t('as.scan.front'), hint: t('gc.flatHint') }]}

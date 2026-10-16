@@ -11,13 +11,15 @@ import type { Wizard } from './useAddShirtForm.ts';
 
 export function PhotosStep({ w, busyKey, onPhoto }: { w: Wizard; busyKey: string | null; onPhoto: (spec: { key: string; label: string }, f: File) => Promise<Photo | null> }) {
   const [guided, setGuided] = useState(false);
+  // Front and back are always taken in the shirt frame.
+  const [framed, setFramed] = useState<{ key: string; label: string; hint?: string } | null>(null);
   const { t } = usePrefs();
   const specs = buildPhotoSpecs(w.f, t) as { key: string; label: string; hint?: string; required: boolean }[];
   const required = specs.filter((s) => s.required);
   const extras = specs.filter((s) => !s.required);
   const done = required.filter((s) => w.f.photos[s.key]).length;
   const slot = (spec: (typeof specs)[number]) => (
-    <PhotoSlot key={spec.key} spec={spec} data={w.f.photos[spec.key]} busy={busyKey === spec.key} onFile={(file) => onPhoto(spec, file)} onRemove={() => w.removePhoto(spec.key)} />
+    <PhotoSlot key={spec.key} spec={spec} data={w.f.photos[spec.key]} busy={busyKey === spec.key} onFile={(file) => onPhoto(spec, file)} onRemove={() => w.removePhoto(spec.key)} guided={spec.key === 'front' || spec.key === 'back' ? () => setFramed(spec) : undefined} />
   );
   return (
     <div>
@@ -31,6 +33,19 @@ export function PhotosStep({ w, busyKey, onPhoto }: { w: Wizard; busyKey: string
         </Card>
       )}
       {guided && <GuidedCapture specs={required} photos={w.f.photos} startKey={null} onShot={onPhoto} onClose={() => setGuided(false)} />}
+      {framed && (
+        <GuidedCapture
+          specs={[framed]}
+          photos={w.f.photos}
+          startKey={framed.key}
+          onShot={async (spec, file) => {
+            const p = await onPhoto(spec, file);
+            setFramed(null);
+            return p;
+          }}
+          onClose={() => setFramed(null)}
+        />
+      )}
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 18 }}>
         <div role="progressbar" aria-valuemin={0} aria-valuemax={required.length} aria-valuenow={done} aria-label={t('as.p.progress')} style={{ flex: 1, height: 6, borderRadius: 6, background: 'rgba(255,255,255,0.08)', overflow: 'hidden' }}>
           <div style={{ height: '100%', width: (done / required.length) * 100 + '%', background: 'var(--accent-fill)', transition: 'width .3s' }} />

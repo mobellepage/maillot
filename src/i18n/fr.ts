@@ -1658,8 +1658,6 @@ export const fr: Messages = {
   'auth.withGoogle': 'Continuer avec Google',
   'auth.socialFailed': 'Impossible de lancer la connexion. Réessaie ou utilise ton e-mail.',
   'gc.flatHint': 'À plat · manches écartées · remplis le cadre',
-  'as.scan.framed': 'Photographier le devant dans le cadre',
-  'as.scan.framedHint': 'Avec le cadre, tous les maillots de ta collection se ressemblent — à plat, centrés, entiers.',
   'rail.label': 'Les extras du jour',
   'rail.daily': 'Devinette maillot',
   'rail.library': 'Bibliothèque de maillots',
@@ -1759,5 +1757,8 @@ export const fr: Messages = {
   'feed.library': 'De la bibliothèque',
   'wish.kits': 'Maillots aimés ({n})',
   'wish.unlike': 'Retirer {name} de ta liste',
+  'fav.showLess': 'Afficher moins',
+  'lib.searchMarket': 'Chercher sur le marché',
+  'lib.searchMarketFor': 'Chercher sur le marché : {name}',
   // @@end
 };

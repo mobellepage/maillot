@@ -1657,8 +1657,6 @@ export const en = {
   'auth.withGoogle': 'Continue with Google',
   'auth.socialFailed': 'Couldn’t start the sign-in. Please try again or use your email.',
   'gc.flatHint': 'Lay it flat · spread the sleeves · fill the frame',
-  'as.scan.framed': 'Photograph the front in the frame',
-  'as.scan.framedHint': 'With the frame every shirt in your collection looks alike — flat, centred, the whole shirt in view.',
   'rail.label': 'Daily features',
   'rail.daily': 'Daily shirt puzzle',
   'rail.library': 'Kit library',
@@ -1758,6 +1756,9 @@ export const en = {
   'feed.library': 'From the kit library',
   'wish.kits': 'Kits you liked ({n})',
   'wish.unlike': 'Remove {name} from your wishlist',
+  'fav.showLess': 'Show fewer',
+  'lib.searchMarket': 'Search the market',
+  'lib.searchMarketFor': 'Search the market for {name}',
   // @@end
 };
 

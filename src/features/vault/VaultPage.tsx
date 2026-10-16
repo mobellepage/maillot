@@ -25,10 +25,12 @@ import { SITE_URL, shareOrigin } from '../../config/site.ts';
 import { mainColor, renderCard, shareCard } from './shareCard.ts';
 import { Avatar } from '../avatars/Avatar.tsx';
 import { FREE_SHIRT_LIMIT } from '../../config/plans.ts';
-import { LevelCard } from '../levels/LevelBadge.tsx';
+import { LevelBadge, LevelCard } from '../levels/LevelBadge.tsx';
 import { FavoriteClub } from '../library/FavoriteClub.tsx';
 
 type Tab = 'collection' | 'watchlist' | 'orders';
+/** Sharing the collection (link and picture) is switched off for now. */
+const SHARING = false;
 const TITLES = { collection: 'vault.title.collection', watchlist: 'vault.title.watchlist', orders: 'vault.title.orders' } as const;
 
 export default function VaultPage({ tab }: { tab: Tab }) {
@@ -43,6 +45,7 @@ export default function VaultPage({ tab }: { tab: Tab }) {
   const kitLikes = useKitLikes();
   const orders = useOrders(!!user);
   const watched = watch.ids.map((id) => getShirt(id)).filter((s) => !!s);
+  const totalValue = items.reduce((a, c) => a + (valueOf(c) ?? 0), 0);
 
   const share = () => {
     const payload = {
@@ -123,7 +126,8 @@ export default function VaultPage({ tab }: { tab: Tab }) {
           <h1 className="display" style={{ fontSize: 'clamp(32px,4vw,48px)', lineHeight: 1 }}>
             {t('vault.title.collection')}
           </h1>
-          <div style={{ fontSize: 14, color: 'var(--muted)', marginTop: 6 }}>
+          <div style={{ fontSize: 14, color: 'var(--muted)', marginTop: 6, display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+            {!loading && <LevelBadge shirts={items.length} value={totalValue} />}
             {handle ?? <Link to="/welcome?step=username">{t('vault.chooseHandle')}</Link>}
             {since && ' · ' + t('vault.memberSince', { date: since })}
           </div>
@@ -142,19 +146,24 @@ export default function VaultPage({ tab }: { tab: Tab }) {
             </Badge>
           )}
         </div>
-        <Button variant="ghost" onClick={share} disabled={!items.length}>
-          {t('vault.share')}
-        </Button>
-        <Button variant="secondary" onClick={shareImage} disabled={!items.length}>
-          {t('vault.shareImage')}
-        </Button>
+        {SHARING && (
+          <>
+            <Button variant="ghost" onClick={share} disabled={!items.length}>
+              {t('vault.share')}
+            </Button>
+            <Button variant="secondary" onClick={shareImage} disabled={!items.length}>
+              {t('vault.shareImage')}
+            </Button>
+          </>
+        )}
         <ButtonLink to={full ? '/premium' : '/vault/add'}>{t('vault.add')}</ButtonLink>
       </div>
 
-      <div style={{ marginTop: 24 }}>
+      {/* The collector's level first, then the favourite team's checklist. */}
+      {!loading && !error && <LevelCard shirts={items.length} value={totalValue} />}
+      <div style={{ marginTop: 16 }}>
         <FavoriteClub />
       </div>
-      {!loading && !error && <LevelCard shirts={items.length} value={items.reduce((a, c) => a + (valueOf(c) ?? 0), 0)} />}
 
       <nav aria-label={t('vault.sections')} style={{ display: 'flex', gap: 28, marginTop: 32, borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
         {tabs.map(([k, label, n]) => (
