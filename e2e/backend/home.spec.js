@@ -41,5 +41,5 @@ test('Discover shows other collectors to follow', async ({ page }) => {
   const section = page.getByRole('region', { name: 'Collections to discover' });
   await expect(section.getByRole('link', { name: /@zurich_kits/ }).first()).toBeVisible();
   // Visitors are asked to sign in to follow.
-  await expect(section.getByRole('link', { name: 'Follow' }).first()).toHaveAttribute('href', /signin/);
+  await expect(section.getByRole('link', { name: 'Follow', exact: true }).first()).toHaveAttribute('href', '/signin');
 });
