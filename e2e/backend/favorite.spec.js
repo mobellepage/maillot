@@ -29,7 +29,7 @@ test('picking a favourite team shows its kits, the owned one lit up', async ({ p
   await expect(strip).toBeVisible();
   await expect(strip.getByRole('link', { name: /1994\/95 · Home — in your collection/ }), (await strip.innerHTML()).slice(0, 900)).toHaveCount(1);
 
-  // It follows to the home page cockpit.
-  await page.goto('/');
+  // It stays on My collection (Discover doesn't show your own data).
+  await page.reload();
   await expect(page.getByRole('heading', { name: '⭐ Ajax' })).toBeVisible();
 });

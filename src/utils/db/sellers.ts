@@ -88,6 +88,22 @@ export async function loadTopCollectors(limit = 10): Promise<TopCollector[]> {
   return data ?? [];
 }
 
+/** One shirt of a collector's peek on the Discover page. */
+export interface CollectorPreview {
+  id: string;
+  catalog_id: string | null;
+  thumb_path: string | null;
+  kit_image: string | null;
+}
+export type DiscoverCollector = Omit<RpcReturns<'discover_collectors'>[number], 'preview'> & { preview: CollectorPreview[] };
+
+/** A random handful of other collectors with a peek at their collection. */
+export async function loadDiscoverCollectors(limit = 8): Promise<DiscoverCollector[]> {
+  const { data, error } = await (await sb()).rpc('discover_collectors', { p_limit: limit });
+  if (error) throw error;
+  return (data ?? []).map((r) => ({ ...r, preview: (Array.isArray(r.preview) ? r.preview : []) as unknown as CollectorPreview[] }));
+}
+
 /** Admins: dealers and members on their own commission rate. */
 export async function loadDealers(): Promise<Dealer[]> {
   const { data, error } = await (await sb()).rpc('admin_dealers');

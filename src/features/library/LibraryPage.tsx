@@ -2,7 +2,7 @@
 // each with its kits season by season. For inspiration: which shirt do I
 // want next?
 import { useState } from 'react';
-import { Link } from 'react-router';
+import { Link, useSearchParams } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
 import { usePageMeta } from '../../lib/meta.ts';
 import { usePrefs } from '../../lib/prefs.tsx';
@@ -21,7 +21,10 @@ export default function LibraryPage() {
   usePageMeta(t('lib.meta'), t('lib.metaDesc'));
   const clubs = useQuery({ queryKey: ['kitClubs'], queryFn: db.loadKitClubs, staleTime: 10 * 60_000 });
   const counts = useQuery({ queryKey: ['kitCounts'], queryFn: db.loadKitCounts, staleTime: 5 * 60_000 });
-  const [league, setLeague] = useState<string>(TOP5[0]);
+  // ?league=… (the Discover page's categories) opens that tab.
+  const [params] = useSearchParams();
+  const asked = params.get('league');
+  const [league, setLeague] = useState<string>(asked && [...TABS, OTHER].includes(asked) ? asked : TOP5[0]);
   const [q, setQ] = useState('');
 
   const needle = q.trim().toLowerCase();

@@ -958,6 +958,10 @@ export type Database = {
           kit_image: string | null;
         }[];
       };
+      discover_collectors: {
+        Args: { p_limit?: number };
+        Returns: { handle: string; avatar: string | null; shirts: number; followers: number; dealer: boolean; is_following: boolean; preview: Json }[];
+      };
       top_collectors: { Args: { p_limit?: number }; Returns: { handle: string; avatar: string | null; shirts: number; followers: number; dealer: boolean }[] };
       make_inquiry: { Args: { p_item_id: string; p_amount?: number | null; p_message?: string | null }; Returns: string };
       answer_inquiry: { Args: { p_id: string; p_reply: string }; Returns: undefined };

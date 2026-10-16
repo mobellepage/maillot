@@ -14,7 +14,7 @@ test('the home search finds library kits and jumps to the season', async ({ page
   await expect(page.getByRole('heading', { name: '2006/07' })).toBeInViewport();
 });
 
-test('signed in, the home page is the member cockpit', async ({ page }) => {
+test('signed in, Discover is for discovering', async ({ page }) => {
   await page.goto('/signin');
   await page.getByLabel(/email/i).fill('buyer@maillot.test');
   await page.getByLabel(/password|passwort/i).fill(PASSWORD);
@@ -23,9 +23,23 @@ test('signed in, the home page is the member cockpit', async ({ page }) => {
 
   await page.goto('/');
   await expect(page.getByRole('heading', { level: 1 })).toHaveText(/^(Hi @|Welcome back)/);
-  await expect(page.getByText('Your collection', { exact: true })).toBeVisible();
+  await expect(page.getByRole('combobox', { name: 'Search any shirt' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Find kits by league' })).toBeVisible();
   await expect(page.getByRole('link', { name: /Puzzle #\d+ · today/ })).toBeVisible();
-  await expect(page.getByRole('navigation', { name: 'Explore' }).getByRole('link', { name: /Kit library/ })).toBeVisible();
-  // No pitch for members.
+  // Not the member's own data: that lives on My collection.
+  await expect(page.getByText('Your collection', { exact: true })).toHaveCount(0);
   await expect(page.getByRole('heading', { name: 'Which shirt do you have – or want?' })).toHaveCount(0);
+
+  // A category opens the library on that league.
+  await page.getByRole('link', { name: 'La Liga', exact: true }).click();
+  await expect(page).toHaveURL(/\/library\?league=La%20Liga$/);
+  await expect(page.getByRole('button', { name: 'La Liga', exact: true })).toHaveAttribute('aria-pressed', 'true');
+});
+
+test('Discover shows other collectors to follow', async ({ page }) => {
+  await page.goto('/');
+  const section = page.getByRole('region', { name: 'Collections to discover' });
+  await expect(section.getByRole('link', { name: /@zurich_kits/ }).first()).toBeVisible();
+  // Visitors are asked to sign in to follow.
+  await expect(section.getByRole('link', { name: 'Follow' }).first()).toHaveAttribute('href', '/signin');
 });

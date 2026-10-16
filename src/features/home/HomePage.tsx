@@ -1,6 +1,8 @@
-// The home page is the app, not a teaser. Visitors start with the search
-// ("which shirt do you have, or want?") and the live market; the pitch
-// comes last. Members get their cockpit instead, then their wishlist.
+// Discover — the app, not a teaser. Search first, then the library's leagues
+// as categories, other collectors' collections to follow, today's puzzle and
+// the market. Visitors get the pitch at the very end; members get their
+// wishlist and recommendations instead (their own collection lives on My
+// collection).
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router';
 import { useCatalog } from '../catalog/useCatalog.ts';
@@ -13,6 +15,8 @@ import { ShirtGrid, ShirtRow } from '../catalog/ShirtGrid.tsx';
 import { useCollection } from '../vault/useCollection.ts';
 import { useWatchlist } from '../watchlist/useWatchlist.ts';
 import { Hero } from './Hero.tsx';
+import { Categories } from './Categories.tsx';
+import { DiscoverCollectors } from './DiscoverCollectors.tsx';
 import { HomeBento } from './HomeBento.tsx';
 import { HomePlay } from './HomePlay.tsx';
 import { MemberHome } from './MemberHome.tsx';
@@ -53,7 +57,9 @@ function VisitorPage() {
   return (
     <main id="main" style={{ animation: 'kvIn .45s ease both' }}>
       <Hero />
+      <Categories />
       <Trending shirts={trending} grid />
+      <DiscoverCollectors />
       <HomePlay />
       <HomeBento />
       <SecondLife />
@@ -78,6 +84,9 @@ function MemberPage() {
   return (
     <main id="main" style={{ animation: 'kvIn .45s ease both' }}>
       <MemberHome />
+      <Categories />
+      <DiscoverCollectors />
+      <HomePlay />
       {wanted.length > 0 && (
         <section aria-labelledby="wish-title" style={section}>
           <SectionHeader
