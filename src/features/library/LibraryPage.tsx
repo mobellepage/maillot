@@ -85,7 +85,7 @@ export default function LibraryPage() {
           return (
             <section key={id} aria-labelledby={id} style={{ marginTop: 26, scrollMarginTop: 90 }}>
               <h2 id={id} className="title" style={{ margin: 0 }}>
-                {r ? t('lib.region.' + r) : t('lib.other')} <span style={{ color: 'var(--muted)', fontWeight: 500, fontSize: '0.75em' }}>{nations.length}</span>
+                {r ? t('lib.region.' + r) : t('lib.region.other')} <span style={{ color: 'var(--muted)', fontWeight: 500, fontSize: '0.75em' }}>{nations.length}</span>
               </h2>
               <ClubGrid clubs={nations} counts={counts.data} />
             </section>

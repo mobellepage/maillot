@@ -1903,6 +1903,7 @@ export const en = {
   'news.source': 'Headlines and links from {source}',
   'news.read': 'Read on {source}',
   'news.kit': '{club} kit in the library',
+  'lib.region.other': 'Other select teams',
   // @@end
 };
 

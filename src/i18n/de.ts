@@ -1904,5 +1904,6 @@ export const de: Messages = {
   'news.source': 'Schlagzeilen und Links von {source}',
   'news.read': 'Auf {source} lesen',
   'news.kit': '{club}-Trikot in der Bibliothek',
+  'lib.region.other': 'Weitere Auswahlteams',
   // @@end
 };
