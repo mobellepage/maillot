@@ -1836,3 +1836,15 @@ html:not([data-theme='light']) .store-badge > img {
   font-size: 12px;
   font-weight: 700;
 }
+
+/* "Add to my collection" under a library kit: wraps on narrow cards. */
+.kit-add-btn {
+  height: auto;
+  min-height: 38px;
+  padding: 8px 12px;
+  white-space: normal;
+  line-height: 1.25;
+  text-align: center;
+  font-size: 13px;
+  color: var(--text);
+}

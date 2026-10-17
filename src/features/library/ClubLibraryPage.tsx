@@ -117,7 +117,7 @@ export default function ClubLibraryPage() {
               const variant = variantLabel(k.variant, t);
               const title = `${c?.name ?? ''} ${k.season} ${t('lib.kind.' + k.kind)}${variant ? ' · ' + variant : ''}`;
               return (
-                <li key={k.id} className="card" style={{ padding: 12, borderRadius: 18 }}>
+                <li key={k.id} className="card" style={{ padding: 12, borderRadius: 18, display: 'flex', flexDirection: 'column' }}>
                   <div style={{ aspectRatio: '1/1', borderRadius: 14, background: 'var(--kit-tile)', display: 'grid', placeItems: 'center', overflow: 'hidden' }}>
                     {k.image_path ? (
                       <img src={k.image_path} alt={title} loading="lazy" decoding="async" style={{ width: '88%', height: '88%', objectFit: 'contain' }} />
@@ -147,16 +147,19 @@ export default function ClubLibraryPage() {
                       </Link>
                     )}
                   </div>
-                  {k.image_path &&
-                    (user ? (
-                      <button type="button" className="btn btn--secondary btn--sm btn--block" onClick={() => setAdding(k)} aria-label={t('lib.addToCollectionFor', { name: title })} style={{ marginTop: 10, color: 'var(--text)' }}>
-                        + {t('lib.addToCollection')}
-                      </button>
-                    ) : (
-                      <Link to="/signin" state={{ from: `/library/${club}?add=${k.id}`, notice: 'lib.signInToAdd' }} className="btn btn--secondary btn--sm btn--block" aria-label={t('lib.addToCollectionFor', { name: title })} style={{ marginTop: 10, color: 'var(--text)' }}>
-                        + {t('lib.addToCollection')}
-                      </Link>
-                    ))}
+                  {k.image_path && (
+                    <div style={{ marginTop: 'auto', paddingTop: 10 }}>
+                      {user ? (
+                        <button type="button" className="btn btn--secondary btn--sm btn--block kit-add-btn" onClick={() => setAdding(k)} aria-label={t('lib.addToCollectionFor', { name: title })}>
+                          + {t('lib.addToCollection')}
+                        </button>
+                      ) : (
+                        <Link to="/signin" state={{ from: `/library/${club}?add=${k.id}`, notice: 'lib.signInToAdd' }} className="btn btn--secondary btn--sm btn--block kit-add-btn" aria-label={t('lib.addToCollectionFor', { name: title })}>
+                          + {t('lib.addToCollection')}
+                        </Link>
+                      )}
+                    </div>
+                  )}
                   {ownersOf.has(k.id) && <KitOwners owners={ownersOf.get(k.id)!} kitId={k.id} />}
                 </li>
               );
