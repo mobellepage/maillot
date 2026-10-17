@@ -33,6 +33,8 @@ import {
   ClubLibraryPage,
   EraPage,
   LegendPage,
+  DesignerPage,
+  DesignPage,
   ReturnPage,
   AccountPage,
   ResetPasswordPage
@@ -57,6 +59,8 @@ export const routes: RouteObject[] = [
           { path: 'library/:club', element: <ClubLibraryPage /> },
           { path: 'era/:decade', element: <EraPage /> },
           { path: 'legends/:slug', element: <LegendPage /> },
+          { path: 'designer', element: <DesignerPage /> },
+          { path: 'design/:id', element: <DesignPage /> },
           { path: 'market', element: <BrowsePage /> },
           { path: 'shirt/:id', element: <DetailPage /> },
           { path: 'sell', element: <SellPage /> },

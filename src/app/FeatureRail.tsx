@@ -7,7 +7,8 @@ import { usePrefs } from '../lib/prefs.tsx';
 
 const ITEMS = [
   { to: '/daily', emoji: '🧩', label: 'rail.daily' },
-  { to: '/library', emoji: '📚', label: 'rail.library' }
+  { to: '/library', emoji: '📚', label: 'rail.library' },
+  { to: '/designer', emoji: '🎨', label: 'rail.designer' }
 ] as const;
 
 const HIDDEN = ['/vault/add', '/signin', '/welcome', '/reset-password', '/return', '/admin'];

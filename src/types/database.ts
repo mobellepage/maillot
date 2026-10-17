@@ -348,6 +348,12 @@ export type Database = {
         Update: { id?: never; at?: string; actor?: string | null; action?: string; target?: string; details?: Json };
         Relationships: [];
       };
+      kit_designs: {
+        Row: { id: string; user_id: string; name: string; design: Json; shared: boolean; created_at: string; updated_at: string };
+        Insert: { id?: string; user_id?: string; name: string; design: Json; shared?: boolean; created_at?: string; updated_at?: string };
+        Update: { name?: string; design?: Json; shared?: boolean };
+        Relationships: [];
+      };
       kit_clubs: {
         Row: { id: string; name: string; league: string; country: string; colors: string[]; aliases: string[]; top5: boolean; region: string | null };
         Insert: { id: string; name: string; league: string; country: string; colors: string[]; aliases?: string[]; top5?: boolean; region?: string | null };
@@ -1016,6 +1022,7 @@ export type Database = {
       library_clubs: { Args: never; Returns: PublicSchema['Tables']['kit_clubs']['Row'][] };
       library_kit_counts: { Args: never; Returns: { club_id: string; n: number }[] };
       library_kits: { Args: { p_club: string }; Returns: PublicSchema['Tables']['kits']['Row'][] };
+      shared_kit_design: { Args: { p_id: string }; Returns: { id: string; name: string; design: Json; handle: string | null; avatar: string | null; created_at: string; is_mine: boolean }[] };
       item_social: { Args: { p_item: string }; Returns: { likes: number; liked: boolean; is_owner: boolean; comments: Json }[] };
       set_item_like: { Args: { p_item: string; p_like: boolean }; Returns: number };
       add_item_comment: { Args: { p_item: string; p_body: string }; Returns: string };

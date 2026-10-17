@@ -31,4 +31,6 @@ export const DailyPage = lazy(() => import('../features/daily/DailyPage.tsx'));
 export const LibraryPage = lazy(() => import('../features/library/LibraryPage.tsx'));
 export const EraPage = lazy(() => import('../features/discover/EraPage.tsx'));
 export const LegendPage = lazy(() => import('../features/discover/LegendPage.tsx'));
+export const DesignerPage = lazy(() => import('../features/designer/DesignerPage.tsx'));
+export const DesignPage = lazy(() => import('../features/designer/DesignPage.tsx'));
 export const ClubLibraryPage = lazy(() => import('../features/library/ClubLibraryPage.tsx'));

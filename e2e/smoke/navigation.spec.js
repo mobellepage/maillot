@@ -219,3 +219,13 @@ test('Discover leads to eras and legends', async ({ page }) => {
   await expect(page).toHaveURL(/\/legends\/zidane$/);
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('The kits of Zinédine Zidane');
 });
+
+test('anyone can play with the kit designer', async ({ page }) => {
+  await page.goto('/designer');
+  await page.getByRole('button', { name: 'Hoops', exact: true }).click();
+  await page.getByRole('button', { name: 'Back', exact: true }).click();
+  await page.getByLabel('Number').fill('7');
+  await expect(page.getByRole('img', { name: 'My kit · Back' })).toContainText('7');
+  // Saving needs an account.
+  await expect(page.getByRole('link', { name: 'Save design' })).toHaveAttribute('href', '/signin');
+});
