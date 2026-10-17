@@ -1901,7 +1901,7 @@ export const fr: Messages = {
   'home.cat.more': 'Autres ligues',
   'lib.v.women': 'Féminines',
   'news.title': 'Actu maillots',
-  'news.source': 'Titres et liens de {source}',
+  'news.source': 'Titres et photos : {source}',
   'news.read': 'Lire sur {source}',
   'news.kit': 'Maillot {club} dans la bibliothèque',
   'lib.region.other': 'Autres sélections',

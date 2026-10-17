@@ -1,11 +1,14 @@
-// Discover: the latest kit news as tall cards (9:16). Headlines and links
-// come from SoccerBible and say so; the article opens on their site. The
-// picture is the kit from our library the news is about, with a link to it.
+// Discover: the latest kit news as tall cards (9:16). Headlines, links and
+// title pictures come from SoccerBible (used with permission) and say so;
+// the article opens on their site. Where the news is about a kit in our
+// library, the card links to it.
 import { Link } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
 import { usePrefs } from '../../lib/prefs.tsx';
 import * as db from '../../utils/db.ts';
 import type { NewsItem } from '../../utils/db.ts';
+
+const PICTURES = (import.meta.env.VITE_SUPABASE_URL as string) + '/storage/v1/object/public/news-images/';
 
 export function KitNews() {
   const { t } = usePrefs();
@@ -34,18 +37,22 @@ function NewsCard({ n }: { n: NewsItem }) {
   const { t, lang } = usePrefs();
   const month = new Date(n.published_on + 'T12:00:00Z').toLocaleDateString(lang === 'de' ? 'de-CH' : lang, { month: 'short', year: 'numeric' });
   return (
-    <article className={n.kit_image ? 'news-card' : 'news-card news-card--text'}>
-      {n.kit_image && (
-        <div className="news-card-pic" aria-hidden="true">
-          <img src={n.kit_image} alt="" loading="lazy" decoding="async" />
-        </div>
+    <article className={n.image_path ? 'news-card news-card--photo' : n.kit_image ? 'news-card' : 'news-card news-card--text'}>
+      {n.image_path ? (
+        <img className="news-card-photo" src={PICTURES + n.image_path} alt="" loading="lazy" decoding="async" />
+      ) : (
+        n.kit_image && (
+          <div className="news-card-pic" aria-hidden="true">
+            <img src={n.kit_image} alt="" loading="lazy" decoding="async" />
+          </div>
+        )
       )}
       <div className="news-card-top">
         <span className="news-card-source">{n.source}</span>
         <span>{month}</span>
       </div>
       <div className="news-card-body">
-        {!n.kit_image && (
+        {!n.image_path && !n.kit_image && (
           <span className="news-quote" aria-hidden="true">
             “
           </span>

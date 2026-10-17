@@ -1027,7 +1027,7 @@ export type Database = {
       set_item_like: { Args: { p_item: string; p_like: boolean }; Returns: number };
       add_item_comment: { Args: { p_item: string; p_body: string }; Returns: string };
       delete_item_comment: { Args: { p_id: string }; Returns: undefined };
-      latest_news: { Args: { p_limit?: number }; Returns: { id: string; source: string; url: string; title: string; published_on: string; club_id: string | null; club_name: string | null; kit_season: string | null; kit_image: string | null }[] };
+      latest_news: { Args: { p_limit?: number }; Returns: { id: string; source: string; url: string; title: string; published_on: string; image_path: string | null; club_id: string | null; club_name: string | null; kit_season: string | null; kit_image: string | null }[] };
       popular_kits: { Args: { p_limit?: number }; Returns: { id: string; club_id: string; club_name: string; season: string; kind: string; variant: string; image_path: string | null }[] };
       era_kits: { Args: { p_decade: number; p_league?: string | null; p_offset?: number; p_limit?: number }; Returns: { id: string; club_id: string; club_name: string; league: string; season: string; season_year: number; kind: string; variant: string; image_path: string | null }[] };
       legend_kits_for: { Args: { p_legend: string }; Returns: { id: string; club_id: string; club_name: string; season: string; season_year: number; kind: string; variant: string; image_path: string | null }[] };

@@ -147,6 +147,8 @@ export interface NewsItem {
   url: string;
   title: string;
   published_on: string;
+  /** The title picture, in our news-images bucket. */
+  image_path: string | null;
   club_id: string | null;
   club_name: string | null;
   kit_season: string | null;

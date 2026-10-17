@@ -1900,7 +1900,7 @@ export const en = {
   'home.cat.more': 'More leagues',
   'lib.v.women': 'Women',
   'news.title': 'Kit news',
-  'news.source': 'Headlines and links from {source}',
+  'news.source': 'Headlines and pictures: {source}',
   'news.read': 'Read on {source}',
   'news.kit': '{club} kit in the library',
   'lib.region.other': 'Other select teams',
