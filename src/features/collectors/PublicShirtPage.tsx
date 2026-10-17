@@ -18,6 +18,7 @@ import { marketValue } from '../catalog/model.ts';
 import { OfferButton } from './OfferButton.tsx';
 import { PendingPhotos } from '../vault/PendingPhotos.tsx';
 import { InquiryButton } from './InquiryButton.tsx';
+import { ShirtSocial } from './ShirtSocial.tsx';
 import { isCutoutPath } from '../vault/addshirt/studio.ts';
 
 export default function PublicShirtPage() {
@@ -127,6 +128,7 @@ export default function PublicShirtPage() {
               {t('pshirt.catalog')} ›
             </Link>
           )}
+          <ShirtSocial itemId={s.id} />
         </div>
       </div>
     </Page>

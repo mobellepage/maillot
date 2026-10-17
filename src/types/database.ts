@@ -1016,6 +1016,10 @@ export type Database = {
       library_clubs: { Args: never; Returns: PublicSchema['Tables']['kit_clubs']['Row'][] };
       library_kit_counts: { Args: never; Returns: { club_id: string; n: number }[] };
       library_kits: { Args: { p_club: string }; Returns: PublicSchema['Tables']['kits']['Row'][] };
+      item_social: { Args: { p_item: string }; Returns: { likes: number; liked: boolean; is_owner: boolean; comments: Json }[] };
+      set_item_like: { Args: { p_item: string; p_like: boolean }; Returns: number };
+      add_item_comment: { Args: { p_item: string; p_body: string }; Returns: string };
+      delete_item_comment: { Args: { p_id: string }; Returns: undefined };
       popular_kits: { Args: { p_limit?: number }; Returns: { id: string; club_id: string; club_name: string; season: string; kind: string; variant: string; image_path: string | null }[] };
       era_kits: { Args: { p_decade: number; p_league?: string | null; p_offset?: number; p_limit?: number }; Returns: { id: string; club_id: string; club_name: string; league: string; season: string; season_year: number; kind: string; variant: string; image_path: string | null }[] };
       legend_kits: { Args: { p_clubs: string[]; p_from: number[]; p_to: number[] }; Returns: { id: string; club_id: string; club_name: string; season: string; season_year: number; kind: string; variant: string; image_path: string | null }[] };

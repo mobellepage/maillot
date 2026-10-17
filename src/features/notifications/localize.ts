@@ -32,6 +32,8 @@ const BY_TITLE: Record<string, [MessageKey, MessageKey | null]> = {
   'New follower': ['notif.follower.title', 'notif.follower.body'],
   'New listing from a collector you follow': ['notif.followedListing.title', 'notif.followedListing.body'],
   'New shirt in a collection you follow': ['notif.followedShirt.title', 'notif.followedShirt.body'],
+  'Someone liked your shirt': ['notif.shirtLiked.title', 'notif.shirtLiked.body'],
+  'New comment on your shirt': ['notif.shirtComment.title', null],
   'A shirt you want is listed': ['notif.listingAlert.title', 'notif.listingAlert.body'],
   'New offer for your shirt': ['notif.offer.title', 'notif.offer.body'],
   'Your offer was accepted': ['notif.offerAccepted.title', 'notif.offerAccepted.body'],
