@@ -2,7 +2,7 @@
 // sponsor, name and number, front and back. Anyone can play; members save
 // their designs (?id=… edits one) and share them by link or as a picture.
 // ?from=… starts from someone's shared design.
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useLocation, useNavigate, useSearchParams } from 'react-router';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { usePageMeta } from '../../lib/meta.ts';
@@ -12,7 +12,8 @@ import { useToast } from '../../lib/toast.tsx';
 import * as db from '../../utils/db.ts';
 import { Button, ButtonLink, Page, Segmented, TextField } from '../../ui/index.ts';
 import { KitSvg } from './KitSvg.tsx';
-import { COLLARS, DEFAULT_DESIGN, MAX_NAME, MAX_SPONSOR, PATTERNS, SWATCHES, cleanDesign, randomDesign, type KitDesign } from './model.ts';
+import { ClubPicker } from '../daily/ClubPicker.tsx';
+import { COLLARS, DEFAULT_DESIGN, MAX_CREST, MAX_NAME, MAX_SPONSOR, PATTERNS, SWATCHES, cleanDesign, crestFor, randomDesign, type KitDesign } from './model.ts';
 import { designUrl, downloadPicture, shareLink } from './share.ts';
 
 const DRAFT_KEY = 'maillot.designDraft.v1';
@@ -67,6 +68,8 @@ export default function DesignerPage() {
     }
   }, [name, design]);
 
+  const clubs = useQuery({ queryKey: ['kitClubs'], queryFn: db.loadKitClubs, staleTime: 10 * 60_000 });
+  const pickerClubs = useMemo(() => (clubs.data ?? []).map((c) => ({ id: c.id, name: c.name, league: c.league, aliases: c.aliases ?? [] })).sort((a, b) => a.name.localeCompare(b.name)), [clubs.data]);
   const mine = useQuery({ queryKey: ['myDesigns', user?.id], queryFn: db.loadMyDesigns, enabled: !!user });
   const save = useMutation({
     mutationFn: () => db.saveDesign({ id: savedId, name: name.trim() || t('des.untitled'), design, shared: true }),
@@ -163,7 +166,22 @@ export default function DesignerPage() {
             </div>
           </Group>
           <ColorRow label={t('des.trim')} value={design.trim} onChange={(v) => set('trim', v)} />
-          <ColorRow label={t('des.crest')} value={design.crest} onChange={(v) => set('crest', v)} />
+          <Group title={t('des.crest')}>
+            <ClubPicker
+              id="des-crest"
+              clubs={pickerClubs}
+              value={design.crestClub}
+              onChange={(id) => {
+                const c = clubs.data?.find((x) => x.id === id);
+                if (c) setDesign((d) => ({ ...d, ...crestFor(c) }));
+              }}
+              label={t('des.crestClub')}
+              placeholder={t('fav.placeholder')}
+            />
+            <TextField label={t('des.crestText')} value={design.crestText} maxLength={MAX_CREST} onChange={(e) => set('crestText', e.target.value.toUpperCase().slice(0, MAX_CREST))} onFocus={() => setView('front')} />
+          </Group>
+          <ColorRow label={t('des.crestColor')} value={design.crest} onChange={(v) => set('crest', v)} />
+          <ColorRow label={t('des.crestAccent')} value={design.crestAccent} onChange={(v) => set('crestAccent', v)} />
 
           <Group title={t('des.sponsor')}>
             <TextField srLabel={t('des.sponsorText')} value={design.sponsor} maxLength={MAX_SPONSOR} onChange={(e) => set('sponsor', e.target.value.slice(0, MAX_SPONSOR))} placeholder={t('des.sponsorText')} onFocus={() => setView('front')} />

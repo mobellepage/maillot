@@ -18,7 +18,7 @@ insert into public.kits (club_id, season, season_year, kind, colors, source, sta
   ('tap-nation', '2092', 2092, 'home', array['#ffffff'], 'import', 'approved', '/library/tap/2092-home.webp');
 
 set local role anon;
-select ok((select count(*) from popular_kits(9)) <= 9, 'popular today is at most the nine asked for');
+select ok((select count(*) from popular_kits()) <= 3, 'popular today is three kits');
 select is((select count(*)::int from era_kits(2080, null, 0, 96) where club_id like 'tap-%'), 2, 'the 2080s hold the pictured outfield kits of the decade');
 select is((select count(*)::int from era_kits(2080, 'National Teams', 0, 96) where club_id like 'tap-%'), 1, 'the league narrows the era');
 select is((select count(*)::int from era_kits(2090, null, 0, 96) where club_id like 'tap-%'), 1, 'each decade has its own kits');

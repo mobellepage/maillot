@@ -57,7 +57,12 @@ export const KitSvg = forwardRef<SVGSVGElement, { design: KitDesign; view?: 'fro
 
       {!back && (
         <>
-          <path d="M232,92 h32 v18 q0,17 -16,26 q-16,-9 -16,-26z" fill={d.crest} />
+          <path d="M230,90 h36 v20 q0,19 -18,29 q-18,-10 -18,-29z" fill={d.crest} stroke={d.crestAccent} strokeWidth="2.5" />
+          {d.crestText && (
+            <text x="248" y={d.crestText.length > 3 ? 115 : 116} textAnchor="middle" fontFamily={FONT} fontWeight="800" fontSize={d.crestText.length > 3 ? 8.5 : d.crestText.length > 2 ? 10 : 12} fill={d.crestAccent}>
+              {d.crestText}
+            </text>
+          )}
           {d.sponsor && (
             <text x="200" y="214" textAnchor="middle" fontFamily={FONT} fontWeight="800" fontSize={sponsorSize} letterSpacing="1" fill={d.sponsorColor}>
               {d.sponsor}

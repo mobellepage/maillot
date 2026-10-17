@@ -1880,5 +1880,11 @@ export const de: Messages = {
   'des.teaserTitle': 'Designe dein eigenes Trikot',
   'des.teaserBody': 'Deine Farben, dein Muster, dein Name hinten drauf. Speichern und mit Freunden teilen.',
   'des.start': 'Jetzt designen',
+  'home.nudge.mine': 'Deine digitale Trikotsammlung',
+  'home.nudge.open': 'Meine Kollektion',
+  'des.crestClub': 'Wappen eines Teams',
+  'des.crestText': 'Kürzel im Wappen',
+  'des.crestColor': 'Wappenfarbe',
+  'des.crestAccent': 'Wappenrand und Schrift',
   // @@end
 };

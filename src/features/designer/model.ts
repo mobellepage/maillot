@@ -16,6 +16,10 @@ export interface KitDesign {
   trim: string;
   collar: Collar;
   crest: string;
+  /** The club whose crest colours and short name are used, if one was picked. */
+  crestClub: string;
+  crestText: string;
+  crestAccent: string;
   sponsor: string;
   sponsorColor: string;
   name: string;
@@ -32,6 +36,9 @@ export const DEFAULT_DESIGN: KitDesign = {
   trim: '#1b1d1a',
   collar: 'crew',
   crest: '#1b1d1a',
+  crestClub: '',
+  crestText: '',
+  crestAccent: '#ffffff',
   sponsor: 'MAILLOT',
   sponsorColor: '#1b1d1a',
   name: '',
@@ -44,6 +51,7 @@ export const SWATCHES = ['#ffffff', '#1b1d1a', '#c8102e', '#e4002b', '#ff6b00', 
 
 export const MAX_SPONSOR = 14;
 export const MAX_NAME = 14;
+export const MAX_CREST = 4;
 
 const HEX = /^#[0-9a-f]{6}$/i;
 const color = (v: unknown, fallback: string) => (typeof v === 'string' && HEX.test(v) ? v.toLowerCase() : fallback);
@@ -62,6 +70,9 @@ export function cleanDesign(raw: unknown): KitDesign {
     trim: color(d.trim, D.trim),
     collar: COLLARS.includes(d.collar as Collar) ? (d.collar as Collar) : D.collar,
     crest: color(d.crest, D.crest),
+    crestClub: text(d.crestClub, 60, D.crestClub).replace(/[^a-z0-9-]/g, ''),
+    crestText: text(d.crestText, MAX_CREST, D.crestText).toUpperCase(),
+    crestAccent: color(d.crestAccent, D.crestAccent),
     sponsor: text(d.sponsor, MAX_SPONSOR, D.sponsor),
     sponsorColor: color(d.sponsorColor, D.sponsorColor),
     name: text(d.name, MAX_NAME, D.name).toUpperCase(),
@@ -84,4 +95,17 @@ export function randomDesign(rand: () => number = Math.random): KitDesign {
 export function lum(hex: string): number {
   const n = parseInt(hex.slice(1), 16);
   return (0.299 * ((n >> 16) & 255) + 0.587 * ((n >> 8) & 255) + 0.114 * (n & 255)) / 255;
+}
+
+const FILLER = new Set(['fc', 'cf', 'ac', 'as', 'ss', 'sc', 'sv', 'vfb', 'vfl', 'rc', 'cd', 'ud', 'afc', 'ssc', 'us', 'ogc', 'bsc', 'fk', 'sk', 'the', 'de', 'of', 'club', 'calcio', 'football']);
+
+/** A club's crest in the designer: its colours and a short name ("YB", "BVB", "MU"). */
+export function crestFor(club: { id: string; name: string; aliases?: string[] | null; colors: string[] }): Pick<KitDesign, 'crestClub' | 'crestText' | 'crest' | 'crestAccent'> {
+  const short = (club.aliases ?? []).filter((a) => /^[A-Za-z0-9]{2,4}$/.test(a)).sort((a, b) => a.length - b.length)[0];
+  const words = club.name.split(/[\s.-]+/).filter(Boolean);
+  const meaningful = words.filter((w) => !FILLER.has(w.toLowerCase()));
+  const initials = (meaningful.length > 1 ? meaningful.map((w) => w[0]).join('') : (meaningful[0] ?? club.name).slice(0, 3)).toUpperCase();
+  const [c1, c2] = club.colors.map((c) => color(c, '')).filter(Boolean);
+  const main = c1 ?? DEFAULT_DESIGN.crest;
+  return { crestClub: club.id, crestText: (short ?? initials).toUpperCase().slice(0, MAX_CREST), crest: main, crestAccent: c2 && c2 !== main ? c2 : lum(main) > 0.6 ? '#1b1d1a' : '#ffffff' };
 }

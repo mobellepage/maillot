@@ -23,9 +23,7 @@ export function MemberHome() {
         <LevelBadge shirts={items.length} value={value} />
       </div>
       <HomeSearch />
-      <div style={{ textAlign: 'center' }}>
-        <CollectNudge />
-      </div>
+      <CollectNudge />
     </section>
   );
 }

@@ -1879,6 +1879,12 @@ export const en = {
   'des.teaserTitle': 'Design your own kit',
   'des.teaserBody': 'Your colours, your pattern, your name on the back. Save it and share it with your friends.',
   'des.start': 'Start designing',
+  'home.nudge.mine': 'Your digital shirt collection',
+  'home.nudge.open': 'My collection',
+  'des.crestClub': 'Team crest',
+  'des.crestText': 'Short name on the crest',
+  'des.crestColor': 'Crest colour',
+  'des.crestAccent': 'Crest border and letters',
   // @@end
 };
 

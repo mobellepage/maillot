@@ -58,7 +58,7 @@ function KitFace({ kit }: { kit: Extract<FeedItem, { kind: 'kit' }>['kit'] }) {
   return (
     <>
       <div style={{ position: 'absolute', inset: 0, display: 'grid', placeItems: 'center', background: 'radial-gradient(circle at 50% 36%,#FFFFFF,#ECEEEA 70%)' }}>
-        {kit.image_path && <img src={kit.image_path} alt="" draggable={false} style={{ width: '78%', maxHeight: '64%', objectFit: 'contain', marginBottom: '26%', filter: 'drop-shadow(0 18px 24px rgba(0,0,0,.18))' }} />}
+        {kit.image_path && <img src={kit.image_path} alt="" draggable={false} style={{ width: 'min(78%, 270px)', maxHeight: '64%', objectFit: 'contain', marginBottom: '26%', filter: 'drop-shadow(0 18px 24px rgba(0,0,0,.18))' }} />}
       </div>
       <div className="feed-caption" style={{ position: 'absolute', left: 0, right: 0, bottom: 0, padding: '60px 20px 20px', color: '#F2F4F1', background: 'linear-gradient(180deg,rgba(10,12,11,0) 0%,rgba(10,12,11,0.94) 38%)' }}>
         <span style={{ fontSize: 12, color: '#A8B0AA' }}>

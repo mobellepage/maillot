@@ -1880,5 +1880,11 @@ export const fr: Messages = {
   'des.teaserTitle': 'Crée ton propre maillot',
   'des.teaserBody': 'Tes couleurs, ton motif, ton nom au dos. Enregistre et partage avec tes amis.',
   'des.start': 'Commencer',
+  'home.nudge.mine': 'Ta collection de maillots numérique',
+  'home.nudge.open': 'Ma collection',
+  'des.crestClub': 'Écusson d\'une équipe',
+  'des.crestText': 'Sigle sur l\'écusson',
+  'des.crestColor': 'Couleur de l\'écusson',
+  'des.crestAccent': 'Bord et lettres de l\'écusson',
   // @@end
 };

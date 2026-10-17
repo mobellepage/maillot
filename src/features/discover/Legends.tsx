@@ -15,7 +15,7 @@ export function Legends({ except }: { except?: string }) {
         {LEGENDS.filter((l) => l.slug !== except).map((l) => (
           <li key={l.slug}>
             <Link to={'/legends/' + l.slug} className="kit-disc">
-              <span className="kit-disc-img kit-disc-img--gold">
+              <span className="kit-disc-img">
                 <img src={l.img} alt="" loading="lazy" decoding="async" />
               </span>
               <span className="kit-disc-name">{l.name}</span>

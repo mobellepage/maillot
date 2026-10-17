@@ -122,7 +122,7 @@ export interface KitTile {
   league?: string;
 }
 
-export async function loadPopularKits(limit = 9): Promise<KitTile[]> {
+export async function loadPopularKits(limit = 3): Promise<KitTile[]> {
   const { data, error } = await (await sb()).rpc('popular_kits', { p_limit: limit });
   if (error) throw error;
   return data || [];
