@@ -27,7 +27,7 @@ export function Categories() {
           return (
             <li key={c.league} style={{ flex: 'none', scrollSnapAlign: 'start' }}>
               <Link to={'/library?league=' + encodeURIComponent(c.league)} style={{ display: 'grid', justifyItems: 'center', gap: 8, width: 'clamp(84px,10vw,112px)', color: 'var(--text)', textDecoration: 'none' }}>
-                <span style={{ width: 'clamp(76px,9vw,104px)', aspectRatio: '1/1', borderRadius: '50%', background: 'radial-gradient(circle at 50% 40%,#FFFFFF,#ECEEEA 72%)', border: '1px solid var(--line)', display: 'grid', placeItems: 'center', overflow: 'hidden', boxShadow: '0 8px 22px rgba(0,0,0,0.08)' }}>
+                <span style={{ width: 'clamp(76px,9vw,104px)', aspectRatio: '1/1', borderRadius: '50%', background: 'var(--kit-tile)', border: '1px solid var(--kit-tile-line)', display: 'grid', placeItems: 'center', overflow: 'hidden', boxShadow: '0 8px 22px rgba(0,0,0,0.08)' }}>
                   <img src={c.img} alt="" loading="lazy" decoding="async" style={{ width: '74%', height: '74%', objectFit: 'contain' }} />
                 </span>
                 <span style={{ fontSize: 13, fontWeight: 650, textAlign: 'center', lineHeight: 1.25 }}>{name}</span>
@@ -35,6 +35,14 @@ export function Categories() {
             </li>
           );
         })}
+        <li style={{ flex: 'none', scrollSnapAlign: 'start' }}>
+          <Link to="/library?league=other" style={{ display: 'grid', justifyItems: 'center', gap: 8, width: 'clamp(84px,10vw,112px)', color: 'var(--text)', textDecoration: 'none' }}>
+            <span aria-hidden="true" style={{ width: 'clamp(76px,9vw,104px)', aspectRatio: '1/1', borderRadius: '50%', border: '1.5px dashed var(--line-strong)', display: 'grid', placeItems: 'center', fontSize: 30, fontWeight: 300, color: 'var(--text-2)' }}>
+              +
+            </span>
+            <span style={{ fontSize: 13, fontWeight: 650, textAlign: 'center', lineHeight: 1.25 }}>{t('home.cat.more')}</span>
+          </Link>
+        </li>
       </ul>
     </section>
   );

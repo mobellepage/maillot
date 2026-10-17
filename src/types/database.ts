@@ -355,7 +355,7 @@ export type Database = {
         Relationships: [];
       };
       kit_clubs: {
-        Row: { id: string; name: string; league: string; country: string; colors: string[]; aliases: string[]; top5: boolean; region: string | null };
+        Row: { id: string; name: string; league: string; country: string; colors: string[]; aliases: string[]; top5: boolean; region: string | null; featured: boolean };
         Insert: { id: string; name: string; league: string; country: string; colors: string[]; aliases?: string[]; top5?: boolean; region?: string | null };
         Update: { id?: string; name?: string; league?: string; country?: string; colors?: string[]; aliases?: string[]; top5?: boolean; region?: string | null };
         Relationships: [];
@@ -1029,6 +1029,7 @@ export type Database = {
       delete_item_comment: { Args: { p_id: string }; Returns: undefined };
       popular_kits: { Args: { p_limit?: number }; Returns: { id: string; club_id: string; club_name: string; season: string; kind: string; variant: string; image_path: string | null }[] };
       era_kits: { Args: { p_decade: number; p_league?: string | null; p_offset?: number; p_limit?: number }; Returns: { id: string; club_id: string; club_name: string; league: string; season: string; season_year: number; kind: string; variant: string; image_path: string | null }[] };
+      legend_kits_for: { Args: { p_legend: string }; Returns: { id: string; club_id: string; club_name: string; season: string; season_year: number; kind: string; variant: string; image_path: string | null }[] };
       legend_kits: { Args: { p_clubs: string[]; p_from: number[]; p_to: number[] }; Returns: { id: string; club_id: string; club_name: string; season: string; season_year: number; kind: string; variant: string; image_path: string | null }[] };
       feed_kits: { Args: { p_clubs: string[]; p_leagues: string[] }; Returns: { id: string; club_id: string; club_name: string; league: string; season: string; season_year: number; kind: string; variant: string; image_path: string | null }[] };
       my_liked_kits: { Args: never; Returns: ({ id: string; club_id: string; club_name: string; league: string; season: string; season_year: number; kind: string; variant: string; image_path: string | null; liked_at: string })[] };

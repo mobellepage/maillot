@@ -134,8 +134,8 @@ export async function loadEraKits(decade: number, league: string | null, offset 
   return data || [];
 }
 
-export async function loadLegendKits(spans: { club: string; from: number; to: number }[]): Promise<KitTile[]> {
-  const { data, error } = await (await sb()).rpc('legend_kits', { p_clubs: spans.map((s) => s.club), p_from: spans.map((s) => s.from), p_to: spans.map((s) => s.to) });
+export async function loadLegendKits(legend: string): Promise<KitTile[]> {
+  const { data, error } = await (await sb()).rpc('legend_kits_for', { p_legend: legend });
   if (error) throw error;
   return data || [];
 }

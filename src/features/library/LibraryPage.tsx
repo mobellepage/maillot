@@ -67,6 +67,15 @@ export default function LibraryPage() {
 
       {clubs.isLoading && <Skeleton height={320} radius={20} style={{ marginTop: 20 }} />}
       {clubs.isError && <ErrorState what={t('lib.title')} onRetry={() => clubs.refetch()} />}
+      {!needle && league === NATIONS && (
+        <nav aria-label={t('lib.continents')} style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 12 }}>
+          {REGIONS.filter((r) => list.some((c) => c.region === r)).map((r) => (
+            <a key={r} href={'#region-' + r.replace(/\W+/g, '-')} className="chip" style={{ fontSize: 13 }}>
+              {t('lib.region.' + r)}
+            </a>
+          ))}
+        </nav>
+      )}
       {!needle && league === NATIONS ? (
         [...REGIONS, null].map((r) => {
           // Nations without a continent yet (new in the library) come last.
@@ -74,7 +83,7 @@ export default function LibraryPage() {
           if (!nations.length) return null;
           const id = 'region-' + (r ?? 'other').replace(/\W+/g, '-');
           return (
-            <section key={id} aria-labelledby={id} style={{ marginTop: 26 }}>
+            <section key={id} aria-labelledby={id} style={{ marginTop: 26, scrollMarginTop: 90 }}>
               <h2 id={id} className="title" style={{ margin: 0 }}>
                 {r ? t('lib.region.' + r) : t('lib.other')} <span style={{ color: 'var(--muted)', fontWeight: 500, fontSize: '0.75em' }}>{nations.length}</span>
               </h2>
@@ -82,6 +91,18 @@ export default function LibraryPage() {
             </section>
           );
         })
+      ) : !needle && league === OTHER ? (
+        // Every other league, each under its name.
+        [...new Set(list.map((c) => c.league))]
+          .sort((a, b) => a.localeCompare(b))
+          .map((l) => (
+            <section key={l} aria-label={l} style={{ marginTop: 26 }}>
+              <h2 className="title" style={{ margin: 0 }}>
+                {l} <span style={{ color: 'var(--muted)', fontWeight: 500, fontSize: '0.75em' }}>{list.filter((c) => c.league === l).length}</span>
+              </h2>
+              <ClubGrid clubs={list.filter((c) => c.league === l)} counts={counts.data} />
+            </section>
+          ))
       ) : (
         <ClubGrid clubs={list} counts={counts.data} />
       )}

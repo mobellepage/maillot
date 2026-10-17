@@ -15,7 +15,7 @@ export default function LegendPage() {
   const { t } = usePrefs();
   const legend = LEGEND_BY[useParams().slug ?? ''];
   usePageMeta(legend ? t('legend.title', { name: legend.name }) : t('home.legends.title'), legend ? t('legend.intro', { name: legend.name }) : undefined);
-  const kits = useQuery({ queryKey: ['legendKits', legend?.slug], queryFn: () => db.loadLegendKits(legend!.spans), enabled: !!legend, staleTime: 30 * 60_000 });
+  const kits = useQuery({ queryKey: ['legendKits', legend?.slug], queryFn: () => db.loadLegendKits(legend!.slug), enabled: !!legend, staleTime: 30 * 60_000 });
   if (!legend) return <Navigate to="/" replace />;
 
   const years: { year: number; kits: KitTile[] }[] = [];
@@ -32,10 +32,15 @@ export default function LegendPage() {
         <div className="eyebrow">
           <Link to="/">{t('nav.discover')}</Link> · {t('home.legends.title')}
         </div>
-        <h1 className="display" style={{ fontSize: 'clamp(30px,5vw,48px)', margin: '6px 0 0' }}>
-          {t('legend.title', { name: legend.name })}
-        </h1>
-        <p style={{ color: 'var(--text-2)', margin: '8px 0 0', fontSize: 15, lineHeight: 1.5, maxWidth: 680 }}>{t('legend.intro', { name: legend.name })}</p>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'clamp(14px,3vw,24px)', marginTop: 10 }}>
+          <img src={legend.img} alt={legend.name} width={120} height={120} style={{ width: 'clamp(84px,14vw,120px)', height: 'auto', aspectRatio: '1/1', borderRadius: '50%', objectFit: 'cover', border: '1px solid var(--line)', background: '#fff', flex: 'none' }} />
+          <div style={{ minWidth: 0 }}>
+            <h1 className="display" style={{ fontSize: 'clamp(28px,5vw,48px)', margin: 0 }}>
+              {t('legend.title', { name: legend.name })}
+            </h1>
+            <p style={{ color: 'var(--text-2)', margin: '8px 0 0', fontSize: 15, lineHeight: 1.5, maxWidth: 680 }}>{t('legend.intro', { name: legend.name })}</p>
+          </div>
+        </div>
         {kits.data && kits.data.length > 0 && (
           <p className="mono" style={{ fontSize: 12.5, color: 'var(--muted)', margin: '8px 0 0' }}>
             {t('legend.stats', { kits: kits.data.length, teams })}

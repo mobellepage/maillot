@@ -51,13 +51,13 @@ function useFeedHeight(ref: RefObject<HTMLElement | null>) {
 const href = (item: FeedItem) =>
   item.kind === 'kit' ? '/library/' + item.kit.club_id + '#season-' + item.kit.season : '/shirt/' + item.shirtId + (item.kind === 'listing' ? '?size=' + encodeURIComponent(item.listing.size) : '');
 
-/** A kit of the library: its picture on light, club, season and kind. */
+/** A kit of the library: its picture on the kit tile, club, season and kind. */
 function KitFace({ kit }: { kit: Extract<FeedItem, { kind: 'kit' }>['kit'] }) {
   const { t } = usePrefs();
   const variant = variantLabel(kit.variant, t);
   return (
     <>
-      <div style={{ position: 'absolute', inset: 0, display: 'grid', placeItems: 'center', background: 'radial-gradient(circle at 50% 36%,#FFFFFF,#ECEEEA 70%)' }}>
+      <div style={{ position: 'absolute', inset: 0, display: 'grid', placeItems: 'center', background: 'var(--kit-tile)' }}>
         {kit.image_path && <img src={kit.image_path} alt="" draggable={false} style={{ width: 'min(78%, 270px)', maxHeight: '64%', objectFit: 'contain', marginBottom: '26%', filter: 'drop-shadow(0 18px 24px rgba(0,0,0,.18))' }} />}
       </div>
       <div className="feed-caption" style={{ position: 'absolute', left: 0, right: 0, bottom: 0, padding: '60px 20px 20px', color: '#F2F4F1', background: 'linear-gradient(180deg,rgba(10,12,11,0) 0%,rgba(10,12,11,0.94) 38%)' }}>

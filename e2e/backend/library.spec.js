@@ -38,3 +38,19 @@ test('kit library: a kit shows its owners and leads to their shirt for an offer'
   await expect(page).toHaveURL(/\/u\/zurich_kits\/seed-ajax-offers$/);
   await expect(page.getByRole('link', { name: 'Make an offer' }).or(page.getByRole('button', { name: 'Make an offer' })).first()).toBeVisible();
 });
+
+test('kit library: add a kit to my collection from its pop-up', async ({ page }) => {
+  await page.goto('/library/milan');
+  // Visitors are asked to sign in first and come back to the pop-up.
+  await page.getByRole('link', { name: 'Add AC Milan 2006/07 Home to my collection' }).click();
+  await expect(page).toHaveURL(/\/signin$/);
+  await page.getByLabel(/email/i).fill('buyer@maillot.test');
+  await page.getByLabel(/password|passwort/i).fill(PASSWORD);
+  await page.locator('form').getByRole('button', { name: /sign in|anmelden/i }).click();
+  await expect(page).toHaveURL(/\/library\/milan\?add=/, { timeout: 10000 });
+  const dialog = page.getByRole('dialog', { name: 'Add to my collection' });
+  await expect(dialog).toContainText('AC Milan 2006/07 · Home');
+  await dialog.getByRole('button', { name: 'M', exact: true }).click();
+  await dialog.getByRole('button', { name: 'Add to collection' }).click();
+  await expect(page).toHaveURL(/\/vault\/item\//);
+});

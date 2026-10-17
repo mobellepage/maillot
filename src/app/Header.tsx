@@ -135,7 +135,7 @@ function ThemeToggle() {
   useThemePref(); // re-render on change
   const dark = isDark();
   return (
-    <button type="button" className="icon-btn" aria-label={dark ? t('header.lightMode') : t('header.darkMode')} title={dark ? t('header.lightMode') : t('header.darkMode')} onClick={() => setThemePref(dark ? 'light' : 'dark')} style={{ color: 'var(--text)' }}>
+    <button type="button" className="icon-btn theme-toggle" aria-label={dark ? t('header.lightMode') : t('header.darkMode')} title={dark ? t('header.lightMode') : t('header.darkMode')} onClick={() => setThemePref(dark ? 'light' : 'dark')} style={{ color: 'var(--text)' }}>
       {dark ? <SunIcon /> : <MoonIcon />}
     </button>
   );

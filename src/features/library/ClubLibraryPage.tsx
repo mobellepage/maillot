@@ -2,7 +2,7 @@
 // away, third, goalkeeper, cup, European, training, special). Kits that are
 // in the catalogue link to the market.
 import { useEffect, useState } from 'react';
-import { Link, Navigate, useLocation, useParams } from 'react-router';
+import { Link, Navigate, useLocation, useParams, useSearchParams } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
 import { BY } from '../../data.ts';
 import { usePageMeta } from '../../lib/meta.ts';
@@ -15,6 +15,7 @@ import { ClubBand } from './ClubBand.tsx';
 import { KIT_KINDS, bySeason, kitLook, variantLabel } from './model.ts';
 import { SuggestKitDialog } from './SuggestKitDialog.tsx';
 import { KitOwners } from './KitOwners.tsx';
+import { AddKitDialog } from '../vault/AddKitDialog.tsx';
 
 export default function ClubLibraryPage() {
   useCatalog();
@@ -33,6 +34,15 @@ export default function ClubLibraryPage() {
   const [kind, setKind] = useState<string>('all');
   const [ownedOnly, setOwnedOnly] = useState(false);
   const [suggest, setSuggest] = useState(false);
+  // ?add=<kit> (back from signing in) opens the pop-up for that kit.
+  const [params, setParams] = useSearchParams();
+  const [adding, setAdding] = useState<db.Kit | null>(null);
+  const askedAdd = params.get('add');
+  const [openedAdd, setOpenedAdd] = useState<string | null>(null);
+  if (user && askedAdd && askedAdd !== openedAdd && kits.data) {
+    setOpenedAdd(askedAdd);
+    setAdding(kits.data.find((x) => x.id === askedAdd) ?? null);
+  }
   const c = clubs.data?.find((x) => x.id === club);
   usePageMeta(c ? t('lib.clubMeta', { club: c.name }) : t('lib.meta'));
 
@@ -108,9 +118,9 @@ export default function ClubLibraryPage() {
               const title = `${c?.name ?? ''} ${k.season} ${t('lib.kind.' + k.kind)}${variant ? ' · ' + variant : ''}`;
               return (
                 <li key={k.id} className="card" style={{ padding: 12, borderRadius: 18 }}>
-                  <div style={{ aspectRatio: '1/1', borderRadius: 14, background: 'var(--sunken)', display: 'grid', placeItems: 'center', overflow: 'hidden' }}>
+                  <div style={{ aspectRatio: '1/1', borderRadius: 14, background: 'var(--kit-tile)', display: 'grid', placeItems: 'center', overflow: 'hidden' }}>
                     {k.image_path ? (
-                      <img src={k.image_path} alt={title} loading="lazy" decoding="async" style={{ width: '88%', height: '88%', objectFit: 'contain', borderRadius: 10 }} />
+                      <img src={k.image_path} alt={title} loading="lazy" decoding="async" style={{ width: '88%', height: '88%', objectFit: 'contain' }} />
                     ) : (
                       <ShirtGraphic {...look} flat style={{ width: '76%' }} title={title} />
                     )}
@@ -136,12 +146,17 @@ export default function ClubLibraryPage() {
                         {t('lib.searchMarket')} ›
                       </Link>
                     )}
-                    {k.image_path && (
-                      <Link to={'/vault/add/library?club=' + encodeURIComponent(club) + '&kit=' + k.id} aria-label={t('lib.haveItFor', { name: title })}>
-                        ✓ {t('lib.haveIt')}
-                      </Link>
-                    )}
                   </div>
+                  {k.image_path &&
+                    (user ? (
+                      <button type="button" className="btn btn--secondary btn--sm btn--block" onClick={() => setAdding(k)} aria-label={t('lib.addToCollectionFor', { name: title })} style={{ marginTop: 10, color: 'var(--text)' }}>
+                        + {t('lib.addToCollection')}
+                      </button>
+                    ) : (
+                      <Link to="/signin" state={{ from: `/library/${club}?add=${k.id}`, notice: 'lib.signInToAdd' }} className="btn btn--secondary btn--sm btn--block" aria-label={t('lib.addToCollectionFor', { name: title })} style={{ marginTop: 10, color: 'var(--text)' }}>
+                        + {t('lib.addToCollection')}
+                      </Link>
+                    ))}
                   {ownersOf.has(k.id) && <KitOwners owners={ownersOf.get(k.id)!} kitId={k.id} />}
                 </li>
               );
@@ -150,6 +165,16 @@ export default function ClubLibraryPage() {
         </section>
       ))}
       {suggest && c && <SuggestKitDialog club={c} onClose={() => setSuggest(false)} />}
+      {adding && c && (
+        <AddKitDialog
+          kit={adding}
+          clubName={c.name}
+          onClose={() => {
+            setAdding(null);
+            if (params.has('add')) setParams({}, { replace: true });
+          }}
+        />
+      )}
     </Page>
   );
 }

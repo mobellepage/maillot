@@ -2,24 +2,22 @@
 // tap your kit among all of its kits in the library, add size and flock if
 // you like, done. The shirt shows the library picture, marked "own photos
 // still to come", until photos are added. ?club=…&kit=… (the library's
-// "I have it") opens with that kit chosen.
+// "Add to my collection" before signing in) opens with that kit chosen.
 import { useMemo, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
-import { estimateValue, FLOCK_SOURCES, SIZE_GROUPS, VERSIONS } from '../../addShirtData.js';
-import { BY } from '../../data.ts';
+import { FLOCK_SOURCES, SIZE_GROUPS, VERSIONS } from '../../addShirtData.js';
 import { usePageMeta } from '../../lib/meta.ts';
 import { usePrefs } from '../../lib/prefs.tsx';
 import { useSession } from '../../lib/session.tsx';
 import { useToast } from '../../lib/toast.tsx';
-import type { Valuation } from '../../types/domain.ts';
 import * as db from '../../utils/db.ts';
 import { Button, Card, Page, Skeleton, TextField } from '../../ui/index.ts';
 import { useCatalog } from '../catalog/useCatalog.ts';
 import { ClubPicker } from '../daily/ClubPicker.tsx';
-import { KIND_WORD, KIT_KINDS, bySeason, variantLabel } from '../library/model.ts';
+import { KIT_KINDS, bySeason, variantLabel } from '../library/model.ts';
 import { Pill, Pills, Section } from './addshirt/parts.tsx';
-import { chosenVisibility } from './addshirt/useAddShirtForm.ts';
+import { quickItem } from './quickAdd.ts';
 import { useCollectionActions } from './useCollection.ts';
 
 export default function QuickAddPage() {
@@ -47,7 +45,6 @@ export default function QuickAddPage() {
   const kinds = KIT_KINDS.filter((k) => all.some((x) => x.kind === k));
   const groups = bySeason(all.filter((k) => (kind === 'all' || k.kind === kind) && (!season.trim() || k.season.includes(season.trim()))));
   const kit = all.find((k) => k.id === kitId);
-  const catalogItem = kit?.catalog_id ? BY[kit.catalog_id] ?? null : null;
 
   const kitName = (k: NonNullable<typeof kit>) => {
     const v = variantLabel(k.variant, t);
@@ -56,34 +53,8 @@ export default function QuickAddPage() {
 
   const save = () => {
     if (!kit || !c) return;
-    const flockOut = flock.source === 'Keine' ? { source: 'Keine' } : { source: flock.source, name: flock.name.trim(), number: flock.number.trim(), type: 'Unbekannt' };
-    const condition = { grade: 8, defects: [] as string[] };
-    const valuation = estimateValue({ catalogItem, version: version || 'Fan-Replica', conditionGrade: condition.grade, flock: flockOut, patches: [], signature: { signed: false }, verificationLevel: 'self' }) as Valuation;
     add.mutate(
-      {
-        catalogId: catalogItem?.id ?? null,
-        proposed: !catalogItem,
-        proposedClub: c.name,
-        proposedSeason: kit.season,
-        proposedVariant: [KIND_WORD[kit.kind] ?? '', kit.variant].filter(Boolean).join(' '),
-        version: version || null,
-        sizeGroup: size ? 'Herren' : null,
-        size: size || null,
-        sleeve: null,
-        flock: flockOut,
-        patches: [],
-        signature: { signed: false },
-        tagsAttached: false,
-        condition,
-        provenance: '',
-        photos: {},
-        precheck: null,
-        verification: { level: 'self', status: 'none', reason: '', reviewId: null },
-        visibility: chosenVisibility({ visibility: null }, profile?.collectionPrivate),
-        salePrice: '',
-        valuation,
-        kitId: kit.id
-      },
+      quickItem(kit, c.name, size, version, flock, profile?.collectionPrivate),
       {
         onSuccess: (item) => {
           toast(t('qa.saved'));
@@ -146,7 +117,7 @@ export default function QuickAddPage() {
                 {g.kits.map((k) => (
                   <li key={k.id}>
                     <button type="button" className="card card--interactive" onClick={() => setKitId(k.id)} aria-label={t('qa.choose', { name: kitName(k) })} style={{ width: '100%', padding: 8, borderRadius: 16, border: '1px solid var(--line)', background: 'var(--surface)', cursor: 'pointer', textAlign: 'left', font: 'inherit', color: 'var(--text)' }}>
-                      <span style={{ display: 'grid', placeItems: 'center', aspectRatio: '1/1', borderRadius: 12, background: 'var(--sunken)', overflow: 'hidden' }}>
+                      <span style={{ display: 'grid', placeItems: 'center', aspectRatio: '1/1', borderRadius: 12, background: 'var(--kit-tile)', overflow: 'hidden' }}>
                         <img src={k.image_path!} alt="" loading="lazy" decoding="async" style={{ width: '86%', height: '86%', objectFit: 'contain' }} />
                       </span>
                       <span style={{ display: 'block', fontSize: 12.5, fontWeight: 650, marginTop: 6 }}>
@@ -166,7 +137,7 @@ export default function QuickAddPage() {
       {kit && (
         <>
           <Card style={{ display: 'flex', gap: 16, alignItems: 'center', flexWrap: 'wrap', marginBottom: 24 }}>
-            <span style={{ width: 110, height: 110, borderRadius: 16, background: 'var(--sunken)', display: 'grid', placeItems: 'center', flex: 'none', overflow: 'hidden' }}>
+            <span style={{ width: 110, height: 110, borderRadius: 16, background: 'var(--kit-tile)', display: 'grid', placeItems: 'center', flex: 'none', overflow: 'hidden' }}>
               <img src={kit.image_path!} alt="" style={{ width: '88%', height: '88%', objectFit: 'contain' }} />
             </span>
             <div style={{ flex: '1 1 200px', minWidth: 0 }}>

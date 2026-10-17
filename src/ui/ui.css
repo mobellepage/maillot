@@ -21,6 +21,10 @@
    live in one place instead of being re-implemented inline per screen. */
 
 :root {
+  /* Behind a cut-out kit picture: a soft light in the dark look, a white disc in the light one. */
+  --kit-tile: radial-gradient(circle at 50% 42%, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.035) 52%, rgba(255, 255, 255, 0) 74%), #111312;
+  --kit-card: #1b1e1c;
+  --kit-tile-line: rgba(255, 255, 255, 0.06);
   --bg: #0a0c0b;
   --surface: #101312;
   --surface-2: #121514;
@@ -863,7 +867,8 @@ html[data-native] :where(a, button, img, svg) {
     padding-bottom: var(--mobile-nav);
   }
 }
-@media (max-width: 1099px) {
+/* The header's search: only where menu, language, theme and account all still fit beside it. */
+@media (max-width: 1399px) {
   .hide-narrow {
     display: none !important;
   }
@@ -1334,7 +1339,8 @@ html:not([data-theme='light']) .store-badge > img {
 }
 .kit-disc-grid--three {
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  max-width: 560px;
+  max-width: 620px;
+  margin: 0 auto;
 }
 .kit-disc {
   display: grid;
@@ -1350,8 +1356,8 @@ html:not([data-theme='light']) .store-badge > img {
   max-width: 132px;
   aspect-ratio: 1 / 1;
   border-radius: 50%;
-  background: radial-gradient(circle at 50% 40%, #ffffff, #eceeea 72%);
-  border: 1px solid var(--line);
+  background: var(--kit-tile);
+  border: 1px solid var(--kit-tile-line);
   display: grid;
   place-items: center;
   overflow: hidden;
@@ -1382,6 +1388,14 @@ html:not([data-theme='light']) .store-badge > img {
 .kit-disc-sub {
   font-size: 11.5px;
   color: var(--muted);
+}
+.kit-disc-img--portrait {
+  background: #fff;
+}
+.kit-disc-img--portrait img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 .legend-row {
   list-style: none;
@@ -1416,8 +1430,8 @@ html:not([data-theme='light']) .store-badge > img {
   place-items: center;
   aspect-ratio: 1 / 1;
   border-radius: 20px;
-  background: radial-gradient(circle at 50% 35%, #ffffff, #e6e9e3 75%);
-  border: 1px solid var(--line);
+  background: var(--kit-tile);
+  border: 1px solid var(--kit-tile-line);
   overflow: hidden;
   text-decoration: none;
   transition: transform 0.2s;
@@ -1438,8 +1452,7 @@ html:not([data-theme='light']) .store-badge > img {
   font-size: clamp(20px, 2.6vw, 28px);
   font-weight: 850;
   letter-spacing: -0.02em;
-  color: #111;
-  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.8);
+  color: var(--text);
 }
 .collect-nudge {
   display: flex;
@@ -1490,8 +1503,8 @@ html:not([data-theme='light']) .store-badge > img {
   height: 50px;
   margin-left: -14px;
   border-radius: 9px;
-  background: #fff;
-  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: var(--kit-card);
+  border: 1px solid var(--kit-tile-line);
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
   display: grid;
   place-items: center;
@@ -1528,7 +1541,7 @@ html:not([data-theme='light']) .store-badge > img {
   aspect-ratio: 1 / 1;
   border-radius: 28px;
   border: 1px solid var(--line);
-  background: radial-gradient(circle at 50% 40%, #ffffff, #eceeea 75%);
+  background: var(--kit-tile);
   display: grid;
   place-items: center;
   padding: 8%;
@@ -1633,4 +1646,17 @@ html:not([data-theme='light']) .store-badge > img {
 }
 .design-teaser-kits:hover svg:nth-child(3) {
   transform: rotate(6deg);
+}
+
+.kit-thumb {
+  background: var(--kit-tile);
+  border: 1px solid var(--kit-tile-line);
+}
+
+@media (max-width: 759px) {
+  .theme-toggle {
+    width: 34px;
+    height: 34px;
+    border-color: transparent;
+  }
 }

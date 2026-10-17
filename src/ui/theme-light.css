@@ -8,6 +8,9 @@
    visible on the main screens. */
 
 html[data-theme='light'] {
+  --kit-tile: radial-gradient(circle at 50% 40%, #ffffff, #eceeea 72%);
+  --kit-card: #ffffff;
+  --kit-tile-line: rgba(0, 0, 0, 0.08);
   --bg: #ffffff;
   --surface: #f5f5f7;
   --surface-2: #f5f5f7;

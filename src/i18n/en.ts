@@ -1765,9 +1765,7 @@ export const en = {
   'qa.later': 'It shows the library picture until you add your own photos – with photos it also gets its value and can be verified and sold.',
   'qa.saved': 'In your collection – own photos can follow any time.',
   'qa.entry': 'No photos? List it from the library',
-  'lib.haveIt': 'I have it',
   'as.id.fromLibrary': 'From the kit library',
-  'lib.haveItFor': 'I have it: add {name} to my collection',
   'home.cat.title': 'Find kits by league',
   'home.cat.wc': 'World Cup nations',
   'home.cat.ssl': 'Super League',
@@ -1891,6 +1889,15 @@ export const en = {
   'acct.theme.system': 'Like my device',
   'header.darkMode': 'Dark mode',
   'header.lightMode': 'Light mode',
+  'lib.continents': 'Continents',
+  'lib.addToCollection': 'Add to my collection',
+  'lib.addToCollectionFor': 'Add {name} to my collection',
+  'lib.signInToAdd': 'Sign in to add shirts to your collection.',
+  'addkit.title': 'Add to my collection',
+  'addkit.photosLater': 'The library picture shows until you add your own photos.',
+  'addkit.save': 'Add to collection',
+  'addkit.withPhotos': 'Add with my own photos instead',
+  'home.cat.more': 'More leagues',
   // @@end
 };
 
