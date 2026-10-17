@@ -67,6 +67,7 @@ const VARIANT_KEYS: Record<string, string> = {
   'Travel Polo': 'lib.v.travelPolo',
   Anniversary: 'lib.v.anniversary',
   Pride: 'lib.v.pride',
+  Women: 'lib.v.women',
   Special: 'lib.v.special',
   'Swiss Cup': 'lib.v.swissCup',
   Home: 'lib.v.home',

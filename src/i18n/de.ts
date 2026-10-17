@@ -1899,5 +1899,10 @@ export const de: Messages = {
   'addkit.save': 'Zur Kollektion hinzufügen',
   'addkit.withPhotos': 'Lieber mit eigenen Fotos erfassen',
   'home.cat.more': 'Weitere Ligen',
+  'lib.v.women': 'Frauen',
+  'news.title': 'Trikot-News',
+  'news.source': 'Schlagzeilen und Links von {source}',
+  'news.read': 'Auf {source} lesen',
+  'news.kit': '{club}-Trikot in der Bibliothek',
   // @@end
 };

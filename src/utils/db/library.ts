@@ -139,3 +139,22 @@ export async function loadLegendKits(legend: string): Promise<KitTile[]> {
   if (error) throw error;
   return data || [];
 }
+
+/** Kit news (headline and link from the source, matched to a library kit when we have it). */
+export interface NewsItem {
+  id: string;
+  source: string;
+  url: string;
+  title: string;
+  published_on: string;
+  club_id: string | null;
+  club_name: string | null;
+  kit_season: string | null;
+  kit_image: string | null;
+}
+
+export async function loadNews(limit = 5): Promise<NewsItem[]> {
+  const { data, error } = await (await sb()).rpc('latest_news', { p_limit: limit });
+  if (error) throw error;
+  return data || [];
+}

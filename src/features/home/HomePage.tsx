@@ -20,6 +20,7 @@ import { Eras } from '../discover/Eras.tsx';
 import { Legends } from '../discover/Legends.tsx';
 import { DesignTeaser } from '../designer/DesignTeaser.tsx';
 import { PopularToday } from '../discover/PopularToday.tsx';
+import { KitNews } from '../discover/KitNews.tsx';
 import { DiscoverCollectors } from './DiscoverCollectors.tsx';
 import { HomeBento } from './HomeBento.tsx';
 import { HomePlay } from './HomePlay.tsx';
@@ -61,6 +62,7 @@ function VisitorPage() {
   return (
     <main id="main" style={{ animation: 'kvIn .45s ease both' }}>
       <Hero />
+      <KitNews />
       <Categories />
       <PopularToday />
       <Eras />
@@ -92,6 +94,7 @@ function MemberPage() {
   return (
     <main id="main" style={{ animation: 'kvIn .45s ease both' }}>
       <MemberHome />
+      <KitNews />
       <Categories />
       <PopularToday />
       <DiscoverCollectors />

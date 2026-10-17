@@ -1898,6 +1898,11 @@ export const en = {
   'addkit.save': 'Add to collection',
   'addkit.withPhotos': 'Add with my own photos instead',
   'home.cat.more': 'More leagues',
+  'lib.v.women': 'Women',
+  'news.title': 'Kit news',
+  'news.source': 'Headlines and links from {source}',
+  'news.read': 'Read on {source}',
+  'news.kit': '{club} kit in the library',
   // @@end
 };
 

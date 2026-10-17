@@ -1899,5 +1899,10 @@ export const fr: Messages = {
   'addkit.save': 'Ajouter à la collection',
   'addkit.withPhotos': 'Plutôt avec mes propres photos',
   'home.cat.more': 'Autres ligues',
+  'lib.v.women': 'Féminines',
+  'news.title': 'Actu maillots',
+  'news.source': 'Titres et liens de {source}',
+  'news.read': 'Lire sur {source}',
+  'news.kit': 'Maillot {club} dans la bibliothèque',
   // @@end
 };
