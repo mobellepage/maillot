@@ -1886,5 +1886,11 @@ export const de: Messages = {
   'des.crestText': 'Kürzel im Wappen',
   'des.crestColor': 'Wappenfarbe',
   'des.crestAccent': 'Wappenrand und Schrift',
+  'acct.theme': 'Darstellung',
+  'acct.theme.light': 'Hell',
+  'acct.theme.dark': 'Dunkel',
+  'acct.theme.system': 'Wie Gerät',
+  'header.darkMode': 'Dunkler Modus',
+  'header.lightMode': 'Heller Modus',
   // @@end
 };

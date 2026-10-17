@@ -1,6 +1,7 @@
 import { lazy, Suspense } from 'react';
 import { Link, NavLink, useLocation, useNavigate, useSearchParams } from 'react-router';
-import { HeartIcon, SearchIcon } from '../ui/index.ts';
+import { HeartIcon, MoonIcon, SearchIcon, SunIcon } from '../ui/index.ts';
+import { isDark, setThemePref, useThemePref } from '../lib/theme.ts';
 import { usePrefs } from '../lib/prefs.tsx';
 import { useSession } from '../lib/session.tsx';
 import { useToast } from '../lib/toast.tsx';
@@ -92,6 +93,7 @@ export default function Header() {
             </option>
           ))}
         </select>
+        <ThemeToggle />
         <Link to="/watchlist" aria-label={t('header.watchlist', { n: wished })} className="icon-btn" style={{ width: 'auto', padding: '0 12px', borderRadius: 999, gap: 6, display: 'flex', alignItems: 'center', fontFamily: 'var(--font-mono)', fontSize: 13, color: 'var(--text)' }}>
           <HeartIcon size={15} filled style={{ color: 'var(--accent)' }} />
           {wished}
@@ -124,5 +126,17 @@ export default function Header() {
         )}
       </div>
     </header>
+  );
+}
+
+/** Sun / moon: switches between the light and the dark look. */
+function ThemeToggle() {
+  const { t } = usePrefs();
+  useThemePref(); // re-render on change
+  const dark = isDark();
+  return (
+    <button type="button" className="icon-btn" aria-label={dark ? t('header.lightMode') : t('header.darkMode')} title={dark ? t('header.lightMode') : t('header.darkMode')} onClick={() => setThemePref(dark ? 'light' : 'dark')} style={{ color: 'var(--text)' }}>
+      {dark ? <SunIcon /> : <MoonIcon />}
+    </button>
   );
 }

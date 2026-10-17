@@ -1886,5 +1886,11 @@ export const fr: Messages = {
   'des.crestText': 'Sigle sur l\'écusson',
   'des.crestColor': 'Couleur de l\'écusson',
   'des.crestAccent': 'Bord et lettres de l\'écusson',
+  'acct.theme': 'Apparence',
+  'acct.theme.light': 'Clair',
+  'acct.theme.dark': 'Sombre',
+  'acct.theme.system': 'Comme l\'appareil',
+  'header.darkMode': 'Mode sombre',
+  'header.lightMode': 'Mode clair',
   // @@end
 };

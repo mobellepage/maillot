@@ -11,7 +11,8 @@ import { useToast } from '../../lib/toast.tsx';
 import * as db from '../../utils/db.ts';
 import type { Currency } from '../../utils/currency.ts';
 import type { Lang } from '../../i18n/index.ts';
-import { Button, ButtonLink, Card, Notice, Page } from '../../ui/index.ts';
+import { Button, ButtonLink, Card, Notice, Page, Segmented } from '../../ui/index.ts';
+import { setThemePref, useThemePref } from '../../lib/theme.ts';
 import { useConfirm } from '../../ui/Confirm.tsx';
 import { PayoutsCard } from '../vault/PayoutsCard.tsx';
 import { ProfileCard } from '../collectors/ProfileCard.tsx';
@@ -34,6 +35,7 @@ function Row({ label, children }: { label: string; children: ReactNode }) {
 
 function Settings() {
   const { t, lang, setLang, langs, currency, setCurrency, currencies } = usePrefs();
+  const theme = useThemePref();
   return (
     <Card>
       <h2 style={{ fontSize: 17, marginBottom: 6 }}>{t('acct.display')}</h2>
@@ -54,6 +56,18 @@ function Settings() {
             </option>
           ))}
         </select>
+      </Row>
+      <Row label={t('acct.theme')}>
+        <Segmented
+          label={t('acct.theme')}
+          value={theme}
+          onChange={setThemePref}
+          options={[
+            { value: 'light', label: t('acct.theme.light') },
+            { value: 'dark', label: t('acct.theme.dark') },
+            { value: 'system', label: t('acct.theme.system') }
+          ]}
+        />
       </Row>
     </Card>
   );

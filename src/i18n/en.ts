@@ -1885,6 +1885,12 @@ export const en = {
   'des.crestText': 'Short name on the crest',
   'des.crestColor': 'Crest colour',
   'des.crestAccent': 'Crest border and letters',
+  'acct.theme': 'Appearance',
+  'acct.theme.light': 'Light',
+  'acct.theme.dark': 'Dark',
+  'acct.theme.system': 'Like my device',
+  'header.darkMode': 'Dark mode',
+  'header.lightMode': 'Light mode',
   // @@end
 };
 

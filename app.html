@@ -24,7 +24,9 @@
         if (l === 'de' || l === 'fr') document.documentElement.setAttribute('data-lang-pending', '');
       } catch (e) {}
       try {
-        if (localStorage.getItem('kv_theme') !== 'dark') document.documentElement.setAttribute('data-theme', 'light');
+        var th = localStorage.getItem('kv_theme');
+        if (th === 'system') th = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        if (th !== 'dark') document.documentElement.setAttribute('data-theme', 'light');
       } catch (e) {
         document.documentElement.setAttribute('data-theme', 'light');
       }
