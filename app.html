@@ -33,10 +33,19 @@
       html[data-lang-pending] #root { visibility: hidden; }
       html { background: #0a0c0b; }
       html[data-theme='light'] { background: #ffffff; }
+      /* Start screen: the logo until the app has drawn (and its language has loaded). */
+      #boot { position: fixed; inset: 0; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; background: #0a0c0b; color: #f2f4f1; font: 800 26px/1 -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; letter-spacing: -0.01em; }
+      html[data-theme='light'] #boot { background: #ffffff; color: #1d1d1f; }
+      #boot img { width: 76px; height: 76px; border-radius: 19px; animation: boot-pulse 1.3s ease-in-out infinite; }
+      @keyframes boot-pulse { 50% { transform: scale(0.93); opacity: 0.85; } }
+      @media (prefers-reduced-motion: reduce) { #boot img { animation: none; } }
+      #root:not(:empty) + #boot { display: none; }
+      html[data-lang-pending] #root:not(:empty) + #boot { display: flex; }
     </style>
   </head>
   <body>
     <div id="root"></div>
+    <div id="boot" aria-hidden="true"><img src="/icons/icon-192.png" alt="" width="76" height="76" /><span>Maillot</span></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

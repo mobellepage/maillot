@@ -207,3 +207,15 @@ test('the side rail leads to the puzzle and the library', async ({ page }) => {
   await page.goto('/signin');
   await expect(rail).toHaveCount(0);
 });
+
+test('Discover leads to eras and legends', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.getByRole('link', { name: /Build your digital shirt collection/ })).toBeVisible();
+  await page.getByRole('link', { name: '90s', exact: true }).click();
+  await expect(page).toHaveURL(/\/era\/1990$/);
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Kits of the 90s');
+  await page.goto('/');
+  await page.getByRole('link', { name: 'Zinédine Zidane' }).click();
+  await expect(page).toHaveURL(/\/legends\/zidane$/);
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('The kits of Zinédine Zidane');
+});

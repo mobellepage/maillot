@@ -1,19 +1,19 @@
-import { Suspense } from 'react';
-import { Outlet, ScrollRestoration, useLocation } from 'react-router';
-import Header from './Header.tsx';
-import MobileNav from './MobileNav.tsx';
-import Footer from './Footer.tsx';
-import { PageFallback } from './PageFallback.tsx';
-import { parseShareHash } from '../utils/share.ts';
-import { PublicVaultPage } from './pages.tsx';
-import { useCatalogSync } from '../features/catalog/useCatalog.ts';
-import { useOnboardingRedirect } from './useOnboardingRedirect.ts';
-import { OfflineBar } from './OfflineBar.tsx';
-import { RouteAnnouncer } from './RouteAnnouncer.tsx';
-import { AuthLinkNotice } from './AuthLinkNotice.tsx';
-import { PrototypeBar } from './PrototypeBar.tsx';
-import { AppUpdates } from './AppUpdates.tsx';
-import { FeatureRail } from './FeatureRail.tsx';
+import { Suspense } from "react";
+import { Outlet, ScrollRestoration, useLocation } from "react-router";
+import Header from "./Header.tsx";
+import MobileNav from "./MobileNav.tsx";
+import Footer from "./Footer.tsx";
+import { PageFallback } from "./PageFallback.tsx";
+import { parseShareHash } from "../utils/share.ts";
+import { PublicVaultPage } from "./pages.tsx";
+import { useCatalogSync } from "../features/catalog/useCatalog.ts";
+import { useOnboardingRedirect } from "./useOnboardingRedirect.ts";
+import { OfflineBar } from "./OfflineBar.tsx";
+import { RouteAnnouncer } from "./RouteAnnouncer.tsx";
+import { AuthLinkNotice } from "./AuthLinkNotice.tsx";
+import { PrototypeBar } from "./PrototypeBar.tsx";
+import { AppUpdates } from "./AppUpdates.tsx";
+import { FeatureRail } from "./FeatureRail.tsx";
 
 export default function RootLayout() {
   useCatalogSync();
@@ -29,7 +29,10 @@ export default function RootLayout() {
     );
 
   return (
-    <div className="app-shell" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+    <div
+      className="app-shell"
+      style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}
+    >
       <RouteAnnouncer />
       <AuthLinkNotice />
       <OfflineBar />
@@ -48,7 +51,9 @@ export default function RootLayout() {
           would restore one page's scroll position on another. Key initial
           loads by path; in-app navigations by entry (back restores, new
           navigations start at the top). */}
-      <ScrollRestoration getKey={(loc) => (loc.key === 'default' ? loc.pathname : loc.key)} />
+      <ScrollRestoration
+        getKey={(loc) => (loc.key === "default" ? loc.pathname : loc.key)}
+      />
     </div>
   );
 }

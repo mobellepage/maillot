@@ -34,3 +34,4 @@ supabase/.branches
 
 # Private partner demos (scripts/partner-demo.mjs) — third-party content, never committed
 public/demo/
+tsconfig.tsbuildinfo
