@@ -1901,9 +1901,15 @@ export const en = {
   'lib.v.women': 'Women',
   'news.title': 'Kit news',
   'news.source': 'Headlines and pictures: {source}',
-  'news.read': 'Read on {source}',
   'news.kit': '{club} kit in the library',
   'lib.region.other': 'Other select teams',
+  'news.from': 'From {source}',
+  'news.readFull': 'Read the full article on {source}',
+  'news.credit': 'Headline, teaser and picture: {source}.',
+  'news.inLibrary': 'In the library',
+  'news.allKits': 'All {club} kits',
+  'news.more': 'More kit news',
+  'news.notFound': 'This news is no longer here.',
   // @@end
 };
 

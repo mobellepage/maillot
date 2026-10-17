@@ -1902,8 +1902,14 @@ export const fr: Messages = {
   'lib.v.women': 'Féminines',
   'news.title': 'Actu maillots',
   'news.source': 'Titres et photos : {source}',
-  'news.read': 'Lire sur {source}',
   'news.kit': 'Maillot {club} dans la bibliothèque',
   'lib.region.other': 'Autres sélections',
+  'news.from': 'De {source}',
+  'news.readFull': 'Lire l\'article complet sur {source}',
+  'news.credit': 'Titre, chapeau et photo : {source}.',
+  'news.inLibrary': 'Dans la bibliothèque',
+  'news.allKits': 'Tous les maillots {club}',
+  'news.more': 'Autres actus maillots',
+  'news.notFound': 'Cette actu n\'existe plus.',
   // @@end
 };

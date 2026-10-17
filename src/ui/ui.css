@@ -1757,7 +1757,12 @@ html:not([data-theme='light']) .store-badge > img {
   display: flex;
   flex-direction: column;
 }
-.news-card--text .news-card-read {
+.news-card--text .news-card-open {
+  all: unset;
+  cursor: pointer;
+  color: inherit;
+}
+.news-card-read {
   margin-top: auto;
 }
 .news-card--text h3 {
@@ -1815,6 +1820,11 @@ html:not([data-theme='light']) .store-badge > img {
 .news-card-body h3 a {
   color: inherit;
   text-decoration: none;
+}
+.news-card-open {
+  all: unset;
+  cursor: pointer;
+  color: inherit;
 }
 .news-card-read {
   font-size: 11.5px;

@@ -35,6 +35,7 @@ import {
   LegendPage,
   DesignerPage,
   DesignPage,
+  NewsPage,
   ReturnPage,
   AccountPage,
   ResetPasswordPage
@@ -61,6 +62,7 @@ export const routes: RouteObject[] = [
           { path: 'legends/:slug', element: <LegendPage /> },
           { path: 'designer', element: <DesignerPage /> },
           { path: 'design/:id', element: <DesignPage /> },
+          { path: 'news/:id', element: <NewsPage /> },
           { path: 'market', element: <BrowsePage /> },
           { path: 'shirt/:id', element: <DetailPage /> },
           { path: 'sell', element: <SellPage /> },

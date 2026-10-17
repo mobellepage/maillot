@@ -149,8 +149,11 @@ export interface NewsItem {
   published_on: string;
   /** The title picture, in our news-images bucket. */
   image_path: string | null;
+  /** The source's short teaser. */
+  excerpt: string | null;
   club_id: string | null;
   club_name: string | null;
+  kit_id: string | null;
   kit_season: string | null;
   kit_image: string | null;
 }
@@ -159,4 +162,10 @@ export async function loadNews(limit = 5): Promise<NewsItem[]> {
   const { data, error } = await (await sb()).rpc('latest_news', { p_limit: limit });
   if (error) throw error;
   return data || [];
+}
+
+export async function loadNewsItem(id: string): Promise<NewsItem | null> {
+  const { data, error } = await (await sb()).rpc('news_item', { p_id: id });
+  if (error) throw error;
+  return data?.[0] ?? null;
 }

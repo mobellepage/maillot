@@ -1,6 +1,6 @@
 // Kit news for Discover: reads the headlines on SoccerBible's football
-// apparel page — title, link, the month in the link and the title picture
-// (used with permission) — and hands them to store_news, which matches each
+// apparel page — title, teaser, link, the month in the link and the title
+// picture (used with permission) — and hands them to store_news, which matches each
 // to a club and kit of the library. Each picture is copied once into the
 // public news-images bucket, so the app loads it from our own storage.
 //
@@ -51,7 +51,7 @@ Deno.serve(async () => {
         // No picture this time; the next run tries again.
       }
     }
-    stored.push({ url: item.url, title: item.title, published_on: item.published_on, ...(image_path ? { image_path } : {}) });
+    stored.push({ url: item.url, title: item.title, published_on: item.published_on, excerpt: item.excerpt ?? null, ...(image_path ? { image_path } : {}) });
   }
 
   const { data: n, error } = await db.rpc("store_news", { p_items: stored });

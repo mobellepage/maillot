@@ -33,4 +33,5 @@ export const EraPage = lazy(() => import('../features/discover/EraPage.tsx'));
 export const LegendPage = lazy(() => import('../features/discover/LegendPage.tsx'));
 export const DesignerPage = lazy(() => import('../features/designer/DesignerPage.tsx'));
 export const DesignPage = lazy(() => import('../features/designer/DesignPage.tsx'));
+export const NewsPage = lazy(() => import('../features/discover/NewsPage.tsx'));
 export const ClubLibraryPage = lazy(() => import('../features/library/ClubLibraryPage.tsx'));
