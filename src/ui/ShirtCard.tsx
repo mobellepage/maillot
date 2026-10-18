@@ -41,8 +41,8 @@ export function ShirtCard({ s, watched, onToggleWatch, priceLabel }: { s: ShirtC
   const { t } = usePrefs();
   return (
     <article className="card card--interactive shirt-card" style={{ padding: 0, borderRadius: 20, overflow: 'hidden', position: 'relative' }}>
-      {/* The shirt sits below the tag and heart row, never under them. */}
-      <div data-shirt-art style={{ position: 'relative', aspectRatio: '1/1', display: 'grid', placeItems: 'center', padding: '16% 8% 6%', background: `radial-gradient(circle at 50% 46%,${s.glow} 0%,rgba(0,0,0,0) 62%),var(--sunken)` }}>
+      {/* A fixed square: the shirt sits below the tag and heart row and never makes the card taller. */}
+      <div data-shirt-art style={{ position: 'relative', aspectRatio: '1/1', minHeight: 0, overflow: 'hidden', display: 'grid', gridTemplate: 'minmax(0,1fr) / minmax(0,1fr)', placeItems: 'center', padding: '16% 8% 6%', background: `radial-gradient(circle at 50% 46%,${s.glow} 0%,rgba(0,0,0,0) 62%),var(--sunken)` }}>
         <span className="badge badge--neutral" style={{ position: 'absolute', top: 10, left: 10, fontSize: 9.5, letterSpacing: '0.1em', textTransform: 'uppercase', borderRadius: 6, background: 'var(--overlay)', border: '1px solid rgba(255,255,255,0.08)' }}>
           {t(s.tag)}
         </span>
