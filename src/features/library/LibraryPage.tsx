@@ -11,6 +11,7 @@ import type { KitClub } from '../../utils/db.ts';
 import { ErrorState, Page, Skeleton } from '../../ui/index.ts';
 import { ClubBand } from './ClubBand.tsx';
 import { TOP5 } from './model.ts';
+import { SHIRTS } from '../../data.ts';
 
 const NATIONS = 'National Teams';
 // Tabs with their own button; every other league sits under "Other".
@@ -46,6 +47,18 @@ export default function LibraryPage() {
           {t('lib.stats', { kits: total, clubs: clubs.data?.length ?? 0 })}
         </p>
       )}
+
+      {/* The models with a market value: look them up, see who has one, watch them. */}
+      <Link to="/library/catalog" className="card card--interactive" style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 18px', marginTop: 18, maxWidth: 680, color: 'var(--text)' }}>
+        <span aria-hidden="true" style={{ fontSize: 24 }}>
+          📈
+        </span>
+        <span style={{ flex: 1, minWidth: 0 }}>
+          <span style={{ display: 'block', fontWeight: 700 }}>{t('lib.catalogTitle')}</span>
+          <span style={{ display: 'block', fontSize: 13, color: 'var(--text-2)', marginTop: 2 }}>{t('lib.catalogBody', { n: SHIRTS.length })}</span>
+        </span>
+        <span aria-hidden="true">›</span>
+      </Link>
 
       <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center', marginTop: 22 }}>
         <div className="field" style={{ flex: '1 1 240px', maxWidth: 360 }}>

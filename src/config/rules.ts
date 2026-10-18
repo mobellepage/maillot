@@ -17,6 +17,15 @@ export const VERSIONS = [
   { key: 'matchWorn', factor: 3.2, needsExpert: true }
 ] as const;
 
+/**
+ * Demo exemplars fill the marketplace and the feed (marked DEMO, not
+ * buyable) until there are enough real ones. Switch off at launch.
+ */
+export const SHOW_DEMO_EXEMPLARS = true;
+
+/** Below this many real shirts to buy, the marketplace says it's just getting started. */
+export const MARKET_FEW_OFFERS = 12;
+
 /** Offers on collection shirts — public.offer_policy(). */
 export const OFFER_POLICY = { validHours: 48, maxRounds: 3 } as const;
 

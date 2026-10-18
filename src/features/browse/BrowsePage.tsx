@@ -1,3 +1,5 @@
+// /library/catalog: the catalogue models with their market value (a very good
+// replica), to look up and watch. Shirts to buy are on the marketplace.
 import { useState } from 'react';
 import { useCatalog } from '../catalog/useCatalog.ts';
 import { usePageMeta } from '../../lib/meta.ts';
@@ -16,7 +18,6 @@ type Quick = { label: string } & ({ kind: 'filter'; key: FilterKey; value: strin
 const QUICK: Quick[] = [
   { label: 'filter.q.retro', kind: 'filter', key: 'type', value: 'Retro' },
   { label: 'filter.q.new', kind: 'filter', key: 'type', value: 'New' },
-  { label: 'filter.q.matchWorn', kind: 'filter', key: 'type', value: 'Match-worn' },
   { label: 'filter.q.national', kind: 'filter', key: 'league', value: 'National Teams' },
   { label: 'filter.q.ssl', kind: 'filter', key: 'league', value: 'Swiss Super League' },
   { label: 'filter.q.under', kind: 'range', max: 120 }

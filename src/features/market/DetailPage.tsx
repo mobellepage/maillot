@@ -17,6 +17,8 @@ import { PriceHistory } from './detail/PriceHistory.tsx';
 import { PricePanel } from './detail/PricePanel.tsx';
 import { ValuationCard } from './detail/ValuationCard.tsx';
 import { useOrderBook, useShirtStats } from './queries.ts';
+import { useExemplars } from './exemplars/useExemplars.ts';
+import { counts } from './exemplars/model.ts';
 
 export default function DetailPage() {
   useCatalog(); // re-render when the live catalogue loads
@@ -33,23 +35,24 @@ export default function DetailPage() {
   const askSellers = [...new Set(book.asks.map((a) => a.user_id).filter((x): x is string => !!x))];
   const sellers = useQuery({ queryKey: ['sellerCards', askSellers.join(',')], enabled: askSellers.length > 0, queryFn: () => db.loadSellerCards(askSellers), staleTime: 60_000 }).data ?? {};
   const { t, label } = usePrefs();
+  const exemplars = useExemplars().list;
   usePageMeta(s ? t('detail.metaTitle', { name: s.name }) : null, s ? t('detail.metaDesc', { name: s.name, brand: s.brand }) : undefined);
 
   useEffect(() => {
     if (s) db.logEvent(user?.id ?? null, s.id, 'view').catch(() => {});
   }, [s, user?.id]);
 
-  if (!s) return <Navigate to="/market" replace />;
+  if (!s) return <Navigate to="/library/catalog" replace />;
 
   const liveAsk = book.asks.find((a) => a.user_id !== user?.id);
   return (
     <Page style={{ paddingTop: 24 }}>
       <nav aria-label={t('detail.breadcrumb')} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: 'var(--muted)', marginBottom: 22, flexWrap: 'wrap' }}>
-        <Link to="/market" className="nav-link" style={{ padding: 0 }}>
+        <Link to="/library/catalog" className="nav-link" style={{ padding: 0 }}>
           {t('detail.back')}
         </Link>
         <span aria-hidden="true">/</span>
-        <Link to={'/market?league=' + encodeURIComponent(s.league)} className="nav-link" style={{ padding: 0 }}>
+        <Link to={'/library/catalog?league=' + encodeURIComponent(s.league)} className="nav-link" style={{ padding: 0 }}>
           {label('league', s.league)}
         </Link>
         <span aria-hidden="true">/</span>
@@ -74,6 +77,7 @@ export default function DetailPage() {
           sellers={sellers}
           bookError={bookQuery.isError}
           retryBook={() => bookQuery.refetch()}
+          inCollections={s ? counts(exemplars, s.id) : { total: 0, buyable: 0 }}
         />
       </div>
 

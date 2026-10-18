@@ -21,12 +21,13 @@ test('search leads to a shareable product URL and Back works', async ({ page }) 
   await expect(page.getByRole('option', { name: /France 1998 Home/ })).toBeVisible();
   await page.getByRole('button', { name: 'Search', exact: true }).click();
   // The search lives in the URL, so results are shareable.
-  await expect(page).toHaveURL(/\/market\?q=zidane$/);
-  await page.getByRole('link', { name: 'France 1998 Home' }).click();
+  // The market lists shirts in collections (here a demo one) — every one, from the home search.
+  await expect(page).toHaveURL(/\/market\?q=zidane&status=all$/);
+  await page.getByRole('link', { name: 'France 1998 Home' }).first().click();
   await expect(page).toHaveURL(/\/shirt\/fra-98$/);
   await expect(page).toHaveTitle(/^France 1998 Home/);
   await page.goBack();
-  await expect(page).toHaveURL(/\/market\?q=zidane$/);
+  await expect(page).toHaveURL(/\/market\?q=zidane&status=all$/);
 });
 
 test('deep link to a product shows market value and an honest empty order book', async ({ page }) => {
@@ -153,7 +154,7 @@ test('an expired email link is explained, not silently ignored', async ({ page }
 
 test('on a phone the filters open as a sheet whose button counts the matches @mobile', async ({ page }) => {
   test.skip(!test.info().project.name.includes('mobile'), 'phone layout only');
-  await page.goto('/market');
+  await page.goto('/library/catalog');
   await page.getByRole('button', { name: 'Filters' }).click();
   const sheet = page.getByRole('dialog');
   const show = sheet.getByRole('button', { name: /^Show \d+ shirts$/ });
@@ -165,8 +166,8 @@ test('on a phone the filters open as a sheet whose button counts the matches @mo
   await expect(page).toHaveURL(/type=Retro/);
 });
 
-test('the market can show a compact list instead of cards, and remembers it', async ({ page }) => {
-  await page.goto('/market');
+test('the catalogue can show a compact list instead of cards, and remembers it', async ({ page }) => {
+  await page.goto('/library/catalog');
   await page.getByRole('button', { name: 'Compact list' }).click();
   await expect(page.getByRole('button', { name: 'Compact list' })).toHaveAttribute('aria-pressed', 'true');
   const list = page.getByRole('list', { name: 'Results' });
@@ -228,4 +229,27 @@ test('anyone can play with the kit designer', async ({ page }) => {
   await expect(page.getByRole('img', { name: 'My kit · Back' })).toContainText('7');
   // Saving needs an account.
   await expect(page.getByRole('link', { name: 'Save design' })).toHaveAttribute('href', '/signin');
+});
+
+test('the market lists shirts in collections: buyable first, every one on request', async ({ page }) => {
+  await page.goto('/market');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Shirts from collections');
+  const cards = page.getByRole('list', { name: 'Results' }).getByRole('listitem');
+  await expect(cards.first()).toContainText(/For sale|Open to offers/);
+  await expect(cards.first()).toContainText('DEMO');
+  const buyable = await cards.count();
+  await page.getByRole('button', { name: 'All in collections' }).click();
+  await expect(page).toHaveURL(/status=all/);
+  await expect.poll(() => cards.count()).toBeGreaterThan(buyable);
+  // Catalogue models are not listed here: no "market value = …" grid, but the demo match-worn piece is.
+  await expect(page.getByText('Kaká 22')).toBeVisible();
+  await expect(cards.filter({ hasText: 'Kaká 22' })).toContainText('Value after verification');
+});
+
+test('a model page counts its shirts in collections and leads to them', async ({ page }) => {
+  await page.goto('/shirt/acm-0607');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('AC Milan 2006/07 Home');
+  await page.getByRole('link', { name: /in collections, \d+ to buy/ }).click();
+  await expect(page).toHaveURL(/\/market\?shirt=acm-0607&status=all$/);
+  await expect(page.getByText('Kaká 22')).toBeVisible();
 });

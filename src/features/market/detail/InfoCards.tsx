@@ -19,7 +19,7 @@ export function InfoCards({ s, stats, watched, toggleWatch }: { s: Shirt; stats:
             [t('ic.season'), s.season],
             [t('ic.kit'), t('lib.kind.' + (s.kit ?? 'Home').toLowerCase())],
             [t('ic.brand'), s.brand],
-            [t('ic.league'), <Link key="l" to={'/market?league=' + encodeURIComponent(s.league)}>{label('league', s.league)}</Link>],
+            [t('ic.league'), <Link key="l" to={'/library/catalog?league=' + encodeURIComponent(s.league)}>{label('league', s.league)}</Link>],
             [t('ic.catalogueNo'), s.sku],
             [t('ic.productCodes'), s.productCodes?.length ? s.productCodes.join(', ') : '—']
           ]}

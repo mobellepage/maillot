@@ -49,6 +49,15 @@ export async function searchCollectors(q: string): Promise<CollectorHit[]> {
 }
 
 /** A collector's shirts that aren't private, newest first (no values, no label photos). */
+export type MarketExemplarRow = RpcReturns<'market_exemplars'>[number];
+
+/** Every shirt in a collection that isn't private (from collections that aren't private): the marketplace. */
+export async function loadMarketExemplars(): Promise<MarketExemplarRow[]> {
+  const { data, error } = await (await sb()).rpc('market_exemplars', { p_limit: 500 });
+  if (error) throw error;
+  return data ?? [];
+}
+
 export async function loadPublicCollection(handle: string): Promise<PublicShirt[]> {
   const { data, error } = await (await sb()).rpc('public_collection', { p_handle: handle });
   if (error) throw error;

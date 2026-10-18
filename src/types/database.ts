@@ -968,6 +968,34 @@ export type Database = {
           kit_image: string | null;
         }[];
       };
+      market_exemplars: {
+        Args: { p_limit?: number };
+        Returns: {
+          id: string;
+          handle: string;
+          avatar: string | null;
+          dealer: boolean;
+          catalog_id: string | null;
+          kit_id: string | null;
+          kit_image: string | null;
+          club: string | null;
+          season: string | null;
+          kind: string | null;
+          variant: string | null;
+          league: string | null;
+          version: string | null;
+          size: string | null;
+          grade: number | null;
+          visibility: 'public' | 'offers' | 'forsale';
+          sale_price: number | null;
+          verification_level: string;
+          verified: boolean;
+          inquiries_enabled: boolean;
+          photo_path: string | null;
+          thumb_path: string | null;
+          added_at: string;
+        }[];
+      };
       discover_collectors: {
         Args: { p_limit?: number };
         Returns: { handle: string; avatar: string | null; shirts: number; followers: number; dealer: boolean; is_following: boolean; preview: Json }[];

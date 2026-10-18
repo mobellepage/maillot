@@ -25,9 +25,11 @@ export interface PricePanelProps {
   sellers?: Record<string, SellerCard>;
   bookError?: boolean;
   retryBook?: () => void;
+  /** Exemplars of this model in members' collections (the marketplace). */
+  inCollections?: { total: number; buyable: number };
 }
 
-export function PricePanel({ s, size, setSize, book, myUserId, stats, watched, toggleWatch, openBuy, openBid, sellers, bookError, retryBook }: PricePanelProps) {
+export function PricePanel({ s, size, setSize, book, myUserId, stats, watched, toggleWatch, openBuy, openBid, sellers, bookError, retryBook, inCollections }: PricePanelProps) {
   const { money, t, tp, label } = usePrefs();
   const liveAsk = book.asks.find((a) => a.user_id !== myUserId) ?? null;
   const myAsk = myUserId ? book.asks.find((a) => a.user_id === myUserId) : undefined;
@@ -53,6 +55,11 @@ export function PricePanel({ s, size, setSize, book, myUserId, stats, watched, t
         </span>
         <span>{listings ? tp('pp.listed', listings) : t('pp.noListings')}</span>
       </div>
+      {inCollections && inCollections.total > 0 && (
+        <p style={{ margin: '12px 0 0', fontSize: 14 }}>
+          <Link to={`/market?shirt=${s.id}&status=all`}>{t('pp.inCollections', { n: inCollections.total, b: inCollections.buyable })} ›</Link>
+        </p>
+      )}
 
       <fieldset style={{ border: 0, padding: 0, margin: '30px 0 0' }}>
         <legend style={{ display: 'flex', width: '100%', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 10, padding: 0 }}>

@@ -9,7 +9,7 @@ import { useToast } from '../../lib/toast.tsx';
 import * as db from '../../utils/db.ts';
 import { Button, Dialog, TextField } from '../../ui/index.ts';
 
-export function OfferButton({ itemId, name, owner, suggested }: { itemId: string; name: string; owner: string; suggested?: number | undefined }) {
+export function OfferButton({ itemId, name, owner, suggested, label, primary }: { itemId: string; name: string; owner: string; suggested?: number | undefined; label?: string; primary?: boolean }) {
   const { t } = usePrefs();
   const { user } = useSession();
   const { pathname } = useLocation();
@@ -30,14 +30,14 @@ export function OfferButton({ itemId, name, owner, suggested }: { itemId: string
   const btn = { position: 'relative', zIndex: 2, marginTop: 10 } as const;
   if (!user)
     return (
-      <Link to="/signin" state={{ from: pathname, notice: 'offer.signIn' }} className="btn btn--secondary btn--sm" style={btn}>
-        {t('offer.cta')}
+      <Link to="/signin" state={{ from: pathname, notice: 'offer.signIn' }} className={'btn btn--sm ' + (primary ? 'btn--primary' : 'btn--secondary')} style={btn}>
+        {label ?? t('offer.cta')}
       </Link>
     );
   return (
     <>
-      <Button size="sm" variant="secondary" style={btn} onClick={() => setOpen(true)}>
-        {t('offer.cta')}
+      <Button size="sm" variant={primary ? 'primary' : 'secondary'} style={btn} onClick={() => setOpen(true)}>
+        {label ?? t('offer.cta')}
       </Button>
       <Dialog open={open} onClose={() => setOpen(false)} title={t('offer.title')}>
         <p style={{ fontSize: 14, color: 'var(--text-2)', lineHeight: 1.5, margin: '0 0 16px' }}>{t('offer.body', { name, handle: '@' + owner })}</p>

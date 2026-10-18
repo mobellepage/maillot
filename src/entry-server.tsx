@@ -16,6 +16,7 @@ import { ShirtGraphic } from './ui/ShirtGraphic.tsx';
 export const PATHS = [
   '/',
   '/market',
+  '/library/catalog',
   '/sell',
   '/authentication',
   '/price-index',

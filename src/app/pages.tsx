@@ -3,6 +3,7 @@ import { lazy } from 'react';
 
 export const HomePage = lazy(() => import('../features/home/HomePage.tsx'));
 export const BrowsePage = lazy(() => import('../features/browse/BrowsePage.tsx'));
+export const MarketPage = lazy(() => import('../features/market/exemplars/MarketPage.tsx'));
 export const DetailPage = lazy(() => import('../features/market/DetailPage.tsx'));
 export const SellPage = lazy(() => import('../features/sell/SellPage.tsx'));
 export const VaultPage = lazy(() => import('../features/vault/VaultPage.tsx'));

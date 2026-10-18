@@ -77,7 +77,8 @@ export function HomeSearch() {
         onSubmit={(e) => {
           e.preventDefault();
           if (active >= 0 && options[active]) navigate(options[active]!.to);
-          else navigate('/market' + (q.trim() ? '?q=' + encodeURIComponent(q.trim()) : ''));
+          // Which shirt do you have, or want: every shirt in a collection, not only the ones to buy.
+          else navigate('/market' + (q.trim() ? '?q=' + encodeURIComponent(q.trim()) + '&status=all' : ''));
         }}
       >
         <div className="hero-search" style={{ display: 'flex', alignItems: 'center', gap: 12, height: 64, padding: '0 6px 0 22px', borderRadius: 999, background: 'var(--surface-2)', border: '1px solid var(--line)', boxShadow: '0 20px 60px rgba(0,0,0,0.12)', color: 'var(--muted)' }}>
