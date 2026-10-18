@@ -31,10 +31,12 @@ interface Props extends ShirtLook {
 
 export function ShirtGraphic({ pat, trim, crest, num, photo, view = 'front', hero, flat, printName, printNumber, style, title }: Props) {
   if (photo && view === 'front') {
-    // The shirt takes 78 % of its photo square, so the photo is drawn that much
-    // wider than the drawing would be, to look the same size.
+    // A studio photo has the shirt in 78 % of its square, so it is drawn that
+    // much wider than the drawing would be, to look the same size. Library
+    // pictures (.webp) are cut tight around the shirt and keep the size asked.
     const pct = typeof style?.width === 'string' && style.width.endsWith('%') ? parseFloat(style.width) : NaN;
-    const width = Number.isFinite(pct) ? Math.min(100, Math.round(pct / 0.78)) + '%' : '100%';
+    const fill = photo.endsWith('.webp') ? 1 : 0.78;
+    const width = Number.isFinite(pct) ? Math.min(100, Math.round(pct / fill)) + '%' : '100%';
     return (
       <img
         // A library picture is one file; a studio photo comes in two sizes.
@@ -46,7 +48,7 @@ export function ShirtGraphic({ pat, trim, crest, num, photo, view = 'front', her
         decoding="async"
         // A transparent cut-out on whatever tile it is in, with a soft shadow (.shirt-photo).
         className={flat ? undefined : 'shirt-photo'}
-        style={{ display: 'block', width, height: 'auto', aspectRatio: '1/1', objectFit: 'contain', animation: style?.animation, viewTransitionName: style?.viewTransitionName }}
+        style={{ display: 'block', width, height: 'auto', aspectRatio: '1/1', objectFit: 'contain', maxHeight: '100%', animation: style?.animation, viewTransitionName: style?.viewTransitionName }}
       />
     );
   }

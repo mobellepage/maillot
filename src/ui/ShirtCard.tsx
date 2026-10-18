@@ -41,11 +41,12 @@ export function ShirtCard({ s, watched, onToggleWatch, priceLabel }: { s: ShirtC
   const { t } = usePrefs();
   return (
     <article className="card card--interactive shirt-card" style={{ padding: 0, borderRadius: 20, overflow: 'hidden', position: 'relative' }}>
-      <div data-shirt-art style={{ position: 'relative', aspectRatio: '1/1', display: 'grid', placeItems: 'center', background: `radial-gradient(circle at 50% 46%,${s.glow} 0%,rgba(0,0,0,0) 62%),var(--sunken)` }}>
+      {/* The shirt sits below the tag and heart row, never under them. */}
+      <div data-shirt-art style={{ position: 'relative', aspectRatio: '1/1', display: 'grid', placeItems: 'center', padding: '16% 8% 6%', background: `radial-gradient(circle at 50% 46%,${s.glow} 0%,rgba(0,0,0,0) 62%),var(--sunken)` }}>
         <span className="badge badge--neutral" style={{ position: 'absolute', top: 10, left: 10, fontSize: 9.5, letterSpacing: '0.1em', textTransform: 'uppercase', borderRadius: 6, background: 'var(--overlay)', border: '1px solid rgba(255,255,255,0.08)' }}>
           {t(s.tag)}
         </span>
-        <ShirtGraphic {...s.look} style={{ width: '68%' }} />
+        <ShirtGraphic {...s.look} style={{ width: '82%' }} />
       </div>
       <div style={{ padding: '12px 14px 14px', display: 'flex', flexDirection: 'column', gap: 5 }}>
         <div className="mono" style={{ fontSize: 10.5, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--muted)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
