@@ -53,7 +53,7 @@ insert into asks (user_id, shirt_id, size, amount) values ('00000000-0000-4000-a
 insert into asks (user_id, shirt_id, size, amount) values ('00000000-0000-4000-a000-0000000f0a02', 'sui-26', 'XL', 190);
 select is((select count(*)::int from notifications where user_id = '00000000-0000-4000-a000-0000000f0a01' and type = 'followed_listing'), 1, 'a new listing notifies followers once while unread');
 update custom_items set visibility = 'private' where id = 't-star-1';
-update custom_items set visibility = 'forsale', photos = '{"front":{},"back":{},"crest":{},"product_code":{}}'::jsonb || photos where id = 't-star-1';
+update custom_items set visibility = 'forsale', photos = '{"front":{},"back":{},"crest":{},"flock_closeup":{},"product_code":{}}'::jsonb || photos where id = 't-star-1';
 select is((select data ->> 'handle' from notifications where user_id = '00000000-0000-4000-a000-0000000f0a01' and type = 'followed_shirt'), 'star_kits', 'a shirt that becomes visible notifies followers');
 
 select is((select verification_level from public_collection('star_kits')), null::text, 'without the opt-in no valuation inputs leave the database');
