@@ -1930,6 +1930,7 @@ export const en = {
   'points.from.one': 'from {n} shirt bought',
   'points.from.other': 'from {n} shirts bought',
   'points.how': 'Every shirt you buy through Maillot earns {shirt} points plus {franc} per franc.',
+  'points.private': 'Only you can see your points.',
   'points.shop': 'To the market',
   'avatar.upload': 'Upload my own photo',
   'avatar.uploadFailed': 'The photo could not be saved. Please try another one.',

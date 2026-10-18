@@ -1931,6 +1931,7 @@ export const de: Messages = {
   'points.from.one': 'aus {n} gekauftem Trikot',
   'points.from.other': 'aus {n} gekauften Trikots',
   'points.how': 'Jedes Trikot, das du über Maillot kaufst, bringt {shirt} Punkte plus {franc} pro Franken.',
+  'points.private': 'Deine Punkte siehst nur du.',
   'points.shop': 'Zum Marktplatz',
   'avatar.upload': 'Eigenes Foto hochladen',
   'avatar.uploadFailed': 'Das Foto konnte nicht gespeichert werden. Bitte versuch ein anderes.',

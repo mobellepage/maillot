@@ -162,7 +162,6 @@ export default function VaultPage({ tab }: { tab: Tab }) {
 
       {/* The collector's level first, then the favourite team's checklist. */}
       {!loading && !error && <LevelCard shirts={items.length} value={totalValue} />}
-      {!loading && !error && <PointsCard />}
       <div style={{ marginTop: 16 }}>
         <FavoriteClub />
       </div>
@@ -183,6 +182,8 @@ export default function VaultPage({ tab }: { tab: Tab }) {
           <OffersPanel />
           <InquiriesPanel />
           <CollectionTab items={items} loading={loading} error={error} onRetry={refetch} />
+          {/* Collector points: only ever shown here, to the collector themselves. */}
+          {!loading && !error && <PointsCard />}
         </>
       )}
       {tab === 'watchlist' && (

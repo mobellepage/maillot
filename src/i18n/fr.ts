@@ -1931,6 +1931,7 @@ export const fr: Messages = {
   'points.from.one': 'pour {n} maillot acheté',
   'points.from.other': 'pour {n} maillots achetés',
   'points.how': 'Chaque maillot acheté via Maillot rapporte {shirt} points plus {franc} par franc.',
+  'points.private': 'Toi seul vois tes points.',
   'points.shop': 'Vers le marché',
   'avatar.upload': 'Importer ma propre photo',
   'avatar.uploadFailed': 'La photo n\'a pas pu être enregistrée. Essaie une autre.',

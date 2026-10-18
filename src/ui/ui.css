@@ -2015,20 +2015,19 @@ html .logo-word {
 .points-card {
   display: flex;
   align-items: center;
-  gap: 14px;
-  flex-wrap: wrap;
-  padding: 18px;
-  border-radius: 18px;
-  margin-top: 12px;
+  gap: 12px;
+  padding: 12px 2px;
+  margin-top: 20px;
+  border-top: 1px solid var(--line);
 }
 .points-coin {
   flex: none;
-  width: 44px;
-  height: 44px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   display: grid;
   place-items: center;
-  font-size: 22px;
+  font-size: 14px;
   color: #6b4e00;
   background: radial-gradient(circle at 35% 30%, #fff3c4, #e8b931 70%);
   box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.15);
