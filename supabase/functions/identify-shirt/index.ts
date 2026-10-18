@@ -119,6 +119,13 @@ Deno.serve(async (req: Request) => {
   }
   const result = normalize(raw, new Set(catalog.map((c) => c.id)));
 
+  // The library has every kit of the big leagues and nations: find the one the photos show.
+  if (result.isShirt && result.club && result.season) {
+    const { data: hit } = await service.rpc("match_library_kit", { p_club: result.club, p_season: result.season, p_kind: result.kit, p_hint: result.summary });
+    const k = (hit as { id: string; club_id: string; club_name: string; season: string; kind: string; variant: string; image_path: string }[] | null)?.[0];
+    result.libraryKit = k ? { id: k.id, clubId: k.club_id, clubName: k.club_name, season: k.season, kind: k.kind, variant: k.variant, image: k.image_path } : null;
+  }
+
   await service.from("shirt_identifications").insert({ user_id: user.id, catalog_id: result.catalogId, confidence: result.confidence, result, model: response.model });
   return json({ configured: true, result });
 });

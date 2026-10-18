@@ -103,6 +103,18 @@ export interface Identification {
   authenticityConcerns: string[];
   confidence: number;
   summary: string;
+  /** The kit in Maillot's library the photos show, when one matches club, season and kind. */
+  libraryKit?: LibraryKit | null;
+}
+
+export interface LibraryKit {
+  id: string;
+  clubId: string;
+  clubName: string;
+  season: string;
+  kind: string;
+  variant: string;
+  image: string;
 }
 
 const str = (v: unknown, max = 120): string | null => {

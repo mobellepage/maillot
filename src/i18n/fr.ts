@@ -1927,5 +1927,6 @@ export const fr: Messages = {
   'points.shop': 'Vers le marché',
   'avatar.upload': 'Importer ma propre photo',
   'avatar.uploadFailed': 'La photo n\'a pas pu être enregistrée. Essaie une autre.',
+  'as.scan.inLibrary': '✓ TROUVÉ DANS LA BIBLIOTHÈQUE',
   // @@end
 };

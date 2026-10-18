@@ -1926,6 +1926,7 @@ export const en = {
   'points.shop': 'To the market',
   'avatar.upload': 'Upload my own photo',
   'avatar.uploadFailed': 'The photo could not be saved. Please try another one.',
+  'as.scan.inLibrary': '✓ FOUND IN THE LIBRARY',
   // @@end
 };
 

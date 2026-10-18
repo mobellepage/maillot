@@ -1927,5 +1927,6 @@ export const de: Messages = {
   'points.shop': 'Zum Marktplatz',
   'avatar.upload': 'Eigenes Foto hochladen',
   'avatar.uploadFailed': 'Das Foto konnte nicht gespeichert werden. Bitte versuch ein anderes.',
+  'as.scan.inLibrary': '✓ IN DER BIBLIOTHEK GEFUNDEN',
   // @@end
 };

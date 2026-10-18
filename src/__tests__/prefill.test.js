@@ -56,3 +56,25 @@ describe('prefilling from a recognised shirt', () => {
     expect(proposedName(result({ kit: 'unknown' }), kit)).toBe('Netherlands 1988');
   });
 });
+
+describe('a shirt found in the library', () => {
+  const yb = { id: 'kit-yb-125', clubId: 'young-boys', clubName: 'BSC Young Boys', season: '2022/23', kind: 'special', variant: 'Anniversary', image: '/library/yb/2022-23-anniversary-kit.webp' };
+  const r = (over = {}) => result({ catalogId: null, club: 'BSC Young Boys', season: '2022-23', kit: 'special', confidence: 0.5, libraryKit: yb, ...over });
+
+  it("takes the library kit's exact name and links it", () => {
+    expect(wizardPatch(r(), empty(), kit, sizes)).toMatchObject({
+      kitId: 'kit-yb-125', proposed: true, proposedClub: 'BSC Young Boys', proposedSeason: '2022/23', proposedVariant: 'Special Anniversary'
+    });
+  });
+
+  it('also after an earlier, vaguer scan proposed something', () => {
+    const p = wizardPatch(r(), { ...empty(), proposed: true, proposedClub: 'Young Boys', proposedSeason: '2023' }, kit, sizes);
+    expect(p.kitId).toBe('kit-yb-125');
+    expect(p.proposedSeason).toBe('2022/23');
+  });
+
+  it('never replaces a catalogue shirt or a kit already chosen', () => {
+    expect(wizardPatch(r(), { ...empty(), catalogId: 'ned-88' }, kit, sizes).kitId).toBeUndefined();
+    expect(wizardPatch(r(), { ...empty(), kitId: 'other-kit' }, kit, sizes).kitId).toBeUndefined();
+  });
+});

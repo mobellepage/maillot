@@ -2,6 +2,7 @@
 // the sell flow. Only confident matches pick a catalogue shirt; everything
 // else is a suggestion the member confirms.
 import type { Identification } from '../../utils/db.ts';
+import { KIND_WORD } from '../library/model.ts';
 
 /** Below this, a catalogue match is shown as "maybe" instead of being picked. */
 export const AI_MATCH_THRESHOLD = 0.6;
@@ -20,6 +21,7 @@ export function proposedName(r: Identification, kitLabel: (kit: string) => strin
 
 interface WizardFields {
   catalogId: string | null;
+  kitId?: string | null;
   proposed: boolean;
   proposedClub: string;
   proposedSeason: string;
@@ -37,7 +39,18 @@ interface WizardFields {
 export function wizardPatch(r: Identification, f: WizardFields, kitLabel: (kit: string) => string, sizesOf: (group: string) => string[]): Partial<WizardFields> {
   const patch: Partial<WizardFields> = {};
   const match = confidentMatch(r);
-  if (!f.catalogId && !f.proposed) {
+  const lib = r.libraryKit;
+  // A kit found in the library names the shirt exactly (club, season, kind, variant) and brings its picture.
+  if (!f.catalogId && !f.kitId && !match && lib) {
+    Object.assign(patch, {
+      kitId: lib.id,
+      proposed: true,
+      proposedClub: lib.clubName,
+      proposedSeason: lib.season,
+      proposedVariant: [KIND_WORD[lib.kind] ?? '', lib.variant].filter(Boolean).join(' '),
+      searchQ: [lib.clubName, lib.season, kitLabel(lib.kind)].filter(Boolean).join(' ')
+    });
+  } else if (!f.catalogId && !f.proposed) {
     if (match) Object.assign(patch, { catalogId: match, proposed: false });
     else if (r.club && r.season) Object.assign(patch, { proposed: true, proposedClub: r.club, proposedSeason: r.season, proposedVariant: r.kit !== 'unknown' ? kitLabel(r.kit) : '' });
     if (r.club) patch.searchQ = proposedName(r, kitLabel);

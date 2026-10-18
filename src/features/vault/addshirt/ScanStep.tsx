@@ -11,6 +11,7 @@ import { PhotoInput, Section } from './parts.tsx';
 import type { Wizard } from './useAddShirtForm.ts';
 import type { Valuation } from '../../../types/domain.ts';
 import { AI_MATCH_THRESHOLD, proposedName } from '../../identify/prefill.ts';
+import { variantLabel } from '../../library/model.ts';
 import { usePhotoUrls } from '../../../lib/usePhotoUrls.ts';
 import type { StudioState } from './studio.ts';
 
@@ -65,6 +66,9 @@ export function ScanStep({ w, busyKey, onScanFile, valuation, studio, onStudioOf
   const maybe = r?.catalogId && r.confidence < AI_MATCH_THRESHOLD && !f.catalogId ? BY[r.catalogId] : undefined;
   const kitLabel = (k: string) => t('kit.' + k);
   const busy = f.scan.status === 'scanning';
+  // Found among the library's kits (not one of the catalogue shirts): shown by name and picture.
+  const lib = !catalogItem && !maybe && r?.libraryKit && f.kitId === r.libraryKit.id ? r.libraryKit : null;
+  const libName = lib ? `${lib.clubName} ${lib.season} · ${t('lib.kind.' + lib.kind)}${lib.variant ? ' · ' + variantLabel(lib.variant, t) : ''}` : '';
 
   return (
     <div>
@@ -113,14 +117,24 @@ export function ScanStep({ w, busyKey, onScanFile, valuation, studio, onStudioOf
       {f.scan.status === 'done' && r && !r.isShirt && <Notice tone="warn">{t('as.scan.notShirt')}</Notice>}
 
       {f.scan.status === 'done' && r?.isShirt && (
-        <Card tight accent={!!catalogItem} style={{ marginBottom: 20, animation: 'kvIn .3s ease both' }}>
+        <Card tight accent={!!catalogItem || !!lib} style={{ marginBottom: 20, animation: 'kvIn .3s ease both' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10, alignItems: 'baseline', flexWrap: 'wrap' }}>
-            <div className="mono" style={{ fontSize: 11, color: catalogItem ? 'var(--accent)' : 'var(--muted)' }}>
-              {catalogItem ? t('as.scan.match') : maybe ? t('as.scan.maybe') : t('as.scan.notInCatalogue')}
+            <div className="mono" style={{ fontSize: 11, color: catalogItem || lib ? 'var(--accent)' : 'var(--muted)' }}>
+              {catalogItem ? t('as.scan.match') : lib ? t('as.scan.inLibrary') : maybe ? t('as.scan.maybe') : t('as.scan.notInCatalogue')}
             </div>
             <Badge tone={r.confidence >= AI_MATCH_THRESHOLD ? 'accent' : 'neutral'}>{t('as.scan.sure', { p: Math.round(r.confidence * 100) })}</Badge>
           </div>
-          <div style={{ fontWeight: 700, fontSize: 18, marginTop: 6 }}>{catalogItem?.name ?? maybe?.name ?? (proposedName(r, kitLabel) || r.summary)}</div>
+          {lib ? (
+            <div style={{ display: 'flex', gap: 14, alignItems: 'center', marginTop: 8 }}>
+              <span className="kit-thumb" style={{ width: 84, height: 84, borderRadius: 14, display: 'grid', placeItems: 'center', flex: 'none' }}>
+                <img src={lib.image} alt="" style={{ width: '86%', height: '86%', objectFit: 'contain' }} />
+              </span>
+              <div style={{ fontWeight: 700, fontSize: 18, lineHeight: 1.3 }}>{libName}</div>
+            </div>
+          ) : (
+            <div style={{ fontWeight: 700, fontSize: 18, marginTop: 6 }}>{catalogItem?.name ?? maybe?.name ?? (proposedName(r, kitLabel) || r.summary)}</div>
+          )}
+          {lib && r.summary && <p style={{ fontSize: 13, color: 'var(--text-2)', margin: '10px 0 0', lineHeight: 1.45 }}>{r.summary}</p>}
           <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 10 }}>
             {[r.brand, r.kit !== 'unknown' ? kitLabel(r.kit) : null, r.productCode && `${t('as.scan.code')} ${r.productCode}`, r.labelSize, [r.playerName, r.playerNumber].filter(Boolean).join(' ')]
               .filter(Boolean)
@@ -136,7 +150,7 @@ export function ScanStep({ w, busyKey, onScanFile, valuation, studio, onStudioOf
               {money(valuation.low)} – {money(valuation.high)}
             </div>
           )}
-          {!catalogItem && !maybe && <p style={{ fontSize: 13, color: 'var(--text-2)', marginTop: 10 }}>{t('as.scan.newShirtBody')}</p>}
+          {!catalogItem && !maybe && !lib && <p style={{ fontSize: 13, color: 'var(--text-2)', marginTop: 10 }}>{t('as.scan.newShirtBody')}</p>}
           {maybe && (
             <Button size="sm" variant="secondary" style={{ marginTop: 12 }} onClick={() => w.set({ catalogId: maybe.id, proposed: false, searchQ: maybe.name })}>
               {t('as.scan.thatsIt')}

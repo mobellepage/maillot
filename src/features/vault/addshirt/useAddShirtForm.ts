@@ -4,7 +4,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { SIZE_GROUPS } from '../../../addShirtData.js';
 import { BY } from '../../../data.ts';
-import { checkAuthenticity, enqueueReview, findReview, identifyShirt, removePhotos, type AuthCheck, type CheckKind, type Identification } from '../../../utils/db.ts';
+import { checkAuthenticity, enqueueReview, findReview, identifyShirt, removePhotos, signPhotoUrls, type AuthCheck, type CheckKind, type Identification } from '../../../utils/db.ts';
 import { loadJSON, saveJSON } from '../../../utils/storage.ts';
 import { useLive } from '../../../lib/realtime.ts';
 import { precheck, withAiCheck } from './precheck.ts';
@@ -100,6 +100,29 @@ export function chosenVisibility(f: Pick<AddShirtForm, 'visibility'>, collection
   return f.visibility ?? (collectionPrivate ? 'private' : 'public');
 }
 
+/**
+ * A photo as a data URL for recognition: the one in memory, or — for a draft
+ * resumed later, which keeps only the storage path — fetched back from storage.
+ */
+async function photoDataUrl(p: Photo | undefined): Promise<string | null> {
+  if (!p) return null;
+  if (p.dataUrl) return p.dataUrl;
+  if (!p.path) return null;
+  try {
+    const url = (await signPhotoUrls([p.path]))[p.path];
+    if (!url) return null;
+    const blob = await (await fetch(url)).blob();
+    return await new Promise<string>((ok, fail) => {
+      const r = new FileReader();
+      r.onload = () => ok(String(r.result));
+      r.onerror = () => fail(r.error);
+      r.readAsDataURL(blob);
+    });
+  } catch {
+    return null;
+  }
+}
+
 export function useAddShirtForm(userId: string | undefined) {
   const [f, setRaw] = useState<AddShirtForm>(() => {
     const draft = loadJSON<Partial<AddShirtForm> | null>(DRAFT_KEY, null);
@@ -109,6 +132,11 @@ export function useAddShirtForm(userId: string | undefined) {
   });
   const scanToken = useRef(0);
   const checkToken = useRef(0);
+  // The latest photos, for a scan started from an older render.
+  const photosRef = useRef(f.photos);
+  useEffect(() => {
+    photosRef.current = f.photos;
+  }, [f.photos]);
   /** The AI pre-check is running, or why it couldn't (the local check still ran). */
   const [check, setCheck] = useState<{ busy: boolean; skipped: 'off' | 'rate_limited' | 'failed' | null }>({ busy: false, skipped: null });
   const set = (patch: Partial<AddShirtForm> | ((s: AddShirtForm) => Partial<AddShirtForm>)) => setRaw((s) => ({ ...s, ...(typeof patch === 'function' ? patch(s) : patch) }));
@@ -169,22 +197,34 @@ export function useAddShirtForm(userId: string | undefined) {
      */
     runScan: async (key: 'front' | 'product_code', photo: Photo & { dataUrl: string }, lang: string, kitLabel: (kit: string) => string) => {
       const token = ++scanToken.current;
-      const photos = { ...f.photos, [key]: photo };
+      // Every photo taken so far, from the latest state (not this render's): front and label together.
+      const photos = { ...photosRef.current, [key]: photo };
       set((s) => ({ photos: { ...s.photos, [key]: photo }, scan: { ...s.scan, status: 'scanning' } }));
-      const images = (['front', 'product_code'] as const)
-        .filter((k) => photos[k]?.dataUrl)
-        .map((k) => ({ kind: k === 'front' ? ('front' as const) : ('label' as const), dataUrl: photos[k]!.dataUrl! }));
       try {
+        const images = (
+          await Promise.all(
+            (['front', 'product_code'] as const).map(async (k) => {
+              const dataUrl = await photoDataUrl(photos[k]);
+              return dataUrl ? { kind: k === 'front' ? ('front' as const) : ('label' as const), dataUrl } : null;
+            })
+          )
+        ).filter((x): x is { kind: 'front' | 'label'; dataUrl: string } => !!x);
         const r = await identifyShirt(images, lang);
         if (scanToken.current !== token) return;
         if (!r.ok) {
           set((s) => ({ scan: { ...s.scan, status: r.reason === 'off' ? 'off' : r.reason === 'rate_limited' ? 'limited' : 'error' } }));
           return;
         }
-        set((s) => ({
-          ...wizardPatch(r.result, s, kitLabel, (g) => SIZE_GROUPS[g as keyof typeof SIZE_GROUPS] ?? []),
-          scan: { status: 'done', confidence: r.result.confidence, matchId: r.result.catalogId, result: r.result }
-        }));
+        set((s) => {
+          // A more certain earlier answer stays; what only the new photo shows (label size, code) is added to it.
+          const prev = s.scan.result;
+          const keep = prev && prev.isShirt && (prev.libraryKit || prev.catalogId) && !(r.result.libraryKit || r.result.catalogId) && prev.confidence > r.result.confidence;
+          const result = keep ? { ...prev, labelSize: r.result.labelSize ?? prev.labelSize, productCode: r.result.productCode ?? prev.productCode } : r.result;
+          return {
+            ...wizardPatch(result, s, kitLabel, (g) => SIZE_GROUPS[g as keyof typeof SIZE_GROUPS] ?? []),
+            scan: { status: 'done', confidence: result.confidence, matchId: result.catalogId, result }
+          };
+        });
       } catch {
         if (scanToken.current === token) set((s) => ({ scan: { ...s.scan, status: 'error' } }));
       }
