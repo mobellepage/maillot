@@ -6,7 +6,8 @@ import type { Shirt } from '../../../data.ts';
 import { formatDate } from '../../../lib/format.ts';
 import { usePrefs } from '../../../lib/prefs.tsx';
 import * as db from '../../../utils/db.ts';
-import { Badge, Card } from '../../../ui/index.ts';
+import { Badge, Card, KeyValueList } from '../../../ui/index.ts';
+import { VERSIONS } from '../../../config/rules.ts';
 
 const MARKET_NAMES: Record<string, string> = { EBAY_DE: 'eBay.de', EBAY_GB: 'eBay.co.uk', EBAY_FR: 'eBay.fr', EBAY_IT: 'eBay.it' };
 
@@ -77,6 +78,20 @@ export function ValuationCard({ s }: { s: Shirt }) {
             <p style={{ fontSize: 12, color: 'var(--muted)', marginTop: 8 }}>{t('val.askNote')}</p>
           </div>
         )}
+
+        {/* The value above is a very good replica; other versions are worth more (config/rules.ts VERSIONS). */}
+        <h3 style={{ fontSize: 14, margin: '22px 0 8px' }}>{t('val.byVersion')}</h3>
+        <KeyValueList
+          rows={VERSIONS.map((x) => [
+            t('val.version.' + x.key),
+            x.needsExpert ? (
+              <span key={x.key} style={{ color: 'var(--muted)' }}>{t('val.afterExpert')}</span>
+            ) : (
+              <span key={x.key} className="mono">{x.factor === 1 ? money(s.price) : '≈ ' + money(Math.round(s.price * x.factor))}</span>
+            )
+          ])}
+        />
+        <p style={{ fontSize: 13, color: 'var(--text-2)', margin: '10px 0 0', lineHeight: 1.5 }}>{t('val.versionHint')}</p>
 
         <details style={{ marginTop: 16, fontSize: 13 }}>
           <summary style={{ cursor: 'pointer', color: 'var(--text-2)' }}>{t('val.howTitle')}</summary>

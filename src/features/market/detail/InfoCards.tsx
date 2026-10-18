@@ -7,24 +7,23 @@ import type { ShirtStats } from '../../../utils/db.ts';
 export function InfoCards({ s, stats, watched, toggleWatch }: { s: Shirt; stats: ShirtStats | null | undefined; watched: boolean; toggleWatch: () => void }) {
   const { money, t, label, locale } = usePrefs();
   const year = s.hist.slice(-365);
-  const unique = s.type === 'Match-worn';
-  const sizeMult = (z: string) => (unique ? 1 : MULT[z] ?? 1);
+  const sizeMult = (z: string) => MULT[z] ?? 1;
   return (
     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(min(100%,300px),1fr))', gap: 16, marginTop: 16 }}>
       <Card>
         <h2 className="title" style={{ margin: '0 0 12px' }}>
           {t('ic.details')}
         </h2>
+        {/* The model only: version, print, condition and size belong to each exemplar. */}
         <KeyValueList
           rows={[
+            [t('ic.club'), s.club],
             [t('ic.season'), s.season],
+            [t('ic.kit'), t('lib.kind.' + (s.kit ?? 'Home').toLowerCase())],
             [t('ic.brand'), s.brand],
             [t('ic.league'), <Link key="l" to={'/market?league=' + encodeURIComponent(s.league)}>{label('league', s.league)}</Link>],
-            [t('ic.edition'), label('edition', s.edition)],
-            [t('ic.playerPrint'), s.player || t('ic.none')],
-            [t('ic.condition'), label('cond', s.cond)],
             [t('ic.catalogueNo'), s.sku],
-            [t('ic.authentication'), <span key="a" style={{ color: 'var(--accent)', fontWeight: 600 }}>{t('ic.checked')}</span>]
+            [t('ic.productCodes'), s.productCodes?.length ? s.productCodes.join(', ') : '—']
           ]}
         />
       </Card>
@@ -84,7 +83,7 @@ export function InfoCards({ s, stats, watched, toggleWatch }: { s: Shirt; stats:
           </div>
         </div>
         <p style={{ margin: 0, fontSize: 13.5, lineHeight: 1.55, color: 'var(--text-2)' }}>
-          {unique ? t('ic.uniqueBody') : t('ic.watchBody')}
+          {t('ic.watchBody')}
         </p>
         <Button variant="secondary" size="sm" onClick={toggleWatch} aria-pressed={watched} style={{ marginTop: 14 }}>
           {watched ? t('ic.watching2') : t('ic.watch')}

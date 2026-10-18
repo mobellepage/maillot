@@ -1,3 +1,4 @@
+import { VERSIONS as VERSION_RULES } from './config/rules.ts';
 // Static reference data + pure helpers for the Add Shirt flow. Option values
 // (versions, sleeves, flock, defects, patches) are stored as they are here and
 // translated for display through opt.<value> messages.
@@ -86,11 +87,13 @@ export function buildPhotoSpecs(f, t = (k) => k) {
   return specs;
 }
 
+// The wizard's version names → the factors in config/rules.ts (VERSIONS).
+const factor = (key) => VERSION_RULES.find((v) => v.key === key).factor;
 const VERSION_MULT = {
-  'Fan-Replica': 1.0,
-  'Player-Issue / Authentic': 1.45,
-  'Match-Issued': 2.1,
-  'Match-Worn': 3.2,
+  'Fan-Replica': factor('replica'),
+  'Player-Issue / Authentic': factor('playerIssue'),
+  'Match-Issued': factor('matchIssued'),
+  'Match-Worn': factor('matchWorn'),
   Unbekannt: 0.85
 };
 

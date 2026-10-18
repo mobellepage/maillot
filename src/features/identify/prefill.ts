@@ -10,7 +10,7 @@ export const AI_MATCH_THRESHOLD = 0.6;
 const GRADE_TO_SCALE = { new_with_tags: 10, excellent: 9, very_good: 8, good: 6, worn: 4 } as const;
 const GRADE_TO_SELL = { new_with_tags: 'New with tags', excellent: 'Excellent', very_good: 'Very good', good: 'Good', worn: 'Good' } as const;
 const VERSION_TO_WIZARD = { replica: 'Fan-Replica', authentic: 'Player-Issue / Authentic', match_worn: 'Match-Worn' } as const;
-const VERSION_TO_SELL = { replica: 'Replica', authentic: 'Authentic', match_worn: 'Match-worn' } as const;
+const VERSION_TO_SELL = { replica: 'Replica', authentic: 'Player-Issue', match_worn: 'Match-Worn' } as const;
 
 export const confidentMatch = (r: Identification) => (r.catalogId && r.confidence >= AI_MATCH_THRESHOLD ? r.catalogId : null);
 

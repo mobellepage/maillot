@@ -15,19 +15,23 @@ export type Database = {
           added_at: string;
           brand: string;
           club: string;
-          cond: string;
+          /** Exemplar fields, no longer used: the catalogue describes the model only. */
+          cond: string | null;
           created_at: string;
           crest_color: string;
-          edition: string;
+          edition: string | null;
           glow_color: string;
           id: string;
           index_change_30d: number;
           index_price: number;
+          kit: string;
           league: string;
           name: string;
           number_color: string | null;
           pattern: string;
           player: string | null;
+          players: string[];
+          product_codes: string[];
           season: string;
           sizes: string[];
           sku: string;
@@ -36,7 +40,7 @@ export type Database = {
           updated_at: string;
           year: number;
         };
-        Insert: Partial<Database['public']['Tables']['catalog_shirts']['Row']> & { id: string; club: string; name: string; season: string; year: number; brand: string; league: string; type: string; cond: string; edition: string; index_price: number; pattern: string; trim_color: string; crest_color: string; glow_color: string; sku: string };
+        Insert: Partial<Database['public']['Tables']['catalog_shirts']['Row']> & { id: string; club: string; name: string; season: string; year: number; brand: string; league: string; type: string; index_price: number; pattern: string; trim_color: string; crest_color: string; glow_color: string; sku: string };
         Update: Partial<Database['public']['Tables']['catalog_shirts']['Row']>;
         Relationships: [];
       };

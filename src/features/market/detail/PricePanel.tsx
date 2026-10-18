@@ -34,7 +34,6 @@ export function PricePanel({ s, size, setSize, book, myUserId, stats, watched, t
   const liveBid = book.bids[0] ?? null;
   const watchers = stats ? Number(stats.watchers) : 0;
   const listings = stats ? Number(stats.live_listings) : 0;
-  const unique = s.type === 'Match-worn';
 
   return (
     <div style={{ flex: '1 1 400px', minWidth: 0 }}>
@@ -58,7 +57,7 @@ export function PricePanel({ s, size, setSize, book, myUserId, stats, watched, t
       <fieldset style={{ border: 0, padding: 0, margin: '30px 0 0' }}>
         <legend style={{ display: 'flex', width: '100%', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 10, padding: 0 }}>
           <span style={{ fontSize: 13, fontWeight: 600 }}>{t('pp.size')}</span>
-          <span style={{ fontSize: 12.5, color: unique ? 'var(--warn)' : 'var(--muted)', marginLeft: 'auto' }}>{unique ? t('pp.unique') : t('pp.bySize')}</span>
+          <span style={{ fontSize: 12.5, color: 'var(--muted)', marginLeft: 'auto' }}>{t('pp.bySize')}</span>
         </legend>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(78px,1fr))', gap: 8 }}>
           {s.sizes.map((z) => (

@@ -15,7 +15,7 @@ describe('catalogue search & browse', () => {
     const retro = browse({ ...base, filters: { ...EMPTY_FILTERS, type: ['Retro'] } });
     expect(retro.length).toBeGreaterThan(0);
     expect(retro.every((s) => s.type === 'Retro')).toBe(true);
-    const two = browse({ ...base, filters: { ...EMPTY_FILTERS, type: ['Retro', 'Match-worn'] } });
+    const two = browse({ ...base, filters: { ...EMPTY_FILTERS, type: ['Retro', 'New'] } });
     expect(two.length).toBeGreaterThan(retro.length);
     const retroSerieA = browse({ ...base, filters: { ...EMPTY_FILTERS, type: ['Retro'], league: ['Serie A'] } });
     expect(retroSerieA.every((s) => s.type === 'Retro' && s.league === 'Serie A')).toBe(true);
@@ -43,12 +43,19 @@ describe('sizes, value and related shirts', () => {
   it('falls back to M, then the only size', () => {
     expect(resolveSize(BY['ger-26'], 'XL')).toBe('XL');
     expect(resolveSize(BY['ger-26'], 'XXXL')).toBe('M');
-    expect(resolveSize(BY['acm-0607'], 'M')).toBe('L'); // match-worn: one size
+    expect(resolveSize({ ...BY['ger-26'], sizes: ['L'] }, 'M')).toBe('L');
   });
 
-  it('prices match-worn pieces the same regardless of size', () => {
-    expect(marketValue(BY['acm-0607'], 'S')).toBe(BY['acm-0607'].price);
+  it('the catalogue describes the model: no match-worn entries, condition or print', () => {
+    expect(SHIRTS.some((s) => s.type === 'Match-worn')).toBe(false);
+    expect(BY['acm-0607'].name).toBe('AC Milan 2006/07 Home');
+    expect(SHIRTS.some((s) => 'cond' in s || 'edition' in s || 'player' in s)).toBe(false);
+    expect(filterGroups().map((g) => g.key)).not.toContain('condition');
+  });
+
+  it('values a very good replica, by size', () => {
     expect(marketValue(BY['ger-26'], 'M')).toBe(BY['ger-26'].price);
+    expect(marketValue(BY['ger-26'], 'XXL')).toBeLessThan(BY['ger-26'].price);
   });
 
   it('never recommends the shirt itself', () => {

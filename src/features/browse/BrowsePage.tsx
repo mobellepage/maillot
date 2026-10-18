@@ -39,7 +39,7 @@ export default function BrowsePage() {
 
   const chips: { label: string; rm: () => void }[] = [];
   if (query.q) chips.push({ label: '“' + query.q + '”', rm: () => setQ('') });
-  for (const k of FILTER_KEYS) for (const v of query.filters[k]) chips.push({ label: k === 'type' || k === 'league' ? label(k, v) : k === 'condition' ? label('cond', v) : v, rm: () => toggle(k, v) });
+  for (const k of FILTER_KEYS) for (const v of query.filters[k]) chips.push({ label: k === 'type' || k === 'league' ? label(k, v) : v, rm: () => toggle(k, v) });
   if (query.min > 0 || query.max < PRICE_MAX) chips.push({ label: money(query.min) + ' – ' + money(query.max), rm: () => setRange(0, PRICE_MAX) });
 
   return (

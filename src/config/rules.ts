@@ -2,6 +2,21 @@
 // database enforces a rule too, the matching SQL function is named — change
 // both together.
 
+/**
+ * The versions a shirt comes in (they belong to the exemplar, never to the
+ * catalogue model) and what each is worth against the catalogue's market
+ * value, which is the reference for a very good replica. The database
+ * values the same way — private.edition_factor(); change both together.
+ * Match-issued and match-worn shirts only show a value once an expert has
+ * verified them.
+ */
+export const VERSIONS = [
+  { key: 'replica', factor: 1, needsExpert: false },
+  { key: 'playerIssue', factor: 1.45, needsExpert: false },
+  { key: 'matchIssued', factor: 2.1, needsExpert: true },
+  { key: 'matchWorn', factor: 3.2, needsExpert: true }
+] as const;
+
 /** Offers on collection shirts — public.offer_policy(). */
 export const OFFER_POLICY = { validHours: 48, maxRounds: 3 } as const;
 

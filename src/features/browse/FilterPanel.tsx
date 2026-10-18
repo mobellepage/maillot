@@ -49,7 +49,7 @@ export function FilterPanel({ query, toggle, setRange }: { query: BrowseQuery; t
                   <span aria-hidden="true" style={{ width: 17, height: 17, borderRadius: 5, border: `1.5px solid ${on ? 'var(--accent)' : 'var(--line-strong)'}`, background: on ? 'var(--accent)' : 'transparent', display: 'grid', placeItems: 'center', color: 'var(--bg)', flex: 'none' }}>
                     {on && <CheckIcon size={11} />}
                   </span>
-                  <span style={{ flex: 1 }}>{g.key === 'type' || g.key === 'league' ? label(g.key, o.value) : g.key === 'condition' ? label('cond', o.value) : o.value}</span>
+                  <span style={{ flex: 1 }}>{g.key === 'type' || g.key === 'league' ? label(g.key, o.value) : o.value}</span>
                   <span className="mono" style={{ fontSize: 11.5, color: 'var(--faint)' }}>
                     {o.count}
                   </span>

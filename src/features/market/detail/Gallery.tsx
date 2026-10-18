@@ -13,9 +13,6 @@ export function Gallery({ s }: { s: Shirt }) {
   const [switched, setSwitched] = useState(false);
   const enter = switched ? 'kvIn .35s ease both' : undefined;
   const { t } = usePrefs();
-  const parts = (s.player || '').split(' ');
-  const printNumber = parts.length > 1 ? parts[parts.length - 1] : '';
-  const printName = parts.slice(0, -1).join(' ').toUpperCase();
 
   return (
     <div style={{ flex: '1 1 480px', minWidth: 0 }}>
@@ -33,7 +30,7 @@ export function Gallery({ s }: { s: Shirt }) {
         </span>
         {view === 'Front' && <ShirtGraphic hero pat={s.pat} trim={s.trim} crest={s.crest} photo={s.photo} style={{ width: '68%', filter: 'drop-shadow(0 40px 40px rgba(0,0,0,0.6))', animation: enter, viewTransitionName: 'shirt-hero' }} />}
         {view === 'Back' && (
-          <ShirtGraphic view="back" pat={s.pat} trim={s.trim} crest={s.crest} num={s.num} printName={printName} printNumber={printNumber} style={{ width: '68%', filter: 'drop-shadow(0 40px 40px rgba(0,0,0,0.6))', animation: enter }} />
+          <ShirtGraphic view="back" pat={s.pat} trim={s.trim} crest={s.crest} num={s.num} style={{ width: '68%', filter: 'drop-shadow(0 40px 40px rgba(0,0,0,0.6))', animation: enter }} />
         )}
         {view === 'Crest' && <ShirtGraphic view="crest" pat={s.pat} trim={s.trim} crest={s.crest} style={{ animation: enter }} />}
         {view === 'Wash tag' && (

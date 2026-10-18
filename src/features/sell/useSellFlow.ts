@@ -20,7 +20,8 @@ export const CONDITIONS: [string, string][] = [
   ['Very good', 'sell.cond.Very good'],
   ['Good', 'sell.cond.Good']
 ];
-export const EDITIONS = ['Replica', 'Authentic', 'Player issue', 'Match-worn'];
+// The four versions (config/rules.ts VERSIONS); the valuation reads them too (private.edition_factor).
+export const EDITIONS = ['Replica', 'Player-Issue', 'Match-Issued', 'Match-Worn'];
 /** Photos of the actual shirt: [kind, label key]. The front is required. */
 export const LISTING_PHOTOS = [
   ['front', 'sell.photo.front'],

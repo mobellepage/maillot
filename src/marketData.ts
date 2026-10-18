@@ -110,11 +110,11 @@ export function generateSyntheticMarketData(s: MarketSeed, r: () => number): Mar
   }
   hist[L - 1] = s.price;
 
-  const sizes = s.type === 'Match-worn' ? ['L'] : SIZES;
+  const sizes = SIZES;
   const avail: Record<string, boolean> = {};
   sizes.forEach((z) => (avail[z] = z === 'M' || z === 'L' || r() > 0.3));
-  const owners = s.type === 'Match-worn' ? 1 : Math.round(220 + r() * 3600);
-  const wants = Math.round((s.type === 'Match-worn' ? 900 : owners) * (1.2 + r() * 2.2));
+  const owners = Math.round(220 + r() * 3600);
+  const wants = Math.round(owners * (1.2 + r() * 2.2));
   const decade = s.year >= 2020 ? '2020s' : Math.floor(s.year / 10) * 10 + 's';
   const sales = [1, 3, 6, 9, 15, 22].map((o) => ({ o, size: sizes[Math.floor(r() * sizes.length)]!, p: hist[Math.max(0, L - 1 - o)]! * (0.98 + r() * 0.05) }));
 

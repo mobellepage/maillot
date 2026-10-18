@@ -1,19 +1,20 @@
 // Pure catalogue logic: search, filters, sorting, market value by size,
 // related shirts and the index ticker. No React, no I/O — unit-tested.
-import { BY, CONDS, MULT, pct, SHIRTS, type Shirt } from '../../data.ts';
+import { BY, MULT, pct, SHIRTS, type Shirt } from '../../data.ts';
 import type { ShirtCardModel } from '../../ui/ShirtCard.tsx';
 import type { MessageKey } from '../../i18n/index.ts';
 import { alpha } from '../../ui/tokens.ts';
 
-export type FilterKey = 'type' | 'league' | 'club' | 'brand' | 'decade' | 'condition';
+// Catalogue models only: condition, version and the like belong to exemplars and listings.
+export type FilterKey = 'type' | 'league' | 'club' | 'brand' | 'decade';
 export type Filters = Record<FilterKey, string[]>;
 export type SortKey = 'trending' | 'gain' | 'newest' | 'asc' | 'desc';
 
-export const FILTER_KEYS: FilterKey[] = ['type', 'league', 'club', 'brand', 'decade', 'condition'];
-export const EMPTY_FILTERS: Filters = { type: [], league: [], club: [], brand: [], decade: [], condition: [] };
+export const FILTER_KEYS: FilterKey[] = ['type', 'league', 'club', 'brand', 'decade'];
+export const EMPTY_FILTERS: Filters = { type: [], league: [], club: [], brand: [], decade: [] };
 export const PRICE_MAX = 600;
 
-const FIELD: Record<FilterKey, keyof Shirt> = { type: 'type', league: 'league', club: 'club', brand: 'brand', decade: 'decade', condition: 'cond' };
+const FIELD: Record<FilterKey, keyof Shirt> = { type: 'type', league: 'league', club: 'club', brand: 'brand', decade: 'decade' };
 
 /** Labels are message keys. */
 export const SORTS: { value: SortKey; label: MessageKey }[] = [
@@ -72,18 +73,17 @@ export function filterGroups(): FilterGroup[] {
   const opts = (k: FilterKey, values: string[]) => values.map((value) => ({ value, count: SHIRTS.filter((s) => String(s[FIELD[k]]) === value).length }));
   const uniq = (k: FilterKey) => [...new Set(SHIRTS.map((s) => String(s[FIELD[k]])))];
   return [
-    { key: 'type', title: 'filter.type', options: opts('type', ['New', 'Retro', 'Match-worn']) },
+    { key: 'type', title: 'filter.type', options: opts('type', ['New', 'Retro']) },
     { key: 'league', title: 'filter.league', options: opts('league', uniq('league')) },
     { key: 'club', title: 'filter.club', options: opts('club', uniq('club').sort()) },
     { key: 'brand', title: 'filter.brand', options: opts('brand', uniq('brand').sort()) },
-    { key: 'decade', title: 'filter.decade', options: opts('decade', uniq('decade').sort().reverse()) },
-    { key: 'condition', title: 'filter.condition', options: opts('condition', CONDS.filter((c) => SHIRTS.some((s) => s.cond === c))) }
+    { key: 'decade', title: 'filter.decade', options: opts('decade', uniq('decade').sort().reverse()) }
   ];
 }
 
-/** Catalogue market value for a size (index estimate, not a listing). */
+/** Catalogue market value for a size: a very good replica (index estimate, not a listing). */
 export function marketValue(s: Shirt, size: string): number {
-  return Math.round(s.price * (s.type === 'Match-worn' ? 1 : MULT[size] ?? 1));
+  return Math.round(s.price * (MULT[size] ?? 1));
 }
 
 /** The size to show: the requested one if the shirt comes in it, else M, else its only size. */
@@ -135,7 +135,6 @@ export function indexSegments(): IndexSegment[] {
   return [
     seg('index.seg.all', () => true),
     seg('index.seg.retro', (x) => x.type === 'Retro'),
-    seg('index.seg.matchWorn', (x) => x.type === 'Match-worn'),
     seg('index.seg.wc', (x) => x.league === 'National Teams' && x.year === 2026),
     seg('index.seg.ssl', (x) => x.league === 'Swiss Super League'),
     seg('Premier League', (x) => x.league === 'Premier League'),

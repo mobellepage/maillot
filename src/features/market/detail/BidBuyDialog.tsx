@@ -29,7 +29,7 @@ export interface BidBuyProps {
 type Result = { kind: 'matched'; orderId: string; amount: number } | { kind: 'live'; amount: number } | null;
 
 export function BidBuyDialog({ mode, onClose, shirt, size, lowestAsk, topBid, marketValue }: BidBuyProps) {
-  const { money, t, label } = usePrefs();
+  const { money, t } = usePrefs();
   const { user } = useSession();
   const toast = useToast();
   const qc = useQueryClient();
@@ -104,7 +104,7 @@ export function BidBuyDialog({ mode, onClose, shirt, size, lowestAsk, topBid, ma
             <span style={{ minWidth: 0 }}>
               <span style={{ display: 'block', fontWeight: 600, fontSize: 15, lineHeight: 1.3 }}>{shirt.name}</span>
               <span className="mono" style={{ display: 'block', fontSize: 12, color: 'var(--muted)', marginTop: 4 }}>
-                {t('bb.sizeCond', { size, cond: label('cond', shirt.cond) })}
+                {t('bb.size', { size })}
               </span>
             </span>
           </div>
