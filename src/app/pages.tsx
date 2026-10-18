@@ -6,6 +6,7 @@ export const BrowsePage = lazy(() => import('../features/browse/BrowsePage.tsx')
 export const DetailPage = lazy(() => import('../features/market/DetailPage.tsx'));
 export const SellPage = lazy(() => import('../features/sell/SellPage.tsx'));
 export const VaultPage = lazy(() => import('../features/vault/VaultPage.tsx'));
+export const MessagesPage = lazy(() => import('../features/messages/MessagesPage.tsx'));
 export const VaultItemPage = lazy(() => import('../features/vault/VaultItemPage.tsx'));
 export const AddShirtPage = lazy(() => import('../features/vault/AddShirtPage.tsx'));
 export const QuickAddPage = lazy(() => import('../features/vault/QuickAddPage.tsx'));

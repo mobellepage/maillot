@@ -15,7 +15,6 @@ import { AlertsList } from '../watchlist/AlertsList.tsx';
 import { LikedKits } from '../watchlist/LikedKits.tsx';
 import { useKitLikes } from '../watchlist/useKitLikes.ts';
 import { OffersPanel } from './OffersPanel.tsx';
-import { InquiriesPanel } from './InquiriesPanel.tsx';
 import { CollectionTab } from './CollectionTab.tsx';
 import { badgeFor, itemLook, itemName, valueOf } from './model.ts';
 import { useCollection } from './useCollection.ts';
@@ -180,7 +179,6 @@ export default function VaultPage({ tab }: { tab: Tab }) {
       {tab === 'collection' && (
         <>
           <OffersPanel />
-          <InquiriesPanel />
           <CollectionTab items={items} loading={loading} error={error} onRetry={refetch} />
           {/* Collector points: only ever shown here, to the collector themselves. */}
           {!loading && !error && <PointsCard />}

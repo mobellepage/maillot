@@ -1,6 +1,6 @@
-// Inquiries about collector's pieces, in "My collection": received ones
+// Inquiries about collector's pieces, on the Messages page: received ones
 // (answer, ignore, or open the shirt to offers) and the ones you sent
-// (with the owner's reply). Hidden while there are none.
+// (with the owner's reply).
 import { useState } from 'react';
 import { Link } from 'react-router';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -9,7 +9,7 @@ import { useSession } from '../../lib/session.tsx';
 import { useToast } from '../../lib/toast.tsx';
 import * as db from '../../utils/db.ts';
 import type { Inquiry } from '../../utils/db.ts';
-import { Badge, Button, Card } from '../../ui/index.ts';
+import { Badge, Button, Card, EmptyState } from '../../ui/index.ts';
 import { Avatar } from '../avatars/Avatar.tsx';
 
 function InquiryRow({ q }: { q: Inquiry }) {
@@ -82,11 +82,12 @@ function InquiryRow({ q }: { q: Inquiry }) {
   );
 }
 
-export function InquiriesPanel() {
+export function InquiriesPanel({ page = false }: { page?: boolean }) {
   const { t } = usePrefs();
   const { user } = useSession();
-  const list = useQuery({ queryKey: ['myInquiries', user?.id], queryFn: db.loadMyInquiries, enabled: !!user }).data ?? [];
-  if (!list.length) return null;
+  const query = useQuery({ queryKey: ['myInquiries', user?.id], queryFn: db.loadMyInquiries, enabled: !!user });
+  const list = query.data ?? [];
+  if (!list.length) return page && !query.isLoading ? <EmptyState title={t('msg.empty')}>{t('msg.emptyBody')}</EmptyState> : null;
   const received = list.filter((q) => q.direction === 'received');
   const sent = list.filter((q) => q.direction === 'sent');
   return (

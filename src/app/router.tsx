@@ -20,6 +20,7 @@ import {
   SignInPage,
   VaultItemPage,
   VaultPage,
+  MessagesPage,
   VerifyPage,
   IndexReportPage,
   DevelopersPage,
@@ -76,6 +77,14 @@ export const routes: RouteObject[] = [
             )
           },
           { path: 'watchlist', element: <VaultPage tab="watchlist" /> },
+          {
+            path: 'messages',
+            element: (
+              <RequireAuth>
+                <MessagesPage />
+              </RequireAuth>
+            )
+          },
           {
             path: 'orders',
             element: (

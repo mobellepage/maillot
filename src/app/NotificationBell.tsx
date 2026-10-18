@@ -53,7 +53,8 @@ export default function NotificationBell() {
                     if (!n.read) markRead(n.id);
                     setOpen(false);
                     if (data.order_id) navigate('/orders/' + data.order_id);
-                    else if (data.offer_id || data.inquiry_id) navigate('/vault');
+                    else if (data.inquiry_id) navigate('/messages');
+                    else if (data.offer_id) navigate('/vault');
                     else if (data.shirt_id) navigate('/shirt/' + data.shirt_id);
                     else if (data.link?.startsWith('/u/')) navigate(data.link);
                     else if (data.handle) navigate('/u/' + data.handle);

@@ -72,6 +72,6 @@ const NO_AI = ['GPTBot', 'ClaudeBot', 'anthropic-ai', 'Claude-Web', 'CCBot', 'Go
 writeFileSync(
   'dist/robots.txt',
   NO_AI.map((ua) => `User-agent: ${ua}\nDisallow: /\n`).join('\n') +
-    `\nUser-agent: *\nDisallow: /admin\nDisallow: /vault\nDisallow: /orders\nDisallow: /welcome\nDisallow: /return\nDisallow: /reset-password\nAllow: /\n\nSitemap: ${site}/sitemap.xml\n`
+    `\nUser-agent: *\nDisallow: /admin\nDisallow: /vault\nDisallow: /messages\nDisallow: /orders\nDisallow: /welcome\nDisallow: /return\nDisallow: /reset-password\nAllow: /\n\nSitemap: ${site}/sitemap.xml\n`
 );
 console.log(`prerendered ${n} pages, wrote sitemap.xml and robots.txt`);

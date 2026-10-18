@@ -11,6 +11,7 @@ import type { Currency } from '../utils/currency.ts';
 import type { Lang } from '../i18n/index.ts';
 // Signed-in only, so it isn't part of the first download for visitors.
 const NotificationBell = lazy(() => import('./NotificationBell.tsx'));
+const MessagesButton = lazy(() => import('./MessagesButton.tsx'));
 import { useNavItems } from './nav.ts';
 import { focusMain } from './focusMain.ts';
 import { Avatar } from '../features/avatars/Avatar.tsx';
@@ -100,6 +101,9 @@ export default function Header() {
         </Link>
         {user ? (
           <>
+            <Suspense fallback={<span style={{ width: 40 }} />}>
+              <MessagesButton />
+            </Suspense>
             <Suspense fallback={<span style={{ width: 40 }} />}>
               <NotificationBell />
             </Suspense>

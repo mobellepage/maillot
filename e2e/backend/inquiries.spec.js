@@ -29,6 +29,9 @@ test('a collector’s piece takes inquiries: ask, reply, read', async ({ browser
 
   const seller = await browser.newPage();
   await signIn(seller, 'seller@maillot.test');
+  // Inquiries live under Messages (header button), not in the collection.
+  await seller.getByRole('link', { name: /^Messages/ }).click();
+  await expect(seller).toHaveURL(/\/messages$/);
   const panel = seller.getByRole('region', { name: 'Inquiries' });
   await expect(panel.getByText('“Would you ever part with it?”')).toBeVisible({ timeout: 10000 });
   await panel.getByLabel('Your reply').fill('Not this one, sorry!');
@@ -36,7 +39,7 @@ test('a collector’s piece takes inquiries: ask, reply, read', async ({ browser
   await expect(seller.getByText('Reply sent.')).toBeVisible();
   await seller.close();
 
-  await buyer.goto('/vault');
+  await buyer.goto('/messages');
   await expect(buyer.getByRole('region', { name: 'Inquiries' }).getByText('Not this one, sorry!')).toBeVisible();
   await buyer.close();
 });

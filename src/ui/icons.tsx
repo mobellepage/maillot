@@ -32,6 +32,14 @@ export function BellIcon({ size = 17, ...rest }: IconProps) {
   );
 }
 
+export function ChatIcon({ size = 17, ...rest }: IconProps) {
+  return (
+    <svg {...base(size, rest)} fill="none" stroke="currentColor" strokeWidth={2} strokeLinejoin="round">
+      <path d="M21 12a8 8 0 01-11.6 7.1L4 20.5l1.4-4.6A8 8 0 1121 12z" />
+    </svg>
+  );
+}
+
 export function CloseIcon({ size = 18, ...rest }: IconProps) {
   return (
     <svg {...base(size, rest)} fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round">

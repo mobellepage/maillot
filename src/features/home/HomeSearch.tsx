@@ -1,7 +1,8 @@
 // The first thing on the home page: "which shirt do you have, or want?".
 // One field searches the marketplace (shirts with a market value) and the
-// kit library (every kit, with its picture) at once; Enter without a pick
-// opens the market search, so results stay shareable.
+// kit library (every kit, with its picture) at once — or, starting with @,
+// collectors; Enter without a pick opens the market search, so results stay
+// shareable.
 import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
@@ -9,6 +10,7 @@ import type { Shirt } from '../../data.ts';
 import { usePrefs } from '../../lib/prefs.tsx';
 import * as db from '../../utils/db.ts';
 import { Button, SearchIcon, ShirtGraphic } from '../../ui/index.ts';
+import { Avatar } from '../avatars/Avatar.tsx';
 import { search } from '../catalog/model.ts';
 import { variantLabel } from '../library/model.ts';
 import { parseKitQuery } from './kitQuery.ts';
@@ -16,7 +18,7 @@ import { parseKitQuery } from './kitQuery.ts';
 /** Tapping one fills the field: shows at once what the search can do. */
 const EXAMPLES = ['Milan 2006/07', 'YB 2018/19', 'Brazil 1970', 'Liverpool 2005', 'Napoli 1987/88'];
 
-type Option = { kind: 'shirt'; to: string; shirt: Shirt } | { kind: 'kit'; to: string; kit: db.KitHit };
+type Option = { kind: 'shirt'; to: string; shirt: Shirt } | { kind: 'kit'; to: string; kit: db.KitHit } | { kind: 'collector'; to: string; who: db.CollectorHit };
 
 export function HomeSearch() {
   const { money, t, label } = usePrefs();
@@ -31,7 +33,17 @@ export function HomeSearch() {
     const id = setTimeout(() => setSettled(q), 250);
     return () => clearTimeout(id);
   }, [q]);
-  const kq = parseKitQuery(settled);
+  // "@name" looks for collectors instead of shirts.
+  const person = settled.trim().startsWith('@') ? settled.trim().slice(1) : null;
+  const kq = parseKitQuery(person === null ? settled : '');
+  const people = useQuery({
+    queryKey: ['collectorSearch', person],
+    queryFn: () => db.searchCollectors(person ?? ''),
+    enabled: person !== null && person.length >= 1,
+    staleTime: 60_000,
+    retry: false,
+    placeholderData: keepPreviousData
+  });
   const kits = useQuery({
     queryKey: ['librarySearch', kq],
     queryFn: () => db.searchLibrary(kq),
@@ -41,9 +53,12 @@ export function HomeSearch() {
     placeholderData: keepPreviousData
   });
 
-  const shirts = q.trim() ? search(q).slice(0, 4) : [];
-  const kitHits = q.trim() && kq.club.length >= 2 ? (kits.data ?? []).slice(0, 6) : [];
+  const typingPerson = q.trim().startsWith('@');
+  const shirts = q.trim() && !typingPerson ? search(q).slice(0, 4) : [];
+  const kitHits = q.trim() && !typingPerson && kq.club.length >= 2 ? (kits.data ?? []).slice(0, 6) : [];
+  const collectors = typingPerson && person !== null ? (people.data ?? []).slice(0, 6) : [];
   const options: Option[] = [
+    ...collectors.map((c): Option => ({ kind: 'collector', to: '/u/' + c.handle, who: c })),
     ...shirts.map((s): Option => ({ kind: 'shirt', to: '/shirt/' + s.id, shirt: s })),
     ...kitHits.map((k): Option => ({ kind: 'kit', to: '/library/' + k.club_id + '#season-' + k.season, kit: k }))
   ];
@@ -115,11 +130,23 @@ export function HomeSearch() {
               <li key={o.to + i} id={'hs-' + i} role="option" aria-selected={i === active}>
                 {first && (
                   <div aria-hidden="true" style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--muted)', padding: '10px 12px 4px' }}>
-                    {o.kind === 'shirt' ? t('home.find.market') : t('home.find.library')}
+                    {o.kind === 'shirt' ? t('home.find.market') : o.kind === 'kit' ? t('home.find.library') : t('home.find.collectors')}
                   </div>
                 )}
                 <Link to={o.to} className="row-btn" style={{ background: i === active ? 'var(--accent-soft)' : undefined }}>
-                  {o.kind === 'shirt' ? <ShirtRowBody s={o.shirt} price={money(o.shirt.price)} sub={o.shirt.brand + ' · ' + label('league', o.shirt.league)} value={t('home.find.value')} /> : <KitRowBody k={o.kit} kindLabel={t('lib.kind.' + o.kit.kind)} variant={variantLabel(o.kit.variant, t)} cta={t('home.find.allKits')} />}
+                  {o.kind === 'shirt' ? (
+                    <ShirtRowBody s={o.shirt} price={money(o.shirt.price)} sub={o.shirt.brand + ' · ' + label('league', o.shirt.league)} value={t('home.find.value')} />
+                  ) : o.kind === 'kit' ? (
+                    <KitRowBody k={o.kit} kindLabel={t('lib.kind.' + o.kit.kind)} variant={variantLabel(o.kit.variant, t)} cta={t('home.find.allKits')} />
+                  ) : (
+                    <>
+                      <Avatar avatar={o.who.avatar} name={o.who.handle} size={40} ring={false} />
+                      <span style={{ flex: 1, minWidth: 0 }}>
+                        <span style={name}>@{o.who.handle}</span>
+                        <span style={sub}>{t('home.find.shirtsCount', { n: o.who.shirts })}</span>
+                      </span>
+                    </>
+                  )}
                 </Link>
               </li>
             );
