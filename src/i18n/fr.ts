@@ -1940,5 +1940,8 @@ export const fr: Messages = {
   'avatar.upload': 'Importer ma propre photo',
   'avatar.uploadFailed': 'La photo n\'a pas pu être enregistrée. Essaie une autre.',
   'as.scan.inLibrary': '✓ TROUVÉ DANS LA BIBLIOTHÈQUE',
+  'as.scan.whichOne': 'Lequel est-ce ?',
+  'as.scan.whichHint': 'Les maillots les plus proches de la bibliothèque – touche le tien.',
+  'as.scan.notThis': 'Pas celui-ci ? Ceux-ci se ressemblent :',
   // @@end
 };

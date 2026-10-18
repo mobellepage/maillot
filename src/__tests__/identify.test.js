@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { IDENTIFY_SCHEMA, normalize, systemPrompt } from '../../supabase/functions/identify-shirt/identify.ts';
+import { IDENTIFY_SCHEMA, MATCH_SCHEMA, normalize, pickLibraryKits, systemPrompt } from '../../supabase/functions/identify-shirt/identify.ts';
 
 const IDS = new Set(['ned-88', 'ger-26']);
 const answer = {
@@ -61,5 +61,42 @@ describe('shirt identification', () => {
   it('the schema asks for every field it lists', () => {
     expect([...IDENTIFY_SCHEMA.required].sort()).toEqual(Object.keys(IDENTIFY_SCHEMA.properties).sort());
     expect(IDENTIFY_SCHEMA.additionalProperties).toBe(false);
+  });
+
+  it('names the library club only from the list, and a plausible year range', () => {
+    const clubs = new Set(['young-boys']);
+    expect(normalize({ ...answer, library_club: 'young-boys', year_from: 2016, year_to: 2018 }, IDS, clubs)).toMatchObject({ libraryClub: 'young-boys', yearFrom: 2016, yearTo: 2018 });
+    expect(normalize({ ...answer, library_club: 'made-up-fc', year_from: 'soon', year_to: 3020 }, IDS, clubs)).toMatchObject({ libraryClub: null, yearFrom: null, yearTo: null });
+  });
+
+  it('the prompt lists the library clubs', () => {
+    expect(systemPrompt([], 'en', [{ id: 'young-boys', name: 'BSC Young Boys' }])).toContain('young-boys | BSC Young Boys');
+  });
+});
+
+describe('comparing with the library pictures', () => {
+  const kit = (n) => ({ id: 'k' + n, clubId: 'young-boys', clubName: 'BSC Young Boys', season: '201' + n + '/1' + (n + 1), kind: 'home', variant: '', image: '/library/yb/' + n + '.webp' });
+  const shown = [1, 2, 3, 4, 5, 6, 7].map(kit);
+
+  it('maps picture numbers back to kits, best first, without repeats, at most five', () => {
+    const r = pickLibraryKits({ best: 3, confidence: 0.85, ranking: [3, 1, 6, 1, 2, 7, 4] }, shown);
+    expect(r.kit.id).toBe('k3');
+    expect(r.confidence).toBe(0.85);
+    expect(r.candidates.map((k) => k.id)).toEqual(['k3', 'k1', 'k6', 'k2', 'k7']);
+  });
+
+  it('without a sure match it still ranks the closest', () => {
+    const r = pickLibraryKits({ best: null, confidence: 0.4, ranking: [2, 5, 99, 0] }, shown);
+    expect(r.kit).toBeNull();
+    expect(r.confidence).toBe(0);
+    expect(r.candidates.map((k) => k.id)).toEqual(['k2', 'k5']);
+  });
+
+  it('survives garbage', () => {
+    expect(pickLibraryKits('nope', shown)).toEqual({ kit: null, confidence: 0, candidates: [] });
+  });
+
+  it('the schema asks for every field it lists', () => {
+    expect([...MATCH_SCHEMA.required].sort()).toEqual(Object.keys(MATCH_SCHEMA.properties).sort());
   });
 });

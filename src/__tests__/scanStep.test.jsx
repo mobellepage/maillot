@@ -91,4 +91,18 @@ describe('ScanStep (photo recognition)', () => {
     setup({ status: 'done', confidence: 0, matchId: null, result: recognised({ isShirt: false, catalogId: null }) });
     expect(screen.getByText(/doesn’t look like a football shirt/)).toBeTruthy();
   });
+
+  it('when unsure, offers the closest library kits to tap, and shows the one picked', () => {
+    const kit = (n, kind = 'home') => ({ id: 'k' + n, clubId: 'young-boys', clubName: 'BSC Young Boys', season: '201' + n + '/1' + (n + 1), kind, variant: '', image: '/library/yb/' + n + '.webp' });
+    const result = recognised({ club: 'BSC Young Boys', season: null, catalogId: null, confidence: 0.45, libraryKit: null, libraryCandidates: [kit(6), kit(7), kit(8, 'away')] });
+    const set = setup({ status: 'done', confidence: 0.45, matchId: null, result });
+    expect(screen.getByText('Which one is it?')).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: /2017\/18 · Home/ }));
+    expect(set).toHaveBeenCalledWith(expect.objectContaining({ kitId: 'k7', proposedClub: 'BSC Young Boys', proposedSeason: '2017/18' }));
+    cleanup();
+    setup({ status: 'done', confidence: 0.45, matchId: null, result }, { kitId: 'k7', proposed: true });
+    expect(screen.getByText('✓ FOUND IN THE LIBRARY')).toBeTruthy();
+    expect(screen.getByText('Not this one? These look alike:')).toBeTruthy();
+    expect(screen.queryByRole('button', { name: /2017\/18 · Home/ })).toBeNull();
+  });
 });

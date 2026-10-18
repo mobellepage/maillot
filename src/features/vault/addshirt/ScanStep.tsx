@@ -10,7 +10,7 @@ import { GuidedCapture } from './GuidedCapture.tsx';
 import { PhotoInput, Section } from './parts.tsx';
 import type { Wizard } from './useAddShirtForm.ts';
 import type { Valuation } from '../../../types/domain.ts';
-import { AI_MATCH_THRESHOLD, proposedName } from '../../identify/prefill.ts';
+import { AI_MATCH_THRESHOLD, libraryPatch, proposedName } from '../../identify/prefill.ts';
 import { variantLabel } from '../../library/model.ts';
 import { usePhotoUrls } from '../../../lib/usePhotoUrls.ts';
 import type { StudioState } from './studio.ts';
@@ -66,9 +66,14 @@ export function ScanStep({ w, busyKey, onScanFile, valuation, studio, onStudioOf
   const maybe = r?.catalogId && r.confidence < AI_MATCH_THRESHOLD && !f.catalogId ? BY[r.catalogId] : undefined;
   const kitLabel = (k: string) => t('kit.' + k);
   const busy = f.scan.status === 'scanning';
-  // Found among the library's kits (not one of the catalogue shirts): shown by name and picture.
-  const lib = !catalogItem && !maybe && r?.libraryKit && f.kitId === r.libraryKit.id ? r.libraryKit : null;
-  const libName = lib ? `${lib.clubName} ${lib.season} · ${t('lib.kind.' + lib.kind)}${lib.variant ? ' · ' + variantLabel(lib.variant, t) : ''}` : '';
+  // Found among the library's kits (not one of the catalogue shirts) — by the
+  // recognition or picked by the member from the closest ones: shown by name and picture.
+  const options = r?.libraryCandidates ?? [];
+  const lib = (!catalogItem && !maybe && [r?.libraryKit, ...options].find((k) => k && k.id === f.kitId)) || null;
+  const kitName = (k: NonNullable<typeof lib>) => `${k.clubName} ${k.season} · ${t('lib.kind.' + k.kind)}${k.variant ? ' · ' + variantLabel(k.variant, t) : ''}`;
+  const libName = lib ? kitName(lib) : '';
+  const others = options.filter((k) => k.id !== lib?.id);
+  const pick = (k: (typeof options)[number]) => w.set(libraryPatch(k, kitLabel));
 
   return (
     <div>
@@ -135,6 +140,27 @@ export function ScanStep({ w, busyKey, onScanFile, valuation, studio, onStudioOf
             <div style={{ fontWeight: 700, fontSize: 18, marginTop: 6 }}>{catalogItem?.name ?? maybe?.name ?? (proposedName(r, kitLabel) || r.summary)}</div>
           )}
           {lib && r.summary && <p style={{ fontSize: 13, color: 'var(--text-2)', margin: '10px 0 0', lineHeight: 1.45 }}>{r.summary}</p>}
+          {!catalogItem && !maybe && others.length > 0 && (
+            <div style={{ marginTop: 14 }}>
+              <div style={{ fontWeight: 700, fontSize: 15 }}>{t(lib ? 'as.scan.notThis' : 'as.scan.whichOne')}</div>
+              {!lib && <p style={{ fontSize: 13, color: 'var(--text-2)', margin: '2px 0 0' }}>{t('as.scan.whichHint')}</p>}
+              <ul className="kit-picks" aria-label={t('as.scan.whichOne')}>
+                {others.map((k) => (
+                  <li key={k.id}>
+                    <button type="button" className="kit-pick" onClick={() => pick(k)} aria-label={kitName(k)}>
+                      <span className="kit-thumb kit-pick__art">
+                        <img src={k.image} alt="" loading="lazy" />
+                      </span>
+                      <span className="kit-pick__name">
+                        {k.season} · {t('lib.kind.' + k.kind)}
+                        {k.variant ? ' · ' + variantLabel(k.variant, t) : ''}
+                      </span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
           <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 10 }}>
             {[r.brand, r.kit !== 'unknown' ? kitLabel(r.kit) : null, r.productCode && `${t('as.scan.code')} ${r.productCode}`, r.labelSize, [r.playerName, r.playerNumber].filter(Boolean).join(' ')]
               .filter(Boolean)

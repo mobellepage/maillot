@@ -35,6 +35,21 @@ interface WizardFields {
   flock: { source: string; name: string; number: string; type: string };
 }
 
+type LibraryKit = NonNullable<Identification['libraryKit']>;
+
+/** A library kit names the shirt exactly (club, season, kind, variant) and brings its picture. */
+export function libraryPatch(lib: LibraryKit, kitLabel: (kit: string) => string) {
+  return {
+    kitId: lib.id,
+    catalogId: null,
+    proposed: true,
+    proposedClub: lib.clubName,
+    proposedSeason: lib.season,
+    proposedVariant: [KIND_WORD[lib.kind] ?? '', lib.variant].filter(Boolean).join(' '),
+    searchQ: [lib.clubName, lib.season, kitLabel(lib.kind)].filter(Boolean).join(' ')
+  };
+}
+
 /** Fields the wizard takes from a result. Never overwrites what the member already chose. */
 export function wizardPatch(r: Identification, f: WizardFields, kitLabel: (kit: string) => string, sizesOf: (group: string) => string[]): Partial<WizardFields> {
   const patch: Partial<WizardFields> = {};
@@ -42,14 +57,7 @@ export function wizardPatch(r: Identification, f: WizardFields, kitLabel: (kit: 
   const lib = r.libraryKit;
   // A kit found in the library names the shirt exactly (club, season, kind, variant) and brings its picture.
   if (!f.catalogId && !f.kitId && !match && lib) {
-    Object.assign(patch, {
-      kitId: lib.id,
-      proposed: true,
-      proposedClub: lib.clubName,
-      proposedSeason: lib.season,
-      proposedVariant: [KIND_WORD[lib.kind] ?? '', lib.variant].filter(Boolean).join(' '),
-      searchQ: [lib.clubName, lib.season, kitLabel(lib.kind)].filter(Boolean).join(' ')
-    });
+    Object.assign(patch, libraryPatch(lib, kitLabel));
   } else if (!f.catalogId && !f.proposed) {
     if (match) Object.assign(patch, { catalogId: match, proposed: false });
     else if (r.club && r.season) Object.assign(patch, { proposed: true, proposedClub: r.club, proposedSeason: r.season, proposedVariant: r.kit !== 'unknown' ? kitLabel(r.kit) : '' });
