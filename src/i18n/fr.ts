@@ -1911,5 +1911,13 @@ export const fr: Messages = {
   'news.allKits': 'Tous les maillots {club}',
   'news.more': 'Autres actus maillots',
   'news.notFound': 'Cette actu n\'existe plus.',
+  'ownphotos.title': 'Ajoute tes propres photos',
+  'ownphotos.body': 'Ton maillot affiche encore la photo de la bibliothèque. Avec tes propres photos, il brille dans ta collection, peut être vérifié et vaut plus.',
+  'ownphotos.saving': 'Enregistrement…',
+  'ownphotos.saved': 'Photo enregistrée.',
+  'vault.collectionRow': 'Mes maillots',
+  'vault.byLeague': 'Maillots par ligue',
+  'vault.allLeagues': 'Tous',
+  'vault.otherLeague': 'Autres',
   // @@end
 };

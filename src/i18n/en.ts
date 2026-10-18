@@ -1910,6 +1910,14 @@ export const en = {
   'news.allKits': 'All {club} kits',
   'news.more': 'More kit news',
   'news.notFound': 'This news is no longer here.',
+  'ownphotos.title': 'Add your own photos',
+  'ownphotos.body': 'Your shirt still shows the library picture. With your own photos it shines in your collection, can be verified and is worth more.',
+  'ownphotos.saving': 'Saving…',
+  'ownphotos.saved': 'Photo saved.',
+  'vault.collectionRow': 'My shirts',
+  'vault.byLeague': 'Shirts by league',
+  'vault.allLeagues': 'All',
+  'vault.otherLeague': 'Other',
   // @@end
 };
 

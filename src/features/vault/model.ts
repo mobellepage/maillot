@@ -46,3 +46,18 @@ export function valueOf(c: CustomItem): number | null {
   const v = currentValuation(c);
   return v && !v.blocked ? v.mid : null;
 }
+
+const norm = (s: string) => s.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLowerCase().trim();
+
+/**
+ * The league a collection shirt belongs to: the catalogue's, else the
+ * library club's (by name or short name), else null.
+ */
+export function leagueOf(c: CustomItem, clubs: { name: string; aliases?: string[] | null; league: string }[]): string | null {
+  const cat = c.catalogId ? BY[c.catalogId] : undefined;
+  if (cat?.league) return cat.league;
+  const club = norm(c.proposedClub || '');
+  if (!club) return null;
+  const hit = clubs.find((k) => norm(k.name) === club || (k.aliases ?? []).some((a) => norm(a) === club));
+  return hit?.league ?? null;
+}

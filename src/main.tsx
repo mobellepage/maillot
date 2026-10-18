@@ -5,6 +5,7 @@ import { RouterProvider } from 'react-router/dom';
 import './ui/ui.css';
 import './ui/theme-light.css';
 import { applyThemeFromUrl } from './lib/theme.ts';
+import { lockZoom } from './lib/zoom.ts';
 import { queryClient } from './lib/queryClient.ts';
 import { initialLang } from './lib/prefs.tsx';
 import { loadMessages, type Lang } from './i18n/index.ts';
@@ -16,6 +17,7 @@ import { SITE_URL } from './config/site.ts';
 
 installErrorReporting();
 applyThemeFromUrl();
+lockZoom();
 
 const router = createBrowserRouter(routes);
 // Entrance animations resume with the first in-app navigation (see ui.css).

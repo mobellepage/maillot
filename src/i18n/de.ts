@@ -1911,5 +1911,13 @@ export const de: Messages = {
   'news.allKits': 'Alle {club}-Trikots',
   'news.more': 'Weitere Trikot-News',
   'news.notFound': 'Diese News gibt es nicht mehr.',
+  'ownphotos.title': 'Eigene Fotos hinzufügen',
+  'ownphotos.body': 'Dein Trikot zeigt noch das Bibliotheksbild. Mit eigenen Fotos leuchtet es in deiner Sammlung, kann geprüft werden und ist mehr wert.',
+  'ownphotos.saving': 'Wird gespeichert …',
+  'ownphotos.saved': 'Foto gespeichert.',
+  'vault.collectionRow': 'Meine Trikots',
+  'vault.byLeague': 'Trikots nach Liga',
+  'vault.allLeagues': 'Alle',
+  'vault.otherLeague': 'Weitere',
   // @@end
 };

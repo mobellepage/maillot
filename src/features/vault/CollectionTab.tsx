@@ -1,9 +1,13 @@
+import { useState } from 'react';
 import { Link } from 'react-router';
+import { useQuery } from '@tanstack/react-query';
+import { BY } from '../../data.ts';
+import * as db from '../../utils/db.ts';
 import { usePrefs } from '../../lib/prefs.tsx';
 import type { CustomItem } from '../../types/domain.ts';
 import { downloadVaultCard } from '../../utils/cardExport.js';
-import { ButtonLink, DownloadIcon, EmptyState, ErrorState, Notice, ShirtGraphic, Skeleton, HEX } from '../../ui/index.ts';
-import { badgeFor, itemLook, itemName, valueOf } from './model.ts';
+import { ButtonLink, DownloadIcon, EmptyState, ErrorState, Notice, ScrollRow, ShirtGraphic, Skeleton, HEX } from '../../ui/index.ts';
+import { badgeFor, itemLook, itemName, leagueOf, valueOf } from './model.ts';
 import type { Photo } from '../../types/domain.ts';
 import { isCutout } from './addshirt/studio.ts';
 import { PhotoStrip } from './PhotoStrip.tsx';
@@ -23,6 +27,22 @@ export function CollectionTab({ items, loading, error, onRetry }: { items: Custo
   const rejected = items.filter((c) => c.verification.status === 'abgelehnt');
   const shots = items.map(photosOf);
   const url = usePhotoUrls(shots.flat().map((x) => x.photo), true);
+  const clubs = useQuery({ queryKey: ['kitClubs'], queryFn: db.loadKitClubs, staleTime: 10 * 60_000 });
+  const [league, setLeague] = useState('all');
+  // Each shirt's league, and the leagues as round buttons (with a picture of one of its shirts).
+  const leagueKeys = items.map((c) => leagueOf(c, clubs.data ?? []) ?? '?');
+  const leagues = [...new Set(leagueKeys)]
+    .map((key) => {
+      const idx = leagueKeys.indexOf(key);
+      const c = items[idx]!;
+      const own = shots[idx]![0];
+      const cat = c.catalogId ? BY[c.catalogId] : undefined;
+      const pic = (own && url(own.photo)) || c.kitImage || (cat?.photo ? (cat.photo.endsWith('.webp') ? cat.photo : cat.photo + '-400.webp') : undefined);
+      return { key, count: leagueKeys.filter((k) => k === key).length, pic };
+    })
+    .sort((a, b) => (a.key === '?' ? 1 : b.key === '?' ? -1 : b.count - a.count));
+  const active = league !== 'all' && leagues.some((l) => l.key === league) ? league : 'all';
+  const shown = items.map((c, i) => ({ c, i })).filter(({ i }) => active === 'all' || leagueKeys[i] === active);
   if (loading)
     return (
       <div className="grid-cards" style={{ marginTop: 24 }} role="status" aria-busy="true" aria-label={t('vault.loading')}>
@@ -61,23 +81,30 @@ export function CollectionTab({ items, loading, error, onRetry }: { items: Custo
           ))}
         </Notice>
       )}
-      <ul className="grid-cards" style={{ listStyle: 'none', padding: 0, margin: '24px 0 0', gridTemplateColumns: 'repeat(auto-fill,minmax(min(100%,200px),1fr))' }}>
-        {items.map((c, i) => {
+      <ScrollRow label={t('vault.collectionRow')} prevLabel={t('common.scrollPrev')} nextLabel={t('common.scrollNext')}>
+        {shown.map(({ c, i }) => {
           const badge = badgeFor(c);
           const { look, glow } = itemLook(c);
           const value = valueOf(c);
           const name = itemName(c);
           const slides = shots[i]!.map((x) => ({ src: url(x.photo), cutout: isCutout(x.key) })).filter((x): x is { src: string; cutout: boolean } => !!x.src);
+          // Greyed out only while the member has no photos of their own (not while theirs load).
+          const hasOwn = shots[i]!.length > 0;
           return (
-            <li key={c.id}>
+            <li key={c.id} className="coll-slide">
               <article className="card card--interactive" style={{ position: 'relative', padding: 0, borderRadius: 22, overflow: 'hidden' }}>
-                <div style={{ aspectRatio: '1/1.08', display: 'grid', placeItems: 'center', position: 'relative', background: `radial-gradient(circle at 50% 46%,${glow},rgba(0,0,0,0) 62%),var(--sunken)` }}>
+                <div className={hasOwn ? undefined : 'shirt-pending'} style={{ aspectRatio: '1/1.08', display: 'grid', placeItems: 'center', position: 'relative', background: hasOwn ? `radial-gradient(circle at 50% 46%,${glow},rgba(0,0,0,0) 62%),var(--sunken)` : 'var(--kit-tile)' }}>
                   {slides.length ? (
                     <PhotoStrip slides={slides} to={'/vault/item/' + c.id} label={name} prevLabel={t('common.scrollPrev')} nextLabel={t('common.scrollNext')} />
+                  ) : hasOwn ? (
+                    <Skeleton height="100%" radius={0} />
                   ) : c.kitImage ? (
-                    <PendingPhotos src={c.kitImage} />
+                    <PendingPhotos src={c.kitImage} nudge />
                   ) : (
-                    <ShirtGraphic {...look} style={{ width: '66%' }} />
+                    <>
+                      <ShirtGraphic {...look} style={{ width: '66%' }} />
+                      <span className="badge badge--neutral pending-nudge">📷 {t('ownphotos.title')}</span>
+                    </>
                   )}
                   {c.size && (
                     <span className="badge badge--neutral" style={{ position: 'absolute', top: 12, left: 12, zIndex: 3, fontSize: 9.5, pointerEvents: 'none' }}>
@@ -116,7 +143,18 @@ export function CollectionTab({ items, loading, error, onRetry }: { items: Custo
             </li>
           );
         })}
-      </ul>
+      </ScrollRow>
+      {leagues.length > 1 && (
+        <div role="group" aria-label={t('vault.byLeague')} className="coll-leagues">
+          {[{ key: 'all', count: items.length, pic: undefined as string | undefined }, ...leagues].map((l) => (
+            <button key={l.key} type="button" aria-pressed={active === l.key} onClick={() => setLeague(l.key)} className="coll-league">
+              <span className="coll-league-disc">{l.pic ? <img src={l.pic} alt="" loading="lazy" /> : <span aria-hidden="true">👕</span>}</span>
+              <span className="coll-league-name">{l.key === 'all' ? t('vault.allLeagues') : l.key === 'National Teams' ? t('lib.nations') : l.key === '?' ? t('vault.otherLeague') : l.key}</span>
+              <span className="coll-league-count">{l.count}</span>
+            </button>
+          ))}
+        </div>
+      )}
     </>
   );
 }

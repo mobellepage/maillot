@@ -26,4 +26,16 @@ test('a shirt listed from the library without photos', async ({ page }) => {
   await expect(page).toHaveURL(/\/vault\/item\//, { timeout: 10000 });
   await expect(page.getByText('Own photos still to come').first()).toBeVisible();
   await expect(page.getByRole('heading', { name: /AC Milan 2006\/07 Home/ })).toBeVisible();
+  // Own photos can be added right here; until then the collection shows it greyed out.
+  await expect(page.getByRole('heading', { name: '📷 Add your own photos' })).toBeVisible();
+  await page.goto('/vault');
+  await expect(page.locator('.shirt-pending').first()).toBeVisible();
+  await expect(page.locator('.shirt-pending').first()).toContainText('Add your own photos');
+  // The shirts sorted by league: Serie A narrows the row.
+  const serieA = page.getByRole('group', { name: 'Shirts by league' }).getByRole('button', { name: /Serie A/ });
+  if (await serieA.count()) {
+    await serieA.click();
+    await expect(serieA).toHaveAttribute('aria-pressed', 'true');
+    await expect(page.getByRole('link', { name: /AC Milan 2006\/07/ }).first()).toBeVisible();
+  }
 });

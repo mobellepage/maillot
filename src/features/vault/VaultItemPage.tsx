@@ -7,6 +7,7 @@ import { usePageMeta } from '../../lib/meta.ts';
 import { usePrefs } from '../../lib/prefs.tsx';
 import { downloadVaultCard } from '../../utils/cardExport.js';
 import { PendingPhotos } from './PendingPhotos.tsx';
+import { AddOwnPhotos } from './AddOwnPhotos.tsx';
 import { Badge, Button, Card, ErrorState, KeyValueList, Notice, Page, ShirtGraphic, Skeleton, HEX, useConfirm } from '../../ui/index.ts';
 import { badgeFor, itemLook, itemName, valueOf } from './model.ts';
 import { VisibilityEditor } from './VisibilityEditor.tsx';
@@ -80,6 +81,7 @@ export default function VaultItemPage() {
           </div>
           <p style={{ fontSize: 12, color: 'var(--muted)', margin: '10px 0 0', lineHeight: 1.5 }}>{t(badge.desc)}</p>
           <StudioButton item={c} frontUrl={c.photos?.front ? fullUrl(c.photos.front) : undefined} />
+          <AddOwnPhotos item={c} />
           {photos.length > 0 && (
             <div role="group" aria-label={t('vault.photos')} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(64px,1fr))', gap: 8, marginTop: 10 }}>
               {photos.map((p, i) => (
