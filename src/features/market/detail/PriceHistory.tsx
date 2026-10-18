@@ -11,6 +11,7 @@ export function PriceHistory({ s }: { s: Shirt }) {
   const [range, setRange] = useState<Range>('1Y');
   const [hover, setHover] = useState<number | null>(null);
   const slice = s.hist.slice(-Math.min(RANGES[range] ?? 365, s.L));
+  const year = s.hist.slice(-365);
   const offset = s.L - slice.length;
   const lp = linePath(down(slice, 140), 1000, 280, 24);
   const first = slice[0] ?? s.price;
@@ -39,7 +40,7 @@ export function PriceHistory({ s }: { s: Shirt }) {
               {money(point ? point.v : s.price)}
             </span>
             <span className="mono" style={{ fontSize: 14, fontWeight: 600, color }}>
-              {pct(((last - first) / first) * 100)}
+              {pct(((last - first) / first) * 100)} · {range}
             </span>
           </div>
         </div>
@@ -73,6 +74,9 @@ export function PriceHistory({ s }: { s: Shirt }) {
           <span key={t}>{dateOf(offset + Math.round(t * (slice.length - 1)))}</span>
         ))}
       </div>
+      <p style={{ margin: '12px 0 0', fontSize: 12.5, color: 'var(--muted)', lineHeight: 1.5 }}>
+        {t('ph.yearRange', { high: money(Math.max(...year)), low: money(Math.min(...year)) })} · {t('ph.note')}
+      </p>
     </section>
   );
 }

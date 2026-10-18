@@ -45,7 +45,7 @@ export function PricePanel({ s, size, setSize, book, myUserId, stats, watched, t
       </h1>
       <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '10px 16px', marginTop: 16, fontSize: 13.5, color: 'var(--text-2)' }}>
         <span className={'badge ' + (s.ch >= 0 ? 'badge--accent' : 'badge--neg')} style={{ borderRadius: 7, fontSize: 12.5 }}>
-          {pct(s.ch)} · 30D
+          {t('pp.index30', { pct: pct(s.ch) })}
         </span>
         <span>{watchers ? tp('pp.watching', watchers) : t('pp.firstWatch')}</span>
         <span aria-hidden="true" style={{ color: 'var(--faint-2)' }}>

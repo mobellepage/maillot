@@ -1,13 +1,11 @@
 import { Link } from 'react-router';
-import { MULT, pct, TODAY, type Shirt } from '../../../data.ts';
+import type { Shirt } from '../../../data.ts';
 import { usePrefs } from '../../../lib/prefs.tsx';
-import { Badge, Button, Card, KeyValueList } from '../../../ui/index.ts';
+import { Button, Card, KeyValueList } from '../../../ui/index.ts';
 import type { ShirtStats } from '../../../utils/db.ts';
 
 export function InfoCards({ s, stats, watched, toggleWatch }: { s: Shirt; stats: ShirtStats | null | undefined; watched: boolean; toggleWatch: () => void }) {
   const { money, t, label, locale } = usePrefs();
-  const year = s.hist.slice(-365);
-  const sizeMult = (z: string) => MULT[z] ?? 1;
   return (
     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(min(100%,300px),1fr))', gap: 16, marginTop: 16 }}>
       <Card>
@@ -27,42 +25,31 @@ export function InfoCards({ s, stats, watched, toggleWatch }: { s: Shirt; stats:
           ]}
         />
       </Card>
+      {/* Real Maillot sales only (one source: s.trades). Simulated index data lives in the chart, marked DEMO. */}
       <Card>
-        <h2 className="title" style={{ margin: '0 0 12px', display: 'flex', alignItems: 'center', gap: 8 }}>
-          {t('ic.market')}
-          <Badge title={t('ic.demoTitle')} style={{ fontSize: 9.5 }}>
-            DEMO
-          </Badge>
+        <h2 className="title" style={{ margin: '0 0 12px' }}>
+          {t('ic.salesTitle')}
         </h2>
-        <KeyValueList
-          rows={[
-            [t('ic.high52'), money(Math.max(...year))],
-            [t('ic.low52'), money(Math.min(...year))],
-            [t('ic.avg30'), money(s.hist.slice(-30).reduce((a, b) => a + b, 0) / 30)],
-            [t('ic.volatility'), (Math.abs(s.ch) / 3 + 2.1).toFixed(1) + '%'],
-            [t('ic.completed'), stats ? Number(stats.completed_sales).toLocaleString('de-CH') : '—'],
-            [t('ic.premium'), s.type === 'New' ? pct(s.ch * 0.8) : t('ic.retroNA')]
-          ]}
-        />
-        <h3 style={{ fontSize: 13, fontWeight: 600, margin: '18px 0 8px' }}>{t('ic.recentSales')}</h3>
-        <table className="mono" style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12.5, color: 'var(--text-2)' }}>
-          <thead className="sr-only">
-            <tr>
-              <th>{t('ic.date')}</th>
-              <th>{t('ic.sizeCol')}</th>
-              <th>{t('ic.price')}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {s.sales.map((x, i) => (
-              <tr key={i}>
-                <td style={{ padding: '7px 0' }}>{new Date(TODAY - x.o * 864e5).toLocaleDateString(locale, { day: 'numeric', month: 'short' })}</td>
-                <td>{x.size}</td>
-                <td style={{ textAlign: 'right', color: 'var(--text)' }}>{money(x.p * sizeMult(x.size))}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        {s.trades.count === 0 ? (
+          <>
+            <p style={{ margin: '0 0 12px', fontSize: 13.5, lineHeight: 1.55, color: 'var(--text-2)' }}>{t('ic.noSales')}</p>
+            <KeyValueList
+              rows={[
+                [t('ic.completed'), '0'],
+                [t('ic.avg30'), '—'],
+                [t('ic.volatility'), '—']
+              ]}
+            />
+          </>
+        ) : (
+          <KeyValueList
+            rows={[
+              [t('ic.completed'), s.trades.count.toLocaleString('de-CH')],
+              [t('ic.lastSale'), s.trades.lastPrice !== null ? money(s.trades.lastPrice) + (s.trades.lastSoldAt ? ' · ' + new Date(s.trades.lastSoldAt).toLocaleDateString(locale, { day: 'numeric', month: 'short' }) : '') : '—'],
+              [t('ic.avgRecent'), s.trades.avgRecent !== null ? money(s.trades.avgRecent) : '—']
+            ]}
+          />
+        )}
       </Card>
       <Card>
         <h2 className="title" style={{ margin: '0 0 16px' }}>

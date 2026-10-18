@@ -108,7 +108,8 @@ export function estimateValue({ catalogItem, version, conditionGrade, flock, pat
   }
 
   const base = catalogItem ? catalogItem.price : 90;
-  const salesCount = catalogItem ? catalogItem.sales.length : 0;
+  // Real Maillot sales only (the simulated index never counts as sales).
+  const salesCount = catalogItem ? catalogItem.trades.count : 0;
 
   let mult = VERSION_MULT[version] ?? 1;
   mult *= 0.55 + (conditionGrade / 10) * 0.6;
