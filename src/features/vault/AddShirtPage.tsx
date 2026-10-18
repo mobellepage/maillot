@@ -23,6 +23,7 @@ import { buildPhotoSpecs } from '../../addShirtData.js';
 import { useCollection, useCollectionActions } from './useCollection.ts';
 import { FREE_SHIRT_LIMIT } from '../../config/plans.ts';
 import { isPlanLimitError } from '../../utils/db.ts';
+import { PREMIUM_ENABLED } from '../../config/plans.ts';
 
 const STEPS = ['as.step.scan', 'as.step.shirt', 'as.step.details', 'as.step.photos', 'as.step.precheck', 'as.step.verify', 'as.step.finish'] as const;
 
@@ -126,7 +127,7 @@ export default function AddShirtPage() {
           navigate('/vault/item/' + item.id);
         },
         onError: (e) => {
-          if (isPlanLimitError(e)) navigate('/premium');
+          if (isPlanLimitError(e) && PREMIUM_ENABLED) navigate('/premium');
         }
       }
     );

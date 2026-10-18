@@ -1390,7 +1390,7 @@ html:not([data-theme='light']) .store-badge > img {
   color: var(--muted);
 }
 .kit-disc-img--portrait {
-  background: #fff;
+  background: var(--kit-tile);
 }
 .kit-disc-img--portrait img {
   width: 100%;
@@ -1958,4 +1958,78 @@ html {
 html.no-zoom,
 html.no-zoom body {
   touch-action: pan-x pan-y;
+}
+
+/* ---------- One typeface in both looks ----------
+   The dark look uses the light look's type (system SF, sentence case, tight
+   tracking) — only the colours differ. */
+:root {
+  --font-sans: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --font-mono: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+html body {
+  -webkit-font-smoothing: antialiased;
+  font-feature-settings: 'tnum' 1;
+}
+html .display {
+  text-transform: none;
+  font-weight: 700;
+  font-stretch: normal;
+  letter-spacing: -0.035em;
+  line-height: 1.04;
+}
+html .title {
+  text-transform: none;
+  font-stretch: normal;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+html .eyebrow {
+  font-family: var(--font-sans);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+}
+html .mono {
+  letter-spacing: -0.01em;
+}
+html .btn {
+  font-weight: 500;
+  font-size: 16px;
+}
+html .btn--sm {
+  font-size: 14px;
+}
+html .btn--primary {
+  font-weight: 600;
+}
+html .logo-word {
+  font-stretch: normal !important;
+  letter-spacing: -0.02em !important;
+  font-weight: 700 !important;
+  text-transform: none;
+}
+
+/* Collector points in My collection. */
+.points-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  padding: 18px;
+  border-radius: 18px;
+  margin-top: 12px;
+}
+.points-coin {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 22px;
+  color: #6b4e00;
+  background: radial-gradient(circle at 35% 30%, #fff3c4, #e8b931 70%);
+  box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.15);
 }

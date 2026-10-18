@@ -1359,7 +1359,7 @@ export const en = {
   'pshirt.since': 'In the collection since',
   'pshirt.catalog': 'View in the catalogue',
   'avatar.title': 'Choose a profile picture',
-  'avatar.body': 'Pick a football legend — it shows on your profile, in search and to the collectors who follow you.',
+  'avatar.body': 'Or pick a football legend — it shows on your profile, in search and to your followers.',
   'avatar.initials': 'Initials',
   'avatar.legend': 'Legend {n}',
   'avatar.saved': 'Profile picture saved.',
@@ -1918,6 +1918,14 @@ export const en = {
   'vault.byLeague': 'Shirts by league',
   'vault.allLeagues': 'All',
   'vault.otherLeague': 'Other',
+  'points.eyebrow': 'Collector points',
+  'points.total': '{n} points',
+  'points.from.one': 'from {n} shirt bought',
+  'points.from.other': 'from {n} shirts bought',
+  'points.how': 'Every shirt you buy through Maillot earns {shirt} points plus {franc} per franc.',
+  'points.shop': 'To the market',
+  'avatar.upload': 'Upload my own photo',
+  'avatar.uploadFailed': 'The photo could not be saved. Please try another one.',
   // @@end
 };
 

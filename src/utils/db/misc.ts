@@ -108,6 +108,17 @@ export async function setAvatar(userId: string, avatar: string | null): Promise<
   if (error) throw error;
 }
 
+/** Uploads a profile photo (a square JPEG made on the device) and makes it the avatar. */
+export async function uploadAvatarPhoto(userId: string, jpeg: Blob): Promise<string> {
+  const name = `${userId}/avatar-${Date.now()}.jpg`;
+  const client = await sb();
+  const { error } = await client.storage.from('avatars').upload(name, jpeg, { contentType: 'image/jpeg', cacheControl: '31536000', upsert: false });
+  if (error) throw error;
+  const avatar = 'photo:' + name;
+  await setAvatar(userId, avatar);
+  return avatar;
+}
+
 /** Switch notification groups on or off (value news, wanted shirts, social). */
 export async function setNotificationPrefs(userId: string, prefs: Partial<Record<'value' | 'wanted' | 'social', boolean>>): Promise<void> {
   const { error } = await (await sb()).from('profiles').update({ notification_prefs: prefs }).eq('id', userId);

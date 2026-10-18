@@ -41,7 +41,8 @@ select is(free_shirt_limit(), 10, 'the free plan holds 10 shirts');
 
 select tests.login('00000000-0000-4000-a000-0000000f7e01');
 select lives_ok($$insert into custom_items (id, user_id, catalog_id, size) values ('free-10', '00000000-0000-4000-a000-0000000f7e01', 'ajx-95', 'L')$$, 'the 10th shirt fits the free plan');
-select throws_ok($$insert into custom_items (id, user_id, catalog_id, size) values ('free-11', '00000000-0000-4000-a000-0000000f7e01', 'ajx-95', 'L')$$, 'P0402', null, 'the 11th needs Premium');
+-- Premium is paused (migration premium_paused): the free plan has no limit for now.
+select lives_ok($$insert into custom_items (id, user_id, catalog_id, size) values ('free-11', '00000000-0000-4000-a000-0000000f7e01', 'ajx-95', 'L')$$, 'while Premium is paused, the 11th shirt fits too');
 select lives_ok($$insert into custom_items (id, user_id, catalog_id, size) values ('free-3', '00000000-0000-4000-a000-0000000f7e01', 'ned-88', 'S') on conflict (id) do update set size = excluded.size$$, 'editing a shirt you have is always fine');
 select throws_ok($$update profiles set premium_until = now() + interval '1 year' where id = '00000000-0000-4000-a000-0000000f7e01'$$, '42501', null, 'members can''t grant themselves Premium …');
 select tests.logout();

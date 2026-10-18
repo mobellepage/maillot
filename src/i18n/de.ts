@@ -1360,7 +1360,7 @@ export const de: Messages = {
   'pshirt.since': 'In der Sammlung seit',
   'pshirt.catalog': 'Im Katalog ansehen',
   'avatar.title': 'Profilbild wählen',
-  'avatar.body': 'Wähle eine Fussball-Legende – sie erscheint auf deinem Profil, in der Suche und bei deinen Followern.',
+  'avatar.body': 'Oder wähle eine Fussball-Legende – sie erscheint auf deinem Profil, in der Suche und bei deinen Followern.',
   'avatar.initials': 'Initialen',
   'avatar.legend': 'Legende {n}',
   'avatar.saved': 'Profilbild gespeichert.',
@@ -1919,5 +1919,13 @@ export const de: Messages = {
   'vault.byLeague': 'Trikots nach Liga',
   'vault.allLeagues': 'Alle',
   'vault.otherLeague': 'Weitere',
+  'points.eyebrow': 'Sammelpunkte',
+  'points.total': '{n} Punkte',
+  'points.from.one': 'aus {n} gekauftem Trikot',
+  'points.from.other': 'aus {n} gekauften Trikots',
+  'points.how': 'Jedes Trikot, das du über Maillot kaufst, bringt {shirt} Punkte plus {franc} pro Franken.',
+  'points.shop': 'Zum Marktplatz',
+  'avatar.upload': 'Eigenes Foto hochladen',
+  'avatar.uploadFailed': 'Das Foto konnte nicht gespeichert werden. Bitte versuch ein anderes.',
   // @@end
 };

@@ -24,3 +24,10 @@ export async function joinPremiumWaitlist(): Promise<void> {
 
 /** The database stops an 11th shirt on the free plan with this code. */
 export const isPlanLimitError = (e: unknown): boolean => !!e && typeof e === 'object' && (e as { code?: string }).code === 'P0402';
+
+/** My collector points (shirts bought through Maillot). */
+export async function loadMyPoints(): Promise<{ total: number; purchases: number }> {
+  const { data, error } = await (await sb()).rpc('my_collector_points');
+  if (error) throw error;
+  return data?.[0] ?? { total: 0, purchases: 0 };
+}

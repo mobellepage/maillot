@@ -24,8 +24,9 @@ import { PayoutsCard } from './PayoutsCard.tsx';
 import { SITE_URL, shareOrigin } from '../../config/site.ts';
 import { mainColor, renderCard, shareCard } from './shareCard.ts';
 import { Avatar } from '../avatars/Avatar.tsx';
-import { FREE_SHIRT_LIMIT } from '../../config/plans.ts';
+import { FREE_SHIRT_LIMIT, PREMIUM_ENABLED } from '../../config/plans.ts';
 import { LevelBadge, LevelCard } from '../levels/LevelBadge.tsx';
+import { PointsCard } from '../levels/PointsCard.tsx';
 import { FavoriteClub } from '../library/FavoriteClub.tsx';
 
 type Tab = 'collection' | 'watchlist' | 'orders';
@@ -114,7 +115,7 @@ export default function VaultPage({ tab }: { tab: Tab }) {
     ['orders', t('vault.title.orders'), orders.data?.length ?? 0]
   ];
   const path: Record<Tab, string> = { collection: '/vault', watchlist: '/watchlist', orders: '/orders' };
-  const full = !profile?.premium && items.length >= FREE_SHIRT_LIMIT;
+  const full = PREMIUM_ENABLED && !profile?.premium && items.length >= FREE_SHIRT_LIMIT;
 
   return (
     <Page>
@@ -131,7 +132,7 @@ export default function VaultPage({ tab }: { tab: Tab }) {
             {handle ?? <Link to="/welcome?step=username">{t('vault.chooseHandle')}</Link>}
             {since && ' · ' + t('vault.memberSince', { date: since })}
           </div>
-          {!profile?.premium ? (
+          {!PREMIUM_ENABLED ? null : !profile?.premium ? (
             <Link to="/premium" className="badge badge--neutral" style={{ marginTop: 10, marginRight: 8, fontFamily: 'var(--font-sans)', fontSize: 12, display: 'inline-flex' }}>
               {t('premium.usage', { n: items.length, max: FREE_SHIRT_LIMIT })}
             </Link>
@@ -161,6 +162,7 @@ export default function VaultPage({ tab }: { tab: Tab }) {
 
       {/* The collector's level first, then the favourite team's checklist. */}
       {!loading && !error && <LevelCard shirts={items.length} value={totalValue} />}
+      {!loading && !error && <PointsCard />}
       <div style={{ marginTop: 16 }}>
         <FavoriteClub />
       </div>

@@ -125,14 +125,18 @@ function LegendArt({ l }: { l: Legend }) {
   );
 }
 
+/** A member's own profile photo ('photo:<user id>/<file>' in the public avatars bucket). */
+const avatarPhotoUrl = (avatar: string) => (import.meta.env.VITE_SUPABASE_URL as string) + '/storage/v1/object/public/avatars/' + avatar.slice(6);
+
 export function Avatar({ avatar, name, size = 40, ring = true, style }: { avatar?: string | null | undefined; name: string; size?: number; ring?: boolean; style?: CSSProperties }) {
-  const legend = avatar ? LEGEND_BY_ID[avatar] : undefined;
+  const photo = avatar?.startsWith('photo:') ? avatarPhotoUrl(avatar) : undefined;
+  const legend = avatar && !photo ? LEGEND_BY_ID[avatar] : undefined;
   return (
     <span
       aria-hidden="true"
       style={{ width: size, height: size, borderRadius: '50%', overflow: 'hidden', flex: 'none', display: 'grid', placeItems: 'center', border: ring ? '2px solid var(--accent)' : undefined, background: legend ? legend.bg : 'var(--avatar-grad)', color: 'var(--text)', fontWeight: 800, fontSize: Math.round(size * 0.32), ...style }}
     >
-      {legend ? <LegendArt l={legend} /> : name.replace(/^@/, '').slice(0, 2).toUpperCase()}
+      {photo ? <img src={photo} alt="" loading="lazy" decoding="async" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : legend ? <LegendArt l={legend} /> : name.replace(/^@/, '').slice(0, 2).toUpperCase()}
     </span>
   );
 }

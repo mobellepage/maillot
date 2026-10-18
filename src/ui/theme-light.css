@@ -36,7 +36,7 @@ html[data-theme='light'] {
   --neg-soft: rgba(215, 0, 21, 0.08);
   --warn: #b64400;
   --warn-soft: rgba(182, 68, 0, 0.1);
-  --info: #0071e3;
+  --info: #0062c4;
   --info-soft: rgba(0, 113, 227, 0.08);
   --pos: #087a41;
   --pos-soft: rgba(8, 122, 65, 0.1);
@@ -170,14 +170,20 @@ html[data-theme='light'] .chip[aria-pressed='true'] {
 }
 
 /* Fields & options. */
+/* Fields and choices stand out on any grey: white with a clear edge. */
 html[data-theme='light'] .field,
 html[data-theme='light'] .select {
-  border-color: transparent;
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.16);
   border-radius: 999px;
 }
+html[data-theme='light'] .field:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
 html[data-theme='light'] .option-btn {
-  border-color: transparent;
-  background: var(--surface);
+  border: 1px solid rgba(0, 0, 0, 0.14);
+  background: #ffffff;
 }
 html[data-theme='light'] .option-btn:hover {
   border-color: var(--accent-line);

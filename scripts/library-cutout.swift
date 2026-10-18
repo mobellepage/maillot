@@ -5,7 +5,10 @@
 // leaves the machine.
 //
 //   swiftc -O scripts/library-cutout.swift -o /tmp/library-cutout
-//   /tmp/library-cutout < jobs.tsv     (lines: source<TAB>out.png[<TAB>max width])
+//   /tmp/library-cutout < jobs.tsv     (lines: source<TAB>out.png[<TAB>max width[<TAB>full]])
+//
+// "full" keeps the whole frame (transparent around the subject) instead of
+// cropping to it — for portraits shown in a circle.
 //
 // Prints "ok <out>" or "skip <source> <reason>" per line; a .png keeps the
 // transparency (scripts convert it to .webp).
@@ -14,7 +17,7 @@ import Vision
 
 let rgb = CGColorSpace(name: CGColorSpace.sRGB)!
 
-func cut(_ srcPath: String, _ outPath: String, _ maxWidth: Int) -> String? {
+func cut(_ srcPath: String, _ outPath: String, _ maxWidth: Int, keepFrame: Bool = false) -> String? {
   guard let src = NSImage(contentsOfFile: srcPath),
         let photo = src.cgImage(forProposedRect: nil, context: nil, hints: nil) else { return "unreadable" }
   let handler = VNImageRequestHandler(cgImage: photo)
@@ -99,7 +102,7 @@ func cut(_ srcPath: String, _ outPath: String, _ maxWidth: Int) -> String? {
               bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue)!.makeImage()!
   }
   let pad = 2
-  let crop = CGRect(x: max(0, minX - pad), y: max(0, minY - pad), width: min(W, maxX + pad + 1) - max(0, minX - pad), height: min(H, maxY + pad + 1) - max(0, minY - pad))
+  let crop = keepFrame ? CGRect(x: 0, y: 0, width: W, height: H) : CGRect(x: max(0, minX - pad), y: max(0, minY - pad), width: min(W, maxX + pad + 1) - max(0, minX - pad), height: min(H, maxY + pad + 1) - max(0, minY - pad))
   guard var img = full.cropping(to: crop) else { return "crop" }
   if img.width > maxWidth {
     let s = CGFloat(maxWidth) / CGFloat(img.width)
@@ -119,7 +122,7 @@ while let line = readLine() {
   guard f.count >= 2 else { continue }
   let maxWidth = f.count > 2 ? Int(f[2]) ?? 300 : 300
   autoreleasepool {
-    if let why = cut(f[0], f[1], maxWidth) { print("skip \(f[0]) \(why)") } else { print("ok \(f[1])") }
+    if let why = cut(f[0], f[1], maxWidth, keepFrame: f.count > 3 && f[3] == "full") { print("skip \(f[0]) \(why)") } else { print("ok \(f[1])") }
   }
   fflush(stdout)
 }

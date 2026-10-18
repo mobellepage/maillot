@@ -5,7 +5,7 @@
 /** Offers on collection shirts — public.offer_policy(). */
 export const OFFER_POLICY = { validHours: 48, maxRounds: 3 } as const;
 
-export { FREE_SHIRT_LIMIT, PREMIUM_PRICE } from './plans.ts';
+export { FREE_SHIRT_LIMIT, PREMIUM_ENABLED, PREMIUM_PRICE } from './plans.ts';
 
 /**
  * Order deadlines — public.order_policy(), enforced by the run_order_lifecycle()
@@ -31,6 +31,13 @@ export const ORDER_POLICY = {
  * value (CHF, the app's market values). Free members can climb by value
  * too, even with the 10-shirt limit. Names are message keys level.<key>.
  */
+/**
+ * Collector points for shirts bought through Maillot, once the purchase is
+ * complete: per shirt plus per franc paid. The database awards them
+ * (private.purchase_points) — change both together.
+ */
+export const COLLECTOR_POINTS = { perShirt: 100, perFranc: 1 } as const;
+
 export const COLLECTOR_LEVELS = [
   { key: 'rookie', shirts: 1, value: 0, color: '#8A8F8B' },
   { key: 'fan', shirts: 5, value: 400, color: '#2FAE63' },

@@ -33,7 +33,7 @@ export default function LegendPage() {
           <Link to="/">{t('nav.discover')}</Link> · {t('home.legends.title')}
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 'clamp(14px,3vw,24px)', marginTop: 10 }}>
-          <img src={legend.img} alt={legend.name} width={120} height={120} style={{ width: 'clamp(84px,14vw,120px)', height: 'auto', aspectRatio: '1/1', borderRadius: '50%', objectFit: 'cover', border: '1px solid var(--line)', background: '#fff', flex: 'none' }} />
+          <img src={legend.img} alt={legend.name} width={120} height={120} style={{ width: 'clamp(84px,14vw,120px)', height: 'auto', aspectRatio: '1/1', borderRadius: '50%', objectFit: 'cover', border: '1px solid var(--kit-tile-line)', background: 'var(--kit-tile)', flex: 'none' }} />
           <div style={{ minWidth: 0 }}>
             <h1 className="display" style={{ fontSize: 'clamp(28px,5vw,48px)', margin: 0 }}>
               {t('legend.title', { name: legend.name })}
