@@ -1940,6 +1940,8 @@ export const de: Messages = {
   'avatar.upload': 'Eigenes Foto hochladen',
   'avatar.uploadFailed': 'Das Foto konnte nicht gespeichert werden. Bitte versuch ein anderes.',
   'as.scan.inLibrary': '✓ IN DER BIBLIOTHEK GEFUNDEN',
+  'as.scan.nowBack': 'Jetzt noch die Rückseite – dann erkennen wir dein Trikot.',
+  'as.scan.nowFront': 'Jetzt noch die Vorderseite – dann erkennen wir dein Trikot.',
   'as.scan.whichOne': 'Welches ist es?',
   'as.scan.whichHint': 'Die ähnlichsten Trikots aus der Bibliothek – tippe auf deins.',
   'as.scan.notThis': 'Nicht dieses? Diese sehen ähnlich aus:',

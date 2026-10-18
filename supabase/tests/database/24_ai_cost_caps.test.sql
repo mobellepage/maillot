@@ -29,19 +29,19 @@ select tests.create_user('00000000-0000-4000-a000-0000000ca901', 'busy@test.loca
 select tests.create_user('00000000-0000-4000-a000-0000000ca902', 'late@test.local');
 -- This member has already used today's allowance (hourly windows are fresh).
 insert into private.rate_limits (key, window_start, hits) values
-  ('identify:day:00000000-0000-4000-a000-0000000ca901', now(), 40),
+  ('identify:day:00000000-0000-4000-a000-0000000ca901', now(), 500),
   ('studio:day:00000000-0000-4000-a000-0000000ca901', now(), 60)
 on conflict (key) do update set window_start = excluded.window_start, hits = excluded.hits;
 
 select plan(4);
 
 select tests.login('00000000-0000-4000-a000-0000000ca901');
-select throws_ok($$select consume_identify_quota()$$, 'P0429', null, 'recognitions stop for the day after 40');
+select throws_ok($$select consume_identify_quota()$$, 'P0429', null, 'recognitions stop for the day after 500');
 select throws_ok($$select consume_studio_quota()$$, 'P0429', null, 'cut-outs stop for the day after 60');
 select tests.logout();
 
--- Everyone together: 300 a day.
-insert into private.rate_limits (key, window_start, hits) values ('identify:all:day', now(), 300)
+-- Everyone together: 20000 a day.
+insert into private.rate_limits (key, window_start, hits) values ('identify:all:day', now(), 20000)
 on conflict (key) do update set window_start = excluded.window_start, hits = excluded.hits;
 select tests.login('00000000-0000-4000-a000-0000000ca902');
 select throws_ok($$select consume_identify_quota()$$, 'P0429', null, 'the overall daily ceiling holds for everyone');

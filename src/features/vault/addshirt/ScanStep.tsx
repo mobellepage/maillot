@@ -105,6 +105,7 @@ export function ScanStep({ w, busyKey, onScanFile, valuation, studio, onStudioOf
         </p>
         <div aria-live="polite" style={{ marginTop: 16 }}>
           {f.scan.status === 'idle' && !f.photos.front && !f.photos.back && <p style={{ fontSize: 13.5, color: 'var(--muted)' }}>{t('as.scan.idle')}</p>}
+          {f.scan.status === 'idle' && !f.photos.front !== !f.photos.back && <p style={{ fontSize: 13.5, color: 'var(--text-2)' }}>{t(f.photos.front ? 'as.scan.nowBack' : 'as.scan.nowFront')}</p>}
           {busy && (
             <p style={{ fontSize: 13.5, color: 'var(--text-2)', display: 'flex', alignItems: 'center', gap: 8 }}>
               <span aria-hidden="true" style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--accent-fill)', animation: 'kvPulse 1.2s ease-in-out infinite' }} />

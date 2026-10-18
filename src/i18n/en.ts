@@ -1939,6 +1939,8 @@ export const en = {
   'avatar.upload': 'Upload my own photo',
   'avatar.uploadFailed': 'The photo could not be saved. Please try another one.',
   'as.scan.inLibrary': '✓ FOUND IN THE LIBRARY',
+  'as.scan.nowBack': 'Now the back — then we recognise your shirt.',
+  'as.scan.nowFront': 'Now the front — then we recognise your shirt.',
   'as.scan.whichOne': 'Which one is it?',
   'as.scan.whichHint': 'The closest kits in the library — tap yours.',
   'as.scan.notThis': 'Not this one? These look alike:',

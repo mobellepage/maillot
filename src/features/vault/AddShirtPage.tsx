@@ -187,7 +187,9 @@ export default function AddShirtPage() {
           onScanFile={async (key, file) => {
             const p = await capture(key, file, t('as.photo.' + key));
             if (!p) return;
-            void w.runScan(key, p, lang, (k) => t('kit.' + k));
+            // One recognition per shirt, from front and back together (a retake recognises again).
+            if (f.photos[key === 'front' ? 'back' : 'front']) void w.runScan(key, p, lang, (k) => t('kit.' + k));
+            else w.setPhoto(key, p);
             if (key === 'front') void makeStudio(p);
           }}
         />

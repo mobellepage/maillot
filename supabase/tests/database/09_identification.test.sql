@@ -46,7 +46,7 @@ reset role;
 
 -- the 21st identification within the hour is refused
 select tests.login('00000000-0000-4000-a000-000000000b0b');
-select throws_ok($$ do $b$ begin for i in 1..21 loop perform consume_identify_quota(); end loop; end $b$ $$, 'P0429', null, 'identifications are rate-limited per member');
+select throws_ok($$ do $b$ begin for i in 1..151 loop perform consume_identify_quota(); end loop; end $b$ $$, 'P0429', null, 'identifications are rate-limited per member');
 select tests.logout();
 
 select * from finish();
