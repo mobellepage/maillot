@@ -1,4 +1,4 @@
-import { VISIBILITIES, isSaleVisibility, missingSalePhotos } from '../../../addShirtData.js';
+import { VISIBILITIES, missingSalePhotos, needsSalePhotos } from '../../../addShirtData.js';
 import { usePrefs } from '../../../lib/prefs.tsx';
 import type { Valuation, Visibility } from '../../../types/domain.ts';
 import { Button, Card, Notice } from '../../../ui/index.ts';
@@ -13,7 +13,7 @@ export function FinishStep({ w, valuation, onSave, saving }: { w: Wizard; valuat
   const { profile } = useSession();
   const visibility = chosenVisibility(f, profile?.collectionPrivate);
   // Selling needs more than the collection's front and back.
-  const missing = isSaleVisibility(visibility) ? (missingSalePhotos(f.photos, f.flock.source) as string[]) : [];
+  const missing = needsSalePhotos(visibility) ? (missingSalePhotos(f.photos, f.flock.source) as string[]) : [];
   return (
     <div>
       <Section title={t('as.f.estimate')}>
@@ -48,7 +48,7 @@ export function FinishStep({ w, valuation, onSave, saving }: { w: Wizard; valuat
           <Notice tone="info" style={{ marginTop: 12 }}>
             {t('as.f.salePhotos', { list: missing.map((k) => t('as.photo.' + k)).join(', ') })}{' '}
             <button type="button" className="link-btn" onClick={() => {
-                set({ step: 3 });
+                set({ goal: 'sale', step: 3 });
                 window.scrollTo(0, 0);
               }}>
               {t('as.f.addPhotos')}

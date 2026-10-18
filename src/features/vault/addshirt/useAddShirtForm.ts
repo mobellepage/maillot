@@ -31,8 +31,13 @@ export interface ScanState {
   result: Identification | null;
 }
 
+/** What the member is adding the shirt for — asked first; null until answered. */
+export type AddGoal = 'collection' | 'sale';
+
 export interface AddShirtForm {
+  /** Index into the full step list (scan … finish); see flowFor. */
   step: number;
+  goal: AddGoal | null;
   /** Storage folder for this draft's photos. */
   draftId: string;
   scan: ScanState;
@@ -67,6 +72,7 @@ export interface AddShirtForm {
 function emptyForm(): AddShirtForm {
   return {
     step: 0,
+    goal: null,
     draftId: 'draft-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7),
     scan: { status: 'idle', confidence: 0, matchId: null, result: null },
     catalogId: null,
@@ -95,9 +101,19 @@ function emptyForm(): AddShirtForm {
   };
 }
 
-/** What a new shirt is saved as: the member's choice, else public — private when the collection is private. */
-export function chosenVisibility(f: Pick<AddShirtForm, 'visibility'>, collectionPrivate: boolean | undefined): Visibility {
-  return f.visibility ?? (collectionPrivate ? 'private' : 'public');
+/**
+ * The steps a shirt goes through (indices into the full list: 0 scan, 1 shirt,
+ * 2 details, 3 photos, 4 pre-check, 5 verification, 6 finish). Just for the
+ * collection, front and back from the scan are enough: no further photos and
+ * no checks. For sale, every photo buyers need and the checks.
+ */
+export function flowFor(goal: AddGoal | null): number[] {
+  return goal === 'sale' ? [0, 1, 2, 3, 4, 5, 6] : [0, 1, 2, 6];
+}
+
+/** What a new shirt is saved as: the member's choice, else for sale when that was the goal, else public — private when the collection is private. */
+export function chosenVisibility(f: Pick<AddShirtForm, 'visibility'> & Partial<Pick<AddShirtForm, 'goal'>>, collectionPrivate: boolean | undefined): Visibility {
+  return f.visibility ?? (f.goal === 'sale' ? 'forsale' : collectionPrivate ? 'private' : 'public');
 }
 
 /**

@@ -45,8 +45,8 @@ export const VISIBILITIES = ['private', 'public', 'offers', 'forsale'].map((key)
 
 // Builds the list of photos for this specific shirt, in the order they should
 // be captured. Front and back are all a shirt in the collection needs
-// (COLLECTION_PHOTOS). Selling it — for a price or open to offers — also needs
-// the badge, the inner label and, if the shirt has one, the print
+// (COLLECTION_PHOTOS) — enough to receive offers, too. Putting it up for sale
+// at a price also needs the badge, the inner label and, if the shirt has one, the print
 // (salePhotoKeys); those are marked `forSale`. The rest are optional extras
 // that help the pre-check and depend on what the collector entered in the
 // details step. `t` translates the labels (the label is stored with the
@@ -65,8 +65,8 @@ export function missingSalePhotos(photos, flockSource) {
   return salePhotoKeys(flockSource).filter((k) => !photos?.[k]);
 }
 
-/** Selling covers a set price and being open to offers. */
-export const isSaleVisibility = (v) => v === 'forsale' || v === 'offers';
+/** Only a shirt put up for sale at a price needs those photos; offers work with front and back. */
+export const needsSalePhotos = (v) => v === 'forsale';
 
 export function buildPhotoSpecs(f, t = (k) => k) {
   const sale = salePhotoKeys(f.flock.source);

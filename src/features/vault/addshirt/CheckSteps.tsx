@@ -15,8 +15,8 @@ export function PhotosStep({ w, busyKey, onPhoto }: { w: Wizard; busyKey: string
   const [framed, setFramed] = useState<{ key: string; label: string; hint?: string } | null>(null);
   const { t } = usePrefs();
   const specs = buildPhotoSpecs(w.f, t) as { key: string; label: string; hint?: string; required: boolean; forSale: boolean }[];
-  const required = specs.filter((s) => s.required);
-  const forSale = specs.filter((s) => s.forSale);
+  // This step is only on the way to a sale: what buyers need is all required.
+  const required = specs.filter((s) => s.required || s.forSale);
   const extras = specs.filter((s) => !s.required && !s.forSale);
   const done = required.filter((s) => w.f.photos[s.key]).length;
   const slot = (spec: (typeof specs)[number]) => (
@@ -57,9 +57,6 @@ export function PhotosStep({ w, busyKey, onPhoto }: { w: Wizard; busyKey: string
       </div>
       <h3 style={{ fontSize: 14, fontWeight: 700, margin: '0 0 10px' }}>{t('as.p.required')}</h3>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>{required.map(slot)}</div>
-      <h3 style={{ fontSize: 14, fontWeight: 700, margin: '24px 0 4px' }}>{t('as.p.forSale')}</h3>
-      <p style={{ fontSize: 13, color: 'var(--muted)', margin: '0 0 10px', lineHeight: 1.45 }}>{t('as.p.forSaleHint')}</p>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>{forSale.map(slot)}</div>
       {extras.length > 0 && (
         <>
           <h3 style={{ fontSize: 14, fontWeight: 700, margin: '24px 0 4px' }}>{t('as.p.extras')}</h3>

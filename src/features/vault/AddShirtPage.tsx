@@ -18,7 +18,8 @@ import { DetailsStep } from './addshirt/DetailsStep.tsx';
 import { FinishStep } from './addshirt/FinishStep.tsx';
 import { IdentifyStep } from './addshirt/IdentifyStep.tsx';
 import { ScanStep } from './addshirt/ScanStep.tsx';
-import { chosenVisibility, useAddShirtForm } from './addshirt/useAddShirtForm.ts';
+import { chosenVisibility, flowFor, useAddShirtForm } from './addshirt/useAddShirtForm.ts';
+import { GoalStep } from './addshirt/GoalStep.tsx';
 import { buildPhotoSpecs } from '../../addShirtData.js';
 import { useCollection, useCollectionActions } from './useCollection.ts';
 import { FREE_SHIRT_LIMIT } from '../../config/plans.ts';
@@ -75,8 +76,12 @@ export default function AddShirtPage() {
 
   const catalogItem = f.catalogId ? BY[f.catalogId] ?? null : null;
   const valuation = estimateValue({ catalogItem, version: f.version, conditionGrade: f.condition.grade, flock: f.flock, patches: f.patches, signature: f.signature, verificationLevel: f.verification.level }) as Valuation;
-  const specs = buildPhotoSpecs(f, t) as { key: string; required: boolean }[];
-  const canNext = [f.scan.status !== 'scanning', !!f.catalogId || (f.proposed && !!f.proposedClub.trim() && !!f.proposedSeason.trim()), !!f.version, specs.every((s) => !s.required || f.photos[s.key]), !!f.precheck, true, false][f.step];
+  const specs = buildPhotoSpecs(f, t) as { key: string; required: boolean; forSale: boolean }[];
+  // Just for the collection: front and back. For sale: every photo buyers need.
+  const flow = flowFor(f.goal);
+  const at = Math.max(0, flow.indexOf(f.step));
+  const choosing = f.step === 0 && !f.goal;
+  const canNext = [f.scan.status !== 'scanning' && !!f.photos.front && !!f.photos.back, !!f.catalogId || (f.proposed && !!f.proposedClub.trim() && !!f.proposedSeason.trim()), !!f.version, specs.every((s) => !(s.required || s.forSale) || f.photos[s.key]), !!f.precheck, true, false][f.step];
 
   // Compress on the device (strips EXIF/GPS), upload the full image and a
   // thumbnail to private storage, keep the data URL only as a local preview.
@@ -158,20 +163,21 @@ export default function AddShirtPage() {
     <Page style={{ maxWidth: 860 }}>
       <div className="eyebrow">{t('as.eyebrow')}</div>
       <h1 className="display" style={{ marginTop: 8, fontSize: 'clamp(30px,4.2vw,48px)' }}>
-        {t(STEPS[f.step] ?? STEPS[0])}
+        {choosing ? t('as.goal.title') : t(STEPS[f.step] ?? STEPS[0])}
       </h1>
       <ol aria-label={t('as.steps')} style={{ listStyle: 'none', padding: 0, display: 'flex', alignItems: 'center', gap: 8, margin: '24px 0 32px', overflowX: 'auto', paddingBottom: 4 }}>
-        {STEPS.map((l, i) => (
-          <li key={l} aria-current={i === f.step ? 'step' : undefined} aria-label={t(l)} style={{ display: 'flex', alignItems: 'center', gap: 8, flex: 'none' }}>
-            <span className="mono" style={{ width: 26, height: 26, borderRadius: '50%', background: i < f.step ? 'var(--accent)' : i === f.step ? 'var(--text)' : 'var(--step-idle)', color: i <= f.step ? 'var(--bg)' : 'var(--muted)', display: 'grid', placeItems: 'center', fontSize: 11, fontWeight: 700 }}>
-              {i < f.step ? <CheckIcon size={12} /> : i + 1}
+        {flow.map((s, i) => (
+          <li key={s} aria-current={i === at ? 'step' : undefined} aria-label={t(STEPS[s]!)} style={{ display: 'flex', alignItems: 'center', gap: 8, flex: 'none' }}>
+            <span className="mono" style={{ width: 26, height: 26, borderRadius: '50%', background: i < at ? 'var(--accent)' : i === at ? 'var(--text)' : 'var(--step-idle)', color: i <= at ? 'var(--bg)' : 'var(--muted)', display: 'grid', placeItems: 'center', fontSize: 11, fontWeight: 700 }}>
+              {i < at ? <CheckIcon size={12} /> : i + 1}
             </span>
-            {i < STEPS.length - 1 && <span aria-hidden="true" style={{ width: 'clamp(14px,3vw,34px)', height: 2, borderRadius: 2, background: i < f.step ? 'var(--accent)' : 'rgba(255,255,255,0.1)' }} />}
+            {i < flow.length - 1 && <span aria-hidden="true" style={{ width: 'clamp(14px,3vw,34px)', height: 2, borderRadius: 2, background: i < at ? 'var(--accent)' : 'rgba(255,255,255,0.1)' }} />}
           </li>
         ))}
       </ol>
 
-      {f.step === 0 && (
+      {choosing && <GoalStep goal={f.goal} onPick={(goal) => set({ goal })} />}
+      {f.step === 0 && !choosing && (
         <ScanStep
           w={w}
           busyKey={busyKey}
@@ -202,16 +208,17 @@ export default function AddShirtPage() {
         <Button
           variant="ghost"
           onClick={() => {
-            if (f.step === 0) {
+            if (choosing) {
               w.reset(true);
               navigate('/vault');
-            } else go(f.step - 1);
+            } else if (at === 0) set({ goal: null });
+            else go(flow[at - 1]!);
           }}
         >
-          {f.step === 0 ? t('as.cancel') : t('as.back')}
+          {choosing ? t('as.cancel') : t('as.back')}
         </Button>
-        {f.step < 6 && (
-          <Button variant="light" disabled={!canNext} onClick={() => go(f.step + 1)}>
+        {f.step < 6 && !choosing && (
+          <Button variant="light" disabled={!canNext} onClick={() => go(flow[at + 1] ?? 6)}>
             {t('as.next')}
           </Button>
         )}
