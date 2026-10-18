@@ -37,8 +37,8 @@ export default function AddShirtPage() {
   const { f, set } = w;
   const { add } = useCollectionActions();
   const { items, loading: itemsLoading } = useCollection();
-  // Free plan full: offer Premium instead of a wizard that can't be saved.
-  const planFull = !!user && !itemsLoading && !profile?.premium && items.length >= FREE_SHIRT_LIMIT;
+  // Free plan full: offer Premium instead of a wizard that can't be saved (only while Premium is on).
+  const planFull = PREMIUM_ENABLED && !!user && !itemsLoading && !profile?.premium && items.length >= FREE_SHIRT_LIMIT;
   const navigate = useNavigate();
   const toast = useToast();
   const [busyKey, setBusyKey] = useState<string | null>(null);
