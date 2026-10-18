@@ -29,10 +29,10 @@ select tests.create_user('00000000-0000-4000-a000-00000001a001', 'keeper@test.lo
 select tests.create_user('00000000-0000-4000-a000-00000001a002', 'asker@test.local');
 update profiles set handle = 'piece_keeper' where id = '00000000-0000-4000-a000-00000001a001';
 update profiles set handle = 'piece_asker' where id = '00000000-0000-4000-a000-00000001a002';
-insert into custom_items (id, user_id, catalog_id, size, visibility) values
-  ('t-inq-1', '00000000-0000-4000-a000-00000001a001', 'ned-88', 'M', 'public'),
-  ('t-inq-2', '00000000-0000-4000-a000-00000001a001', 'ajx-95', 'L', 'offers'),
-  ('t-inq-3', '00000000-0000-4000-a000-00000001a001', 'sui-26', 'M', 'public');
+insert into custom_items (id, user_id, catalog_id, size, visibility, photos) values
+  ('t-inq-1', '00000000-0000-4000-a000-00000001a001', 'ned-88', 'M', 'public', '{}'),
+  ('t-inq-2', '00000000-0000-4000-a000-00000001a001', 'ajx-95', 'L', 'offers', '{"front":{},"back":{},"crest":{},"product_code":{}}'),
+  ('t-inq-3', '00000000-0000-4000-a000-00000001a001', 'sui-26', 'M', 'public', '{}');
 update custom_items set inquiries_enabled = false where id = 't-inq-3';
 
 select plan(12);

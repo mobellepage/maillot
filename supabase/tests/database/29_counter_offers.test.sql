@@ -29,7 +29,7 @@ select tests.create_user('00000000-0000-4000-a000-00000004d001', 'seller@neg.tes
 select tests.create_user('00000000-0000-4000-a000-00000004d002', 'buyer@neg.test');
 update profiles set handle = 'neg_seller' where id = '00000000-0000-4000-a000-00000004d001';
 update profiles set handle = 'neg_buyer' where id = '00000000-0000-4000-a000-00000004d002';
-insert into custom_items (id, user_id, catalog_id, size, visibility) values ('t-neg-1', '00000000-0000-4000-a000-00000004d001', 'ajx-95', 'M', 'offers');
+insert into custom_items (id, user_id, catalog_id, size, visibility, photos) values ('t-neg-1', '00000000-0000-4000-a000-00000004d001', 'ajx-95', 'M', 'offers', '{"front":{},"back":{},"crest":{},"product_code":{}}');
 
 select plan(13);
 

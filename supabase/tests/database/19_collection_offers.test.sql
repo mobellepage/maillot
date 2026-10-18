@@ -41,7 +41,7 @@ insert into custom_items (id, user_id, catalog_id, size, visibility) values
 select plan(16);
 
 select is(tests.notes('00000000-0000-4000-a000-0000000c0f02', 'wanted_in_collection'), 0, 'a private shirt tells nobody');
-update custom_items set visibility = 'offers' where id = 't-off-1';
+update custom_items set visibility = 'offers', photos = '{"front":{},"back":{},"crest":{},"product_code":{}}'::jsonb || photos where id = 't-off-1';
 select is(tests.notes('00000000-0000-4000-a000-0000000c0f02', 'wanted_in_collection'), 1, 'opening a wanted shirt to offers tells the members who want it');
 update custom_items set visibility = 'forsale' where id = 't-off-1';
 select is(tests.notes('00000000-0000-4000-a000-0000000c0f02', 'wanted_in_collection'), 1, 'only once per shirt');

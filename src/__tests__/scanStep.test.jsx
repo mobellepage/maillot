@@ -33,10 +33,10 @@ function setup(scan, form = {}, studio = 'idle', onStudioOff = () => {}) {
 }
 
 describe('ScanStep (photo recognition)', () => {
-  it('asks for a front and a label photo', () => {
+  it('asks for a front and a back photo', () => {
     setup({ status: 'idle', confidence: 0, matchId: null, result: null });
     expect(screen.getAllByText('Front').length).toBeGreaterThan(0);
-    expect(screen.getAllByText('Inner label').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('Back').length).toBeGreaterThan(0);
   });
 
   it('shows a confident match with value range, details and condition', () => {

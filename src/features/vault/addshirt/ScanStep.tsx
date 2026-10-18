@@ -1,4 +1,4 @@
-// Step 1 of adding a shirt: a photo of the front and one of the inner label.
+// Step 1 of adding a shirt: a photo of the front and one of the back.
 // Recognition (identify-shirt) names the shirt, reads the article code,
 // judges the visible condition and prefills the rest of the wizard.
 import { BY } from '../../../data.ts';
@@ -15,7 +15,7 @@ import { variantLabel } from '../../library/model.ts';
 import { usePhotoUrls } from '../../../lib/usePhotoUrls.ts';
 import type { StudioState } from './studio.ts';
 
-type Key = 'front' | 'product_code';
+type Key = 'front' | 'back';
 
 function StudioPreview({ w, studio, onStudioOff }: { w: Wizard; studio: StudioState; onStudioOff: (off: boolean) => void }) {
   const { t } = usePrefs();
@@ -59,7 +59,7 @@ function StudioPreview({ w, studio, onStudioOff }: { w: Wizard; studio: StudioSt
 
 export function ScanStep({ w, busyKey, onScanFile, valuation, studio, onStudioOff }: { w: Wizard; busyKey: string | null; onScanFile: (key: Key, f: File) => Promise<void> | void; valuation: Valuation; studio: StudioState; onStudioOff: (off: boolean) => void }) {
   const { money, t } = usePrefs();
-  const [framed, setFramed] = useState(false);
+  const [framed, setFramed] = useState<Key | null>(null);
   const { f } = w;
   const r = f.scan.result;
   const catalogItem = f.catalogId ? BY[f.catalogId] : undefined;
@@ -74,32 +74,32 @@ export function ScanStep({ w, busyKey, onScanFile, valuation, studio, onStudioOf
     <div>
       <Section title={t('as.scan.title')} hint={t('as.scan.hint')}>
         <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap' }}>
-          {(['front', 'product_code'] as const).map((key) => (
+          {(['front', 'back'] as const).map((key) => (
             <div key={key} style={{ display: 'grid', justifyItems: 'center', gap: 6 }}>
-              {/* The front is always taken in the frame, so every collection photo looks alike. */}
-              <PhotoInput size={112} data={f.photos[key]} busy={busyKey === key} onFile={(file) => onScanFile(key, file)} label={t(key === 'front' ? 'as.scan.front' : 'as.scan.label')} guided={key === 'front' ? () => setFramed(true) : undefined} />
-              <span style={{ fontSize: 12.5, color: 'var(--text-2)' }}>{t(key === 'front' ? 'as.scan.front' : 'as.scan.label')}</span>
+              {/* Front and back are always taken in the frame, so every collection photo looks alike. */}
+              <PhotoInput size={112} data={f.photos[key]} busy={busyKey === key} onFile={(file) => onScanFile(key, file)} label={t('as.scan.' + key)} guided={() => setFramed(key)} />
+              <span style={{ fontSize: 12.5, color: 'var(--text-2)' }}>{t('as.scan.' + key)}</span>
             </div>
           ))}
         </div>
         {framed && (
           <GuidedCapture
-            specs={[{ key: 'front', label: t('as.scan.front'), hint: t('gc.flatHint') }]}
+            specs={[{ key: framed, label: t('as.scan.' + framed), hint: t('gc.flatHint') }]}
             photos={f.photos}
-            startKey="front"
+            startKey={framed}
             onShot={async (_spec, file) => {
-              await onScanFile('front', file);
-              setFramed(false);
+              await onScanFile(framed, file);
+              setFramed(null);
               return null;
             }}
-            onClose={() => setFramed(false)}
+            onClose={() => setFramed(null)}
           />
         )}
         <p style={{ margin: '14px 0 0', fontSize: 13.5 }}>
           <Link to="/vault/add/library">{t('qa.entry')} ›</Link>
         </p>
         <div aria-live="polite" style={{ marginTop: 16 }}>
-          {f.scan.status === 'idle' && !f.photos.front && !f.photos.product_code && <p style={{ fontSize: 13.5, color: 'var(--muted)' }}>{t('as.scan.idle')}</p>}
+          {f.scan.status === 'idle' && !f.photos.front && !f.photos.back && <p style={{ fontSize: 13.5, color: 'var(--muted)' }}>{t('as.scan.idle')}</p>}
           {busy && (
             <p style={{ fontSize: 13.5, color: 'var(--text-2)', display: 'flex', alignItems: 'center', gap: 8 }}>
               <span aria-hidden="true" style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--accent-fill)', animation: 'kvPulse 1.2s ease-in-out infinite' }} />

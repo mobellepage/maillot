@@ -28,7 +28,7 @@ insert into custom_items (id, user_id, catalog_id, visibility, size, flock, cond
    '{"front":{"path":"00000000-0000-4000-a000-00000000da0a/items/t1/front.jpg","thumbPath":"00000000-0000-4000-a000-00000000da0a/items/t1/front_thumb.jpg"},"front_studio":{"path":"00000000-0000-4000-a000-00000000da0a/items/t1/studio.jpg","thumbPath":"00000000-0000-4000-a000-00000000da0a/items/t1/studio_thumb.jpg"},"product_code":{"path":"00000000-0000-4000-a000-00000000da0a/items/t1/label.jpg"}}',
    '{"blocked":false,"mid":240}', 'Bought at the stadium', now() - interval '2 days'),
   ('t-dana-2', '00000000-0000-4000-a000-00000000da0a', null, 'forsale', 'L', '{"source":"none"}', '{"grade":7,"defects":[]}', default,
-   '{"front":{"path":"00000000-0000-4000-a000-00000000da0a/items/t2/front.jpg","thumbPath":"00000000-0000-4000-a000-00000000da0a/items/t2/front_thumb.jpg"}}',
+   '{"front":{"path":"00000000-0000-4000-a000-00000000da0a/items/t2/front.jpg","thumbPath":"00000000-0000-4000-a000-00000000da0a/items/t2/front_thumb.jpg"},"back":{},"crest":{},"product_code":{}}',
    null, '', now() - interval '1 day'),
   ('t-dana-3', '00000000-0000-4000-a000-00000000da0a', 'acm-0607', 'private', 'S', '{"source":"none"}', '{"grade":8,"defects":[]}', default,
    '{"front":{"path":"00000000-0000-4000-a000-00000000da0a/items/t3/front.jpg"}}', null, '', now()),

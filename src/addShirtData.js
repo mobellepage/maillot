@@ -44,17 +44,35 @@ export const DEFECTS = ['Flock rissig/abblätternd', 'Sponsor abgerieben', 'Flec
 export const VISIBILITIES = ['private', 'public', 'offers', 'forsale'].map((key) => ({ key, label: 'vault.vis.' + key, desc: 'as.vis.' + key + '.desc' }));
 
 // Builds the list of photos for this specific shirt, in the order they should
-// be captured. Five are required (REQUIRED_PHOTOS: front, back, badge, inner
-// label, and the print if the shirt has one); the rest are optional extras
+// be captured. Front and back are all a shirt in the collection needs
+// (COLLECTION_PHOTOS). Selling it — for a price or open to offers — also needs
+// the badge, the inner label and, if the shirt has one, the print
+// (salePhotoKeys); those are marked `forSale`. The rest are optional extras
 // that help the pre-check and depend on what the collector entered in the
 // details step. `t` translates the labels (the label is stored with the
 // photo, so it's in the language the collector used).
-export const REQUIRED_PHOTOS = ['front', 'back', 'crest', 'flock_closeup', 'product_code'];
+export const COLLECTION_PHOTOS = ['front', 'back'];
+const SALE_PHOTOS = ['front', 'back', 'crest', 'flock_closeup', 'product_code'];
+const hasPrint = (source) => !!source && source !== 'Keine' && source !== 'none';
+
+/** The photos a shirt needs before it can be offered for sale. */
+export function salePhotoKeys(flockSource) {
+  return SALE_PHOTOS.filter((k) => k !== 'flock_closeup' || hasPrint(flockSource));
+}
+
+/** Which of those are still missing. */
+export function missingSalePhotos(photos, flockSource) {
+  return salePhotoKeys(flockSource).filter((k) => !photos?.[k]);
+}
+
+/** Selling covers a set price and being open to offers. */
+export const isSaleVisibility = (v) => v === 'forsale' || v === 'offers';
 
 export function buildPhotoSpecs(f, t = (k) => k) {
-  const spec = (key, msg = key, vars) => ({ key, label: t('as.photo.' + msg, vars), hint: t('as.photo.' + msg + '.hint', vars), required: REQUIRED_PHOTOS.includes(key) });
+  const sale = salePhotoKeys(f.flock.source);
+  const spec = (key, msg = key, vars) => ({ key, label: t('as.photo.' + msg, vars), hint: t('as.photo.' + msg + '.hint', vars), required: COLLECTION_PHOTOS.includes(key), forSale: !COLLECTION_PHOTOS.includes(key) && sale.includes(key) });
   const specs = ['front', 'back', 'crest'].map((k) => spec(k));
-  if (f.flock.source !== 'Keine') specs.push(spec('flock_closeup'));
+  if (hasPrint(f.flock.source)) specs.push(spec('flock_closeup'));
   specs.push(spec('product_code'));
   ['sponsor', 'collar', 'seams'].forEach((k) => specs.push(spec(k)));
   f.patches.forEach((p) => specs.push(spec('patch_' + p, 'patch', { name: t('opt.' + p) === 'opt.' + p ? p : t('opt.' + p) })));

@@ -191,24 +191,24 @@ export function useAddShirtForm(userId: string | undefined) {
       }),
     togglePatch: (p: string) => set((s) => ({ patches: s.patches.includes(p) ? s.patches.filter((x) => x !== p) : [...s.patches, p] })),
     /**
-     * Stores a front or label photo and recognises the shirt from every photo
-     * taken so far (front + inner label together work best). The result
+     * Stores the front or back photo and recognises the shirt from every photo
+     * taken so far (front and back together: crest, sponsor, name and number). The result
      * prefills the wizard without overriding what the member already chose.
      */
-    runScan: async (key: 'front' | 'product_code', photo: Photo & { dataUrl: string }, lang: string, kitLabel: (kit: string) => string) => {
+    runScan: async (key: 'front' | 'back', photo: Photo & { dataUrl: string }, lang: string, kitLabel: (kit: string) => string) => {
       const token = ++scanToken.current;
-      // Every photo taken so far, from the latest state (not this render's): front and label together.
+      // Every photo taken so far, from the latest state (not this render's): front and back together.
       const photos = { ...photosRef.current, [key]: photo };
       set((s) => ({ photos: { ...s.photos, [key]: photo }, scan: { ...s.scan, status: 'scanning' } }));
       try {
         const images = (
           await Promise.all(
-            (['front', 'product_code'] as const).map(async (k) => {
+            ([['front', 'front'], ['back', 'back'], ['product_code', 'label']] as const).map(async ([k, kind]) => {
               const dataUrl = await photoDataUrl(photos[k]);
-              return dataUrl ? { kind: k === 'front' ? ('front' as const) : ('label' as const), dataUrl } : null;
+              return dataUrl ? { kind, dataUrl } : null;
             })
           )
-        ).filter((x): x is { kind: 'front' | 'label'; dataUrl: string } => !!x);
+        ).filter((x): x is { kind: 'front' | 'back' | 'label'; dataUrl: string } => !!x);
         const r = await identifyShirt(images, lang);
         if (scanToken.current !== token) return;
         if (!r.ok) {
@@ -216,7 +216,7 @@ export function useAddShirtForm(userId: string | undefined) {
           return;
         }
         set((s) => {
-          // A more certain earlier answer stays; what only the new photo shows (label size, code) is added to it.
+          // A more certain earlier answer stays; what only the new photo shows (name, number, size, code) is added to it.
           const prev = s.scan.result;
           const keep = prev && prev.isShirt && (prev.libraryKit || prev.catalogId) && !(r.result.libraryKit || r.result.catalogId) && prev.confidence > r.result.confidence;
           const result = keep ? { ...prev, labelSize: r.result.labelSize ?? prev.labelSize, productCode: r.result.productCode ?? prev.productCode } : r.result;

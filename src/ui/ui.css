@@ -1856,7 +1856,7 @@ html:not([data-theme='light']) .store-badge > img {
   border-radius: 18px;
 }
 .own-photos-slot {
-  flex: 1;
+  flex: 1 1 96px;
   display: grid;
   justify-items: center;
   gap: 6px;

@@ -42,9 +42,12 @@ insert into public.bids (user_id, shirt_id, size, amount, expires_at) values
   ('33333333-3333-3333-3333-333333333333', 'fra-98',   'M', 250, now() + interval '30 days');
 
 -- A collection shirt open to offers (offers e2e): the seller's Ajax 1994/95.
+-- It has no photo files in local storage, so the sale-photos rule is set aside for it.
+alter table public.custom_items disable trigger custom_items_sale_photos;
 insert into public.custom_items (id, user_id, catalog_id, size, version, visibility, condition, flock, patches, signature, photos)
 values ('seed-ajax-offers', '22222222-2222-2222-2222-222222222222', 'ajx-95', 'M', 'Replica', 'offers',
         '{"grade":8,"defects":[]}', '{"source":"Keine"}', '[]', '{"signed":false}', '{}');
+alter table public.custom_items enable trigger custom_items_sale_photos;
 
 -- A collector's piece, not for sale (inquiries e2e): the seller's Real Madrid
 -- 2026/27 — a shirt no database test uses (they count owners of theirs).

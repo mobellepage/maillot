@@ -30,8 +30,8 @@ select tests.create_user('00000000-0000-4000-a000-0000000b1a02', 'fan@test.local
 update profiles set handle = 'shy_collector' where id = '00000000-0000-4000-a000-0000000b1a01';
 insert into custom_items (id, user_id, catalog_id, size, photos) values
   ('t-priv-1', '00000000-0000-4000-a000-0000000b1a01', 'ajx-95', 'M', '{"front":{"path":"00000000-0000-4000-a000-0000000b1a01/items/p1/front.jpg"}}');
-insert into custom_items (id, user_id, catalog_id, size, visibility) values
-  ('t-priv-2', '00000000-0000-4000-a000-0000000b1a01', 'ned-88', 'L', 'offers');
+insert into custom_items (id, user_id, catalog_id, size, visibility, photos) values
+  ('t-priv-2', '00000000-0000-4000-a000-0000000b1a01', 'ned-88', 'L', 'offers', '{"front":{},"back":{},"crest":{},"product_code":{}}');
 
 select plan(9);
 
@@ -56,7 +56,7 @@ select throws_ok($$select make_collection_offer('t-priv-2', 100)$$, 'P0002', 'th
 select tests.logout();
 
 insert into watchlist (user_id, shirt_id) values ('00000000-0000-4000-a000-0000000b1a02', 'bra-70');
-insert into custom_items (id, user_id, catalog_id, size, visibility) values ('t-priv-3', '00000000-0000-4000-a000-0000000b1a01', 'bra-70', 'M', 'forsale');
+insert into custom_items (id, user_id, catalog_id, size, visibility, photos) values ('t-priv-3', '00000000-0000-4000-a000-0000000b1a01', 'bra-70', 'M', 'forsale', '{"front":{},"back":{},"crest":{},"product_code":{}}');
 select is((select count(*)::int from notifications where user_id = '00000000-0000-4000-a000-0000000b1a02' and type = 'wanted_in_collection'), 0, 'nobody hears about shirts in a private collection');
 
 select * from finish();

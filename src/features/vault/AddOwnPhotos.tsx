@@ -1,7 +1,8 @@
 // On a shirt added without photos: take or pick your own front and back.
 // They are compressed on the device (EXIF/GPS stripped), saved to private
 // storage and replace the library picture — the shirt stops looking greyed
-// out in the collection.
+// out in the collection. PhotoSlots is the same picker for any set of photos
+// (the shirt page uses it for the ones selling needs).
 import { useRef, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { usePrefs } from '../../lib/prefs.tsx';
@@ -13,19 +14,31 @@ import { analyzeAndCompress } from '../../utils/image.ts';
 
 const stamp = () => Date.now();
 
-const SLOTS = [
-  { key: 'front', label: 'as.photo.front', icon: '👕' },
-  { key: 'back', label: 'as.photo.back', icon: '🔢' }
-] as const;
+const ICONS: Record<string, string> = { front: '👕', back: '🔢', crest: '🛡️', flock_closeup: '🔤', product_code: '🏷️' };
 
 export function AddOwnPhotos({ item }: { item: CustomItem }) {
+  const { t } = usePrefs();
+  const { user } = useSession();
+  if (!user || item.photos?.front) return null;
+  return (
+    <section aria-labelledby="ownphotos-title" className="card own-photos">
+      <h2 id="ownphotos-title" style={{ margin: 0, fontSize: 16 }}>
+        📷 {t('ownphotos.title')}
+      </h2>
+      <p style={{ margin: '4px 0 12px', fontSize: 13.5, color: 'var(--text-2)', lineHeight: 1.45 }}>{t('ownphotos.body')}</p>
+      <PhotoSlots item={item} keys={['front', 'back']} />
+    </section>
+  );
+}
+
+export function PhotoSlots({ item, keys }: { item: CustomItem; keys: string[] }) {
   const { t } = usePrefs();
   const { user } = useSession();
   const toast = useToast();
   const qc = useQueryClient();
   const [busy, setBusy] = useState<string | null>(null);
   const inputs = useRef<Record<string, HTMLInputElement | null>>({});
-  if (!user || item.photos?.front) return null;
+  if (!user) return null;
 
   const take = async (key: string, label: string, file: File) => {
     setBusy(key);
@@ -43,13 +56,9 @@ export function AddOwnPhotos({ item }: { item: CustomItem }) {
   };
 
   return (
-    <section aria-labelledby="ownphotos-title" className="card own-photos">
-      <h2 id="ownphotos-title" style={{ margin: 0, fontSize: 16 }}>
-        📷 {t('ownphotos.title')}
-      </h2>
-      <p style={{ margin: '4px 0 12px', fontSize: 13.5, color: 'var(--text-2)', lineHeight: 1.45 }}>{t('ownphotos.body')}</p>
-      <div style={{ display: 'flex', gap: 10 }}>
-        {SLOTS.map((s) => {
+      <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+        {keys.map((key) => {
+          const s = { key, label: 'as.photo.' + key, icon: ICONS[key] ?? '📷' };
           const has = !!item.photos?.[s.key];
           return (
             <button key={s.key} type="button" className="own-photos-slot" aria-pressed={has} disabled={busy !== null} onClick={() => inputs.current[s.key]?.click()}>
@@ -75,6 +84,5 @@ export function AddOwnPhotos({ item }: { item: CustomItem }) {
           );
         })}
       </div>
-    </section>
   );
 }

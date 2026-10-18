@@ -11,8 +11,9 @@ type Input = Pick<AddShirtForm, 'photos' | 'scan' | 'catalogId' | 'version' | 'p
 export function precheck(s: Input): Precheck {
   const notes: string[] = [];
   let status: Precheck['status'] = 'ok';
+  // The inner label is only needed to sell; when it is there it has to be readable.
   const code = s.photos.product_code;
-  if (!code || code.lowRes) {
+  if (code?.lowRes) {
     notes.push('pc.codeUnreadable');
     status = 'review';
   }

@@ -1,10 +1,13 @@
 // Who sees one shirt of your collection — changeable at any time from the
 // shirt's page. A private collection (profile setting) hides every shirt
-// regardless; then this says so.
+// regardless; then this says so. Selling (a price or open to offers) needs
+// more photos than the collection; until they are there, they can be added
+// right here.
 import { useState } from 'react';
 import { Link } from 'react-router';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { VISIBILITIES } from '../../addShirtData.js';
+import { VISIBILITIES, isSaleVisibility, missingSalePhotos } from '../../addShirtData.js';
+import { PhotoSlots } from './AddOwnPhotos.tsx';
 import { usePrefs } from '../../lib/prefs.tsx';
 import { useSession } from '../../lib/session.tsx';
 import { useToast } from '../../lib/toast.tsx';
@@ -37,17 +40,27 @@ export function VisibilityEditor({ item }: { item: CustomItem }) {
     }
   });
   const options = VISIBILITIES as { key: Visibility; label: string; desc: string }[];
+  const missing = missingSalePhotos(item.photos, item.flock?.source) as string[];
+  // A shirt already on sale stays there; only a new sale waits for the photos.
+  const blocked = missing.length > 0 && !isSaleVisibility(item.visibility);
   return (
     <Card tight style={{ marginTop: 16 }}>
       <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 10 }}>{t('vault.f.visibility')}</div>
       <div style={{ display: 'grid', gap: 8 }}>
         {options.map((o) => (
-          <button key={o.key} type="button" className="option-btn" aria-pressed={item.visibility === o.key} disabled={save.isPending} onClick={() => o.key !== item.visibility && (o.key !== 'forsale' || price) && save.mutate(o.key)} style={{ padding: 12 }}>
+          <button key={o.key} type="button" className="option-btn" aria-pressed={item.visibility === o.key} disabled={save.isPending || (blocked && isSaleVisibility(o.key))} onClick={() => o.key !== item.visibility && (o.key !== 'forsale' || price) && save.mutate(o.key)} style={{ padding: 12 }}>
             <span style={{ display: 'block', fontWeight: 600, fontSize: 14 }}>{t(o.label)}</span>
             <span style={{ display: 'block', fontSize: 12, color: 'var(--muted)' }}>{t(o.desc)}</span>
           </button>
         ))}
       </div>
+      {blocked && (
+        <div className="sale-photos" style={{ marginTop: 12 }}>
+          <div style={{ fontSize: 14, fontWeight: 600 }}>{t('vault.salePhotos.title')}</div>
+          <p style={{ margin: '4px 0 10px', fontSize: 13, color: 'var(--text-2)', lineHeight: 1.45 }}>{t('vault.salePhotos.body')}</p>
+          <PhotoSlots item={item} keys={missing} />
+        </div>
+      )}
       <div style={{ display: 'flex', gap: 8, marginTop: 10, alignItems: 'center' }}>
         <input
           aria-label={t('as.f.price')}
@@ -58,7 +71,7 @@ export function VisibilityEditor({ item }: { item: CustomItem }) {
           placeholder={t('vault.salePrice')}
           style={{ flex: 1, minWidth: 0, height: 40, padding: '0 12px', borderRadius: 10, background: 'var(--sunken)', border: '1px solid var(--line)', color: 'var(--text)' }}
         />
-        <Button size="sm" variant="secondary" disabled={!price || save.isPending} onClick={() => save.mutate('forsale')}>
+        <Button size="sm" variant="secondary" disabled={!price || save.isPending || blocked} onClick={() => save.mutate('forsale')}>
           {t('vault.setForSale')}
         </Button>
       </div>
