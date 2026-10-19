@@ -7,7 +7,7 @@ const PASSWORD = 'maillot-dev-pw';
 test('the home search finds library kits and jumps to the season', async ({ page }) => {
   await page.goto('/');
   await page.getByRole('combobox', { name: 'Search any shirt' }).fill('Milan 2006/07');
-  const hit = page.getByRole('option', { name: /AC Milan 2006\/07\s*Away/ });
+  const hit = page.getByRole('option', { name: /AC Milan\s*2006\/07 · Away/ });
   await expect(hit).toBeVisible();
   await hit.click();
   await expect(page).toHaveURL(/\/library\/milan#season-2006\/07$/);
