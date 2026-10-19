@@ -13,7 +13,7 @@ import { InquiryButton } from '../../collectors/InquiryButton.tsx';
 import { isCutoutPath } from '../../vault/addshirt/studio.ts';
 import { PendingPhotos } from '../../vault/PendingPhotos.tsx';
 import { useWatchlist } from '../../watchlist/useWatchlist.ts';
-import { canTrade, estimate, type Exemplar } from './model.ts';
+import { canTrade, estimate, isReservation, type Exemplar } from './model.ts';
 
 const VERIFY_TONE = { expert: 'accent', precheck: 'info', self: 'neutral' } as const;
 
@@ -24,7 +24,9 @@ export function ExemplarCard({ e, src }: { e: Exemplar; src: string | undefined 
   const cat = e.catalogId ? BY[e.catalogId] : undefined;
   const mine = !!profile?.handle && profile.handle === e.owner;
   const est = estimate(e);
-  const trade = canTrade(e) && !mine;
+  // Waiting for expert authentication: shown, but not to buy or offer on yet.
+  const reserved = isReservation(e);
+  const trade = canTrade(e) && !mine && !reserved;
   const to = e.demo ? (cat ? '/shirt/' + cat.id : '/market') : '/u/' + e.owner + '/' + encodeURIComponent(e.id);
   const path = e.photo?.path;
   const condition = e.grade !== null ? t('mx.grade', { n: e.grade }) : null;
@@ -67,7 +69,7 @@ export function ExemplarCard({ e, src }: { e: Exemplar; src: string | undefined 
 
         <div style={{ marginTop: 'auto', paddingTop: 10 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 8, flexWrap: 'wrap' }}>
-            <Badge tone={e.status === 'public' ? 'neutral' : 'accent'}>{e.status === 'public' ? t('mx.piece') : statusLabel}</Badge>
+            <Badge tone={reserved ? 'warn' : e.status === 'public' ? 'neutral' : 'accent'}>{reserved ? t('mx.reserved') : e.status === 'public' ? t('mx.piece') : statusLabel}</Badge>
             <span style={{ textAlign: 'right' }}>
               <span className="mono" style={{ display: 'block', fontWeight: 700, fontSize: 16 }}>
                 {e.status === 'forsale' && e.price !== null ? money(e.price) : est.value !== null ? money(est.value) : '—'}
@@ -77,6 +79,7 @@ export function ExemplarCard({ e, src }: { e: Exemplar; src: string | undefined 
               </span>
             </span>
           </div>
+          {reserved && <p style={{ margin: '10px 0 0', fontSize: 12.5, color: 'var(--text-2)', lineHeight: 1.45 }}>{t('mx.reservedNote')}</p>}
           {mine ? (
             <p style={{ margin: '10px 0 0', fontSize: 12.5, color: 'var(--muted)' }}>{t('mx.yours')}</p>
           ) : e.demo ? (

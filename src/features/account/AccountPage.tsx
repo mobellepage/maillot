@@ -79,7 +79,6 @@ function Links() {
   const links = [
     ['/help', 'footer.help'],
     ['/authentication', 'footer.howAuth'],
-    ['/verify', 'footer.verify'],
     ['/legal/terms', 'footer.terms'],
     ['/legal/privacy', 'footer.privacy'],
     ['/legal/imprint', 'footer.imprint']

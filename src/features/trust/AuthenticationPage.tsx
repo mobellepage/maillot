@@ -7,10 +7,13 @@ import { ButtonLink } from '../../ui/index.ts';
 import { usePageMeta } from '../../lib/meta.ts';
 import { usePrefs } from '../../lib/prefs.tsx';
 import { BUYER_SHIPPING_CHF } from '../../fees.ts';
+import { EXPERT_AUTH } from '../../config/rules.ts';
 
 const ACC = 'var(--accent)';
 const STEPS = [1, 2, 3, 4, 5].map((n) => ({ title: `auth.s${n}.t`, body: `auth.s${n}.b` }));
 const FAQ = [1, 2, 3, 4].map((n) => ({ q: `auth.q${n}`, a: `auth.a${n}` }));
+/** What an expert looks at (message keys). */
+const EXPERT_CHECKS = [0, 1, 2, 3, 4].map((n) => `auth.ex.${n}`);
 /** What the automatic pre-check looks at (message keys). */
 const AI_CHECKS = [0, 1, 2, 3].map((n) => `auth.ai.${n}`);
 
@@ -71,6 +74,30 @@ export default function AuthenticationPage() {
         <h2 style={{ margin: 0, fontSize: 'clamp(24px,2.8vw,32px)', fontWeight: 800, fontStretch: '78%', textTransform: 'uppercase' }}>{t('auth.guarantee')}</h2>
         <p style={{ maxWidth: 680, margin: '10px 0 0', fontSize: 15, lineHeight: 1.6, color: 'var(--text-2)' }}>
           {t('auth.guaranteeBody')}
+        </p>
+      </section>
+
+      {/* Expert authentication: when it is required, what it checks, what it costs — and that it starts soon. */}
+      <section id="expert" aria-labelledby="expert-title" style={{ marginTop: 'clamp(40px,6vw,72px)', padding: 'clamp(22px,3vw,36px)', borderRadius: 24, background: 'var(--surface)', border: '1px solid var(--line)' }}>
+        <div style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
+          <h2 id="expert-title" style={{ margin: 0, fontSize: 'clamp(24px,2.8vw,32px)', fontWeight: 800, fontStretch: '78%', textTransform: 'uppercase' }}>
+            {t('auth.ex.title')}
+          </h2>
+          {!EXPERT_AUTH.available && <span className="badge badge--warn">{t('auth.ex.soon')}</span>}
+        </div>
+        <p style={{ maxWidth: 680, margin: '12px 0 0', fontSize: 15, lineHeight: 1.6, color: 'var(--text-2)' }}>{t('auth.ex.when', { price: money(EXPERT_AUTH.thresholdChf) })}</p>
+        <ul style={{ listStyle: 'none', padding: 0, margin: '16px 0 0', display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(min(100%,300px),1fr))', gap: 8 }}>
+          {EXPERT_CHECKS.map((c) => (
+            <li key={c} style={{ display: 'flex', gap: 10, alignItems: 'flex-start', padding: '12px 14px', borderRadius: 12, background: 'var(--sunken)', fontSize: 14, lineHeight: 1.45 }}>
+              <span aria-hidden="true" style={{ color: ACC, fontWeight: 700 }}>
+                ✓
+              </span>
+              <span>{t(c)}</span>
+            </li>
+          ))}
+        </ul>
+        <p style={{ maxWidth: 680, margin: '16px 0 0', fontSize: 15, lineHeight: 1.6, color: 'var(--text-2)' }}>
+          {t('auth.ex.cost', { fee: money(EXPERT_AUTH.feeChf) })} {!EXPERT_AUTH.available && t('auth.ex.until')}
         </p>
       </section>
 

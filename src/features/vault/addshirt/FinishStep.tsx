@@ -6,7 +6,11 @@ import { Section } from './parts.tsx';
 import { inputStyle } from './styles.ts';
 import { chosenVisibility, type Wizard } from './useAddShirtForm.ts';
 import { useSession } from '../../../lib/session.tsx';
-import { PUBLIC_VALUE_HINT } from '../../../config/rules.ts';
+import { EXPERT_AUTH, PUBLIC_VALUE_HINT } from '../../../config/rules.ts';
+import { Link } from 'react-router';
+
+/** The wizard's names for the versions that always need expert authentication. */
+const EXPERT_AUTH_VERSIONS = ['Match-Issued', 'Match-Worn'];
 
 export function FinishStep({ w, valuation, onSave, saving }: { w: Wizard; valuation: Valuation; onSave: () => void; saving: boolean }) {
   const { money, t, label } = usePrefs();
@@ -50,6 +54,13 @@ export function FinishStep({ w, valuation, onSave, saving }: { w: Wizard; valuat
         )}
         {visibility === 'forsale' && (
           <input aria-label={t('as.f.price')} inputMode="numeric" value={f.salePrice} onChange={(e) => set({ salePrice: e.target.value.replace(/[^0-9]/g, '') })} placeholder={valuation.blocked ? t('as.f.price') : t('as.f.pricePh', { mid: valuation.mid })} style={{ ...inputStyle, marginTop: 10 }} />
+        )}
+        {(visibility === 'forsale' || visibility === 'offers') && (EXPERT_AUTH_VERSIONS.includes(f.version) || (visibility === 'forsale' ? Number(f.salePrice) : valuation.mid ?? 0) >= EXPERT_AUTH.thresholdChf) && (
+          <Notice tone="warn" style={{ marginTop: 12 }}>
+            <span>
+              {t('as.f.reservation', { price: money(EXPERT_AUTH.thresholdChf) })} <Link to="/authentication#expert">{t('sell.authHow')}</Link>
+            </span>
+          </Notice>
         )}
         {missing.length > 0 && (
           <Notice tone="info" style={{ marginTop: 12 }}>

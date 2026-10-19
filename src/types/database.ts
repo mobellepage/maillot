@@ -1004,6 +1004,8 @@ export type Database = {
           photo_path: string | null;
           thumb_path: string | null;
           added_at: string;
+          /** Selling it waits for expert authentication (private.needs_expert_auth). */
+          needs_auth: boolean;
         }[];
       };
       discover_collectors: {

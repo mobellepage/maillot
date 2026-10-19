@@ -16,6 +16,7 @@ import { analyzeAndCompress, type CompressedPhoto } from '../../utils/image.ts';
 import type { CustomItem, Photo, Valuation } from '../../types/domain.ts';
 import { estimateValue } from '../../addShirtData.js';
 import { BY } from '../../data.ts';
+import { EXPERT_AUTH } from '../../config/rules.ts';
 import { confidentMatch, sellPrefill } from '../identify/prefill.ts';
 import { getShirt, resolveSize } from '../catalog/model.ts';
 
@@ -133,8 +134,11 @@ export function useSellFlow() {
   };
 
   const amount = parseInt(ask, 10) || 0;
+  // From the threshold, or a match version, selling needs expert authentication: the full path (config EXPERT_AUTH).
+  const matchVersion = edition === 'Match-Issued' || edition === 'Match-Worn';
+  const needsFullPath = matchVersion || amount >= EXPERT_AUTH.thresholdChf;
   const publish = async () => {
-    if (!user || !shirt || amount <= 0 || busy) return;
+    if (!user || !shirt || amount <= 0 || busy || needsFullPath) return;
     setBusy(true);
     try {
       // Photos go up only now, so an abandoned listing leaves nothing behind.
@@ -208,7 +212,7 @@ export function useSellFlow() {
     window.scrollTo(0, 0);
   };
 
-  return { path, setPath, step, go, shirt, pick, size, setSize, condition, setCondition, edition, setEdition, player, setPlayer, ask, setAsk, amount, scan, scanLabel, photos, photoBusy, addPhoto, busy, publish, published, reset, signedIn: !!user };
+  return { needsFullPath, matchVersion, path, setPath, step, go, shirt, pick, size, setSize, condition, setCondition, edition, setEdition, player, setPlayer, ask, setAsk, amount, scan, scanLabel, photos, photoBusy, addPhoto, busy, publish, published, reset, signedIn: !!user };
 }
 
 export type SellFlow = ReturnType<typeof useSellFlow>;

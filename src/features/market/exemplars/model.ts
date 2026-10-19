@@ -5,7 +5,7 @@
 // (config/rules.ts SHOW_DEMO_EXEMPLARS). Pure, unit-tested.
 import { BY, SHIRTS, TODAY, type Shirt } from '../../../data.ts';
 import { rng } from '../../../marketData.ts';
-import { VERSIONS } from '../../../config/rules.ts';
+import { EXPERT_AUTH, VERSIONS } from '../../../config/rules.ts';
 import type { Photo } from '../../../types/domain.ts';
 import type { FeedEventRow, MarketExemplarRow } from '../../../utils/db.ts';
 import { marketValue } from '../../catalog/model.ts';
@@ -39,6 +39,8 @@ export interface Exemplar {
   verified: boolean;
   canAsk: boolean;
   addedAt: string;
+  /** Selling it needs expert authentication first (from CHF 500, or match-issued / match-worn). */
+  needsAuth: boolean;
 }
 
 /** The version names used across the app (wizard, sell flow, older listings) → one key. */
@@ -66,6 +68,17 @@ export function estimate(e: Pick<Exemplar, 'catalogId' | 'size' | 'version' | 'v
 }
 
 export const isBuyable = (e: Pick<Exemplar, 'status'>): boolean => e.status === 'forsale' || e.status === 'offers';
+
+/** The same rule as the database (private.needs_expert_auth): from the threshold, or a match version, unless an expert verified it. */
+export function needsExpertAuth(e: Pick<Exemplar, 'status' | 'price' | 'version' | 'verification' | 'verified' | 'catalogId' | 'size'>): boolean {
+  if (e.verification === 'expert' && e.verified) return false;
+  if (e.version && EXPERT_AUTH.versions.includes(e.version)) return true;
+  const value = e.status === 'forsale' && e.price !== null ? e.price : estimate({ ...e, version: e.version }).value;
+  return (value ?? 0) >= EXPERT_AUTH.thresholdChf;
+}
+
+/** Listed, but waiting for expert authentication that hasn't started: shown, not buyable. */
+export const isReservation = (e: Pick<Exemplar, 'status' | 'needsAuth'>): boolean => isBuyable(e) && e.needsAuth && !EXPERT_AUTH.available;
 
 /** Offers and purchases run through the order system, which needs a catalogue model and a size. */
 export const canTrade = (e: Pick<Exemplar, 'catalogId' | 'size' | 'demo'>): boolean => !e.demo && !!e.catalogId && !!e.size;
@@ -98,7 +111,8 @@ export function fromRow(r: MarketExemplarRow): Exemplar {
     verification: r.verification_level === 'expert' || r.verification_level === 'precheck' ? r.verification_level : 'self',
     verified: r.verified,
     canAsk: r.inquiries_enabled !== false,
-    addedAt: r.added_at
+    addedAt: r.added_at,
+    needsAuth: r.needs_auth
   };
 }
 
@@ -147,10 +161,12 @@ export function demoExemplars(shirts: Shirt[] = SHIRTS, now = TODAY): Exemplar[]
         verification,
         verified: false,
         canAsk: true,
-        addedAt: new Date(now - Math.round(1 + r() * 40) * DAY).toISOString()
+        addedAt: new Date(now - Math.round(1 + r() * 40) * DAY).toISOString(),
+        needsAuth: false
       };
       const value = estimate(base).value;
-      out.push({ ...base, price: status === 'forsale' && value ? Math.round((value * (0.95 + r() * 0.3)) / 5) * 5 : null });
+      const priced = { ...base, price: status === 'forsale' && value ? Math.round((value * (0.95 + r() * 0.3)) / 5) * 5 : null };
+      out.push({ ...priced, needsAuth: needsExpertAuth(priced) });
     }
   }
   if (BY['acm-0607'])
@@ -177,7 +193,8 @@ export function demoExemplars(shirts: Shirt[] = SHIRTS, now = TODAY): Exemplar[]
       verification: 'self',
       verified: false,
       canAsk: true,
-      addedAt: new Date(now - 9 * DAY).toISOString()
+      addedAt: new Date(now - 9 * DAY).toISOString(),
+      needsAuth: true
     });
   return out;
 }

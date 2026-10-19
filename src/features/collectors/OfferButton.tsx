@@ -25,7 +25,10 @@ export function OfferButton({ itemId, name, owner, suggested, label, primary }: 
       toast(t('offer.sent', { handle: '@' + owner }));
       qc.invalidateQueries({ queryKey: ['myOffers'] });
     },
-    onError: (e) => toast((e as { code?: string }).code === 'P0429' ? t('offer.limited') : t('toast.actionFailed'))
+    onError: (e) => {
+      const code = (e as { code?: string }).code;
+      toast(code === 'P0429' ? t('offer.limited') : code === 'P0451' ? t('mx.reservedNote') : t('toast.actionFailed'));
+    }
   });
   const btn = { position: 'relative', zIndex: 2, marginTop: 10 } as const;
   if (!user)

@@ -22,7 +22,7 @@ import { DealerBadge } from '../collectors/DealerBadge.tsx';
 import { useWatchlist } from '../watchlist/useWatchlist.ts';
 import { useKitLikes } from '../watchlist/useKitLikes.ts';
 import { FEED_SOURCE, SHOW_DEMO_EXEMPLARS } from '../../config/rules.ts';
-import { demoEvents, estimate, fromEventRow, orderEvents, type FeedEvent } from '../market/exemplars/model.ts';
+import { demoEvents, estimate, fromEventRow, isReservation, orderEvents, type FeedEvent } from '../market/exemplars/model.ts';
 import { OfferButton } from '../collectors/OfferButton.tsx';
 import { InquiryButton } from '../collectors/InquiryButton.tsx';
 import { isCutoutPath } from '../vault/addshirt/studio.ts';
@@ -95,7 +95,7 @@ function ExemplarFace({ event, photoUrl, watched, toggleWatch }: { event: FeedEv
           {[t('mx.version.' + (e.version ?? 'replica')), e.size && t('coll.size', { size: e.size }), e.grade !== null && t('mx.grade', { n: e.grade }), e.print].filter(Boolean).join(' · ')}
         </div>
         <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginTop: 8, flexWrap: 'wrap' }}>
-          <span style={{ fontSize: 12, fontWeight: 700, color: e.status === 'public' ? '#C9D0CB' : '#4BFF8B' }}>{e.status === 'public' ? t('mx.piece') : t('mx.status.' + e.status)}</span>
+          <span style={{ fontSize: 12, fontWeight: 700, color: isReservation(e) ? '#FFC24B' : e.status === 'public' ? '#C9D0CB' : '#4BFF8B' }}>{isReservation(e) ? t('mx.reserved') : e.status === 'public' ? t('mx.piece') : t('mx.status.' + e.status)}</span>
           <span className="mono" style={{ fontSize: 20, fontWeight: 700 }}>
             {e.status === 'forsale' && e.price !== null ? money(e.price) : est.value !== null ? money(est.value) : ''}
           </span>
@@ -107,7 +107,7 @@ function ExemplarFace({ event, photoUrl, watched, toggleWatch }: { event: FeedEv
               {watched ? t('ic.watching2') : t('ic.watch')}
             </button>
           )}
-          {!e.demo && e.catalogId && e.size && (e.status === 'forsale' || e.status === 'offers') && <OfferButton itemId={e.id} name={e.name} owner={e.owner} suggested={e.status === 'forsale' && e.price !== null ? e.price : est.value ?? undefined} />}
+          {!e.demo && !isReservation(e) && e.catalogId && e.size && (e.status === 'forsale' || e.status === 'offers') && <OfferButton itemId={e.id} name={e.name} owner={e.owner} suggested={e.status === 'forsale' && e.price !== null ? e.price : est.value ?? undefined} />}
           {!e.demo && e.status === 'public' && e.canAsk && <InquiryButton itemId={e.id} name={e.name} owner={e.owner} />}
         </div>
       </div>

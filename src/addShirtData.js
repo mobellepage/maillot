@@ -104,9 +104,9 @@ const VERIFY_MULT = { self: 1, precheck: 1.05, expert: 1.18 };
 
 // Pure valuation estimate. Never claims a definitive authenticity guarantee —
 // returns an honest range + confidence label, and explicitly blocks the estimate
-// for Match-Worn shirts until an expert has verified them.
+// for match-worn and match-issued shirts until an expert has verified them.
 export function estimateValue({ catalogItem, version, conditionGrade, flock, patches, signature, verificationLevel }) {
-  if (version === 'Match-Worn' && verificationLevel !== 'expert') {
+  if ((version === 'Match-Worn' || version === 'Match-Issued') && verificationLevel !== 'expert') {
     return { blocked: true, reason: 'val.mwBlocked' };
   }
 

@@ -34,7 +34,7 @@ html[data-theme='light'] {
   --accent-line: rgba(8, 122, 65, 0.35);
   --neg: #b80012;
   --neg-soft: rgba(215, 0, 21, 0.08);
-  --warn: #b64400;
+  --warn: #a33d00;
   --warn-soft: rgba(182, 68, 0, 0.1);
   --info: #0062c4;
   --info-soft: rgba(0, 113, 227, 0.08);

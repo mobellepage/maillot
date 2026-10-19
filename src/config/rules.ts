@@ -23,6 +23,16 @@ export const VERSIONS = [
  */
 export const SHOW_DEMO_EXEMPLARS = true;
 
+/**
+ * Expert authentication: required to sell from thresholdChf (the price, or
+ * the estimate when open to offers) or for these versions — unless an expert
+ * verified the shirt. Until the service runs (available: false) such
+ * listings are a reservation: shown, but nobody can buy or offer yet.
+ * feeChf: what it will cost the seller. The database decides the same way —
+ * private.expert_auth_policy(), private.needs_expert_auth(); change together.
+ */
+export const EXPERT_AUTH = { thresholdChf: 500, versions: ['matchIssued', 'matchWorn'] as string[], feeChf: 49, available: false } as const;
+
 /** From this value (CHF), adding a public shirt reminds the collector it can be made private. */
 export const PUBLIC_VALUE_HINT = 1000;
 

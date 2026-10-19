@@ -6,7 +6,8 @@ import { Link } from 'react-router';
 import { usePageMeta } from '../../lib/meta.ts';
 import { useCatalog } from '../catalog/useCatalog.ts';
 import { usePrefs } from '../../lib/prefs.tsx';
-import { Button, ButtonLink, CheckIcon, Page } from '../../ui/index.ts';
+import { Button, ButtonLink, CheckIcon, Notice, Page } from '../../ui/index.ts';
+import { EXPERT_AUTH } from '../../config/rules.ts';
 import { DetailsStep } from './DetailsStep.tsx';
 import { IdentifyStep } from './IdentifyStep.tsx';
 import { PriceStep } from './PriceStep.tsx';
@@ -83,7 +84,7 @@ export default function SellPage() {
     );
   }
 
-  const canNext = f.step === 2 ? f.amount > 0 : f.step === 1 ? !!f.photos.front && !!f.photos.back && !f.photoBusy : true;
+  const canNext = f.step === 2 ? f.amount > 0 && !f.needsFullPath : f.step === 1 ? !!f.photos.front && !!f.photos.back && !f.photoBusy && !f.matchVersion : true;
   return (
     <Page>
       <div className="eyebrow">{t('sell.eyebrow')}</div>
@@ -104,6 +105,14 @@ export default function SellPage() {
         ))}
       </ol>
 
+      {/* From CHF 500, or match-issued / match-worn: expert authentication, so the complete path. */}
+      {f.needsFullPath && f.step > 0 && f.step < 3 && (
+        <Notice tone="warn" style={{ marginBottom: 20, maxWidth: 1100 }}>
+          <span>
+            {t(f.matchVersion ? 'sell.authVersion' : 'sell.authPrice', { price: money(EXPERT_AUTH.thresholdChf) })} <Link to="/vault/add?goal=sale">{t('sell.toFull')}</Link> · <Link to="/authentication#expert">{t('sell.authHow')}</Link>
+          </span>
+        </Notice>
+      )}
       {f.step === 0 && <IdentifyStep f={f} />}
       {f.step === 1 && f.shirt && <DetailsStep f={f} />}
       {f.step === 2 && f.shirt && <PriceStep f={f} />}

@@ -48,8 +48,7 @@ export default function Footer() {
             [t('footer.library'), '/library'],
             [t('footer.daily'), '/daily'],
             [t('footer.sell'), '/sell'],
-            [t('footer.howAuth'), '/authentication'],
-            [t('footer.verify'), '/verify']
+            [t('footer.howAuth'), '/authentication']
           ]}
         />
         <Col

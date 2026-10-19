@@ -83,7 +83,12 @@ test('product pages link to the buying explainer', async ({ page }) => {
   await expect(page).toHaveURL(/\/authentication$/);
   await expect(page.getByRole('heading', { level: 1 })).toContainText(/How buying works/i);
   await expect(page.getByRole('heading', { name: 'Automatic pre-check' })).toBeVisible();
-  await expect(page.locator('main li').filter({ hasText: '✓' })).toHaveCount(4);
+  // The pre-check's four points and the expert authentication's five, which says honestly that it starts soon.
+  await expect(page.locator('main li').filter({ hasText: '✓' })).toHaveCount(9);
+  const expert = page.locator('#expert');
+  await expect(expert.getByRole('heading', { name: 'Expert authentication' })).toBeVisible();
+  await expect(expert).toContainText('Coming soon');
+  await expect(expert).toContainText(/CHF\s?500/);
   await expect(page.getByText(/Zürich/)).toHaveCount(0);
 });
 
@@ -107,10 +112,12 @@ test('footer reaches every legal page and no fonts are fetched from Google @mobi
   expect(thirdParty).toEqual([]);
 });
 
-test('certificate check: footer link, code form, and a clear error when the check fails', async ({ page }) => {
+test('certificate check: no footer link while there are no certificates; the form still fails clearly', async ({ page }) => {
   await page.goto('/');
-  await page.locator('footer').getByRole('link', { name: 'Verify a certificate' }).click();
+  await expect(page.locator('footer').getByRole('link', { name: 'Verify a certificate' })).toHaveCount(0);
+  await page.goto('/verify');
   await expect(page.getByRole('heading', { level: 1 })).toContainText(/Verify a certificate/i);
+  await expect(page.getByText(/until then there are no certificates/)).toBeVisible();
   await page.getByLabel('Certificate code').fill('mlt-abcd-efgh-jkmn');
   await page.getByRole('button', { name: 'Check' }).click();
   await expect(page).toHaveURL(/\/verify\/MLT-ABCD-EFGH-JKMN$/);

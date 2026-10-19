@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { BY } from '../data.ts';
-import { counts, demoEvents, demoExemplars, estimate, filterExemplars, fromEventRow, fromRow, isBuyable, NO_FILTERS, orderEvents, sortExemplars, versionKey } from '../features/market/exemplars/model.ts';
+import { counts, demoEvents, demoExemplars, estimate, filterExemplars, fromEventRow, fromRow, isBuyable, isReservation, needsExpertAuth, NO_FILTERS, orderEvents, sortExemplars, versionKey } from '../features/market/exemplars/model.ts';
 
 const row = (over = {}) => ({
   id: 'c1', handle: 'anna', avatar: null, dealer: false, catalog_id: 'juv-9697', kit_id: null, kit_image: null,
@@ -89,5 +89,22 @@ describe('quick listing', () => {
     expect(flockFrom('Del Piero 10')).toEqual({ source: 'Spielername & Nummer', name: 'Del Piero', number: '10', type: 'Unbekannt' });
     expect(flockFrom('MOZAR')).toEqual({ source: 'Spielername & Nummer', name: 'MOZAR', number: '', type: 'Unbekannt' });
     expect(flockFrom('  ')).toEqual({ source: 'Keine' });
+  });
+});
+
+describe('expert authentication', () => {
+  const base = { status: 'forsale', price: 300, version: 'replica', verification: 'self', verified: false, catalogId: 'juv-9697', size: 'M' };
+  it('from CHF 500, or match-issued / match-worn, a sale needs it — unless an expert verified the shirt', () => {
+    expect(needsExpertAuth(base)).toBe(false);
+    expect(needsExpertAuth({ ...base, price: 500 })).toBe(true);
+    expect(needsExpertAuth({ ...base, version: 'matchWorn', price: 100 })).toBe(true);
+    expect(needsExpertAuth({ ...base, version: 'matchIssued', status: 'offers', price: null })).toBe(true);
+    expect(needsExpertAuth({ ...base, price: 900, verification: 'expert', verified: true })).toBe(false);
+  });
+  it('until the service runs, such a listing is a reservation, not for sale', () => {
+    expect(isReservation({ status: 'forsale', needsAuth: true })).toBe(true);
+    expect(isReservation({ status: 'public', needsAuth: true })).toBe(false);
+    expect(isReservation({ status: 'offers', needsAuth: false })).toBe(false);
+    expect(demoExemplars().find((e) => e.print === 'Kaká 22').needsAuth).toBe(true);
   });
 });
