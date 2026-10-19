@@ -1,7 +1,7 @@
 // /u/:handle — a member's public page: the shirts they show (visibility other
-// than private), track record, reviews and live listings. Only what the
+// than private, for sale ones marked), track record and reviews. Only what the
 // member chose to make public plus facts from completed orders.
-import { Link, useParams } from 'react-router';
+import { useParams } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
 import { BY } from '../../data.ts';
 import { formatDate } from '../../lib/format.ts';
@@ -9,7 +9,7 @@ import { usePageMeta } from '../../lib/meta.ts';
 import { usePrefs } from '../../lib/prefs.tsx';
 import * as db from '../../utils/db.ts';
 import { useCatalog } from '../catalog/useCatalog.ts';
-import { Card, EmptyState, ErrorState, Page, ShirtGraphic, Skeleton, StatTile } from '../../ui/index.ts';
+import { Card, EmptyState, ErrorState, Page, Skeleton, StatTile } from '../../ui/index.ts';
 import { Stars } from '../../ui/Stars.tsx';
 import { PublicCollection } from '../collectors/PublicCollection.tsx';
 import { LevelBadge } from '../levels/LevelBadge.tsx';
@@ -17,22 +17,18 @@ import { FollowButton } from '../collectors/FollowButton.tsx';
 import { DealerBadge } from '../collectors/DealerBadge.tsx';
 import { publicCollectionValue } from '../collectors/collectionValue.ts';
 import { useSession } from '../../lib/session.tsx';
-import { usePhotoUrls } from '../../lib/usePhotoUrls.ts';
 import { Avatar } from '../avatars/Avatar.tsx';
 
 export default function SellerPage() {
   useCatalog();
   const { handle = '' } = useParams();
-  const { t, tp, money, lang, label } = usePrefs();
+  const { t, tp, money, lang } = usePrefs();
   const profile = useQuery({ queryKey: ['seller', handle], queryFn: () => db.loadSellerProfile(handle) });
-  const listings = useQuery({ queryKey: ['sellerListings', handle], queryFn: () => db.loadSellerListings(handle), enabled: !!profile.data });
   const reviews = useQuery({ queryKey: ['sellerReviews', handle], queryFn: () => db.loadSellerReviews(handle), enabled: !!profile.data });
   const collection = useQuery({ queryKey: ['publicCollection', handle], queryFn: () => db.loadPublicCollection(handle), enabled: !!profile.data });
   const { user } = useSession();
   const stats = useQuery({ queryKey: ['collectorStats', handle.toLowerCase(), user?.id], queryFn: () => db.loadCollectorStats(handle), enabled: !!profile.data });
   const value = stats.data?.show_value && collection.data ? publicCollectionValue(collection.data) : null;
-  // The sellers' own photos on their listings (first photo of each).
-  const listingPhoto = usePhotoUrls((listings.data ?? []).map((l) => (l.thumb_path ? { path: l.thumb_path } : undefined)));
   usePageMeta(t('seller.meta', { handle }), t('seller.metaDesc', { handle }));
 
   if (profile.isLoading)
@@ -101,37 +97,6 @@ export default function SellerPage() {
         {collection.isError && <ErrorState compact what={t('coll.title')} onRetry={() => collection.refetch()} />}
         {collection.data && !collection.data.length && <p style={{ color: 'var(--muted)', fontSize: 14 }}>{stats.data?.collection_private ? (stats.data.is_me ? t('coll.privateMine') : t('coll.privateOther')) : t('coll.empty')}</p>}
         {!!collection.data?.length && <PublicCollection shirts={collection.data} owner={p.handle} canOffer={!stats.data?.is_me} />}
-      </section>
-
-      <section aria-labelledby="listings-title" style={{ marginTop: 40 }}>
-        <h2 id="listings-title" className="title">
-          {t('seller.listings')} <span className="mono" style={{ color: 'var(--muted)', fontSize: 13 }}>{p.listings}</span>
-        </h2>
-        {!listings.data?.length && !listings.isLoading && <p style={{ color: 'var(--muted)', fontSize: 14 }}>{t('seller.noListings')}</p>}
-        <ul className="grid-cards" style={{ listStyle: 'none', padding: 0, margin: '14px 0 0' }}>
-          {(listings.data ?? []).map((l) => {
-            const s = BY[l.shirt_id];
-            if (!s) return null;
-            return (
-              <li key={l.ask_id} className="card card--interactive" style={{ padding: 16, borderRadius: 20, position: 'relative' }}>
-                <div style={{ aspectRatio: '1/1', display: 'grid', placeItems: 'center', borderRadius: 12, overflow: 'hidden' }}>
-                  {l.thumb_path && listingPhoto({ path: l.thumb_path }) ? (
-                    <img src={listingPhoto({ path: l.thumb_path })} alt="" loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                  ) : (
-                    <ShirtGraphic pat={s.pat} trim={s.trim} crest={s.crest} photo={s.photo} flat style={{ width: '70%' }} />
-                  )}
-                </div>
-                <Link to={`/shirt/${s.id}?size=${encodeURIComponent(l.size)}`} className="stretched-link" style={{ display: 'block', color: 'var(--text)', fontWeight: 600, fontSize: 14.5, marginTop: 8 }}>
-                  {s.name}
-                </Link>
-                <div className="mono" style={{ fontSize: 13, color: 'var(--text-2)', marginTop: 4 }}>
-                  {t('seller.sizeAsk', { size: l.size, price: money(Number(l.amount)) })}
-                  {l.condition ? ' · ' + label('cond', l.condition) : ''}
-                </div>
-              </li>
-            );
-          })}
-        </ul>
       </section>
 
       <section aria-labelledby="reviews-title" style={{ marginTop: 40, maxWidth: 760 }}>

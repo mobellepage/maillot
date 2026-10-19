@@ -1,9 +1,10 @@
 import { expect, test } from '@playwright/test';
 
 // Runs against a local Supabase stack seeded by supabase/seed.sql:
-//   seller@maillot.test has an open ask on ger-26 M at CHF 139
-//   buyer@maillot.test has an open bid on fra-98 M at CHF 250
-// The suite mutates the order book, so it runs serially on a fresh `db reset`.
+//   seller@maillot.test (@zurich_kits) has an Ajax 1994/95 open to offers
+//   in their collection. Listings are shirts in collections — there is no
+//   order book on the model pages any more.
+// Runs serially on a fresh `db reset`.
 test.describe.configure({ mode: 'serial' });
 
 const PASSWORD = 'maillot-dev-pw';
@@ -30,27 +31,13 @@ async function signIn(page, email) {
   }
 }
 
-test('buyer: Buy now matches the live ask, then cancels before paying', async ({ page }) => {
+test('a model page leads to its shirts in collections, not to an order book', async ({ page }) => {
   await signIn(page, 'buyer@maillot.test');
   await page.goto('/shirt/ger-26');
-  // Direct loads open size M, where the seed's ask lives.
-  const buy = page.getByRole('button', { name: /^Buy now/ });
-  await expect(buy).toContainText('139');
-  await buy.click();
-  await page.getByRole('button', { name: /^Confirm purchase/ }).click();
-  await expect(page.getByText('It’s a match')).toBeVisible();
-
-  await page.getByRole('button', { name: 'Pay later from Orders' }).click();
-  await page.goto('/orders');
-  await expect(page.getByText('Payment pending').first()).toBeVisible();
-  await page.getByRole('button', { name: 'Cancel' }).first().click();
-  // Irreversible actions ask first.
-  await page.getByRole('dialog', { name: 'Cancel this order?' }).getByRole('button', { name: 'Cancel order' }).click();
-  await expect(page.getByText('Cancelled').first()).toBeVisible();
-
-  // The seller's ask went back on the book.
-  await page.goto('/shirt/ger-26');
-  await expect(page.getByRole('button', { name: /^Buy now/ })).toContainText('139');
+  await expect(page.getByRole('button', { name: /^Buy now/ })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: /Place bid/ })).toHaveCount(0);
+  await page.getByRole('link', { name: /in collections/ }).first().click();
+  await expect(page).toHaveURL(/\/market\?shirt=ger-26/);
 });
 
 test('seller: the full path is the guided capture with the sale goal', async ({ page }) => {
@@ -61,16 +48,6 @@ test('seller: the full path is the guided capture with the sale goal', async ({ 
   await expect(page).toHaveURL(/\/vault\/add\?goal=sale$/);
   // The goal is already chosen: straight to the photos.
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Scan');
-});
-
-test('bid below the ask stays on the book', async ({ page }) => {
-  await signIn(page, 'buyer@maillot.test');
-  await page.goto('/shirt/juv-9697');
-  await page.getByRole('button', { name: 'Place bid' }).first().click();
-  const amount = page.locator('input[inputmode="numeric"]');
-  await amount.fill('200');
-  await page.getByRole('button', { name: /^Place bid · / }).click();
-  await expect(page.getByRole('heading', { name: 'Bid placed' }).or(page.getByText('Bid placed'))).toBeVisible();
 });
 
 test('new member: sign up, answer the welcome questions, land on the first step', async ({ page }) => {
@@ -99,10 +76,9 @@ test('new member: sign up, answer the welcome questions, land on the first step'
   await expect(page).toHaveURL(/\/market$/);
 });
 
-test('seller profile: public page with live listings, linked from the shirt page', async ({ page }) => {
-  await page.goto('/shirt/juv-9697?size=L');
-  await page.getByRole('link', { name: '@zurich_kits' }).click();
-  await expect(page).toHaveURL(/\/u\/zurich_kits$/);
+test('seller profile: public page with the shirts of the collection, for sale ones marked', async ({ page }) => {
+  await page.goto('/u/zurich_kits');
   await expect(page.getByRole('heading', { level: 1 })).toContainText('@zurich_kits');
-  await seen(page, page.getByRole('link', { name: /Juventus 1996/ }));
+  await seen(page, page.getByRole('link', { name: /Ajax 1994\/95/ }));
+  await expect(page.getByText('Open to offers').first()).toBeVisible();
 });

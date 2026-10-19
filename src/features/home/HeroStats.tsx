@@ -11,7 +11,6 @@ export function HeroStats() {
     ? [
         Number(stats.traded_chf) >= 50000 && { value: compact(Number(stats.traded_chf)), label: t('home.stat.traded') },
         Number(stats.collectors) >= 1000 && { value: Number(stats.collectors).toLocaleString('de-CH'), label: t('home.stat.collectors') },
-        Number(stats.live_listings) >= 100 && { value: Number(stats.live_listings).toLocaleString('de-CH'), label: t('home.stat.listings') }
       ].filter((x): x is { value: string; label: string } => !!x)
     : [];
   const promises = [

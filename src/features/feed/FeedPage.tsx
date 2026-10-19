@@ -3,7 +3,7 @@
 // undoes the last decision. News from collections comes first — a shirt
 // added, put up for sale, opened to offers, made cheaper, verified; those
 // matching the wishlist before the rest — then kits of the library
-// (FEED_SOURCE) fill in (order: features/feed/compose.ts).
+// fill in (order: features/feed/compose.ts).
 import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent, type RefObject } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
@@ -18,10 +18,9 @@ import type { Photo } from '../../types/domain.ts';
 import { Button, ButtonLink, CloseIcon, HeartIcon, ShirtGraphic, alpha } from '../../ui/index.ts';
 import { useCatalog } from '../catalog/useCatalog.ts';
 import { marketValue } from '../catalog/model.ts';
-import { DealerBadge } from '../collectors/DealerBadge.tsx';
 import { useWatchlist } from '../watchlist/useWatchlist.ts';
 import { useKitLikes } from '../watchlist/useKitLikes.ts';
-import { FEED_SOURCE, SHOW_DEMO_EXEMPLARS } from '../../config/rules.ts';
+import { SHOW_DEMO_EXEMPLARS } from '../../config/rules.ts';
 import { demoEvents, estimate, fromEventRow, isReservation, orderEvents, type FeedEvent } from '../market/exemplars/model.ts';
 import { OfferButton } from '../collectors/OfferButton.tsx';
 import { InquiryButton } from '../collectors/InquiryButton.tsx';
@@ -54,7 +53,7 @@ function useFeedHeight(ref: RefObject<HTMLElement | null>) {
 
 const exemplarHref = (ev: FeedEvent) => (ev.exemplar.demo ? (ev.exemplar.catalogId ? '/shirt/' + ev.exemplar.catalogId : '/market') : '/u/' + ev.exemplar.owner + '/' + encodeURIComponent(ev.exemplar.id));
 const href = (item: FeedItem) =>
-  item.kind === 'kit' ? '/library/' + item.kit.club_id + '#season-' + item.kit.season : item.kind === 'exemplar' ? exemplarHref(item.event) : '/shirt/' + item.shirtId + (item.kind === 'listing' ? '?size=' + encodeURIComponent(item.listing.size) : '');
+  item.kind === 'kit' ? '/library/' + item.kit.club_id + '#season-' + item.kit.season : item.kind === 'exemplar' ? exemplarHref(item.event) : '/shirt/' + item.shirtId;
 
 /** Buttons on a card must not start a swipe. */
 const stop = { onPointerDown: (e: ReactPointerEvent) => e.stopPropagation(), onPointerUp: (e: ReactPointerEvent) => e.stopPropagation() };
@@ -142,46 +141,31 @@ function KitFace({ kit }: { kit: Extract<FeedItem, { kind: 'kit' }>['kit'] }) {
 
 /** One card's face: picture and what you need to decide. */
 function CardFace({ item, photoUrl }: { item: FeedItem; photoUrl: string | undefined }) {
-  const { t, money, label } = usePrefs();
+  const { t, money } = usePrefs();
   const watch = useWatchlist();
   if (item.kind === 'kit') return <KitFace kit={item.kit} />;
   if (item.kind === 'exemplar') {
     const id = item.event.exemplar.catalogId;
     return <ExemplarFace event={item.event} photoUrl={photoUrl} watched={!!id && watch.has(id)} toggleWatch={() => id && watch.toggle(id)} />;
   }
+  // A catalogue shirt (when the library can't be reached).
   const s = BY[item.shirtId]!;
-  const l = item.kind === 'listing' ? item.listing : null;
   return (
     <>
       <div style={{ position: 'absolute', inset: 0, display: 'grid', placeItems: 'center', background: `radial-gradient(circle at 50% 36%,${alpha(s.glow, 0.3)},rgba(0,0,0,0) 60%),var(--feed-card, #0A0C0B)` }}>
-        {l && photoUrl ? (
-          <img src={photoUrl} alt="" draggable={false} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-        ) : (
-          <div style={{ width: '82%', aspectRatio: '1/1', marginBottom: '28%', display: 'grid', placeItems: 'center', borderRadius: 22, overflow: 'hidden' }}>
-            <ShirtGraphic hero pat={s.pat} trim={s.trim} crest={s.crest} photo={s.photo} style={{ width: '72%' }} />
-          </div>
-        )}
+        <div style={{ width: '82%', aspectRatio: '1/1', marginBottom: '28%', display: 'grid', placeItems: 'center', borderRadius: 22, overflow: 'hidden' }}>
+          <ShirtGraphic hero pat={s.pat} trim={s.trim} crest={s.crest} photo={s.photo} style={{ width: '72%' }} />
+        </div>
       </div>
       <div className="feed-caption" style={{ position: 'absolute', left: 0, right: 0, bottom: 0, padding: '60px 20px 20px', color: '#F2F4F1', background: 'linear-gradient(180deg,rgba(10,12,11,0) 0%,rgba(10,12,11,0.94) 38%)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', fontSize: 13, color: '#C9D0CB' }}>
-          {l ? (
-            <>
-              <span>{l.handle ? '@' + l.handle : t('seller.newSeller')}</span>
-              {l.dealer && <DealerBadge compact />}
-            </>
-          ) : (
-            <span style={{ fontSize: 12, color: '#A8B0AA' }}>{t('feed.catalog')}</span>
-          )}
-        </div>
+        <span style={{ fontSize: 12, color: '#A8B0AA' }}>{t('feed.catalog')}</span>
         <h2 style={{ margin: '6px 0 0', fontSize: 22, fontWeight: 700, lineHeight: 1.2, color: '#F2F4F1' }}>{s.name}</h2>
-        <div style={{ fontSize: 13, color: '#C9D0CB', marginTop: 6 }}>
-          {(l ? [t('alert.thisSize', { size: l.size }), l.condition && label('cond', l.condition), l.edition && label('edition', l.edition), l.player] : [s.brand, s.season]).filter(Boolean).join(' · ')}
-        </div>
+        <div style={{ fontSize: 13, color: '#C9D0CB', marginTop: 6 }}>{[s.brand, s.season].join(' · ')}</div>
         <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginTop: 10 }}>
           <span className="mono" style={{ fontSize: 24, fontWeight: 700 }}>
-            {l ? money(l.amount) : money(marketValue(s, 'M'))}
+            {money(marketValue(s, 'M'))}
           </span>
-          {!l && <span style={{ fontSize: 12, color: '#A8B0AA' }}>{t('common.marketValue')}</span>}
+          <span style={{ fontSize: 12, color: '#A8B0AA' }}>{t('common.marketValue')}</span>
         </div>
       </div>
     </>
@@ -206,18 +190,14 @@ export default function FeedPage() {
     // Wait for the member's profile so their interests shape the first cards.
     enabled: profile !== undefined,
     queryFn: async () => {
-      const library = FEED_SOURCE === 'library';
       const fav = profile?.interests.club;
-      const kits = library
-        ? // Without the library (offline, throttled) the catalogue fills in.
-          await db.loadFeedKits([...new Set([...(fav ? [fav] : []), ...kitLikes.kits.map((k) => k.club_id)])].slice(0, 20), [...new Set([...(profile?.interests.leagues ?? []), ...kitLikes.kits.map((k) => k.league)])].slice(0, 10)).catch(() => [])
-        : [];
+      // Without the library (offline, throttled) the catalogue fills in.
+      const kits = await db.loadFeedKits([...new Set([...(fav ? [fav] : []), ...kitLikes.kits.map((k) => k.club_id)])].slice(0, 20), [...new Set([...(profile?.interests.leagues ?? []), ...kitLikes.kits.map((k) => k.league)])].slice(0, 10)).catch(() => []);
       // News from collections (real ones, and demo ones until launch), wishlist matches first.
       const real = (await db.loadFeedEvents().catch(() => [])).map(fromEventRow);
       const events = orderEvents(SHOW_DEMO_EXEMPLARS ? [...real, ...demoEvents()] : real, { models: new Set(watch.ids), kits: new Set(kitLikes.kits.map((k) => k.id)) }, new Set(loadJSON<string[]>(SEEN_KEY, [])));
       return composeFeed({
         events,
-        listings: library ? [] : await db.loadFeedListings().catch(() => []),
         kits,
         likedKits: kitLikes.kits,
         catalog: SHIRTS.map((s) => ({ id: s.id, club: s.club, league: s.league, type: s.type })),
@@ -259,12 +239,7 @@ export default function FeedPage() {
     if (likeStamp.current) likeStamp.current.style.opacity = String(Math.max(0, Math.min(1, x / THRESHOLD)));
     if (nopeStamp.current) nopeStamp.current.style.opacity = String(Math.max(0, Math.min(1, -x / THRESHOLD)));
   };
-  const fronts = items.map((i): Photo | undefined => {
-    if (i.kind === 'exemplar') return i.event.exemplar.photo;
-    if (i.kind !== 'listing') return undefined;
-    const p = i.listing.photos.find((x) => x.kind === 'front') ?? i.listing.photos[0];
-    return p && { path: p.path };
-  });
+  const fronts = items.map((i): Photo | undefined => (i.kind === 'exemplar' ? i.event.exemplar.photo : undefined));
   const url = usePhotoUrls(fronts.slice(index, index + 3));
 
   const current = items[index];

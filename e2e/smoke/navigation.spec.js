@@ -31,14 +31,15 @@ test('search leads to a shareable product URL and Back works', async ({ page }) 
   await expect(page).toHaveURL(/\/market\?q=zidane&status=all$/);
 });
 
-test('deep link to a product shows market value and an honest empty order book', async ({ page }) => {
+test('deep link to a product shows its market value and the way to the shirts in collections', async ({ page }) => {
   await page.goto('/shirt/ger-26');
   await expect(page.getByRole('heading', { level: 1 })).toContainText(/Germany 2026 Home/i);
   await expect(page.getByText('Index estimate', { exact: true })).toBeVisible();
-  await expect(page.getByText('No sellers yet')).toBeVisible();
-  // No real seller => no "Buy now"; the primary action is a bid.
+  // No order book: no "Buy now", no bids — the shirts to buy are in collections.
   await expect(page.getByRole('button', { name: /^Buy now/ })).toHaveCount(0);
-  await expect(page.getByRole('button', { name: 'Place bid' })).toBeVisible();
+  await expect(page.getByRole('button', { name: /Place bid/ })).toHaveCount(0);
+  await expect(page.getByRole('link', { name: /See \d+ shirts? to buy|Shirts in collections/ })).toHaveAttribute('href', /\/market\?shirt=ger-26/);
+  await expect(page.getByRole('link', { name: 'Sell yours' })).toBeVisible();
 });
 
 test('"Sell yours" opens the sell flow with the shirt preselected', async ({ page }) => {
@@ -139,9 +140,9 @@ test('index report and data API are reachable and the report offers a CSV', asyn
 });
 
 test('failed loads say so instead of looking empty, and offline is announced', async ({ page, context }) => {
-  // The smoke backend is unreachable, so the live order book can't load.
-  await page.goto('/shirt/ger-26');
-  await expect(page.getByText(/Live bids and asks couldn’t load/)).toBeVisible({ timeout: 15000 });
+  // The smoke backend is unreachable, so the collectors' shirts can't load.
+  await page.goto('/market');
+  await expect(page.getByText(/The collectors’ shirts couldn’t be loaded/)).toBeVisible({ timeout: 15000 });
 
   await context.setOffline(true);
   await expect(page.getByText(/You’re offline/)).toBeVisible();

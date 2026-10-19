@@ -4,7 +4,6 @@
 // whether a failure is user-visible. Split by domain under ./db/.
 export * from './db/types.ts';
 export * from './db/collection.ts';
-export * from './db/market.ts';
 export * from './db/orders.ts';
 export * from './db/misc.ts';
 export * from './db/photos.ts';
@@ -17,7 +16,6 @@ export * from './db/account.ts';
 export * from './db/identify.ts';
 export * from './db/studio.ts';
 export * from './db/alerts.ts';
-export * from './db/feed.ts';
 export * from './db/offers.ts';
 export * from './db/daily.ts';
 export * from './db/library.ts';

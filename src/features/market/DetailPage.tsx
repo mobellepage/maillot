@@ -1,5 +1,4 @@
-import { useEffect, useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useEffect } from 'react';
 import { useCatalog } from '../catalog/useCatalog.ts';
 import { Link, Navigate, useParams, useSearchParams } from 'react-router';
 import { usePageMeta } from '../../lib/meta.ts';
@@ -7,16 +6,15 @@ import { usePrefs } from '../../lib/prefs.tsx';
 import { useSession } from '../../lib/session.tsx';
 import * as db from '../../utils/db.ts';
 import { Page, SectionHeader } from '../../ui/index.ts';
-import { getShirt, marketValue, related, resolveSize } from '../catalog/model.ts';
+import { getShirt, related, resolveSize } from '../catalog/model.ts';
 import { ShirtGrid } from '../catalog/ShirtGrid.tsx';
 import { useWatchlist } from '../watchlist/useWatchlist.ts';
-import { BidBuyDialog } from './detail/BidBuyDialog.tsx';
 import { Gallery } from './detail/Gallery.tsx';
 import { InfoCards } from './detail/InfoCards.tsx';
 import { PriceHistory } from './detail/PriceHistory.tsx';
 import { PricePanel } from './detail/PricePanel.tsx';
 import { ValuationCard } from './detail/ValuationCard.tsx';
-import { useOrderBook, useShirtStats } from './queries.ts';
+import { useShirtStats } from './queries.ts';
 import { useExemplars } from './exemplars/useExemplars.ts';
 import { counts } from './exemplars/model.ts';
 
@@ -27,13 +25,8 @@ export default function DetailPage() {
   const [params, setParams] = useSearchParams();
   const { user } = useSession();
   const watch = useWatchlist();
-  const [dialog, setDialog] = useState<'buy' | 'bid' | null>(null);
   const size = s ? resolveSize(s, params.get('size')) : 'M';
-  const bookQuery = useOrderBook(s?.id, size);
-  const book = bookQuery.data ?? { bids: [], asks: [] };
   const stats = useShirtStats(s?.id).data;
-  const askSellers = [...new Set(book.asks.map((a) => a.user_id).filter((x): x is string => !!x))];
-  const sellers = useQuery({ queryKey: ['sellerCards', askSellers.join(',')], enabled: askSellers.length > 0, queryFn: () => db.loadSellerCards(askSellers), staleTime: 60_000 }).data ?? {};
   const { t, label } = usePrefs();
   const exemplars = useExemplars().list;
   usePageMeta(s ? t('detail.metaTitle', { name: s.name }) : null, s ? t('detail.metaDesc', { name: s.name, brand: s.brand }) : undefined);
@@ -44,7 +37,6 @@ export default function DetailPage() {
 
   if (!s) return <Navigate to="/library/catalog" replace />;
 
-  const liveAsk = book.asks.find((a) => a.user_id !== user?.id);
   return (
     <Page style={{ paddingTop: 24 }}>
       <nav aria-label={t('detail.breadcrumb')} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: 'var(--muted)', marginBottom: 22, flexWrap: 'wrap' }}>
@@ -67,39 +59,21 @@ export default function DetailPage() {
           s={s}
           size={size}
           setSize={(z) => setParams((p) => (p.set('size', z), p), { replace: true })}
-          book={book}
-          myUserId={user?.id}
           stats={stats}
           watched={watch.has(s.id)}
           toggleWatch={() => watch.toggle(s.id)}
-          openBuy={() => setDialog('buy')}
-          openBid={() => setDialog('bid')}
-          sellers={sellers}
-          bookError={bookQuery.isError}
-          retryBook={() => bookQuery.refetch()}
           inCollections={s ? counts(exemplars, s.id) : { total: 0, buyable: 0 }}
         />
       </div>
 
       <ValuationCard s={s} />
       <PriceHistory key={s.id} s={s} />
-      <InfoCards s={s} stats={stats} watched={watch.has(s.id)} toggleWatch={() => watch.toggle(s.id)} />
+      <InfoCards s={s} stats={stats} watched={watch.has(s.id)} toggleWatch={() => watch.toggle(s.id)} toBuy={counts(exemplars, s.id).buyable} />
 
       <section aria-labelledby="related-title" style={{ marginTop: 'clamp(48px,6vw,80px)' }}>
         <SectionHeader id="related-title" title={t('detail.related')} size="sm" />
         <ShirtGrid shirts={related(s)} />
       </section>
-
-      <BidBuyDialog
-        key={dialog ?? 'closed'}
-        mode={dialog}
-        onClose={() => setDialog(null)}
-        shirt={s}
-        size={size}
-        lowestAsk={liveAsk ? Number(liveAsk.amount) : null}
-        topBid={book.bids[0] ? Number(book.bids[0].amount) : null}
-        marketValue={marketValue(s, size)}
-      />
     </Page>
   );
 }

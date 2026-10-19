@@ -6,6 +6,5 @@ export type Order = Tables<'orders'>;
 export type Dispute = Tables<'disputes'>;
 export type Notification = Tables<'notifications'>;
 export type ApiKeyRow = Pick<Tables<'api_keys'>, 'id' | 'label' | 'key_prefix' | 'created_at' | 'revoked_at' | 'last_used_at'>;
-export type OrderBook = { bids: Bid[]; asks: Ask[] };
 export type OrderRef = Pick<Order, 'id' | 'amount' | 'status'>;
 

@@ -15,10 +15,12 @@ for (const path of PAGES) {
   });
 }
 
-test('the bid dialog is accessible and keeps focus inside', async ({ page }) => {
+test('a dialog is accessible and keeps focus inside', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
-  await page.goto('/shirt/ger-26');
-  const opener = page.getByRole('button', { name: 'Place bid' });
+  // The catalogue's filter sheet (a phone layout) — the same Dialog every dialog uses.
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/library/catalog');
+  const opener = page.getByRole('button', { name: /^Filters/ });
   await opener.click();
   const dialog = page.getByRole('dialog');
   await expect(dialog).toBeVisible();

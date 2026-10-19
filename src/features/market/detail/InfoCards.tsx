@@ -4,7 +4,7 @@ import { usePrefs } from '../../../lib/prefs.tsx';
 import { Button, Card, KeyValueList } from '../../../ui/index.ts';
 import type { ShirtStats } from '../../../utils/db.ts';
 
-export function InfoCards({ s, stats, watched, toggleWatch }: { s: Shirt; stats: ShirtStats | null | undefined; watched: boolean; toggleWatch: () => void }) {
+export function InfoCards({ s, stats, watched, toggleWatch, toBuy = 0 }: { s: Shirt; stats: ShirtStats | null | undefined; watched: boolean; toggleWatch: () => void; toBuy?: number }) {
   const { money, t, label, locale } = usePrefs();
   return (
     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(min(100%,300px),1fr))', gap: 16, marginTop: 16 }}>
@@ -64,9 +64,9 @@ export function InfoCards({ s, stats, watched, toggleWatch }: { s: Shirt; stats:
           </div>
           <div className="tile">
             <div className="mono" style={{ fontSize: 16, fontWeight: 700 }}>
-              {stats ? Number(stats.live_listings) : 0}
+              {toBuy}
             </div>
-            <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 2 }}>{t('ic.liveListings')}</div>
+            <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 2 }}>{t('ic.toBuy')}</div>
           </div>
         </div>
         <p style={{ margin: 0, fontSize: 13.5, lineHeight: 1.55, color: 'var(--text-2)' }}>

@@ -5,9 +5,7 @@ import { sb } from '../supabase.ts';
 import type { RpcReturns } from '../../types/database.ts';
 
 export type SellerProfile = RpcReturns<'seller_profile'>[number];
-export type SellerListing = RpcReturns<'seller_listings'>[number];
 export type SellerReview = RpcReturns<'seller_review_list'>[number];
-export type SellerCard = RpcReturns<'seller_cards'>[number];
 export type CollectorHit = RpcReturns<'search_collectors'>[number];
 export type PublicShirt = RpcReturns<'public_collection'>[number];
 export type CollectorStats = RpcReturns<'collector_profile'>[number];
@@ -22,23 +20,10 @@ export async function loadSellerProfile(handle: string): Promise<SellerProfile |
   return data?.[0] ?? null;
 }
 
-export async function loadSellerListings(handle: string): Promise<SellerListing[]> {
-  const { data, error } = await (await sb()).rpc('seller_listings', { p_handle: handle });
-  if (error) throw error;
-  return data ?? [];
-}
-
 export async function loadSellerReviews(handle: string): Promise<SellerReview[]> {
   const { data, error } = await (await sb()).rpc('seller_review_list', { p_handle: handle });
   if (error) throw error;
   return data ?? [];
-}
-
-export async function loadSellerCards(userIds: string[]): Promise<Record<string, SellerCard>> {
-  if (!userIds.length) return {};
-  const { data, error } = await (await sb()).rpc('seller_cards', { p_user_ids: userIds });
-  if (error) throw error;
-  return Object.fromEntries((data ?? []).map((c) => [c.user_id, c]));
 }
 
 /** Members whose handle contains the query (2+ characters) and who show at least one shirt or listing. */

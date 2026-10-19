@@ -95,8 +95,3 @@ export const COLLECTOR_LEVELS = [
   { key: 'hall', shirts: 200, value: 60000, color: '#1D1D1F' }
 ] as const;
 
-/**
- * Where the feed's cards come from: the kit library for now; once members
- * list enough shirts, 'market' (live listings first, catalogue filling in).
- */
-export const FEED_SOURCE: 'library' | 'market' = 'library';

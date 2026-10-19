@@ -128,7 +128,7 @@ async function preload(path: string, qc: QueryClient): Promise<Seo> {
       const real = (await db.loadFeedEvents().catch(() => [])).map(fromEventRow);
       const events = orderEvents(SHOW_DEMO_EXEMPLARS ? [...real, ...demoEvents()] : real, { models: new Set(), kits: new Set() });
       const kits = await db.loadFeedKits([], []).catch(() => []);
-      return composeFeed({ events, kits, listings: [], catalog: [], liked: [], seen: new Set(), rand: rng('feed-ssr') });
+      return composeFeed({ events, kits, catalog: [], liked: [], seen: new Set(), rand: rng('feed-ssr') });
     });
     return {};
   }

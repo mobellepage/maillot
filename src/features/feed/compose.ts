@@ -2,32 +2,16 @@
 //  - News from collections comes first: a shirt added, put up for sale,
 //    opened to offers, made cheaper or verified (already ordered, wishlist
 //    matches first: exemplars/model.ts orderEvents).
-//  - Live listings come first, sellers taking turns (no run of one shop).
 //  - What the member liked tilts the odds: same club strongly, same league
 //    and same kind of shirt (retro, new, match-worn) a little. Leagues and
 //    kinds picked at sign-up count the same way, so a new member's very
 //    first cards already fit their taste.
 //  - Things already seen sink towards the end.
-//  - Catalogue shirts without a listing fill in (one after every three
-//    listings), so the feed is never empty — or, when kits of the library
-//    are given, those: favourite team first in line, then liked clubs and
-//    leagues.
-import type { ListingPhoto } from '../../types/domain.ts';
+//  - Kits of the library fill in (one after every three news items) —
+//    favourite team first in line, then liked clubs and leagues — or, when
+//    the library can't be reached, catalogue shirts; so the feed is never empty.
 import type { FeedKit } from '../../utils/db/kitLikes.ts';
 import type { FeedEvent } from '../market/exemplars/model.ts';
-
-export interface FeedListing {
-  askId: string;
-  shirtId: string;
-  size: string;
-  amount: number;
-  condition: string | null;
-  edition: string | null;
-  player: string | null;
-  photos: ListingPhoto[];
-  handle: string | null;
-  dealer: boolean;
-}
 
 export interface CatalogEntry {
   id: string;
@@ -37,7 +21,6 @@ export interface CatalogEntry {
 }
 
 export type FeedItem =
-  | { kind: 'listing'; key: string; shirtId: string; listing: FeedListing }
   | { kind: 'catalog'; key: string; shirtId: string }
   | { kind: 'kit'; key: string; kit: FeedKit }
   | { kind: 'exemplar'; key: string; event: FeedEvent };
@@ -45,7 +28,6 @@ export type FeedItem =
 export const keyOf = (item: Pick<FeedItem, 'key'>) => item.key;
 
 interface Input {
-  listings: FeedListing[];
   catalog: CatalogEntry[];
   /** Shirt ids on the member's watchlist (likes). */
   liked: string[];
@@ -62,7 +44,7 @@ interface Input {
   rand?: () => number;
 }
 
-export function composeFeed({ listings, catalog, liked, seen, interests, kits = [], likedKits = [], events = [], rand = Math.random }: Input): FeedItem[] {
+export function composeFeed({ catalog, liked, seen, interests, kits = [], likedKits = [], events = [], rand = Math.random }: Input): FeedItem[] {
   const byId = new Map(catalog.map((c) => [c.id, c]));
   const likedEntries = liked.map((id) => byId.get(id)).filter((c): c is CatalogEntry => !!c);
   const clubs = new Set(likedEntries.map((c) => c.club));
@@ -86,18 +68,9 @@ export function composeFeed({ listings, catalog, liked, seen, interests, kits = 
       .sort((a, b) => a.k - b.k)
       .map((r) => r.x);
 
-  // Listings: shuffle within each seller, then let sellers take turns.
-  const items: FeedItem[] = listings.map((l) => ({ kind: 'listing', key: 'a:' + l.askId, shirtId: l.shirtId, listing: l }));
-  const groups = new Map<string, FeedItem[]>();
-  for (const it of race(items, (i) => (i.kind === 'listing' ? weight(i.shirtId, i.key) : 1))) {
-    const seller = it.kind === 'listing' ? (it.listing.handle ?? '?') : '?';
-    groups.set(seller, [...(groups.get(seller) ?? []), it]);
-  }
-  const queues = [...groups.values()];
   const listed: FeedItem[] = events.map((event): FeedItem => ({ kind: 'exemplar', key: event.key, event }));
-  while (queues.some((q) => q.length)) for (const q of queues) if (q.length) listed.push(q.shift()!);
 
-  // Library kits when given, else catalogue shirts that have no listing in the feed.
+  // Library kits when given, else catalogue shirts.
   const kitWeight = (k: FeedKit, key: string) => {
     let w = 1;
     if (k.club_id === interests?.club) w += 3;
@@ -105,14 +78,13 @@ export function composeFeed({ listings, catalog, liked, seen, interests, kits = 
     if (leagues.has(k.league)) w += 1;
     return seen.has(key) ? w * 0.25 : w;
   };
-  const withListing = new Set(listings.map((l) => l.shirtId));
   const fillers: FeedItem[] = kits.length
     ? race(
         kits.map((k): FeedItem => ({ kind: 'kit', key: 'k:' + k.id, kit: k })),
         (i) => (i.kind === 'kit' ? kitWeight(i.kit, i.key) : 1)
       )
     : race(
-        catalog.filter((c) => !withListing.has(c.id)).map((c): FeedItem => ({ kind: 'catalog', key: 'c:' + c.id, shirtId: c.id })),
+        catalog.map((c): FeedItem => ({ kind: 'catalog', key: 'c:' + c.id, shirtId: c.id })),
         (i) => (i.kind === 'catalog' ? weight(i.shirtId, i.key) : 1)
       );
 
