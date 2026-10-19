@@ -6,6 +6,7 @@ import { Section } from './parts.tsx';
 import { inputStyle } from './styles.ts';
 import { chosenVisibility, type Wizard } from './useAddShirtForm.ts';
 import { useSession } from '../../../lib/session.tsx';
+import { PUBLIC_VALUE_HINT } from '../../../config/rules.ts';
 
 export function FinishStep({ w, valuation, onSave, saving }: { w: Wizard; valuation: Valuation; onSave: () => void; saving: boolean }) {
   const { money, t, label } = usePrefs();
@@ -41,6 +42,12 @@ export function FinishStep({ w, valuation, onSave, saving }: { w: Wizard; valuat
           ))}
         </div>
         {profile?.collectionPrivate && visibility !== 'private' && <p style={{ fontSize: 12.5, color: 'var(--muted)', margin: '8px 0 0' }}>{t('as.vis.collectionPrivate')}</p>}
+        {/* A valuable shirt in public: a gentle reminder that private is one tap away. */}
+        {!profile?.collectionPrivate && visibility !== 'private' && !valuation.blocked && (valuation.mid ?? 0) >= PUBLIC_VALUE_HINT && (
+          <Notice tone="info" style={{ marginTop: 10 }}>
+            {t('as.vis.valuableHint')}
+          </Notice>
+        )}
         {visibility === 'forsale' && (
           <input aria-label={t('as.f.price')} inputMode="numeric" value={f.salePrice} onChange={(e) => set({ salePrice: e.target.value.replace(/[^0-9]/g, '') })} placeholder={valuation.blocked ? t('as.f.price') : t('as.f.pricePh', { mid: valuation.mid })} style={{ ...inputStyle, marginTop: 10 }} />
         )}

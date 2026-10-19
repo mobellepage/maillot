@@ -968,6 +968,16 @@ export type Database = {
           kit_image: string | null;
         }[];
       };
+      feed_events: {
+        Args: { p_limit?: number };
+        Returns: (Database['public']['Functions']['market_exemplars']['Returns'][number] & {
+          event_id: number;
+          event_kind: 'added' | 'forsale' | 'offers' | 'price_drop' | 'verified';
+          event_at: string;
+          old_price: number | null;
+          new_price: number | null;
+        })[];
+      };
       market_exemplars: {
         Args: { p_limit?: number };
         Returns: {

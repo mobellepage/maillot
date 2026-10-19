@@ -23,6 +23,9 @@ export const VERSIONS = [
  */
 export const SHOW_DEMO_EXEMPLARS = true;
 
+/** From this value (CHF), adding a public shirt reminds the collector it can be made private. */
+export const PUBLIC_VALUE_HINT = 1000;
+
 /** Below this many real shirts to buy, the marketplace says it's just getting started. */
 export const MARKET_FEW_OFFERS = 12;
 

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { BY } from '../data.ts';
-import { counts, demoExemplars, estimate, filterExemplars, fromRow, isBuyable, NO_FILTERS, sortExemplars, versionKey } from '../features/market/exemplars/model.ts';
+import { counts, demoEvents, demoExemplars, estimate, filterExemplars, fromEventRow, fromRow, isBuyable, NO_FILTERS, orderEvents, sortExemplars, versionKey } from '../features/market/exemplars/model.ts';
 
 const row = (over = {}) => ({
   id: 'c1', handle: 'anna', avatar: null, dealer: false, catalog_id: 'juv-9697', kit_id: null, kit_image: null,
@@ -54,5 +54,31 @@ describe('marketplace exemplars', () => {
     const kaka = demo.find((e) => e.print === 'Kaká 22');
     expect(kaka).toMatchObject({ catalogId: 'acm-0607', version: 'matchWorn', status: 'public' });
     expect(demoExemplars()).toEqual(demo); // the same every time (no flicker, same on the server)
+  });
+});
+
+describe('collection news in the feed', () => {
+  let next = 0;
+  const ev = (id, owner, at, catalog_id = 'juv-9697', kind = 'added') => fromEventRow({ ...row({ id, handle: owner, catalog_id }), event_id: ++next, event_kind: kind, event_at: at, old_price: null, new_price: null });
+
+  it('wishlist matches first, then the newest, owners taking turns', () => {
+    const list = [ev('a1', 'anna', '2026-10-10'), ev('a2', 'anna', '2026-10-12'), ev('b1', 'ben', '2026-10-11'), ev('w1', 'cleo', '2026-09-01', 'fra-98')];
+    const order = orderEvents(list, { models: new Set(['fra-98']), kits: new Set() }).map((e) => e.exemplar.id);
+    expect(order[0]).toBe('w1');
+    expect(order.slice(1)).toEqual(['a2', 'b1', 'a1']);
+  });
+
+  it('news already seen sinks to the end of its group', () => {
+    const list = [ev('a1', 'anna', '2026-10-10'), ev('a2', 'anna', '2026-10-12')];
+    const seen = new Set([list[1].key]);
+    expect(orderEvents(list, { models: new Set(), kits: new Set() }, seen).map((e) => e.exemplar.id)).toEqual(['a1', 'a2']);
+  });
+
+  it('demo shirts bring demo news: each was added, some put up for sale or made cheaper', () => {
+    const events = demoEvents();
+    expect(events.filter((e) => e.kind === 'added')).toHaveLength(demoExemplars().length);
+    expect(events.every((e) => e.exemplar.demo)).toBe(true);
+    const drop = events.find((e) => e.kind === 'price_drop');
+    if (drop) expect(drop.oldPrice).toBeGreaterThan(drop.newPrice);
   });
 });

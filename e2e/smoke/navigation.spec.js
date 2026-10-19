@@ -253,3 +253,10 @@ test('a model page counts its shirts in collections and leads to them', async ({
   await expect(page).toHaveURL(/\/market\?shirt=acm-0607&status=all$/);
   await expect(page.getByText('Kaká 22')).toBeVisible();
 });
+
+test('the feed starts with news from collections, marked demo until launch', async ({ page }) => {
+  await page.goto('/feed');
+  const card = page.locator('[aria-roledescription="shirt card"]');
+  await expect(card).toContainText(/added a shirt|put it up for sale|open to offers|lowered the price/, { timeout: 10000 });
+  await expect(card).toContainText('DEMO');
+});

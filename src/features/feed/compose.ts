@@ -1,4 +1,7 @@
 // What the feed shows, in which order. Pure, so it is unit-tested.
+//  - News from collections comes first: a shirt added, put up for sale,
+//    opened to offers, made cheaper or verified (already ordered, wishlist
+//    matches first: exemplars/model.ts orderEvents).
 //  - Live listings come first, sellers taking turns (no run of one shop).
 //  - What the member liked tilts the odds: same club strongly, same league
 //    and same kind of shirt (retro, new, match-worn) a little. Leagues and
@@ -11,6 +14,7 @@
 //    leagues.
 import type { ListingPhoto } from '../../types/domain.ts';
 import type { FeedKit } from '../../utils/db/kitLikes.ts';
+import type { FeedEvent } from '../market/exemplars/model.ts';
 
 export interface FeedListing {
   askId: string;
@@ -35,7 +39,8 @@ export interface CatalogEntry {
 export type FeedItem =
   | { kind: 'listing'; key: string; shirtId: string; listing: FeedListing }
   | { kind: 'catalog'; key: string; shirtId: string }
-  | { kind: 'kit'; key: string; kit: FeedKit };
+  | { kind: 'kit'; key: string; kit: FeedKit }
+  | { kind: 'exemplar'; key: string; event: FeedEvent };
 
 export const keyOf = (item: Pick<FeedItem, 'key'>) => item.key;
 
@@ -52,10 +57,12 @@ interface Input {
   kits?: FeedKit[];
   /** Library kits liked before. */
   likedKits?: FeedKit[];
+  /** News from collections, in the order to show (wishlist matches first). */
+  events?: FeedEvent[];
   rand?: () => number;
 }
 
-export function composeFeed({ listings, catalog, liked, seen, interests, kits = [], likedKits = [], rand = Math.random }: Input): FeedItem[] {
+export function composeFeed({ listings, catalog, liked, seen, interests, kits = [], likedKits = [], events = [], rand = Math.random }: Input): FeedItem[] {
   const byId = new Map(catalog.map((c) => [c.id, c]));
   const likedEntries = liked.map((id) => byId.get(id)).filter((c): c is CatalogEntry => !!c);
   const clubs = new Set(likedEntries.map((c) => c.club));
@@ -87,7 +94,7 @@ export function composeFeed({ listings, catalog, liked, seen, interests, kits = 
     groups.set(seller, [...(groups.get(seller) ?? []), it]);
   }
   const queues = [...groups.values()];
-  const listed: FeedItem[] = [];
+  const listed: FeedItem[] = events.map((event): FeedItem => ({ kind: 'exemplar', key: event.key, event }));
   while (queues.some((q) => q.length)) for (const q of queues) if (q.length) listed.push(q.shift()!);
 
   // Library kits when given, else catalogue shirts that have no listing in the feed.

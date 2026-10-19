@@ -58,6 +58,15 @@ export async function loadMarketExemplars(): Promise<MarketExemplarRow[]> {
   return data ?? [];
 }
 
+export type FeedEventRow = RpcReturns<'feed_events'>[number];
+
+/** What happened lately to shirts in collections (added, for sale, open to offers, cheaper, verified). */
+export async function loadFeedEvents(): Promise<FeedEventRow[]> {
+  const { data, error } = await (await sb()).rpc('feed_events', { p_limit: 200 });
+  if (error) throw error;
+  return data ?? [];
+}
+
 export async function loadPublicCollection(handle: string): Promise<PublicShirt[]> {
   const { data, error } = await (await sb()).rpc('public_collection', { p_handle: handle });
   if (error) throw error;

@@ -1,9 +1,9 @@
-// /feed — shirts as a stack of cards, one at a time: swipe right to like
-// (it goes on your wishlist), left to pass. The ✕ / ♥ buttons and the
-// arrow keys do the same; "Back" undoes the last decision. For now the
-// cards are kits of the library (FEED_SOURCE); with the market on, live
-// listings from different sellers come first and catalogue shirts fill in
-// (order: features/feed/compose.ts).
+// /feed — shirts as a stack of cards, one at a time: swipe right to like,
+// left to pass. The ✕ / ♥ buttons and the arrow keys do the same; "Back"
+// undoes the last decision. News from collections comes first — a shirt
+// added, put up for sale, opened to offers, made cheaper, verified; those
+// matching the wishlist before the rest — then kits of the library
+// (FEED_SOURCE) fill in (order: features/feed/compose.ts).
 import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent, type RefObject } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
@@ -21,7 +21,11 @@ import { marketValue } from '../catalog/model.ts';
 import { DealerBadge } from '../collectors/DealerBadge.tsx';
 import { useWatchlist } from '../watchlist/useWatchlist.ts';
 import { useKitLikes } from '../watchlist/useKitLikes.ts';
-import { FEED_SOURCE } from '../../config/rules.ts';
+import { FEED_SOURCE, SHOW_DEMO_EXEMPLARS } from '../../config/rules.ts';
+import { demoEvents, estimate, fromEventRow, orderEvents, type FeedEvent } from '../market/exemplars/model.ts';
+import { OfferButton } from '../collectors/OfferButton.tsx';
+import { InquiryButton } from '../collectors/InquiryButton.tsx';
+import { isCutoutPath } from '../vault/addshirt/studio.ts';
 import { variantLabel } from '../library/model.ts';
 import { composeFeed, type FeedItem } from './compose.ts';
 
@@ -48,8 +52,68 @@ function useFeedHeight(ref: RefObject<HTMLElement | null>) {
   return h;
 }
 
+const exemplarHref = (ev: FeedEvent) => (ev.exemplar.demo ? (ev.exemplar.catalogId ? '/shirt/' + ev.exemplar.catalogId : '/market') : '/u/' + ev.exemplar.owner + '/' + encodeURIComponent(ev.exemplar.id));
 const href = (item: FeedItem) =>
-  item.kind === 'kit' ? '/library/' + item.kit.club_id + '#season-' + item.kit.season : '/shirt/' + item.shirtId + (item.kind === 'listing' ? '?size=' + encodeURIComponent(item.listing.size) : '');
+  item.kind === 'kit' ? '/library/' + item.kit.club_id + '#season-' + item.kit.season : item.kind === 'exemplar' ? exemplarHref(item.event) : '/shirt/' + item.shirtId + (item.kind === 'listing' ? '?size=' + encodeURIComponent(item.listing.size) : '');
+
+/** Buttons on a card must not start a swipe. */
+const stop = { onPointerDown: (e: ReactPointerEvent) => e.stopPropagation(), onPointerUp: (e: ReactPointerEvent) => e.stopPropagation() };
+
+/** News from a collection: the owner's photo, what happened, the shirt and what you can do. */
+function ExemplarFace({ event, photoUrl, watched, toggleWatch }: { event: FeedEvent; photoUrl: string | undefined; watched: boolean; toggleWatch: () => void }) {
+  const { t, money } = usePrefs();
+  const e = event.exemplar;
+  const s = e.catalogId ? BY[e.catalogId] : undefined;
+  const est = estimate(e);
+  const what =
+    event.kind === 'price_drop' && event.oldPrice !== null && event.newPrice !== null
+      ? t('fe.price_drop', { handle: e.owner, old: money(event.oldPrice), price: money(event.newPrice) })
+      : t('fe.' + event.kind, { handle: e.owner });
+  const cutout = isCutoutPath(e.photo?.path);
+  return (
+    <>
+      <div style={{ position: 'absolute', inset: 0, display: 'grid', placeItems: 'center', background: photoUrl && !cutout ? '#0A0C0B' : s ? `radial-gradient(circle at 50% 36%,${alpha(s.glow, 0.3)},rgba(0,0,0,0) 60%),var(--feed-card, #0A0C0B)` : 'var(--kit-tile)' }}>
+        {photoUrl ? (
+          <img src={photoUrl} alt="" draggable={false} style={cutout ? { width: '74%', maxHeight: '62%', objectFit: 'contain', marginBottom: '28%' } : { width: '100%', height: '100%', objectFit: 'cover' }} />
+        ) : e.kitImage ? (
+          <img src={e.kitImage} alt="" draggable={false} style={{ width: 'min(78%, 270px)', maxHeight: '60%', objectFit: 'contain', marginBottom: '30%' }} />
+        ) : s ? (
+          <div style={{ width: '82%', aspectRatio: '1/1', marginBottom: '30%', display: 'grid', placeItems: 'center' }}>
+            <ShirtGraphic hero pat={s.pat} trim={s.trim} crest={s.crest} photo={s.photo} style={{ width: '72%' }} />
+          </div>
+        ) : null}
+        {e.demo && (
+          <span className="badge" title={t('mx.demoTitle')} style={{ position: 'absolute', top: 16, left: 16 }}>
+            DEMO
+          </span>
+        )}
+      </div>
+      <div className="feed-caption" style={{ position: 'absolute', left: 0, right: 0, bottom: 0, padding: '70px 20px 18px', color: '#F2F4F1', background: 'linear-gradient(180deg,rgba(10,12,11,0) 0%,rgba(10,12,11,0.95) 34%)' }}>
+        <div style={{ fontSize: 12.5, color: '#C9D0CB' }}>{what}</div>
+        <h2 style={{ margin: '6px 0 0', fontSize: 21, fontWeight: 700, lineHeight: 1.2, color: '#F2F4F1' }}>{e.name || t('coll.untitled')}</h2>
+        <div style={{ fontSize: 13, color: '#C9D0CB', marginTop: 5 }}>
+          {[t('mx.version.' + (e.version ?? 'replica')), e.size && t('coll.size', { size: e.size }), e.grade !== null && t('mx.grade', { n: e.grade }), e.print].filter(Boolean).join(' · ')}
+        </div>
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginTop: 8, flexWrap: 'wrap' }}>
+          <span style={{ fontSize: 12, fontWeight: 700, color: e.status === 'public' ? '#C9D0CB' : '#4BFF8B' }}>{e.status === 'public' ? t('mx.piece') : t('mx.status.' + e.status)}</span>
+          <span className="mono" style={{ fontSize: 20, fontWeight: 700 }}>
+            {e.status === 'forsale' && e.price !== null ? money(e.price) : est.value !== null ? money(est.value) : ''}
+          </span>
+          <span style={{ fontSize: 11.5, color: '#A8B0AA' }}>{e.status === 'forsale' && e.price !== null ? t('mx.price') : est.afterExpert ? t('mx.afterExpert') : est.value !== null ? t('mx.estimate') : ''}</span>
+        </div>
+        <div {...stop} style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 4 }}>
+          {s && (
+            <button type="button" className="btn btn--secondary btn--sm" aria-pressed={watched} onClick={toggleWatch} style={{ marginTop: 10 }}>
+              {watched ? t('ic.watching2') : t('ic.watch')}
+            </button>
+          )}
+          {!e.demo && e.catalogId && e.size && (e.status === 'forsale' || e.status === 'offers') && <OfferButton itemId={e.id} name={e.name} owner={e.owner} suggested={e.status === 'forsale' && e.price !== null ? e.price : est.value ?? undefined} />}
+          {!e.demo && e.status === 'public' && e.canAsk && <InquiryButton itemId={e.id} name={e.name} owner={e.owner} />}
+        </div>
+      </div>
+    </>
+  );
+}
 
 /** A kit of the library: its picture on the kit tile, club, season and kind. */
 function KitFace({ kit }: { kit: Extract<FeedItem, { kind: 'kit' }>['kit'] }) {
@@ -79,7 +143,12 @@ function KitFace({ kit }: { kit: Extract<FeedItem, { kind: 'kit' }>['kit'] }) {
 /** One card's face: picture and what you need to decide. */
 function CardFace({ item, photoUrl }: { item: FeedItem; photoUrl: string | undefined }) {
   const { t, money, label } = usePrefs();
+  const watch = useWatchlist();
   if (item.kind === 'kit') return <KitFace kit={item.kit} />;
+  if (item.kind === 'exemplar') {
+    const id = item.event.exemplar.catalogId;
+    return <ExemplarFace event={item.event} photoUrl={photoUrl} watched={!!id && watch.has(id)} toggleWatch={() => id && watch.toggle(id)} />;
+  }
   const s = BY[item.shirtId]!;
   const l = item.kind === 'listing' ? item.listing : null;
   return (
@@ -143,7 +212,11 @@ export default function FeedPage() {
         ? // Without the library (offline, throttled) the catalogue fills in.
           await db.loadFeedKits([...new Set([...(fav ? [fav] : []), ...kitLikes.kits.map((k) => k.club_id)])].slice(0, 20), [...new Set([...(profile?.interests.leagues ?? []), ...kitLikes.kits.map((k) => k.league)])].slice(0, 10)).catch(() => [])
         : [];
+      // News from collections (real ones, and demo ones until launch), wishlist matches first.
+      const real = (await db.loadFeedEvents().catch(() => [])).map(fromEventRow);
+      const events = orderEvents(SHOW_DEMO_EXEMPLARS ? [...real, ...demoEvents()] : real, { models: new Set(watch.ids), kits: new Set(kitLikes.kits.map((k) => k.id)) }, new Set(loadJSON<string[]>(SEEN_KEY, [])));
       return composeFeed({
+        events,
         listings: library ? [] : await db.loadFeedListings().catch(() => []),
         kits,
         likedKits: kitLikes.kits,
@@ -156,8 +229,8 @@ export default function FeedPage() {
     staleTime: Infinity,
     gcTime: 60 * 1000
   });
-  const items = (feed.data ?? []).filter((i) => i.kind === 'kit' || BY[i.shirtId]);
-  const titleOf = (i: FeedItem) => (i.kind === 'kit' ? `${i.kit.club_name} ${i.kit.season} · ${t('lib.kind.' + i.kit.kind)}` : BY[i.shirtId]!.name);
+  const items = (feed.data ?? []).filter((i) => i.kind === 'kit' || i.kind === 'exemplar' || BY[i.shirtId]);
+  const titleOf = (i: FeedItem) => (i.kind === 'kit' ? `${i.kit.club_name} ${i.kit.season} · ${t('lib.kind.' + i.kit.kind)}` : i.kind === 'exemplar' ? i.event.exemplar.name : BY[i.shirtId]!.name);
   const [index, setIndex] = useState(0);
   const [history, setHistory] = useState<{ item: FeedItem; liked: boolean }[]>([]);
   const [pulse, setPulse] = useState(0);
@@ -187,6 +260,7 @@ export default function FeedPage() {
     if (nopeStamp.current) nopeStamp.current.style.opacity = String(Math.max(0, Math.min(1, -x / THRESHOLD)));
   };
   const fronts = items.map((i): Photo | undefined => {
+    if (i.kind === 'exemplar') return i.event.exemplar.photo;
     if (i.kind !== 'listing') return undefined;
     const p = i.listing.photos.find((x) => x.kind === 'front') ?? i.listing.photos[0];
     return p && { path: p.path };
@@ -196,6 +270,13 @@ export default function FeedPage() {
   const current = items[index];
   const next = items[index + 1];
 
+  // Liking a collector's shirt likes that shirt (signed in); a demo shirt, or a visitor, watches the model instead.
+  const likeExemplar = (ev: FeedEvent, like: boolean) => {
+    const e = ev.exemplar;
+    if (!e.demo && user) void db.setItemLike(e.id, like).catch(() => {});
+    else if (e.catalogId && watch.has(e.catalogId) !== like) watch.toggle(e.catalogId, { quiet: true });
+  };
+
   const decide = (like: boolean) => {
     const item = items[index];
     if (!item || leaving.current) return;
@@ -203,7 +284,8 @@ export default function FeedPage() {
     if (like) {
       if (item.kind === 'kit') {
         if (!kitLikes.has(item.kit.id)) kitLikes.toggle(item.kit);
-      } else if (!watch.has(item.shirtId)) watch.toggle(item.shirtId, { quiet: true });
+      } else if (item.kind === 'exemplar') likeExemplar(item.event, true);
+      else if (!watch.has(item.shirtId)) watch.toggle(item.shirtId, { quiet: true });
       setPulse((p) => p + 1);
     }
     const seen = new Set(loadJSON<string[]>(SEEN_KEY, []));
@@ -225,7 +307,8 @@ export default function FeedPage() {
     if (last.liked) {
       if (last.item.kind === 'kit') {
         if (kitLikes.has(last.item.kit.id)) kitLikes.toggle(last.item.kit);
-      } else if (watch.has(last.item.shirtId)) watch.toggle(last.item.shirtId, { quiet: true });
+      } else if (last.item.kind === 'exemplar') likeExemplar(last.item.event, false);
+      else if (watch.has(last.item.shirtId)) watch.toggle(last.item.shirtId, { quiet: true });
     }
     setHistory((h) => h.slice(0, -1));
     setIndex((i) => Math.max(0, i - 1));
@@ -313,7 +396,7 @@ export default function FeedPage() {
           <>
             <div style={{ position: 'relative', width: 'min(100%, 420px)', height: cardH }}>
               {next && (
-                <div key={next.key} ref={behind} aria-hidden="true" style={{ position: 'absolute', inset: 0, borderRadius: 26, overflow: 'hidden', transform: 'scale(0.94)', boxShadow: '0 20px 50px rgba(0,0,0,0.25)' }}>
+                <div key={next.key} ref={behind} aria-hidden="true" inert style={{ position: 'absolute', inset: 0, borderRadius: 26, overflow: 'hidden', transform: 'scale(0.94)', boxShadow: '0 20px 50px rgba(0,0,0,0.25)' }}>
                   <CardFace item={next} photoUrl={url(fronts[index + 1])} />
                 </div>
               )}

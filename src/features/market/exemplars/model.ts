@@ -7,7 +7,7 @@ import { BY, SHIRTS, TODAY, type Shirt } from '../../../data.ts';
 import { rng } from '../../../marketData.ts';
 import { VERSIONS } from '../../../config/rules.ts';
 import type { Photo } from '../../../types/domain.ts';
-import type { MarketExemplarRow } from '../../../utils/db.ts';
+import type { FeedEventRow, MarketExemplarRow } from '../../../utils/db.ts';
 import { marketValue } from '../../catalog/model.ts';
 
 export type VersionKey = (typeof VERSIONS)[number]['key'];
@@ -21,6 +21,7 @@ export interface Exemplar {
   avatar: string | null;
   dealer: boolean;
   catalogId: string | null;
+  kitId: string | null;
   kitImage: string | null;
   photo: Photo | undefined;
   name: string;
@@ -81,6 +82,7 @@ export function fromRow(r: MarketExemplarRow): Exemplar {
     avatar: r.avatar,
     dealer: r.dealer,
     catalogId: r.catalog_id,
+    kitId: r.kit_id,
     kitImage: r.kit_image,
     photo: r.photo_path ? { path: r.photo_path, ...(r.thumb_path ? { thumbPath: r.thumb_path } : {}) } : undefined,
     name: cat?.name ?? fallback,
@@ -129,6 +131,7 @@ export function demoExemplars(shirts: Shirt[] = SHIRTS, now = TODAY): Exemplar[]
         avatar: null,
         dealer: false,
         catalogId: s.id,
+        kitId: null,
         kitImage: null,
         photo: undefined,
         name: s.name,
@@ -158,6 +161,7 @@ export function demoExemplars(shirts: Shirt[] = SHIRTS, now = TODAY): Exemplar[]
       avatar: null,
       dealer: false,
       catalogId: 'acm-0607',
+      kitId: null,
       kitImage: null,
       photo: undefined,
       name: BY['acm-0607'].name,
@@ -244,4 +248,57 @@ export function sortExemplars(list: Exemplar[]): Exemplar[] {
 export function counts(list: Exemplar[], shirt?: string): { total: number; buyable: number } {
   const xs = shirt ? list.filter((e) => e.catalogId === shirt) : list;
   return { total: xs.length, buyable: xs.filter(isBuyable).length };
+}
+
+// ---------------------------------------------------------------------------
+// Feed events: what happened to a shirt in a collection.
+// ---------------------------------------------------------------------------
+export type EventKind = 'added' | 'forsale' | 'offers' | 'price_drop' | 'verified';
+
+export interface FeedEvent {
+  key: string;
+  kind: EventKind;
+  at: string;
+  oldPrice: number | null;
+  newPrice: number | null;
+  exemplar: Exemplar;
+}
+
+export function fromEventRow(r: FeedEventRow): FeedEvent {
+  return { key: 'e:' + r.event_id, kind: r.event_kind, at: r.event_at, oldPrice: r.old_price === null ? null : Number(r.old_price), newPrice: r.new_price === null ? null : Number(r.new_price), exemplar: fromRow(r) };
+}
+
+/** Demo news for the demo shirts: each was added; some were then put up for sale, opened to offers or made cheaper. */
+export function demoEvents(list: Exemplar[] = demoExemplars()): FeedEvent[] {
+  const out: FeedEvent[] = [];
+  for (const e of list) {
+    const r = rng('demo-ev-' + e.id);
+    out.push({ key: 'd:' + e.id + ':added', kind: 'added', at: e.addedAt, oldPrice: null, newPrice: null, exemplar: e });
+    const later = (days: number) => new Date(new Date(e.addedAt).getTime() + days * DAY).toISOString();
+    if (e.status !== 'public' && r() < 0.6) out.push({ key: 'd:' + e.id + ':' + e.status, kind: e.status, at: later(1 + Math.round(r() * 5)), oldPrice: null, newPrice: e.price, exemplar: e });
+    if (e.status === 'forsale' && e.price !== null && r() < 0.35) {
+      const old = Math.round((e.price * 1.12) / 5) * 5;
+      out.push({ key: 'd:' + e.id + ':drop', kind: 'price_drop', at: later(7), oldPrice: old, newPrice: e.price, exemplar: e });
+    }
+  }
+  return out;
+}
+
+/**
+ * The order of the feed's collection news: shirts matching the member's
+ * wishlist (watched models, liked library kits) first, then the rest; newest
+ * first within each, owners taking turns so one big collection doesn't fill
+ * the screen.
+ */
+export function orderEvents(events: FeedEvent[], wished: { models: ReadonlySet<string>; kits: ReadonlySet<string> }, seen: ReadonlySet<string> = new Set()): FeedEvent[] {
+  const match = (ev: FeedEvent) => (!!ev.exemplar.catalogId && wished.models.has(ev.exemplar.catalogId)) || (!!ev.exemplar.kitId && wished.kits.has(ev.exemplar.kitId));
+  const turns = (xs: FeedEvent[]) => {
+    const byOwner = new Map<string, FeedEvent[]>();
+    for (const ev of [...xs].sort((a, b) => Number(seen.has(a.key)) - Number(seen.has(b.key)) || b.at.localeCompare(a.at))) byOwner.set(ev.exemplar.owner, [...(byOwner.get(ev.exemplar.owner) ?? []), ev]);
+    const queues = [...byOwner.values()];
+    const out: FeedEvent[] = [];
+    while (queues.some((q) => q.length)) for (const q of queues) if (q.length) out.push(q.shift()!);
+    return out;
+  };
+  return [...turns(events.filter(match)), ...turns(events.filter((ev) => !match(ev)))];
 }
