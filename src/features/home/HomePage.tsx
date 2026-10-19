@@ -18,7 +18,6 @@ import { Hero } from './Hero.tsx';
 import { Categories } from './Categories.tsx';
 import { Eras } from '../discover/Eras.tsx';
 import { Legends } from '../discover/Legends.tsx';
-import { DesignTeaser } from '../designer/DesignTeaser.tsx';
 import { PopularToday } from '../discover/PopularToday.tsx';
 import { KitNews } from '../discover/KitNews.tsx';
 import { DiscoverCollectors } from './DiscoverCollectors.tsx';
@@ -67,7 +66,6 @@ function VisitorPage() {
       <PopularToday />
       <Eras />
       <Legends />
-      <DesignTeaser />
       <Trending shirts={trending} grid />
       <DiscoverCollectors />
       <HomePlay />
@@ -100,7 +98,6 @@ function MemberPage() {
       <DiscoverCollectors />
       <Eras />
       <Legends />
-      <DesignTeaser />
       <HomePlay />
       {wanted.length > 0 && (
         <section aria-labelledby="wish-title" style={section}>

@@ -16,6 +16,7 @@ import { loadJSON, saveJSON } from '../../utils/storage.ts';
 import type { DailyKit } from '../../utils/db.ts';
 import { useDailyKit } from './useDailyKit.ts';
 import { ClubPicker } from './ClubPicker.tsx';
+import { HaveItActions } from './HaveItActions.tsx';
 import * as db from '../../utils/db.ts';
 import { Button, Card, ErrorState, Page, Skeleton } from '../../ui/index.ts';
 import { MAX_TRIES, RESULTS_KEY, ZOOMS, focusFor, judge, puzzleNumber, shareText, solved, stats, type DayResult, type Guess, type Verdict } from './game.ts';
@@ -197,6 +198,7 @@ export default function DailyPage() {
               <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 14 }}>
                 <Button onClick={share}>{t('daily.share')}</Button>
               </div>
+              <HaveItActions answer={answer} />
               <p style={{ margin: '12px 0 0', fontSize: 12.5, color: 'var(--muted)' }}>{t('daily.next')}</p>
             </Card>
           )}

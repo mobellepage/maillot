@@ -212,6 +212,9 @@ test('the kit library says so when it can’t load', async ({ page }) => {
 test('the side rail leads to the puzzle and the library', async ({ page }) => {
   await page.goto('/market');
   const rail = page.getByRole('navigation', { name: 'Daily features' });
+  // The kit designer stepped back: in the footer, not on the rail.
+  await expect(rail.getByRole('link', { name: 'Kit designer' })).toHaveCount(0);
+  await expect(page.locator('footer').getByRole('link', { name: 'Kit designer' })).toHaveAttribute('href', '/designer');
   await rail.getByRole('link', { name: 'Kit library' }).click();
   await expect(page).toHaveURL(/\/library$/);
   await rail.getByRole('link', { name: 'Daily shirt puzzle' }).click();
