@@ -240,7 +240,9 @@ export default function FeedPage() {
     if (nopeStamp.current) nopeStamp.current.style.opacity = String(Math.max(0, Math.min(1, -x / THRESHOLD)));
   };
   const fronts = items.map((i): Photo | undefined => (i.kind === 'exemplar' ? i.event.exemplar.photo : undefined));
-  const url = usePhotoUrls(fronts.slice(index, index + 3));
+  // Signed a dozen at a time (not anew on every swipe), so the next cards are ready.
+  const block = Math.floor(index / 8) * 8;
+  const url = usePhotoUrls(fronts.slice(block, block + 12));
 
   const current = items[index];
   const next = items[index + 1];

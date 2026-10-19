@@ -406,8 +406,8 @@ export const en = {
   'sell.inDemand': 'In demand right now',
   'sell.labelScan': 'PHOTO RECOGNITION',
   'sell.reading': 'Recognising your shirt…',
-  'sell.snap': 'Or snap the shirt',
-  'sell.snapBody': 'The inner label works best. We recognise the shirt and suggest its condition and edition.',
+  'sell.snap': 'Snap the shirt',
+  'sell.snapBody': 'The front works best. We recognise the shirt and suggest its condition and edition – or search for it below.',
   'sell.labelMatch': 'Recognised',
   'sell.scanUnsure': 'We couldn’t pin that shirt down — search for it instead.',
   'sell.scanNoText': 'That doesn’t look like a football shirt — try the inner label, or search instead.',
@@ -2047,6 +2047,14 @@ export const en = {
   'ins.lockedTitle': 'The insurance list is part of Premium',
   'ins.lockedBody': 'Every shirt with photo, condition and market value in one PDF – for your household insurance.',
   'vault.insurance': 'Insurance list',
+  'auth.perk.collection': 'Your whole collection, unlimited and free',
+  'auth.perk.trial': '{days} days of Premium: scan without limit, no card',
+  'auth.perk.free': 'After that {n} AI scans a month for free',
+  'auth.consent.before': 'By creating an account you accept the',
+  'auth.consent.terms': 'terms',
+  'auth.consent.and': 'and the',
+  'auth.consent.privacy': 'privacy policy',
+  'auth.consent.after': '.',
   // @@end
 };
 

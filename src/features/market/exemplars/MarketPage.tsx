@@ -108,7 +108,7 @@ export default function MarketPage() {
             </Notice>
           )}
           {results.length ? (
-            <ul aria-label={t('browse.results')} className="grid-cards" style={{ listStyle: 'none', padding: 0, margin: 0, gridTemplateColumns: 'repeat(auto-fill,minmax(min(100%,210px),1fr))' }}>
+            <ul aria-label={t('browse.results')} className="grid-cards" style={{ listStyle: 'none', padding: 0, margin: 0, gridTemplateColumns: 'repeat(auto-fill,minmax(min(46%,210px),1fr))' }}>
               {results.map((e) => (
                 <ExemplarCard key={e.id} e={e} src={url(e.photo)} />
               ))}

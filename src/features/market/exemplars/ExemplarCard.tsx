@@ -46,13 +46,14 @@ export function ExemplarCard({ e, src }: { e: Exemplar; src: string | undefined 
         ) : (
           <ShirtGraphic pat={cat?.pat ?? HEX.placeholderPat} trim={cat?.trim ?? HEX.muted} crest={cat?.crest ?? HEX.muted} photo={cat?.photo} style={{ width: '64%' }} />
         )}
-        <div style={{ position: 'absolute', top: 10, left: 10, right: 10, display: 'flex', gap: 6, flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-          <span style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+        {/* Badges wrap on the left; the heart keeps its corner, also in a narrow (two-column) card. */}
+        <div style={{ position: 'absolute', top: 10, left: 10, right: 10, display: 'flex', gap: 6, justifyContent: 'space-between', alignItems: 'flex-start' }}>
+          <span style={{ display: 'flex', gap: 6, flexWrap: 'wrap', minWidth: 0 }}>
             {e.demo && <Badge title={t('mx.demoTitle')}>DEMO</Badge>}
             <Badge tone={VERIFY_TONE[e.verification]}>{t('mx.verify.' + e.verification)}</Badge>
           </span>
           {cat && (
-            <span style={{ position: 'relative', zIndex: 2 }}>
+            <span style={{ position: 'relative', zIndex: 2, flex: 'none' }}>
               <WatchButton watched={watch.has(cat.id)} onToggle={() => watch.toggle(cat.id)} name={cat.name} size={34} />
             </span>
           )}

@@ -5,7 +5,8 @@ import { usePageMeta } from '../../lib/meta.ts';
 import { usePrefs } from '../../lib/prefs.tsx';
 import { useSession } from '../../lib/session.tsx';
 import { useToast } from '../../lib/toast.tsx';
-import { Button, Notice, TextField } from '../../ui/index.ts';
+import { Button, CheckIcon, Notice, TextField } from '../../ui/index.ts';
+import { PLAN } from '../../config/plans.ts';
 import { SocialSignIn } from './SocialSignIn.tsx';
 
 export default function SignInPage() {
@@ -98,6 +99,19 @@ export default function SignInPage() {
         {title}
       </h1>
       {resetting && <p style={{ color: 'var(--text-2)', lineHeight: 1.55, marginTop: 12 }}>{t('auth.resetBody')}</p>}
+      {mode === 'signup' && (
+        // What a new account gets: worth saying before the form.
+        <ul style={{ listStyle: 'none', padding: 0, margin: '16px 0 0', display: 'grid', gap: 6, fontSize: 14.5 }}>
+          {[t('auth.perk.collection'), t('auth.perk.trial', { days: PLAN.trialDays }), t('auth.perk.free', { n: PLAN.freeScans })].map((x) => (
+            <li key={x} style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
+              <span style={{ color: 'var(--accent)', marginTop: 2, flex: 'none' }}>
+                <CheckIcon size={15} />
+              </span>
+              {x}
+            </li>
+          ))}
+        </ul>
+      )}
       {state.notice && (
         <Notice tone="info" style={{ marginTop: 16 }}>
           {t(state.notice)}
@@ -139,6 +153,12 @@ export default function SignInPage() {
         <Button type="submit" block busy={busy} busyLabel={t('auth.pleaseWait')} style={{ marginTop: 8 }}>
           {resetting ? t('auth.sendLink') : signingIn ? t('auth.signin') : t('auth.createAccount')}
         </Button>
+        {mode === 'signup' && (
+          <p style={{ margin: 0, fontSize: 12.5, color: 'var(--muted)', lineHeight: 1.5, textAlign: 'center' }}>
+            {t('auth.consent.before')} <Link to="/legal/terms">{t('auth.consent.terms')}</Link> {t('auth.consent.and')} <Link to="/legal/privacy">{t('auth.consent.privacy')}</Link>
+            {t('auth.consent.after')}
+          </p>
+        )}
         <button type="button" className="link-btn link-btn--muted" onClick={() => switchTo(signingIn ? 'signup' : 'signin')} style={{ fontSize: 13 }}>
           {resetting ? t('auth.backToSignIn') : signingIn ? t('auth.noAccount') : t('auth.haveAccount')}
         </button>

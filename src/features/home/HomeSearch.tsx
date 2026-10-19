@@ -202,11 +202,10 @@ function KitRowBody({ k, kindLabel, variant, cta }: { k: db.KitHit; kindLabel: s
         )}
       </span>
       <span style={{ flex: 1, minWidth: 0 }}>
-        <span style={name}>
-          {k.club_name} {k.season}
-        </span>
-        <span style={sub}>
-          {kindLabel}
+        {/* The season leads the second line, so long club names never cut it off on a phone. */}
+        <span style={name}>{k.club_name}</span>
+        <span style={{ ...sub, color: 'var(--text-2)' }}>
+          <strong style={{ fontWeight: 650, color: 'var(--text)' }}>{k.season}</strong> · {kindLabel}
           {variant && ' · ' + variant}
         </span>
       </span>
