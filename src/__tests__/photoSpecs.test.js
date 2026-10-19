@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { buildPhotoSpecs, missingSalePhotos, needsSalePhotos, salePhotoKeys } from '../addShirtData.js';
+import { buildPhotoSpecs, missingListingPhotos, missingSalePhotos, salePhotoKeys } from '../addShirtData.js';
 
 const base = { flock: { source: 'Keine' }, patches: [], signature: { signed: false }, tagsAttached: false, condition: { defects: [] }, version: 'Fan-Replica' };
 const required = (f) => buildPhotoSpecs(f).filter((s) => s.required).map((s) => s.key);
@@ -29,7 +29,8 @@ describe('sale photos', () => {
     expect(missingSalePhotos({ front: {}, back: {}, crest: {}, product_code: {} }, 'none')).toEqual([]);
     expect(missingSalePhotos(undefined, 'Spielername & Nummer')).toEqual(['front', 'back', 'crest', 'flock_closeup', 'product_code']);
   });
-  it('only a set price needs them; offers work with front and back', () => {
-    expect(['private', 'public', 'offers', 'forsale'].filter(needsSalePhotos)).toEqual(['forsale']);
+  it('listing for sale needs the front and the back; the rest is for the pre-check', () => {
+    expect(missingListingPhotos({ front: {} })).toEqual(['back']);
+    expect(missingListingPhotos({ front: {}, back: {} })).toEqual([]);
   });
 });

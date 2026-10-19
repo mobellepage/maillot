@@ -1,6 +1,6 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useCatalog } from '../catalog/useCatalog.ts';
-import { useNavigate } from 'react-router';
+import { useNavigate, useSearchParams } from 'react-router';
 import { estimateValue } from '../../addShirtData.js';
 import { BY } from '../../data.ts';
 import { usePageMeta } from '../../lib/meta.ts';
@@ -35,6 +35,13 @@ export default function AddShirtPage() {
   const { user, profile } = useSession();
   const w = useAddShirtForm(user?.id);
   const { f, set } = w;
+  // From /sell, "list it completely": the goal is already chosen.
+  const [params] = useSearchParams();
+  const preGoal = params.get('goal') === 'sale' ? 'sale' : null;
+  useEffect(() => {
+    if (preGoal && !f.goal && f.step === 0) set({ goal: preGoal });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [preGoal]);
   const { add } = useCollectionActions();
   const { items, loading: itemsLoading } = useCollection();
   // Free plan full: offer Premium instead of a wizard that can't be saved (only while Premium is on).

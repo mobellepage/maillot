@@ -9,7 +9,7 @@ import type { Photo } from '../../types/domain.ts';
 const asPhoto = (p: CompressedPhoto | undefined): Photo | undefined =>
   p && { dataUrl: p.dataUrl, lowRes: p.lowRes, blurry: p.blurry, tooDark: p.tooDark, tooBright: p.tooBright };
 
-/** Photos of the actual shirt: buyers see exactly what they get. The front is required. */
+/** Photos of the actual shirt: buyers see exactly what they get. Front and back are required. */
 function ListingPhotos({ f }: { f: SellFlow }) {
   const { t } = usePrefs();
   const warn = Object.values(f.photos).some((p) => p.lowRes || p.blurry || p.tooDark || p.tooBright);
@@ -21,9 +21,9 @@ function ListingPhotos({ f }: { f: SellFlow }) {
         {LISTING_PHOTOS.map(([kind, key]) => (
           <div key={kind} style={{ display: 'grid', justifyItems: 'center', gap: 6 }}>
             <PhotoInput size={96} data={asPhoto(f.photos[kind])} busy={f.photoBusy === kind} onFile={(file) => f.addPhoto(kind, file)} label={t(key)} />
-            <span style={{ fontSize: 12, color: kind === 'front' && !f.photos.front ? 'var(--text)' : 'var(--text-2)', fontWeight: kind === 'front' ? 600 : 400 }}>
+            <span style={{ fontSize: 12, color: (kind === 'front' || kind === 'back') && !f.photos[kind] ? 'var(--text)' : 'var(--text-2)', fontWeight: kind === 'front' || kind === 'back' ? 600 : 400 }}>
               {t(key)}
-              {kind === 'front' && ' *'}
+              {(kind === 'front' || kind === 'back') && ' *'}
             </span>
           </div>
         ))}

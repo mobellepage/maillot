@@ -44,6 +44,10 @@ test('"Sell yours" opens the sell flow with the shirt preselected', async ({ pag
   await page.goto('/shirt/rma-2627');
   await page.getByRole('link', { name: 'Sell yours' }).click();
   await expect(page).toHaveURL(/\/sell\?shirt=rma-2627&size=M$/);
+  // Two ways: quick (front and back, "self-reported") or complete (guided photos and pre-check).
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('List in a few minutes');
+  await expect(page.getByRole('link', { name: /List it completely/ })).toHaveAttribute('href', '/vault/add?goal=sale');
+  await page.getByRole('button', { name: /List it quickly/ }).click();
   await expect(page.getByText('Real Madrid 2026/27 Home').first()).toBeVisible();
   await expect(page.getByText('Condition', { exact: true })).toBeVisible();
 

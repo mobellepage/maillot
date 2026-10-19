@@ -1,4 +1,4 @@
-import { VISIBILITIES, missingSalePhotos, needsSalePhotos } from '../../../addShirtData.js';
+import { VISIBILITIES, missingSalePhotos } from '../../../addShirtData.js';
 import { usePrefs } from '../../../lib/prefs.tsx';
 import type { Valuation, Visibility } from '../../../types/domain.ts';
 import { Button, Card, Notice } from '../../../ui/index.ts';
@@ -13,8 +13,8 @@ export function FinishStep({ w, valuation, onSave, saving }: { w: Wizard; valuat
   const { f, set } = w;
   const { profile } = useSession();
   const visibility = chosenVisibility(f, profile?.collectionPrivate);
-  // Selling needs more than the collection's front and back.
-  const missing = needsSalePhotos(visibility) ? (missingSalePhotos(f.photos, f.flock.source) as string[]) : [];
+  // Listed with front and back only: "self-reported"; the pre-check photos make it "pre-checked".
+  const missing = visibility === 'forsale' || visibility === 'offers' ? (missingSalePhotos(f.photos, f.flock.source) as string[]) : [];
   return (
     <div>
       <Section title={t('as.f.estimate')}>
@@ -53,7 +53,7 @@ export function FinishStep({ w, valuation, onSave, saving }: { w: Wizard; valuat
         )}
         {missing.length > 0 && (
           <Notice tone="info" style={{ marginTop: 12 }}>
-            {t('as.f.salePhotos', { list: missing.map((k) => t('as.photo.' + k)).join(', ') })}{' '}
+            {t('as.f.precheckPhotos', { list: missing.map((k) => t('as.photo.' + k)).join(', ') })}{' '}
             <button type="button" className="link-btn" onClick={() => {
                 set({ goal: 'sale', step: 3 });
                 window.scrollTo(0, 0);
@@ -63,7 +63,7 @@ export function FinishStep({ w, valuation, onSave, saving }: { w: Wizard; valuat
           </Notice>
         )}
       </Section>
-      <Button block size="lg" busy={saving} busyLabel={t('as.f.saving')} disabled={missing.length > 0} onClick={onSave}>
+      <Button block size="lg" busy={saving} busyLabel={t('as.f.saving')} disabled={visibility === 'forsale' && !(Number(f.salePrice) > 0)} onClick={onSave}>
         {t('as.f.save')}
       </Button>
     </div>

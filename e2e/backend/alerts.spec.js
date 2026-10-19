@@ -31,17 +31,20 @@ test('an alert fires when the wanted shirt is listed', async ({ browser }) => {
 
   const seller = await browser.newPage();
   await signIn(seller, 'seller@maillot.test');
+  // A quick listing: the shirt goes into the seller's collection, for sale.
   await seller.goto('/sell?shirt=mun-0708&size=S');
+  await seller.getByRole('button', { name: /List it quickly/ }).click();
   await seller.getByLabel('Front', { exact: true }).setInputFiles('e2e/fixtures/shirt-front.jpg');
+  await seller.getByLabel('Back', { exact: true }).setInputFiles('e2e/fixtures/shirt-back.jpg');
   await seller.getByRole('button', { name: /Continue/ }).click();
   await seller.locator('input[inputmode="numeric"]').fill('650');
   await seller.getByRole('button', { name: /Review listing/ }).click();
   await seller.getByRole('button', { name: 'Publish listing' }).click();
-  await expect(seller.getByRole('heading', { name: 'You’re live' })).toBeVisible();
+  await expect(seller.getByRole('heading', { name: 'Your shirt is for sale' })).toBeVisible();
   await seller.close();
 
   await buyer.reload();
   await buyer.getByRole('button', { name: /notifications/i }).first().click();
-  await expect(buyer.getByText('A shirt you want is listed')).toBeVisible({ timeout: 10000 });
+  await expect(buyer.getByText('A shirt you want is in a collection').first()).toBeVisible({ timeout: 10000 });
   await buyer.close();
 });

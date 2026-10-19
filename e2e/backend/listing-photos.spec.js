@@ -1,11 +1,12 @@
 import { expect, test } from '@playwright/test';
 
-// Listings carry photos of the actual shirt; buyers (even signed out) see
-// them under the price. Runs against the local stack seeded by
-// supabase/seed.sql; France 1998 size L has no other listing there.
+// A quick listing is a shirt in the seller's collection, for sale, with
+// photos of the actual shirt: front and back are required. It shows on the
+// marketplace at once, "self-reported". Runs against the local stack seeded
+// by supabase/seed.sql.
 const PASSWORD = 'maillot-dev-pw';
 
-test('a listing needs a front photo, and buyers see its photos', async ({ page, browser }) => {
+test('a quick listing needs front and back, and lands on the marketplace', async ({ page, browser }) => {
   await page.goto('/signin');
   await page.getByLabel(/email/i).fill('seller@maillot.test');
   await page.getByLabel(/password|passwort/i).fill(PASSWORD);
@@ -13,21 +14,24 @@ test('a listing needs a front photo, and buyers see its photos', async ({ page, 
   await expect(page).toHaveURL(/\/vault$/, { timeout: 10000 });
 
   await page.goto('/sell?shirt=fra-98&size=L');
+  await page.getByRole('button', { name: /List it quickly/ }).click();
   const next = page.getByRole('button', { name: /Continue/ });
   await expect(next).toBeDisabled();
   await page.getByLabel('Front', { exact: true }).setInputFiles('e2e/fixtures/shirt-front.jpg');
+  await expect(next).toBeDisabled();
   await page.getByLabel('Back', { exact: true }).setInputFiles('e2e/fixtures/shirt-back.jpg');
   await expect(next).toBeEnabled();
   await next.click();
   await page.locator('input[inputmode="numeric"]').fill('990');
   await page.getByRole('button', { name: /Review listing/ }).click();
   await page.getByRole('button', { name: 'Publish listing' }).click();
-  await expect(page.getByRole('heading', { name: 'You’re live' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Your shirt is for sale' })).toBeVisible();
 
   const visitor = await browser.newPage();
-  await visitor.goto('/shirt/fra-98?size=L');
-  await expect(visitor.getByText('Photos of this shirt')).toBeVisible({ timeout: 10000 });
-  await visitor.getByRole('button', { name: 'Open photo: Back' }).click();
-  await expect(visitor.getByRole('dialog').getByRole('img', { name: 'Back' })).toBeVisible();
+  await visitor.goto('/market?shirt=fra-98');
+  const card = visitor.getByRole('listitem').filter({ hasText: '@zurich_kits' }).filter({ hasText: /CHF\s?990/ });
+  await expect(card).toBeVisible({ timeout: 10000 });
+  await expect(card).toContainText('Self-reported');
+  await expect(card).toContainText('For sale');
   await visitor.close();
 });

@@ -82,3 +82,12 @@ describe('collection news in the feed', () => {
     if (drop) expect(drop.oldPrice).toBeGreaterThan(drop.newPrice);
   });
 });
+
+describe('quick listing', () => {
+  it('turns a typed print into the collection’s print', async () => {
+    const { flockFrom } = await import('../features/sell/useSellFlow.ts');
+    expect(flockFrom('Del Piero 10')).toEqual({ source: 'Spielername & Nummer', name: 'Del Piero', number: '10', type: 'Unbekannt' });
+    expect(flockFrom('MOZAR')).toEqual({ source: 'Spielername & Nummer', name: 'MOZAR', number: '', type: 'Unbekannt' });
+    expect(flockFrom('  ')).toEqual({ source: 'Keine' });
+  });
+});

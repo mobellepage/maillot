@@ -11,6 +11,7 @@ import { AddOwnPhotos } from './AddOwnPhotos.tsx';
 import { Badge, Button, Card, ErrorState, KeyValueList, Notice, Page, ShirtGraphic, Skeleton, HEX, useConfirm } from '../../ui/index.ts';
 import { badgeFor, itemLook, itemName, valueOf } from './model.ts';
 import { VisibilityEditor } from './VisibilityEditor.tsx';
+import { PrecheckPrompt } from './PrecheckPrompt.tsx';
 import { usePhotoUrls } from '../../lib/usePhotoUrls.ts';
 import { currentValuation, displayStatus, useCollection, useCollectionActions } from './useCollection.ts';
 import { isCutout } from './addshirt/studio.ts';
@@ -155,6 +156,7 @@ export default function VaultItemPage() {
             />
           </Card>
           <VisibilityEditor item={c} />
+          <PrecheckPrompt item={c} />
         </div>
       </div>
       <div style={{ marginTop: 40, paddingTop: 20, borderTop: '1px solid var(--line)' }}>

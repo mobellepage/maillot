@@ -1,12 +1,11 @@
 // Who sees one shirt of your collection — changeable at any time from the
 // shirt's page. A private collection (profile setting) hides every shirt
-// regardless; then this says so. Selling at a price needs more photos than
-// the collection (offers don't); until they are there, they can be added
-// right here.
+// regardless; then this says so. Selling at a price needs the front and the
+// back; a shirt without them can get them right here.
 import { useState } from 'react';
 import { Link } from 'react-router';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { VISIBILITIES, missingSalePhotos, needsSalePhotos } from '../../addShirtData.js';
+import { VISIBILITIES, missingListingPhotos } from '../../addShirtData.js';
 import { PhotoSlots } from './AddOwnPhotos.tsx';
 import { usePrefs } from '../../lib/prefs.tsx';
 import { useSession } from '../../lib/session.tsx';
@@ -40,15 +39,15 @@ export function VisibilityEditor({ item }: { item: CustomItem }) {
     }
   });
   const options = VISIBILITIES as { key: Visibility; label: string; desc: string }[];
-  const missing = missingSalePhotos(item.photos, item.flock?.source) as string[];
+  const missing = missingListingPhotos(item.photos) as string[];
   // A shirt already on sale stays there; only a new sale waits for the photos.
-  const blocked = missing.length > 0 && !needsSalePhotos(item.visibility);
+  const blocked = missing.length > 0 && item.visibility !== 'forsale';
   return (
     <Card tight style={{ marginTop: 16 }}>
       <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 10 }}>{t('vault.f.visibility')}</div>
       <div style={{ display: 'grid', gap: 8 }}>
         {options.map((o) => (
-          <button key={o.key} type="button" className="option-btn" aria-pressed={item.visibility === o.key} disabled={save.isPending || (blocked && needsSalePhotos(o.key))} onClick={() => o.key !== item.visibility && (o.key !== 'forsale' || price) && save.mutate(o.key)} style={{ padding: 12 }}>
+          <button key={o.key} type="button" className="option-btn" aria-pressed={item.visibility === o.key} disabled={save.isPending || (blocked && o.key === 'forsale')} onClick={() => o.key !== item.visibility && (o.key !== 'forsale' || price) && save.mutate(o.key)} style={{ padding: 12 }}>
             <span style={{ display: 'block', fontWeight: 600, fontSize: 14 }}>{t(o.label)}</span>
             <span style={{ display: 'block', fontSize: 12, color: 'var(--muted)' }}>{t(o.desc)}</span>
           </button>

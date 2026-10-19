@@ -46,9 +46,10 @@ export const VISIBILITIES = ['private', 'public', 'offers', 'forsale'].map((key)
 
 // Builds the list of photos for this specific shirt, in the order they should
 // be captured. Front and back are all a shirt in the collection needs
-// (COLLECTION_PHOTOS) — enough to receive offers, too. Putting it up for sale
-// at a price also needs the badge, the inner label and, if the shirt has one, the print
-// (salePhotoKeys); those are marked `forSale`. The rest are optional extras
+// (COLLECTION_PHOTOS) — enough for offers and for a quick listing, too
+// ("self-reported"). The badge, the inner label and, if the shirt has one,
+// the print (salePhotoKeys) are what the pre-check needs for "pre-checked";
+// those are marked `forSale` (required on the full sale path). The rest are optional extras
 // that help the pre-check and depend on what the collector entered in the
 // details step. `t` translates the labels (the label is stored with the
 // photo, so it's in the language the collector used).
@@ -56,7 +57,7 @@ export const COLLECTION_PHOTOS = ['front', 'back'];
 const SALE_PHOTOS = ['front', 'back', 'crest', 'flock_closeup', 'product_code'];
 const hasPrint = (source) => !!source && source !== 'Keine' && source !== 'none';
 
-/** The photos a shirt needs before it can be offered for sale. */
+/** The photos the pre-check needs for the badge "pre-checked". */
 export function salePhotoKeys(flockSource) {
   return SALE_PHOTOS.filter((k) => k !== 'flock_closeup' || hasPrint(flockSource));
 }
@@ -66,8 +67,10 @@ export function missingSalePhotos(photos, flockSource) {
   return salePhotoKeys(flockSource).filter((k) => !photos?.[k]);
 }
 
-/** Only a shirt put up for sale at a price needs those photos; offers work with front and back. */
-export const needsSalePhotos = (v) => v === 'forsale';
+/** Listing it for sale needs the front and the back (the database checks it: custom_items_sale_photos). */
+export function missingListingPhotos(photos) {
+  return COLLECTION_PHOTOS.filter((k) => !photos?.[k]);
+}
 
 export function buildPhotoSpecs(f, t = (k) => k) {
   const sale = salePhotoKeys(f.flock.source);

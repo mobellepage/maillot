@@ -15,7 +15,7 @@ export { precheck } from './precheck.ts';
 const DRAFT_KEY = 'kv_add_shirt_draft_v1';
 
 /** Required photo slot → what the AI pre-check calls it. */
-const CHECK_PHOTOS: [string, CheckKind][] = [
+export const CHECK_PHOTOS: [string, CheckKind][] = [
   ['front', 'front'],
   ['back', 'back'],
   ['crest', 'crest'],

@@ -3,7 +3,6 @@ import { usePrefs } from '../../lib/prefs.tsx';
 import { useSession } from '../../lib/session.tsx';
 import { Card, KeyValueList, TextField } from '../../ui/index.ts';
 import { marketValue } from '../catalog/model.ts';
-import { useOrderBook } from '../market/queries.ts';
 import { SelectedShirt } from './ShirtPickRow.tsx';
 import type { SellFlow } from './useSellFlow.ts';
 
@@ -12,29 +11,21 @@ export function PriceStep({ f }: { f: SellFlow }) {
   const { money, t } = usePrefs();
   // Dealers on pilot terms pay their own rate; everyone else the standard one.
   const rate = useSession().profile?.commissionRate ?? SELLER_FEE_RATE;
-  const book = useOrderBook(s.id, f.size).data ?? { bids: [], asks: [] };
+  // A listing is a shirt in the collection, for sale: compared with the market value (a very good replica, this size).
   const market = marketValue(s, f.size);
-  const lowAsk = book.asks[0] ? Number(book.asks[0].amount) : null;
-  const topBid = book.bids[0] ? Number(book.bids[0].amount) : null;
   const sa = f.amount;
   const marks: [string, number, string][] = [[t('common.marketValue'), market, 'var(--warn)']];
-  if (topBid) marks.push([t('sell.highestBid'), topBid, 'var(--text-2)']);
-  if (lowAsk) marks.push([t('sell.lowestAsk'), lowAsk, 'var(--accent)']);
   const vals = marks.map((m) => m[1]).concat(sa > 0 ? [sa] : []);
   const lo = Math.min(...vals) * 0.85;
   const hi = Math.max(...vals) * 1.15;
   const pos = (n: number) => Math.max(0, Math.min(100, ((n - lo) / (hi - lo || 1)) * 100)) + '%';
-  const quick: [string, number][] = [...(topBid ? [[t('sell.sellTop'), topBid] as [string, number]] : []), ...(lowAsk ? [[t('sell.undercut'), Math.max(1, lowAsk - 1)] as [string, number]] : []), [t('common.marketValue'), market]];
-  const hint =
-    sa <= 0
-      ? t('sell.hint.enter')
-      : topBid && sa <= topBid
-        ? t('sell.hint.instant', { price: money(sa) })
-        : lowAsk && sa < lowAsk
-          ? t('sell.hint.lowest')
-          : lowAsk
-            ? t('sell.hint.above', { diff: money(sa - lowAsk) })
-            : t('sell.hint.only', { size: f.size });
+  const quick: [string, number][] = [
+    [t('sell.quickBelow'), Math.max(1, Math.round((market * 0.95) / 5) * 5)],
+    [t('common.marketValue'), market],
+    [t('sell.quickAbove'), Math.round((market * 1.1) / 5) * 5]
+  ];
+  const diff = sa > 0 ? Math.round(((sa - market) / market) * 100) : 0;
+  const hint = sa <= 0 ? t('sell.hint.enter') : diff === 0 ? t('sell.hint.atMarket') : diff < 0 ? t('sell.hint.belowMarket', { pct: -diff }) : t('sell.hint.aboveMarket', { pct: diff });
   const payout = sellerPayout(sa, rate);
 
   return (

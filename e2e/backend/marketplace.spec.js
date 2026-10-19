@@ -53,20 +53,14 @@ test('buyer: Buy now matches the live ask, then cancels before paying', async ({
   await expect(page.getByRole('button', { name: /^Buy now/ })).toContainText('139');
 });
 
-test('seller: listing at the top bid sells instantly', async ({ page }) => {
+test('seller: the full path is the guided capture with the sale goal', async ({ page }) => {
   await signIn(page, 'seller@maillot.test');
   await page.goto('/sell');
-  await page.getByLabel('Search the catalogue').fill('france 1998');
-  await page.getByText('France 1998 Home').first().click();
-  await page.getByRole('button', { name: 'M', exact: true }).click();
-  // A photo of the actual shirt's front is required to continue.
-  await page.getByLabel('Front', { exact: true }).setInputFiles('e2e/fixtures/shirt-front.jpg');
-  await page.getByRole('button', { name: /Continue/ }).click();
-  await seen(page, page.getByText('Sell now to top bid'));
-  await page.getByText('Sell now to top bid').click();
-  await page.getByRole('button', { name: /Review listing/ }).click();
-  await page.getByRole('button', { name: 'Publish listing' }).click();
-  await expect(page.getByRole('heading', { name: 'Sold' })).toBeVisible();
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('List in a few minutes');
+  await page.getByRole('link', { name: /List it completely/ }).click();
+  await expect(page).toHaveURL(/\/vault\/add\?goal=sale$/);
+  // The goal is already chosen: straight to the photos.
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Scan');
 });
 
 test('bid below the ask stays on the book', async ({ page }) => {
