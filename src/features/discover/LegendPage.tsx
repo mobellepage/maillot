@@ -14,8 +14,15 @@ import { Legends } from './Legends.tsx';
 export default function LegendPage() {
   const { t } = usePrefs();
   const legend = LEGEND_BY[useParams().slug ?? ''];
-  usePageMeta(legend ? t('legend.title', { name: legend.name }) : t('home.legends.title'), legend ? t('legend.intro', { name: legend.name }) : undefined);
   const kits = useQuery({ queryKey: ['legendKits', legend?.slug], queryFn: () => db.loadLegendKits(legend!.slug), enabled: !!legend, staleTime: 30 * 60_000 });
+  // "Ronaldo Nazário – every kit from PSV to Corinthians": the first and last club of the career.
+  const clubsInOrder = (kits.data ?? []).filter((k) => k.league !== 'National Teams').map((k) => k.club_name);
+  const from = clubsInOrder[0];
+  const to = clubsInOrder.at(-1);
+  usePageMeta(
+    legend ? (from && to && from !== to ? t('legend.metaTitle', { name: legend.name, from, to }) : t('legend.title', { name: legend.name })) : t('home.legends.title'),
+    legend ? (kits.data?.length ? t('legend.metaDesc', { name: legend.name, n: kits.data.length, teams: new Set(kits.data.map((k) => k.club_id)).size }) : t('legend.intro', { name: legend.name })) : undefined
+  );
   if (!legend) return <Navigate to="/" replace />;
 
   const years: { year: number; kits: KitTile[] }[] = [];

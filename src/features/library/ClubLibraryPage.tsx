@@ -44,7 +44,9 @@ export default function ClubLibraryPage() {
     setAdding(kits.data.find((x) => x.id === askedAdd) ?? null);
   }
   const c = clubs.data?.find((x) => x.id === club);
-  usePageMeta(c ? t('lib.clubMeta', { club: c.name }) : t('lib.meta'));
+  // A description of its own: how many kits, from which season to which.
+  const seasons = (kits.data ?? []).map((k) => k.season).sort();
+  usePageMeta(c ? t('lib.clubMeta', { club: c.name }) : t('lib.meta'), c && seasons.length ? t('lib.clubMetaDesc', { club: c.name, n: seasons.length, from: seasons[0]!, to: seasons.at(-1)! }) : undefined);
 
   if (clubs.data && !c) return <Navigate to="/library" replace />;
   const all = kits.data ?? [];

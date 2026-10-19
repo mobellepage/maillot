@@ -14,6 +14,11 @@ const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string;
 
 let client: Promise<Client> | null = null;
 
+/** Server only (the prerender build): read with another client, e.g. the service role. */
+export function setClient(c: Client): void {
+  client = Promise.resolve(c);
+}
+
 export function sb(): Promise<Client> {
   client ??= import('@supabase/supabase-js').then(({ createClient }) => createClient<Database>(url, anonKey, { auth: { persistSession: true, autoRefreshToken: true } }));
   return client;

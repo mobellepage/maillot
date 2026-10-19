@@ -1,3 +1,4 @@
+import { existsSync, readFileSync } from 'node:fs';
 import { expect, test } from '@playwright/test';
 
 test('home page starts with the search, then trending shirts @mobile', async ({ page }) => {
@@ -270,4 +271,18 @@ test('the feed starts with news from collections, marked demo until launch', asy
   const card = page.locator('[aria-roledescription="shirt card"]');
   await expect(card).toContainText(/added a shirt|put it up for sale|open to offers|lowered the price/, { timeout: 10000 });
   await expect(card).toContainText('DEMO');
+});
+
+test('a shirt page is ready for search engines without JavaScript', async () => {
+  // The prerendered page from the build (the dev server serves the empty shell).
+  const file = 'dist/shirt/fra-98/index.html';
+  test.skip(!existsSync(file), 'needs a build (npm run build)');
+  const html = readFileSync(file, 'utf8');
+  expect(html).toMatch(/<title>France 1998 Home[^<]*<\/title>/);
+  expect(html).toMatch(/<link rel="canonical" href="https?:\/\/[^"]+\/shirt\/fra-98"/);
+  expect(html).toMatch(/<meta property="og:image" content="https?:\/\/[^"]+"/);
+  const ld = [...html.matchAll(/<script type="application\/ld\+json">([^<]*)<\/script>/g)].map((m) => JSON.parse(m[1]));
+  expect(ld.map((x) => x['@type'])).toEqual(['Product', 'BreadcrumbList']);
+  expect(ld[0]).toMatchObject({ name: 'France 1998 Home', brand: { name: 'adidas' } });
+  expect(ld[1].itemListElement.at(-1)).toMatchObject({ name: 'France 1998 Home' });
 });

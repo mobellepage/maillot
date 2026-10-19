@@ -450,6 +450,23 @@ export default function FeedPage() {
           </>
         )}
       </div>
+
+      {/* The cards as a plain list too: for keyboards, screen readers and search engines. */}
+      {items.length > 0 && (
+        <details style={{ padding: '6px 20px 28px' }}>
+          <summary style={{ cursor: 'pointer', fontSize: 13.5, color: 'var(--text-2)' }}>{t('feed.asList', { n: Math.min(items.length, 24) })}</summary>
+          <ul style={{ listStyle: 'none', padding: 0, margin: '10px 0 0', display: 'grid', gap: 6 }}>
+            {items.slice(0, 24).map((i) => (
+              <li key={i.key}>
+                <Link to={href(i)} style={{ fontSize: 14 }}>
+                  {titleOf(i)}
+                </Link>
+                {i.kind === 'exemplar' && <span style={{ fontSize: 12.5, color: 'var(--muted)' }}> · @{i.event.exemplar.owner}{i.event.exemplar.demo ? ' · DEMO' : ''}</span>}
+              </li>
+            ))}
+          </ul>
+        </details>
+      )}
     </main>
   );
 }
