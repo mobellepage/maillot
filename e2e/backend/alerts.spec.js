@@ -37,7 +37,7 @@ test('an alert fires when the wanted shirt is listed', async ({ browser }) => {
   await seller.getByLabel('Front', { exact: true }).setInputFiles('e2e/fixtures/shirt-front.jpg');
   await seller.getByLabel('Back', { exact: true }).setInputFiles('e2e/fixtures/shirt-back.jpg');
   await seller.getByRole('button', { name: /Continue/ }).click();
-  await seller.locator('input[inputmode="numeric"]').fill('650');
+  await seller.locator('input[inputmode="numeric"]').fill('450');
   await seller.getByRole('button', { name: /Review listing/ }).click();
   await seller.getByRole('button', { name: 'Publish listing' }).click();
   await expect(seller.getByRole('heading', { name: 'Your shirt is for sale' })).toBeVisible();

@@ -22,14 +22,18 @@ test('a quick listing needs front and back, and lands on the marketplace', async
   await page.getByLabel('Back', { exact: true }).setInputFiles('e2e/fixtures/shirt-back.jpg');
   await expect(next).toBeEnabled();
   await next.click();
+  // From CHF 500 the quick listing stops: expert authentication needs the complete path.
   await page.locator('input[inputmode="numeric"]').fill('990');
+  await expect(page.getByText(/selling needs expert authentication/)).toBeVisible();
+  await expect(page.getByRole('button', { name: /Review listing/ })).toBeDisabled();
+  await page.locator('input[inputmode="numeric"]').fill('490');
   await page.getByRole('button', { name: /Review listing/ }).click();
   await page.getByRole('button', { name: 'Publish listing' }).click();
   await expect(page.getByRole('heading', { name: 'Your shirt is for sale' })).toBeVisible();
 
   const visitor = await browser.newPage();
   await visitor.goto('/market?shirt=fra-98');
-  const card = visitor.getByRole('listitem').filter({ hasText: '@zurich_kits' }).filter({ hasText: /CHF\s?990/ });
+  const card = visitor.getByRole('listitem').filter({ hasText: '@zurich_kits' }).filter({ hasText: /CHF\s?490/ });
   await expect(card).toBeVisible({ timeout: 10000 });
   await expect(card).toContainText('Self-reported');
   await expect(card).toContainText('For sale');
