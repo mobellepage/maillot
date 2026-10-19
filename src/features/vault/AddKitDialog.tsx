@@ -8,13 +8,11 @@ import { usePrefs } from '../../lib/prefs.tsx';
 import { useSession } from '../../lib/session.tsx';
 import { useToast } from '../../lib/toast.tsx';
 import type { Kit } from '../../utils/db.ts';
-import * as db from '../../utils/db.ts';
 import { Button, Dialog, TextField } from '../../ui/index.ts';
 import { variantLabel } from '../library/model.ts';
 import { Pill, Pills, Section } from './addshirt/parts.tsx';
 import { quickItem } from './quickAdd.ts';
 import { useCollectionActions } from './useCollection.ts';
-import { PREMIUM_ENABLED } from '../../config/plans.ts';
 
 export function AddKitDialog({ kit, clubName, onClose }: { kit: Kit; clubName: string; onClose: () => void }) {
   const { t, label } = usePrefs();
@@ -34,9 +32,6 @@ export function AddKitDialog({ kit, clubName, onClose }: { kit: Kit; clubName: s
         toast(t('qa.saved'));
         onClose();
         navigate('/vault/item/' + item.id);
-      },
-      onError: (e) => {
-        if (db.isPlanLimitError(e) && PREMIUM_ENABLED) navigate('/premium');
       }
     });
 

@@ -36,7 +36,9 @@ Deno.serve(async (req: Request) => {
   const { data: { user } } = await asUser.auth.getUser();
   if (!user) return json({ error: "not_authenticated" }, 401);
   const quota = await asUser.rpc("consume_studio_quota");
-  if (quota.error) return json({ error: quota.error.code === "P0429" ? "rate_limited" : "quota_failed" }, quota.error.code === "P0429" ? 429 : 500);
+  // P0402: the plan's limit (free scans used / premium only) — the app offers premium.
+  const limit = quota.error?.code === "P0402";
+  if (quota.error) return json({ error: limit ? "premium_only" : quota.error.code === "P0429" ? "rate_limited" : "quota_failed" }, limit ? 402 : quota.error.code === "P0429" ? 429 : 500);
 
   const form = new FormData();
   form.append("image_file", new Blob([Uint8Array.from(atob(image), (c) => c.charCodeAt(0))], { type: "image/jpeg" }), "shirt.jpg");

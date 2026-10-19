@@ -642,6 +642,7 @@ export type Database = {
           premium_until: string | null;
           stripe_customer_id: string | null;
           premium_waitlist_at: string | null;
+          trial_until: string | null;
           avatar: string | null;
           collection_private: boolean;
         };
@@ -664,6 +665,7 @@ export type Database = {
           premium_until?: string | null;
           stripe_customer_id?: string | null;
           premium_waitlist_at?: string | null;
+          trial_until?: string | null;
           avatar?: string | null;
           collection_private?: boolean;
         };
@@ -1072,6 +1074,7 @@ export type Database = {
       add_item_comment: { Args: { p_item: string; p_body: string }; Returns: string };
       delete_item_comment: { Args: { p_id: string }; Returns: undefined };
       my_collector_points: { Args: Record<string, never>; Returns: { total: number; purchases: number }[] };
+      my_plan: { Args: Record<string, never>; Returns: { plan: 'free' | 'trial' | 'premium'; trial_until: string | null; premium_until: string | null; scans_used: number; scans_limit: number; scans_reset: string | null }[] };
       latest_news: { Args: { p_limit?: number }; Returns: { id: string; source: string; url: string; title: string; published_on: string; image_path: string | null; excerpt: string | null; club_id: string | null; club_name: string | null; kit_id: string | null; kit_season: string | null; kit_image: string | null }[] };
       news_item: { Args: { p_id: string }; Returns: { id: string; source: string; url: string; title: string; published_on: string; image_path: string | null; excerpt: string | null; club_id: string | null; club_name: string | null; kit_id: string | null; kit_season: string | null; kit_image: string | null }[] };
       popular_kits: { Args: { p_limit?: number }; Returns: { id: string; club_id: string; club_name: string; season: string; kind: string; variant: string; image_path: string | null }[] };

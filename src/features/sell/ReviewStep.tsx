@@ -1,5 +1,5 @@
 import { Link } from 'react-router';
-import { sellerPayout } from '../../fees.ts';
+import { sellerPayout, sellerRateFor } from '../../fees.ts';
 import { usePrefs } from '../../lib/prefs.tsx';
 import { useSession } from '../../lib/session.tsx';
 import { Button, Card, KeyValueList, Notice, ShirtGraphic, alpha } from '../../ui/index.ts';
@@ -40,7 +40,7 @@ export function ReviewStep({ f }: { f: SellFlow }) {
             [t('sell.edition'), label('edition', f.edition)],
             [t('sell.playerPrint'), f.player || t('sell.none')],
             [t('sell.asking'), money(f.amount)],
-            [t('sell.youEarn'), money(sellerPayout(f.amount, profile?.commissionRate ?? undefined).payout)]
+            [t('sell.youEarn'), money(sellerPayout(f.amount, sellerRateFor(profile)).payout)]
           ]}
         />
         <div style={{ flex: 1, minHeight: 16 }} />

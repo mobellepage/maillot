@@ -99,7 +99,7 @@ export function useSellFlow() {
       const r = await db.identifyShirt([{ kind: 'label', dataUrl: photo.dataUrl }], lang);
       if (scanToken.current !== token) return;
       if (!r.ok) {
-        setScan({ status: 'done', img: photo.dataUrl, matchId: null, confidence: 0, message: r.reason === 'off' ? 'sell.scanOff' : r.reason === 'rate_limited' ? 'as.scan.limited' : 'sell.scanFailed' });
+        setScan({ status: 'done', img: photo.dataUrl, matchId: null, confidence: 0, message: r.reason === 'off' ? 'sell.scanOff' : r.reason === 'rate_limited' ? 'as.scan.limited' : r.reason === 'quota' ? 'plan.quotaSell' : 'sell.scanFailed' });
         return;
       }
       const match = confidentMatch(r.result);

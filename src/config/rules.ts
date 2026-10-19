@@ -52,7 +52,7 @@ export const MARKET_FEW_OFFERS = 12;
 /** Offers on collection shirts — public.offer_policy(). */
 export const OFFER_POLICY = { validHours: 48, maxRounds: 3 } as const;
 
-export { FREE_SHIRT_LIMIT, PREMIUM_ENABLED, PREMIUM_PRICE } from './plans.ts';
+export { PLAN, PREMIUM_PRICE } from './plans.ts';
 
 /**
  * Order deadlines — public.order_policy(), enforced by the run_order_lifecycle()

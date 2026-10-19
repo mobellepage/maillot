@@ -1,4 +1,4 @@
-import { EXPERT_AUTH, FEES } from './config/rules.ts';
+import { EXPERT_AUTH, FEES, PLAN } from './config/rules.ts';
 // Monetization model placeholders for Maillot's marketplace flows (Buy / Sell).
 //
 // AUDIT NOTE (Phase 5.13): Maillot's Buy/Sell checkout (see Modal.jsx, Sell.jsx) does not
@@ -25,6 +25,12 @@ export const BUYER_SHIPPING_CHF: number = FEES.buyerShippingChf; // Flat shippin
 export const SELLER_FEE_RATE: number = FEES.sellerRate; // Commission deducted from the seller's payout.
 /** Expert authentication, when a sale needs it (config EXPERT_AUTH): deducted from the seller's payout. */
 export const SELLER_AUTH_FEE_CHF: number = EXPERT_AUTH.feeChf;
+
+type Plan = { commissionRate: number | null; premium: boolean } | null | undefined;
+/** The seller's commission: a dealer's own rate, else 6 % with paid Premium, else the standard (as private.commission_for). */
+export const sellerRateFor = (p: Plan): number => p?.commissionRate ?? (p?.premium ? PLAN.premiumRate : SELLER_FEE_RATE);
+/** The expert authentication fee for this seller (paid Premium gets a discount). */
+export const authFeeFor = (p: Plan): number => SELLER_AUTH_FEE_CHF - (p?.premium ? PLAN.authDiscountChf : 0);
 
 /**
  * @param {number} askPrice - the listed/ask price in CHF

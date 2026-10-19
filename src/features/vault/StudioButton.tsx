@@ -41,7 +41,7 @@ export function StudioButton({ item, frontUrl }: { item: CustomItem; frontUrl: s
       if (r === 'done') {
         qc.invalidateQueries({ queryKey: ['customItems', user?.id] });
         toast(t('vault.studioDone'));
-      } else toast(t(r === 'off' ? 'as.studio.off' : r === 'rate_limited' ? 'as.studio.limited' : 'as.studio.failed'));
+      } else toast(t(r === 'off' ? 'as.studio.off' : r === 'rate_limited' ? 'as.studio.limited' : r === 'premium' ? 'plan.studioPremium' : 'as.studio.failed'));
     },
     onError: () => toast(t('as.studio.failed'))
   });

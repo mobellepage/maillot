@@ -3,7 +3,7 @@
 // judges the visible condition and prefills the rest of the wizard.
 import { BY } from '../../../data.ts';
 import { usePrefs } from '../../../lib/prefs.tsx';
-import { Badge, Button, Card, Notice } from '../../../ui/index.ts';
+import { Badge, Button, ButtonLink, Card, Notice } from '../../../ui/index.ts';
 import { useState } from 'react';
 import { Link } from 'react-router';
 import { GuidedCapture } from './GuidedCapture.tsx';
@@ -14,15 +14,30 @@ import { AI_MATCH_THRESHOLD, libraryPatch, proposedName } from '../../identify/p
 import { variantLabel } from '../../library/model.ts';
 import { usePhotoUrls } from '../../../lib/usePhotoUrls.ts';
 import type { StudioState } from './studio.ts';
+import { daysLeft, usePlan } from '../../premium/usePlan.ts';
 
 type Key = 'front' | 'back';
+
+/** How many AI scans are left: the trial's days, or this month's free scans. */
+function ScanAllowance() {
+  const { t } = usePrefs();
+  const plan = usePlan();
+  if (!plan || plan.plan === 'premium') return null;
+  const left = Math.max(0, plan.scansLimit - plan.scansUsed);
+  return (
+    <p style={{ margin: '6px 0 0', fontSize: 13, color: 'var(--text-2)' }}>
+      {plan.plan === 'trial' ? t('plan.scanTrial', { n: daysLeft(plan.trialUntil) }) : t('plan.scanFree', { n: left, max: plan.scansLimit })}{' '}
+      {plan.plan === 'free' && <Link to="/premium">{t('plan.more')}</Link>}
+    </p>
+  );
+}
 
 function StudioPreview({ w, studio, onStudioOff }: { w: Wizard; studio: StudioState; onStudioOff: (off: boolean) => void }) {
   const { t } = usePrefs();
   const { f } = w;
   const src = usePhotoUrls([f.photos.front_studio])(f.photos.front_studio);
   if (!f.photos.front) return null;
-  const note = { off: 'as.studio.off', limited: 'as.studio.limited', failed: 'as.studio.failed' }[studio as 'off' | 'limited' | 'failed'];
+  const note = { off: 'as.studio.off', limited: 'as.studio.limited', premium: 'plan.studioPremium', failed: 'as.studio.failed' }[studio as 'off' | 'limited' | 'premium' | 'failed'];
   return (
     <Section title={t('as.studio.title')} hint={t('as.studio.body')}>
       <div style={{ display: 'flex', gap: 16, alignItems: 'center', flexWrap: 'wrap' }}>
@@ -44,6 +59,7 @@ function StudioPreview({ w, studio, onStudioOff }: { w: Wizard; studio: StudioSt
           {note && !f.studioOff && (
             <p style={{ fontSize: 13, color: 'var(--muted)', marginTop: 8, lineHeight: 1.45 }}>
               {t(note)}{' '}
+              {studio === 'premium' && <Link to="/premium">{t('plan.more')}</Link>}
               {studio === 'failed' && (
                 <button type="button" className="link-btn" onClick={() => onStudioOff(false)}>
                   {t('as.studio.retry')}
@@ -103,6 +119,7 @@ export function ScanStep({ w, busyKey, onScanFile, valuation, studio, onStudioOf
         <p style={{ margin: '14px 0 0', fontSize: 13.5 }}>
           <Link to="/vault/add/library">{t('qa.entry')} ›</Link>
         </p>
+        <ScanAllowance />
         <div aria-live="polite" style={{ marginTop: 16 }}>
           {f.scan.status === 'idle' && !f.photos.front && !f.photos.back && <p style={{ fontSize: 13.5, color: 'var(--muted)' }}>{t('as.scan.idle')}</p>}
           {f.scan.status === 'idle' && !f.photos.front !== !f.photos.back && <p style={{ fontSize: 13.5, color: 'var(--text-2)' }}>{t(f.photos.front ? 'as.scan.nowBack' : 'as.scan.nowFront')}</p>}
@@ -115,6 +132,20 @@ export function ScanStep({ w, busyKey, onScanFile, valuation, studio, onStudioOf
           {f.scan.status === 'error' && <Notice tone="warn">{t('as.scan.error')}</Notice>}
           {f.scan.status === 'off' && <Notice tone="info">{t('as.scan.off')}</Notice>}
           {f.scan.status === 'limited' && <Notice tone="info">{t('as.scan.limited')}</Notice>}
+          {f.scan.status === 'quota' && (
+            <Notice tone="info">
+              <strong>{t('plan.quotaTitle')}</strong>
+              <p style={{ margin: '4px 0 12px', lineHeight: 1.5 }}>{t('plan.quotaBody')}</p>
+              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                <ButtonLink to="/premium" size="sm">
+                  {t('plan.unlock')}
+                </ButtonLink>
+                <ButtonLink to="/vault/add/library" size="sm" variant="secondary">
+                  {t('qa.entry')}
+                </ButtonLink>
+              </div>
+            </Notice>
+          )}
         </div>
       </Section>
 

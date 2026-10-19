@@ -2,6 +2,7 @@
 // stays out of server state; only the finished item is saved. The draft
 // (minus photos) survives reloads in localStorage.
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { SIZE_GROUPS } from '../../../addShirtData.js';
 import { BY } from '../../../data.ts';
 import { checkAuthenticity, enqueueReview, findReview, identifyShirt, removePhotos, signPhotoUrls, type AuthCheck, type CheckKind, type Identification } from '../../../utils/db.ts';
@@ -24,8 +25,8 @@ export const CHECK_PHOTOS: [string, CheckKind][] = [
 ];
 
 export interface ScanState {
-  /** off: recognition isn't switched on; limited: too many tries this hour. */
-  status: 'idle' | 'scanning' | 'done' | 'error' | 'off' | 'limited';
+  /** off: recognition isn't switched on; limited: too many tries this hour; quota: this month's free scans are used. */
+  status: 'idle' | 'scanning' | 'done' | 'error' | 'off' | 'limited' | 'quota';
   confidence: number;
   matchId: string | null;
   result: Identification | null;
@@ -148,13 +149,14 @@ export function useAddShirtForm(userId: string | undefined) {
   });
   const scanToken = useRef(0);
   const checkToken = useRef(0);
+  const qc = useQueryClient();
   // The latest photos, for a scan started from an older render.
   const photosRef = useRef(f.photos);
   useEffect(() => {
     photosRef.current = f.photos;
   }, [f.photos]);
   /** The AI pre-check is running, or why it couldn't (the local check still ran). */
-  const [check, setCheck] = useState<{ busy: boolean; skipped: 'off' | 'rate_limited' | 'failed' | null }>({ busy: false, skipped: null });
+  const [check, setCheck] = useState<{ busy: boolean; skipped: 'off' | 'rate_limited' | 'quota' | 'failed' | null }>({ busy: false, skipped: null });
   const set = (patch: Partial<AddShirtForm> | ((s: AddShirtForm) => Partial<AddShirtForm>)) => setRaw((s) => ({ ...s, ...(typeof patch === 'function' ? patch(s) : patch) }));
 
   useEffect(() => {
@@ -226,9 +228,11 @@ export function useAddShirtForm(userId: string | undefined) {
           )
         ).filter((x): x is { kind: 'front' | 'back' | 'label'; dataUrl: string } => !!x);
         const r = await identifyShirt(images, lang);
+        // The scan counter (plan chip) moves on.
+        qc.invalidateQueries({ queryKey: ['my-plan'] });
         if (scanToken.current !== token) return;
         if (!r.ok) {
-          set((s) => ({ scan: { ...s.scan, status: r.reason === 'off' ? 'off' : r.reason === 'rate_limited' ? 'limited' : 'error' } }));
+          set((s) => ({ scan: { ...s.scan, status: r.reason === 'off' ? 'off' : r.reason === 'rate_limited' ? 'limited' : r.reason === 'quota' ? 'quota' : 'error' } }));
           return;
         }
         set((s) => {
@@ -259,9 +263,10 @@ export function useAddShirtForm(userId: string | undefined) {
         patches: f.patches
       };
       let ai: AuthCheck | null = null;
-      let skipped: 'off' | 'rate_limited' | 'failed' | null = null;
+      let skipped: 'off' | 'rate_limited' | 'quota' | 'failed' | null = null;
       try {
         const r = await checkAuthenticity(photos, claim, lang);
+        qc.invalidateQueries({ queryKey: ['my-plan'] });
         if (r.ok) ai = r.result;
         else skipped = r.reason;
       } catch {

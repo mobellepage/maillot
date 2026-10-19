@@ -71,7 +71,9 @@ Deno.serve(async (req: Request) => {
   const { data: { user } } = await asUser.auth.getUser();
   if (!user) return json({ error: "not_authenticated" }, 401);
   const quota = await asUser.rpc("consume_identify_quota");
-  if (quota.error) return json({ error: quota.error.code === "P0429" ? "rate_limited" : "quota_failed" }, quota.error.code === "P0429" ? 429 : 500);
+  // P0402: the plan's limit (free scans used / premium only) — the app offers premium.
+  const limit = quota.error?.code === "P0402";
+  if (quota.error) return json({ error: limit ? "quota" : quota.error.code === "P0429" ? "rate_limited" : "quota_failed" }, limit ? 402 : quota.error.code === "P0429" ? 429 : 500);
 
   const service = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
   const { data: rows, error: catErr } = await service.from("catalog_shirts").select("id, club, name, season, brand, type").eq("active", true).order("id");

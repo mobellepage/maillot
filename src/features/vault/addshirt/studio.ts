@@ -2,7 +2,7 @@
 // on a transparent background — the app draws the tile and the shadow behind
 // it, like the catalogue photos, so collections look like one catalogue.
 // Drawn in the browser.
-export type StudioState = 'idle' | 'working' | 'done' | 'off' | 'limited' | 'failed';
+export type StudioState = 'idle' | 'working' | 'done' | 'off' | 'limited' | 'premium' | 'failed';
 
 const SIZE = 1200;
 const THUMB = 400;

@@ -1,4 +1,6 @@
-import { BUYER_SHIPPING_CHF, SELLER_AUTH_FEE_CHF, SELLER_FEE_RATE, sellerPayout } from '../../fees.ts';
+import { Link } from 'react-router';
+import { BUYER_SHIPPING_CHF, authFeeFor, sellerPayout, sellerRateFor } from '../../fees.ts';
+import { PLAN } from '../../config/plans.ts';
 import { usePrefs } from '../../lib/prefs.tsx';
 import { useSession } from '../../lib/session.tsx';
 import { Card, KeyValueList, TextField } from '../../ui/index.ts';
@@ -9,8 +11,10 @@ import type { SellFlow } from './useSellFlow.ts';
 export function PriceStep({ f }: { f: SellFlow }) {
   const s = f.shirt!;
   const { money, t } = usePrefs();
-  // Dealers on pilot terms pay their own rate; everyone else the standard one.
-  const rate = useSession().profile?.commissionRate ?? SELLER_FEE_RATE;
+  // Dealers on pilot terms pay their own rate; paid Premium 6 %; everyone else the standard one.
+  const { profile } = useSession();
+  const rate = sellerRateFor(profile);
+  const authFee = authFeeFor(profile);
   // A listing is a shirt in the collection, for sale: compared with the market value (a very good replica, this size).
   const market = marketValue(s, f.size);
   const sa = f.amount;
@@ -74,16 +78,21 @@ export function PriceStep({ f }: { f: SellFlow }) {
           rows={[
             [t('sell.yourAsk'), money(sa)],
             [t('sell.fee', { pct: Math.round(rate * 1000) / 10 }), '−' + money(payout.commission)],
-            ...(f.needsFullPath ? [[t('sell.authFee'), '−' + money(SELLER_AUTH_FEE_CHF)] as [string, string]] : []),
+            ...(f.needsFullPath ? [[t('sell.authFee'), '−' + money(authFee)] as [string, string]] : []),
             [t('sell.shipping'), '+' + money(BUYER_SHIPPING_CHF)]
           ]}
         />
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', paddingTop: 14 }}>
           <span style={{ fontWeight: 600 }}>{t('sell.youEarn')}</span>
           <span className="mono" style={{ fontSize: 26, fontWeight: 700, color: 'var(--accent)' }}>
-            {money(payout.payout + BUYER_SHIPPING_CHF - (f.needsFullPath ? SELLER_AUTH_FEE_CHF : 0))}
+            {money(payout.payout + BUYER_SHIPPING_CHF - (f.needsFullPath ? authFee : 0))}
           </span>
         </div>
+        {rate > PLAN.premiumRate && !profile?.premium && sa > 0 && (
+          <p style={{ fontSize: 13, margin: '10px 0 0', lineHeight: 1.5 }}>
+            {t('plan.sellHint', { amount: money(Math.round(sa * rate) - Math.round(sa * PLAN.premiumRate)) })} <Link to="/premium">{t('plan.more')}</Link>
+          </p>
+        )}
         <p style={{ fontSize: 12.5, color: 'var(--muted)', margin: '10px 0 0', lineHeight: 1.5 }}>{t('sell.payoutNote')}</p>
         <p style={{ fontSize: 12.5, color: 'var(--muted)', margin: '6px 0 0', lineHeight: 1.5 }}>{t('trade.region')}</p>
       </Card>

@@ -9,6 +9,8 @@ import { ScanStep } from '../features/vault/addshirt/ScanStep.tsx';
 
 afterEach(cleanup);
 vi.stubGlobal('fetch', () => new Promise(() => {}));
+// Signed out: no plan to load (the scan counter stays hidden).
+vi.mock('../lib/session.tsx', () => ({ useSession: () => ({ user: null, profile: null }) }));
 
 const recognised = (over = {}) => ({
   isShirt: true, club: 'Netherlands', season: '1988', kit: 'home', brand: 'adidas', productCode: '012345', sponsor: null,
@@ -90,6 +92,13 @@ describe('ScanStep (photo recognition)', () => {
     cleanup();
     setup({ status: 'done', confidence: 0, matchId: null, result: recognised({ isShirt: false, catalogId: null }) });
     expect(screen.getByText(/doesn’t look like a football shirt/)).toBeTruthy();
+  });
+
+  it('when this month’s free scans are used, offers Premium and the library', () => {
+    setup({ status: 'quota', confidence: 0, matchId: null, result: null });
+    expect(screen.getByText('This month’s free scans are used')).toBeTruthy();
+    expect(screen.getByRole('link', { name: 'Scan without limit' }).getAttribute('href')).toBe('/premium');
+    expect(screen.getAllByRole('link', { name: /library/i }).some((a) => a.getAttribute('href') === '/vault/add/library')).toBe(true);
   });
 
   it('when unsure, offers the closest library kits to tap, and shows the one picked', () => {

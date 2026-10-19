@@ -1,5 +1,6 @@
-// Premium (unlimited shirts): Stripe subscription via the "premium" edge
-// function. { configured: false } means payments aren't switched on yet.
+// Premium (unlimited AI scans, studio look, 6 % commission): Stripe
+// subscription via the "premium" edge function. { configured: false } means
+// payments aren't switched on yet.
 import { sb } from '../supabase.ts';
 import { isNative } from '../../lib/native.ts';
 import type { PremiumInterval } from '../../config/plans.ts';
@@ -22,8 +23,15 @@ export async function joinPremiumWaitlist(): Promise<void> {
   if (error) throw error;
 }
 
-/** The database stops an 11th shirt on the free plan with this code. */
-export const isPlanLimitError = (e: unknown): boolean => !!e && typeof e === 'object' && (e as { code?: string }).code === 'P0402';
+export type MyPlan = { plan: 'free' | 'trial' | 'premium'; trialUntil: string | null; premiumUntil: string | null; scansUsed: number; scansLimit: number; scansReset: string | null };
+
+/** My plan and this month's AI scans (public.my_plan). */
+export async function loadMyPlan(): Promise<MyPlan | null> {
+  const { data, error } = await (await sb()).rpc('my_plan');
+  if (error) throw error;
+  const r = data?.[0];
+  return r ? { plan: r.plan, trialUntil: r.trial_until, premiumUntil: r.premium_until, scansUsed: r.scans_used, scansLimit: r.scans_limit, scansReset: r.scans_reset } : null;
+}
 
 /** My collector points (shirts bought through Maillot). */
 export async function loadMyPoints(): Promise<{ total: number; purchases: number }> {

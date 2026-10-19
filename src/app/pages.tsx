@@ -22,6 +22,7 @@ export const DevelopersPage = lazy(() => import('../features/index/DevelopersPag
 export const OrderPage = lazy(() => import('../features/orders/OrderPage.tsx'));
 export const WelcomePage = lazy(() => import('../features/onboarding/WelcomePage.tsx'));
 export const PremiumPage = lazy(() => import('../features/premium/PremiumPage.tsx'));
+export const InsurancePage = lazy(() => import('../features/vault/InsurancePage.tsx'));
 export const SellerPage = lazy(() => import('../features/seller/SellerPage.tsx'));
 export const PublicShirtPage = lazy(() => import('../features/collectors/PublicShirtPage.tsx'));
 export const AccountPage = lazy(() => import('../features/account/AccountPage.tsx'));

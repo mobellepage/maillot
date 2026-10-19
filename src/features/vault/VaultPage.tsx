@@ -23,7 +23,7 @@ import { PayoutsCard } from './PayoutsCard.tsx';
 import { SITE_URL, shareOrigin } from '../../config/site.ts';
 import { mainColor, renderCard, shareCard } from './shareCard.ts';
 import { Avatar } from '../avatars/Avatar.tsx';
-import { FREE_SHIRT_LIMIT, PREMIUM_ENABLED } from '../../config/plans.ts';
+import { PlanChip } from '../premium/PlanChip.tsx';
 import { LevelBadge, LevelCard } from '../levels/LevelBadge.tsx';
 import { PointsCard } from '../levels/PointsCard.tsx';
 import { FavoriteClub } from '../library/FavoriteClub.tsx';
@@ -114,7 +114,6 @@ export default function VaultPage({ tab }: { tab: Tab }) {
     ['orders', t('vault.title.orders'), orders.data?.length ?? 0]
   ];
   const path: Record<Tab, string> = { collection: '/vault', watchlist: '/watchlist', orders: '/orders' };
-  const full = PREMIUM_ENABLED && !profile?.premium && items.length >= FREE_SHIRT_LIMIT;
 
   return (
     <Page>
@@ -131,15 +130,7 @@ export default function VaultPage({ tab }: { tab: Tab }) {
             {handle ?? <Link to="/welcome?step=username">{t('vault.chooseHandle')}</Link>}
             {since && ' · ' + t('vault.memberSince', { date: since })}
           </div>
-          {!PREMIUM_ENABLED ? null : !profile?.premium ? (
-            <Link to="/premium" className="badge badge--neutral" style={{ marginTop: 10, marginRight: 8, fontFamily: 'var(--font-sans)', fontSize: 12, display: 'inline-flex' }}>
-              {t('premium.usage', { n: items.length, max: FREE_SHIRT_LIMIT })}
-            </Link>
-          ) : (
-            <span className="badge badge--accent" style={{ marginTop: 10, marginRight: 8, fontFamily: 'var(--font-sans)', fontSize: 12, display: 'inline-flex' }}>
-              Premium
-            </span>
-          )}
+          <PlanChip style={{ marginTop: 10, marginRight: 8 }} />
           {expert > 0 && (
             <Badge tone="warn" style={{ marginTop: 10, fontFamily: 'var(--font-sans)', fontSize: 12 }}>
               {t('vault.expertCount', { n: expert })}
@@ -156,7 +147,12 @@ export default function VaultPage({ tab }: { tab: Tab }) {
             </Button>
           </>
         )}
-        <ButtonLink to={full ? '/premium' : '/vault/add'}>{t('vault.add')}</ButtonLink>
+        {items.length > 0 && (
+          <ButtonLink to="/vault/insurance" variant="ghost">
+            {t('vault.insurance')}
+          </ButtonLink>
+        )}
+        <ButtonLink to="/vault/add">{t('vault.add')}</ButtonLink>
       </div>
 
       {/* The collector's level first, then the favourite team's checklist. */}

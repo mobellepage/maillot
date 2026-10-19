@@ -19,7 +19,6 @@ import { KIT_KINDS, bySeason, variantLabel } from '../library/model.ts';
 import { Pill, Pills, Section } from './addshirt/parts.tsx';
 import { quickItem } from './quickAdd.ts';
 import { useCollectionActions } from './useCollection.ts';
-import { PREMIUM_ENABLED } from '../../config/plans.ts';
 
 export default function QuickAddPage() {
   useCatalog();
@@ -60,9 +59,6 @@ export default function QuickAddPage() {
         onSuccess: (item) => {
           toast(t('qa.saved'));
           navigate('/vault/item/' + item.id);
-        },
-        onError: (e) => {
-          if (db.isPlanLimitError(e) && PREMIUM_ENABLED) navigate('/premium');
         }
       }
     );

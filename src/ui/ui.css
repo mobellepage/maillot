@@ -962,6 +962,7 @@ main:focus {
   footer,
   nav,
   .skip-link,
+  .no-print,
   [aria-live="polite"] {
     display: none !important;
   }

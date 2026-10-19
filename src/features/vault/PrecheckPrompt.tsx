@@ -30,6 +30,9 @@ export function PrecheckPrompt({ item }: { item: CustomItem }) {
       const flock = item.flock ?? { source: 'Keine' };
       const claim = { shirt: name, version: item.version || null, print: flock.source !== 'Keine' ? [flock.name, flock.number].filter(Boolean).join(' ') || null : null, patches: item.patches ?? [] };
       const r = await db.checkAuthenticity(photos, claim, lang).catch(() => null);
+      qc.invalidateQueries({ queryKey: ['my-plan'] });
+      // This month's free scans are used: nothing to save, the member decides.
+      if (r && !r.ok && r.reason === 'quota') return 'quota' as const;
       const local = precheck({ photos: item.photos, scan: { status: 'idle', confidence: 0, matchId: null, result: null }, catalogId: item.catalogId, version: item.version ?? '', proposed: item.proposed });
       const p = withAiCheck(local, r && r.ok ? r.result : null);
       const level = p.status === 'ok' ? 'precheck' : item.verification.level;
@@ -39,7 +42,7 @@ export function PrecheckPrompt({ item }: { item: CustomItem }) {
     onSuccess: (level) => {
       qc.invalidateQueries({ queryKey: ['customItems', user?.id] });
       qc.invalidateQueries({ queryKey: ['marketExemplars'] });
-      toast(t(level === 'precheck' ? 'vp.done' : 'vp.review'));
+      toast(t(level === 'quota' ? 'plan.quotaCheck' : level === 'precheck' ? 'vp.done' : 'vp.review'));
     },
     onError: () => toast(t('toast.actionFailed'))
   });

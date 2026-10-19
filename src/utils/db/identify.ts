@@ -6,7 +6,7 @@ import type { Identification } from '../../../supabase/functions/identify-shirt/
 
 export type { Identification } from '../../../supabase/functions/identify-shirt/identify.ts';
 export type IdentifyKind = 'front' | 'back' | 'crest' | 'label';
-export type IdentifyResult = { ok: true; result: Identification } | { ok: false; reason: 'off' | 'rate_limited' | 'failed' };
+export type IdentifyResult = { ok: true; result: Identification } | { ok: false; reason: 'off' | 'rate_limited' | 'quota' | 'failed' };
 
 /** Sends up to four compressed photos (data URLs) and returns what's on them. */
 export async function identifyShirt(images: { kind: IdentifyKind; dataUrl: string }[], lang: string): Promise<IdentifyResult> {
@@ -20,7 +20,8 @@ export async function identifyShirt(images: { kind: IdentifyKind; dataUrl: strin
   const { data, error } = await (await sb()).functions.invoke<{ configured?: boolean; result?: Identification }>('identify-shirt', { body: { images: payload, lang }, timeout: 120_000 });
   if (error) {
     const status = (error as { context?: Response }).context?.status;
-    return { ok: false, reason: status === 429 ? 'rate_limited' : 'failed' };
+    // 402: this month's free scans are used (the plan's limit).
+    return { ok: false, reason: status === 402 ? 'quota' : status === 429 ? 'rate_limited' : 'failed' };
   }
   if (data?.configured === false) return { ok: false, reason: 'off' };
   return data?.result ? { ok: true, result: data.result } : { ok: false, reason: 'failed' };
@@ -30,7 +31,7 @@ export async function identifyShirt(images: { kind: IdentifyKind; dataUrl: strin
 // Automatic authenticity pre-check (edge function authenticity-check).
 // ---------------------------------------------------------------------------
 export type { AuthCheck, CheckKind, Claim } from '../../../supabase/functions/authenticity-check/check.ts';
-export type AuthCheckResult = { ok: true; result: AuthCheck } | { ok: false; reason: 'off' | 'rate_limited' | 'failed' };
+export type AuthCheckResult = { ok: true; result: AuthCheck } | { ok: false; reason: 'off' | 'rate_limited' | 'quota' | 'failed' };
 
 /** Sends the storage paths of the member's required photos (their own folder) and what they say the shirt is. */
 export async function checkAuthenticity(photos: { kind: CheckKind; path: string }[], claim: Claim, lang: string): Promise<AuthCheckResult> {
@@ -38,7 +39,8 @@ export async function checkAuthenticity(photos: { kind: CheckKind; path: string 
   const { data, error } = await (await sb()).functions.invoke<{ configured?: boolean; result?: AuthCheck }>('authenticity-check', { body: { photos, claim, lang }, timeout: 120_000 });
   if (error) {
     const status = (error as { context?: Response }).context?.status;
-    return { ok: false, reason: status === 429 ? 'rate_limited' : 'failed' };
+    // 402: this month's free scans are used (the plan's limit).
+    return { ok: false, reason: status === 402 ? 'quota' : status === 429 ? 'rate_limited' : 'failed' };
   }
   if (data?.configured === false) return { ok: false, reason: 'off' };
   return data?.result ? { ok: true, result: data.result } : { ok: false, reason: 'failed' };

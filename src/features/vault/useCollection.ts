@@ -11,7 +11,6 @@ import { useSession } from '../../lib/session.tsx';
 import { useToast } from '../../lib/toast.tsx';
 import { usePrefs } from '../../lib/prefs.tsx';
 import { useLive } from '../../lib/realtime.ts';
-import { FREE_SHIRT_LIMIT } from '../../config/plans.ts';
 
 export function currentValuation(c: CustomItem): Valuation | null {
   const catalogItem = c.catalogId ? BY[c.catalogId] : null;
@@ -70,8 +69,7 @@ export function useCollectionActions() {
       return full;
     },
     onSuccess: refresh,
-    // The free plan is full: the add page sends the member to /premium.
-    onError: (e) => toast(db.isPlanLimitError(e) ? t('premium.limitToast', { n: FREE_SHIRT_LIMIT }) : t('vault.saveFailed'))
+    onError: () => toast(t('vault.saveFailed'))
   });
 
   const retry = useMutation({

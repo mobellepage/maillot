@@ -6,7 +6,6 @@ import { Navigate, type RouteObject } from 'react-router';
 import RootLayout from './RootLayout.tsx';
 import RouteError from './RouteError.tsx';
 import { RequireAuth } from './RequireAuth.tsx';
-import { PREMIUM_ENABLED } from '../config/plans.ts';
 import {
   AddShirtPage,
   QuickAddPage,
@@ -29,6 +28,7 @@ import {
   WelcomePage,
   SellerPage,
   PremiumPage,
+  InsurancePage,
   PublicShirtPage,
   FeedPage,
   DailyPage,
@@ -120,6 +120,14 @@ export const routes: RouteObject[] = [
             )
           },
           {
+            path: 'vault/insurance',
+            element: (
+              <RequireAuth>
+                <InsurancePage />
+              </RequireAuth>
+            )
+          },
+          {
             path: 'vault/item/:id',
             element: (
               <RequireAuth>
@@ -148,7 +156,7 @@ export const routes: RouteObject[] = [
           { path: 'price-index', element: <IndexReportPage /> },
           { path: 'developers', element: <DevelopersPage /> },
           // Premium is paused (config/plans.ts): the plan page leads to the collection.
-          { path: 'premium', element: PREMIUM_ENABLED ? <PremiumPage /> : <Navigate to="/vault" replace /> },
+          { path: 'premium', element: <PremiumPage /> },
           { path: 'u/:handle', element: <SellerPage /> },
           { path: 'u/:handle/:itemId', element: <PublicShirtPage /> },
           { path: 'verify', element: <VerifyPage /> },

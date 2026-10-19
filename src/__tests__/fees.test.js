@@ -19,3 +19,19 @@ describe('fees', () => {
     expect(sellerPayout(200, 0.05)).toEqual({ commission: 10, payout: 190 });
   });
 });
+
+describe('plan-aware fees (as private.commission_for)', () => {
+  it('charges 8 % on the free plan and during the trial, 6 % with paid Premium, a dealer’s own rate first', async () => {
+    const { sellerRateFor } = await import('../fees.ts');
+    expect(sellerRateFor({ commissionRate: null, premium: false })).toBe(0.08);
+    expect(sellerRateFor({ commissionRate: null, premium: true })).toBe(0.06);
+    expect(sellerRateFor({ commissionRate: 0.05, premium: true })).toBe(0.05);
+    expect(sellerRateFor(null)).toBe(0.08);
+  });
+
+  it('takes CHF 10 off the expert authentication with paid Premium', async () => {
+    const { authFeeFor, SELLER_AUTH_FEE_CHF } = await import('../fees.ts');
+    expect(authFeeFor({ commissionRate: null, premium: false })).toBe(SELLER_AUTH_FEE_CHF);
+    expect(authFeeFor({ commissionRate: null, premium: true })).toBe(SELLER_AUTH_FEE_CHF - 10);
+  });
+});

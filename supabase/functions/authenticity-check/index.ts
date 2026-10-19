@@ -68,7 +68,9 @@ Deno.serve(async (req: Request) => {
   const input = parse(body, user.id);
   if (!input) return json({ error: "invalid_input" }, 400);
   const quota = await asUser.rpc("consume_identify_quota");
-  if (quota.error) return json({ error: quota.error.code === "P0429" ? "rate_limited" : "quota_failed" }, quota.error.code === "P0429" ? 429 : 500);
+  // P0402: the plan's limit (free scans used / premium only) — the app offers premium.
+  const limit = quota.error?.code === "P0402";
+  if (quota.error) return json({ error: limit ? "quota" : quota.error.code === "P0429" ? "rate_limited" : "quota_failed" }, limit ? 402 : quota.error.code === "P0429" ? 429 : 500);
 
   const service = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
   const content: Anthropic.Beta.BetaContentBlockParam[] = [];

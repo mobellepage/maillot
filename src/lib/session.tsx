@@ -35,9 +35,14 @@ export interface Profile {
   collectionPrivate: boolean;
   /** Chosen legend profile picture (features/avatars), null = initials. */
   avatar: string | null;
-  /** Premium (unlimited shirts) runs until then; null = free plan. */
+  /** Paid Premium (Stripe) runs until then; null = not subscribed. */
   premiumUntil: string | null;
+  /** Paid Premium is active (6 % commission, auth discount). */
   premium: boolean;
+  /** The free Premium week every account starts with (config PLAN.trialDays). */
+  trialUntil: string | null;
+  /** In the trial (and not paying): Premium's features without the paid-only perks. */
+  trial: boolean;
   /** Asked to hear when Premium starts (payments not on yet). */
   premiumWaitlist: boolean;
   /** Notification groups switched off ({ value: false, … }); offers and orders always arrive. */
@@ -116,10 +121,11 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     queryKey: ['profile', user?.id],
     enabled: !!user,
     queryFn: async () => {
-      const { data, error } = await (await sb()).from('profiles').select('is_admin,handle,goals,interests,onboarded_at,show_collection_value,commission_rate,collection_private,avatar,premium_until,premium_waitlist_at,notification_prefs').eq('id', user!.id).maybeSingle();
+      const { data, error } = await (await sb()).from('profiles').select('is_admin,handle,goals,interests,onboarded_at,show_collection_value,commission_rate,collection_private,avatar,premium_until,premium_waitlist_at,trial_until,notification_prefs').eq('id', user!.id).maybeSingle();
       if (error) throw error;
       // Premium is judged when the profile loads (and on every refetch).
-      return data && { ...data, premium_active: !!data.premium_until && new Date(data.premium_until).getTime() > Date.now() };
+      const active = (until: string | null) => !!until && new Date(until).getTime() > Date.now();
+      return data && { ...data, premium_active: active(data.premium_until), trial_active: !active(data.premium_until) && active(data.trial_until) };
     }
   });
 
@@ -129,7 +135,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     isAdmin: !!profile.data?.is_admin && aal === 'aal2',
     adminFlag: !!profile.data?.is_admin,
     aal,
-    profile: !user ? null : profile.data === undefined ? undefined : profile.data && { handle: profile.data.handle, goals: profile.data.goals ?? [], interests: (profile.data.interests ?? {}) as Profile['interests'], onboardedAt: profile.data.onboarded_at, showCollectionValue: !!profile.data.show_collection_value, commissionRate: profile.data.commission_rate === null ? null : Number(profile.data.commission_rate), collectionPrivate: !!profile.data.collection_private, avatar: profile.data.avatar ?? null, premiumUntil: profile.data.premium_until ?? null, premium: profile.data.premium_active, premiumWaitlist: !!profile.data.premium_waitlist_at, notificationPrefs: (profile.data.notification_prefs ?? {}) as Profile['notificationPrefs'] },
+    profile: !user ? null : profile.data === undefined ? undefined : profile.data && { handle: profile.data.handle, goals: profile.data.goals ?? [], interests: (profile.data.interests ?? {}) as Profile['interests'], onboardedAt: profile.data.onboarded_at, showCollectionValue: !!profile.data.show_collection_value, commissionRate: profile.data.commission_rate === null ? null : Number(profile.data.commission_rate), collectionPrivate: !!profile.data.collection_private, avatar: profile.data.avatar ?? null, premiumUntil: profile.data.premium_until ?? null, premium: profile.data.premium_active, trialUntil: profile.data.trial_until ?? null, trial: profile.data.trial_active, premiumWaitlist: !!profile.data.premium_waitlist_at, notificationPrefs: (profile.data.notification_prefs ?? {}) as Profile['notificationPrefs'] },
     signIn: async (email, password, captchaToken) => {
       const { error } = await (await sb()).auth.signInWithPassword({ email, password, options: captchaToken ? { captchaToken } : undefined });
       return { error: error ? error.message : null };

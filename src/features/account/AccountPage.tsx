@@ -6,6 +6,7 @@ import { Link, useNavigate } from 'react-router';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { usePageMeta } from '../../lib/meta.ts';
 import { usePrefs } from '../../lib/prefs.tsx';
+import { daysLeft } from '../premium/usePlan.ts';
 import { useSession } from '../../lib/session.tsx';
 import { useToast } from '../../lib/toast.tsx';
 import * as db from '../../utils/db.ts';
@@ -13,7 +14,6 @@ import type { Currency } from '../../utils/currency.ts';
 import type { Lang } from '../../i18n/index.ts';
 import { Button, ButtonLink, Card, Notice, Page, Segmented } from '../../ui/index.ts';
 import { setThemePref, useThemePref } from '../../lib/theme.ts';
-import { PREMIUM_ENABLED } from '../../config/plans.ts';
 import { useConfirm } from '../../ui/Confirm.tsx';
 import { PayoutsCard } from '../vault/PayoutsCard.tsx';
 import { ProfileCard } from '../collectors/ProfileCard.tsx';
@@ -189,11 +189,9 @@ export default function AccountPage() {
               <ButtonLink to="/orders" variant="ghost" size="sm">
                 {t('vault.title.orders')}
               </ButtonLink>
-              {PREMIUM_ENABLED && (
-                <ButtonLink to="/premium" variant="ghost" size="sm">
-                  {profile?.premium ? 'Premium ✓' : t('premium.cta')}
-                </ButtonLink>
-              )}
+              <ButtonLink to="/premium" variant="ghost" size="sm">
+                {profile?.premium ? 'Premium ✓' : profile?.trial ? t('plan.chipTrial', { n: daysLeft(profile.trialUntil) }) : t('premium.cta')}
+              </ButtonLink>
             </div>
           </Card>
         ) : (
