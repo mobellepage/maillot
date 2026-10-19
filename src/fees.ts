@@ -1,3 +1,4 @@
+import { EXPERT_AUTH, FEES } from './config/rules.ts';
 // Monetization model placeholders for Maillot's marketplace flows (Buy / Sell).
 //
 // AUDIT NOTE (Phase 5.13): Maillot's Buy/Sell checkout (see Modal.jsx, Sell.jsx) does not
@@ -19,8 +20,11 @@
 // No authentication centre yet, so no authentication fee (the database sets
 // orders.auth_fee to 0 for direct shipping — see order_policy().auth_threshold).
 export const BUYER_AUTH_FEE_CHF = 0;
-export const BUYER_SHIPPING_CHF = 12; // Flat shipping fee charged to buyers; paid out to the seller, who ships.
-export const SELLER_FEE_RATE = 0.08; // 8% commission deducted from the seller's payout.
+// The numbers live in config/rules.ts (FEES, EXPERT_AUTH).
+export const BUYER_SHIPPING_CHF: number = FEES.buyerShippingChf; // Flat shipping fee charged to buyers; paid out to the seller, who ships.
+export const SELLER_FEE_RATE: number = FEES.sellerRate; // Commission deducted from the seller's payout.
+/** Expert authentication, when a sale needs it (config EXPERT_AUTH): deducted from the seller's payout. */
+export const SELLER_AUTH_FEE_CHF: number = EXPERT_AUTH.feeChf;
 
 /**
  * @param {number} askPrice - the listed/ask price in CHF

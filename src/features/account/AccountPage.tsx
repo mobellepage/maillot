@@ -57,6 +57,7 @@ function Settings() {
             </option>
           ))}
         </select>
+        <span style={{ fontSize: 12, color: 'var(--muted)' }}>{t('header.currencyNote')}</span>
       </Row>
       <Row label={t('acct.theme')}>
         <Segmented

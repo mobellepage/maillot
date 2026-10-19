@@ -1,4 +1,4 @@
-import { BUYER_SHIPPING_CHF, SELLER_FEE_RATE, sellerPayout } from '../../fees.ts';
+import { BUYER_SHIPPING_CHF, SELLER_AUTH_FEE_CHF, SELLER_FEE_RATE, sellerPayout } from '../../fees.ts';
 import { usePrefs } from '../../lib/prefs.tsx';
 import { useSession } from '../../lib/session.tsx';
 import { Card, KeyValueList, TextField } from '../../ui/index.ts';
@@ -70,14 +70,22 @@ export function PriceStep({ f }: { f: SellFlow }) {
         <h2 className="title" style={{ margin: '0 0 10px' }}>
           {t('sell.payout')}
         </h2>
-        <KeyValueList rows={[[t('sell.yourAsk'), money(sa)], [t('sell.fee', { pct: Math.round(rate * 1000) / 10 }), '−' + money(payout.commission)], [t('sell.shipping'), '+' + money(BUYER_SHIPPING_CHF)]]} />
+        <KeyValueList
+          rows={[
+            [t('sell.yourAsk'), money(sa)],
+            [t('sell.fee', { pct: Math.round(rate * 1000) / 10 }), '−' + money(payout.commission)],
+            ...(f.needsFullPath ? [[t('sell.authFee'), '−' + money(SELLER_AUTH_FEE_CHF)] as [string, string]] : []),
+            [t('sell.shipping'), '+' + money(BUYER_SHIPPING_CHF)]
+          ]}
+        />
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', paddingTop: 14 }}>
           <span style={{ fontWeight: 600 }}>{t('sell.youEarn')}</span>
           <span className="mono" style={{ fontSize: 26, fontWeight: 700, color: 'var(--accent)' }}>
-            {money(payout.payout + BUYER_SHIPPING_CHF)}
+            {money(payout.payout + BUYER_SHIPPING_CHF - (f.needsFullPath ? SELLER_AUTH_FEE_CHF : 0))}
           </span>
         </div>
         <p style={{ fontSize: 12.5, color: 'var(--muted)', margin: '10px 0 0', lineHeight: 1.5 }}>{t('sell.payoutNote')}</p>
+        <p style={{ fontSize: 12.5, color: 'var(--muted)', margin: '6px 0 0', lineHeight: 1.5 }}>{t('trade.region')}</p>
       </Card>
     </div>
   );

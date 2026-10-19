@@ -3,10 +3,10 @@
 // Deadlines and escrow are enforced in code (order_policy(),
 // run_order_lifecycle(); see supabase/migrations/*direct_shipping.sql).
 
-import { ButtonLink } from '../../ui/index.ts';
 import { usePageMeta } from '../../lib/meta.ts';
 import { usePrefs } from '../../lib/prefs.tsx';
-import { BUYER_SHIPPING_CHF } from '../../fees.ts';
+import { BUYER_SHIPPING_CHF, SELLER_AUTH_FEE_CHF, SELLER_FEE_RATE } from '../../fees.ts';
+import { ButtonLink, KeyValueList } from '../../ui/index.ts';
 import { EXPERT_AUTH } from '../../config/rules.ts';
 
 const ACC = 'var(--accent)';
@@ -99,6 +99,22 @@ export default function AuthenticationPage() {
         <p style={{ maxWidth: 680, margin: '16px 0 0', fontSize: 15, lineHeight: 1.6, color: 'var(--text-2)' }}>
           {t('auth.ex.cost', { fee: money(EXPERT_AUTH.feeChf) })} {!EXPERT_AUTH.available && t('auth.ex.until')}
         </p>
+      </section>
+
+      {/* Every fee, from config/rules.ts — and where Maillot trades. */}
+      <section id="fees" aria-labelledby="fees-title" style={{ marginTop: 'clamp(40px,6vw,72px)', maxWidth: 680 }}>
+        <h2 id="fees-title" style={{ margin: '0 0 14px', fontSize: 'clamp(24px,2.8vw,32px)', fontWeight: 800, fontStretch: '78%', textTransform: 'uppercase' }}>
+          {t('auth.fees.title')}
+        </h2>
+        <KeyValueList
+          rows={[
+            [t('auth.fees.commission'), Math.round(SELLER_FEE_RATE * 1000) / 10 + ' %'],
+            [t('auth.fees.shipping'), money(BUYER_SHIPPING_CHF)],
+            [t('auth.fees.auth'), money(SELLER_AUTH_FEE_CHF)],
+            [t('auth.fees.buyer'), money(0)]
+          ]}
+        />
+        <p style={{ margin: '14px 0 0', fontSize: 14.5, lineHeight: 1.55, color: 'var(--text-2)' }}>{t('auth.fees.region')}</p>
       </section>
 
       <section style={{ marginTop: 'clamp(40px,6vw,72px)' }}>

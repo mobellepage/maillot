@@ -4,7 +4,7 @@ import type { ReactNode } from 'react';
 import { COMPANY } from '../../config/company.ts';
 import type { LegalDoc } from '../../config/legal.ts';
 import { Mail, P, UL } from './legalParts.tsx';
-import { BUYER_SHIPPING_CHF, SELLER_FEE_RATE } from '../../fees.ts';
+import { BUYER_SHIPPING_CHF, SELLER_AUTH_FEE_CHF, SELLER_FEE_RATE } from '../../fees.ts';
 import { ORDER_POLICY } from '../orders/policy.ts';
 
 interface Section {
@@ -99,6 +99,8 @@ export const DOCS: Record<LegalDoc, { title: string; intro?: string; sections: S
             items={[
               `Buyers pay the item price plus a flat CHF ${BUYER_SHIPPING_CHF} shipping fee, which is paid out to the seller for postage.`,
               `Sellers pay a ${sellerPct} commission, deducted from the payout.`,
+              `Where a sale needs expert authentication (from CHF 500, or for match-issued and match-worn shirts), the seller pays CHF ${SELLER_AUTH_FEE_CHF} for it, deducted from the payout. The service starts soon; until then such listings cannot be bought.`,
+              'Buying and selling is currently only possible within Switzerland and Liechtenstein; prices in other currencies are for display, payment is in CHF.',
               'All fees are shown before you confirm.'
             ]}
           />
@@ -300,7 +302,7 @@ export const DOCS: Record<LegalDoc, { title: string; intro?: string; sections: S
         h: 'Fees',
         body: (
           <P>
-            Buyers: CHF {BUYER_SHIPPING_CHF} shipping per order (paid out to the seller for postage). Sellers: {sellerPct} commission. No listing fees.
+            Buyers: CHF {BUYER_SHIPPING_CHF} shipping per order (paid out to the seller for postage). Sellers: {sellerPct} commission, plus CHF {SELLER_AUTH_FEE_CHF} where expert authentication is required. No listing fees. Switzerland and Liechtenstein only for now.
           </P>
         )
       },

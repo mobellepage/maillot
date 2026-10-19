@@ -24,6 +24,16 @@ export const VERSIONS = [
 export const SHOW_DEMO_EXEMPLARS = true;
 
 /**
+ * Fees and where Maillot trades. Seller commission (dealers on pilot terms
+ * have their own, profiles.commission_rate) — private.commission_for().
+ * Buyers pay a flat shipping fee, paid out to the seller who ships. Buying
+ * and selling only within these countries for now (the checkout's
+ * allowed_countries, supabase/functions/checkout); other currencies are for
+ * display, payment is in CHF. Change both places together.
+ */
+export const FEES = { sellerRate: 0.08, buyerShippingChf: 12, shippingCountries: ['CH', 'LI'] } as const;
+
+/**
  * Expert authentication: required to sell from thresholdChf (the price, or
  * the estimate when open to offers) or for these versions — unless an expert
  * verified the shirt. Until the service runs (available: false) such

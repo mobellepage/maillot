@@ -80,7 +80,7 @@ export default function Header() {
             style={{ flex: 1, minWidth: 0, background: 'none', border: 0, outline: 'none', fontSize: 13.5, color: 'var(--text)' }}
           />
         </form>
-        <select className="hide-mobile" aria-label={t('header.currency')} value={currency} onChange={(e) => setCurrency(e.target.value as Currency)} style={pillSelect}>
+        <select className="hide-mobile" aria-label={t('header.currency') + ' — ' + t('header.currencyNote')} title={t('header.currencyNote')} value={currency} onChange={(e) => setCurrency(e.target.value as Currency)} style={pillSelect}>
           {currencies.map((c) => (
             <option key={c} value={c}>
               {c}

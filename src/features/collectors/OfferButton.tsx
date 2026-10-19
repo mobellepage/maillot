@@ -48,6 +48,7 @@ export function OfferButton({ itemId, name, owner, suggested, label, primary }: 
         <div style={{ height: 12 }} />
         <TextField label={t('offer.message')} value={message} onChange={(e) => setMessage(e.target.value.slice(0, 300))} placeholder={t('offer.messagePlaceholder')} />
         <p style={{ fontSize: 12.5, color: 'var(--muted)', margin: '12px 0 0', lineHeight: 1.45 }}>{t('offer.how')}</p>
+        <p style={{ fontSize: 12.5, color: 'var(--muted)', margin: '6px 0 0', lineHeight: 1.45 }}>{t('trade.region')}</p>
         <Button block style={{ marginTop: 16 }} disabled={!(Number(amount) >= 1)} busy={send.isPending} onClick={() => send.mutate()}>
           {t('offer.send')}
         </Button>
