@@ -23,6 +23,14 @@ export function HeartIcon({ size = 16, filled = false, ...rest }: IconProps & { 
   );
 }
 
+export function StarIcon({ size = 16, filled = false, ...rest }: IconProps & { filled?: boolean }) {
+  return (
+    <svg {...base(size, rest)} fill={filled ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth={2} strokeLinejoin="round">
+      <path d="M12 3.2l2.7 5.6 6.1.8-4.5 4.2 1.1 6.1L12 17l-5.4 2.9 1.1-6.1-4.5-4.2 6.1-.8z" />
+    </svg>
+  );
+}
+
 export function BellIcon({ size = 17, ...rest }: IconProps) {
   return (
     <svg {...base(size, rest)} fill="none" stroke="currentColor" strokeWidth={2}>

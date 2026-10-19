@@ -33,6 +33,7 @@ function rowToCustomItem(r: Tables<'custom_items'>): CustomItem {
     salePrice: r.sale_price || '',
     // Set on its own (setInquiriesEnabled), never written back by an upsert.
     inquiriesEnabled: r.inquiries_enabled !== false,
+    highlightedAt: r.highlighted_at ? new Date(r.highlighted_at).getTime() : null,
     kitId: r.kit_id ?? null,
     kitImage: r.kit_image ?? null,
     valuation: fromJson(r.valuation, null),
@@ -88,6 +89,13 @@ export async function upsertCustomItem(userId: string, item: CustomItem): Promis
  * Removes an item and its photos. Fails with code 23503 while a listing or
  * order still refers to it — those are records the other party relies on.
  */
+/** Marks a shirt as one of the top five (or not). Over five: the database refuses (P0455, isHighlightLimit). */
+export async function setHighlight(itemId: string, on: boolean): Promise<void> {
+  const { error } = await (await sb()).from('custom_items').update({ highlighted_at: on ? new Date().toISOString() : null }).eq('id', itemId);
+  if (error) throw error;
+}
+export const isHighlightLimit = (e: unknown): boolean => (e as { code?: string } | null)?.code === 'P0455';
+
 export async function deleteCustomItem(item: CustomItem): Promise<void> {
   const { error } = await (await sb()).from('custom_items').delete().eq('id', item.id);
   if (error) throw error;

@@ -61,3 +61,12 @@ export function leagueOf(c: CustomItem, clubs: { name: string; aliases?: string[
   const hit = clubs.find((k) => norm(k.name) === club || (k.aliases ?? []).some((a) => norm(a) === club));
   return hit?.league ?? null;
 }
+
+/** Highlights first, in the order they were marked; the others keep their order. */
+export function highlightsFirst<T extends { highlightedAt?: number | null }>(xs: T[]): T[] {
+  const rank = (x: T) => x.highlightedAt ?? Number.MAX_SAFE_INTEGER;
+  return xs
+    .map((x, i) => ({ x, i }))
+    .sort((a, b) => rank(a.x) - rank(b.x) || a.i - b.i)
+    .map((o) => o.x);
+}

@@ -2055,6 +2055,13 @@ export const en = {
   'auth.consent.and': 'and the',
   'auth.consent.privacy': 'privacy policy',
   'auth.consent.after': '.',
+  'hl.badge': 'Highlight',
+  'hl.add': 'Highlight',
+  'hl.on': 'Highlight · top 5',
+  'hl.remove': 'Remove from highlights',
+  'hl.added': 'Highlighted ({n}/{max}) – it comes first in your collection.',
+  'hl.removed': 'Removed from your highlights.',
+  'hl.full': 'You already have {n} highlights – remove one first.',
   // @@end
 };
 

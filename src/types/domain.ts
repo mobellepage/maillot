@@ -104,6 +104,8 @@ export interface CustomItem {
   salePrice: string;
   /** Others may send a non-binding inquiry while the shirt is not for sale. */
   inquiriesEnabled?: boolean;
+  /** One of the member's top five, shown first (when it was marked; set on its own, see setHighlight). */
+  highlightedAt?: number | null;
   /** The kit of the library this shirt is (listed without photos, or named when adding). */
   kitId?: string | null;
   /** That kit's library picture (set by the server): shown until the owner adds photos. */

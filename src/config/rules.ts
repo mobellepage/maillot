@@ -49,6 +49,9 @@ export const PUBLIC_VALUE_HINT = 1000;
 /** Below this many real shirts to buy, the marketplace says it's just getting started. */
 export const MARKET_FEW_OFFERS = 12;
 
+/** Top shirts a member can highlight (shown first) — private.highlight_limit(). */
+export const HIGHLIGHTS = 5;
+
 /** Offers on collection shirts — public.offer_policy(). */
 export const OFFER_POLICY = { validHours: 48, maxRounds: 3 } as const;
 

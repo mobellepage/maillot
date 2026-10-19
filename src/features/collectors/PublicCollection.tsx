@@ -8,7 +8,7 @@ import { usePrefs } from '../../lib/prefs.tsx';
 import { usePhotoUrls } from '../../lib/usePhotoUrls.ts';
 import type { PublicShirt } from '../../utils/db.ts';
 import type { Photo } from '../../types/domain.ts';
-import { Badge, HEX, ShirtGraphic, alpha } from '../../ui/index.ts';
+import { Badge, HEX, ShirtGraphic, StarIcon, alpha } from '../../ui/index.ts';
 import { marketValue } from '../catalog/model.ts';
 import { OfferButton } from './OfferButton.tsx';
 import { InquiryButton } from './InquiryButton.tsx';
@@ -43,7 +43,15 @@ export function PublicCollection({ shirts, owner, canOffer }: { shirts: PublicSh
                 <ShirtGraphic pat={cat?.pat ?? HEX.placeholderPat} trim={cat?.trim ?? HEX.muted} crest={cat?.crest ?? HEX.muted} photo={cat?.photo} style={{ width: '64%' }} />
               )}
               <div style={{ position: 'absolute', top: 10, left: 10, right: 10, display: 'flex', gap: 6, flexWrap: 'wrap', justifyContent: 'space-between' }}>
-                {s.verified ? <Badge tone="accent">{t('coll.verified')}</Badge> : <span />}
+                <span style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                  {s.highlighted && (
+                    <Badge tone="warn">
+                      <StarIcon size={11} filled style={{ marginRight: 4, verticalAlign: '-1px' }} />
+                      {t('hl.badge')}
+                    </Badge>
+                  )}
+                  {s.verified && <Badge tone="accent">{t('coll.verified')}</Badge>}
+                </span>
                 <Badge tone={s.visibility === 'public' ? 'neutral' : 'info'}>{s.visibility === 'public' ? t('inq.piece') : t('vault.vis.' + s.visibility)}</Badge>
               </div>
             </div>

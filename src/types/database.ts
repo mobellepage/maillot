@@ -194,6 +194,7 @@ export type Database = {
           version: string | null;
           visibility: string;
           inquiries_enabled: boolean;
+          highlighted_at: string | null;
         };
         Insert: {
           catalog_id?: string | null;
@@ -225,6 +226,7 @@ export type Database = {
           version?: string | null;
           visibility?: string;
           inquiries_enabled?: boolean;
+          highlighted_at?: string | null;
         };
         Update: {
           catalog_id?: string | null;
@@ -256,6 +258,7 @@ export type Database = {
           version?: string | null;
           visibility?: string;
           inquiries_enabled?: boolean;
+          highlighted_at?: string | null;
         };
         Relationships: [];
       };
@@ -968,6 +971,8 @@ export type Database = {
           inquiries_enabled: boolean;
           /** The library picture of a shirt listed without photos. */
           kit_image: string | null;
+          /** One of the owner's top five (shown first). */
+          highlighted: boolean;
         }[];
       };
       feed_events: {

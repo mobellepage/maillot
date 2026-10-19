@@ -16,6 +16,7 @@ import { usePhotoUrls } from '../../lib/usePhotoUrls.ts';
 import { currentValuation, displayStatus, useCollection, useCollectionActions } from './useCollection.ts';
 import { isCutout } from './addshirt/studio.ts';
 import { StudioButton } from './StudioButton.tsx';
+import { HighlightButton } from './HighlightButton.tsx';
 
 
 
@@ -95,6 +96,7 @@ export default function VaultItemPage() {
           <h1 className="display" style={{ fontSize: 'clamp(26px,3.4vw,36px)', lineHeight: 1.05 }}>
             {name}
           </h1>
+          <HighlightButton item={c} items={items} labelled style={{ marginTop: 12 }} />
           <Card tight style={{ marginTop: 18, padding: 20, borderRadius: 18 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
               <div className="mono" style={{ fontSize: 11.5, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--muted)' }}>

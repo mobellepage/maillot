@@ -2056,5 +2056,12 @@ export const de: Messages = {
   'auth.consent.and': 'und die',
   'auth.consent.privacy': 'Datenschutzerklärung',
   'auth.consent.after': '.',
+  'hl.badge': 'Highlight',
+  'hl.add': 'Als Highlight markieren',
+  'hl.on': 'Highlight · Top 5',
+  'hl.remove': 'Aus den Highlights entfernen',
+  'hl.added': 'Als Highlight markiert ({n}/{max}) – es erscheint zuerst in deiner Sammlung.',
+  'hl.removed': 'Aus deinen Highlights entfernt.',
+  'hl.full': 'Du hast schon {n} Highlights – entferne zuerst eines.',
   // @@end
 };

@@ -6,8 +6,9 @@ import * as db from '../../utils/db.ts';
 import { usePrefs } from '../../lib/prefs.tsx';
 import type { CustomItem } from '../../types/domain.ts';
 import { downloadVaultCard } from '../../utils/cardExport.js';
-import { ButtonLink, DownloadIcon, EmptyState, ErrorState, Notice, ScrollRow, ShirtGraphic, Skeleton, HEX } from '../../ui/index.ts';
-import { badgeFor, itemLook, itemName, leagueOf, valueOf } from './model.ts';
+import { ButtonLink, DownloadIcon, EmptyState, ErrorState, Notice, ScrollRow, ShirtGraphic, Skeleton, StarIcon, HEX } from '../../ui/index.ts';
+import { badgeFor, highlightsFirst, itemLook, itemName, leagueOf, valueOf } from './model.ts';
+import { HighlightButton } from './HighlightButton.tsx';
 import type { Photo } from '../../types/domain.ts';
 import { isCutout } from './addshirt/studio.ts';
 import { PhotoStrip } from './PhotoStrip.tsx';
@@ -22,8 +23,10 @@ const photosOf = (c: CustomItem): { key: string; photo: Photo }[] =>
     .sort(([a], [b]) => (ORDER.indexOf(a) + 1 || 99) - (ORDER.indexOf(b) + 1 || 99))
     .map(([key, photo]) => ({ key, photo }));
 
-export function CollectionTab({ items, loading, error, onRetry }: { items: CustomItem[]; loading?: boolean; error?: boolean; onRetry?: () => void }) {
+export function CollectionTab({ items: all, loading, error, onRetry }: { items: CustomItem[]; loading?: boolean; error?: boolean; onRetry?: () => void }) {
   const { money, t, tp } = usePrefs();
+  // The member's highlights (top five) come first.
+  const items = highlightsFirst(all);
   const rejected = items.filter((c) => c.verification.status === 'abgelehnt');
   const shots = items.map(photosOf);
   const url = usePhotoUrls(shots.flat().map((x) => x.photo), true);
@@ -114,6 +117,11 @@ export function CollectionTab({ items, loading, error, onRetry }: { items: Custo
                   <span className={'badge badge--' + badge.tone} title={t(badge.desc)} style={{ position: 'absolute', top: 12, right: 12, zIndex: 3, fontSize: 9.5, pointerEvents: 'none' }}>
                     {t(badge.label)}
                   </span>
+                  {c.highlightedAt && (
+                    <span className="badge badge--warn" style={{ position: 'absolute', bottom: 12, left: 12, zIndex: 3, fontSize: 9.5, pointerEvents: 'none', display: 'inline-flex', gap: 4, alignItems: 'center' }}>
+                      <StarIcon size={11} filled /> {t('hl.badge')}
+                    </span>
+                  )}
                 </div>
                 <div style={{ padding: '14px 16px 16px' }}>
                   <h3 style={{ margin: 0, fontSize: 14.5, fontWeight: 600, lineHeight: 1.25, height: '2.5em', overflow: 'hidden' }}>
@@ -128,6 +136,8 @@ export function CollectionTab({ items, loading, error, onRetry }: { items: Custo
                         {value !== null ? money(value) : t('vault.pending')}
                       </div>
                     </div>
+                    <span style={{ display: 'flex', gap: 6 }}>
+                    <HighlightButton item={c} items={all} />
                     <button
                       type="button"
                       className="icon-btn"
@@ -137,6 +147,7 @@ export function CollectionTab({ items, loading, error, onRetry }: { items: Custo
                     >
                       <DownloadIcon />
                     </button>
+                    </span>
                   </div>
                 </div>
               </article>
