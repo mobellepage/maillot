@@ -28,6 +28,7 @@ import { InquiryButton } from '../collectors/InquiryButton.tsx';
 import { isCutoutPath } from '../vault/addshirt/studio.ts';
 import { variantLabel } from '../library/model.ts';
 import { composeFeed, type FeedItem } from './compose.ts';
+import { FeedTabs } from './FeedTabs.tsx';
 
 const SEEN_KEY = 'kv_feed_seen';
 /** How far (px) a card must travel to count as a decision. */
@@ -336,8 +337,8 @@ export default function FeedPage() {
       }}
       style={{ maxWidth: 1360, margin: '0 auto', outline: 'none' }}
     >
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, padding: '10px 20px', borderBottom: '1px solid var(--line)' }}>
-        <h1 style={{ margin: 0, fontSize: 13, fontWeight: 700, color: 'var(--accent)' }}>{t('feed.title')}</h1>
+      <h1 className="sr-only">{t('feed.title')}</h1>
+      <FeedTabs>
         <span style={{ fontSize: 12.5, color: 'var(--muted)' }}>{t('feed.hint')}</span>
         <Link to="/watchlist" aria-label={t('feed.wishlistCount', { n: liked })} style={{ fontSize: 13, display: 'flex', alignItems: 'center', gap: 6 }}>
           <span key={pulse} style={{ display: 'inline-flex', animation: pulse ? 'kvHeart .5s ease' : undefined }}>
@@ -345,7 +346,7 @@ export default function FeedPage() {
           </span>
           {liked}
         </Link>
-      </div>
+      </FeedTabs>
 
       <div ref={stage} style={{ height, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 18, padding: '12px 16px', overflow: 'hidden' }}>
         {!feed.data && <p style={{ color: 'var(--muted)' }}>{t('common.loading')}</p>}

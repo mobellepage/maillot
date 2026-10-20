@@ -2103,6 +2103,16 @@ export const en = {
   'find.c.white': 'White',
   'find.c.black': 'Black',
   'find.c.grey': 'Grey',
+  'feed.shirts': 'Shirts',
+  'fits.tab': 'Fits',
+  'fits.meta': 'Blokecore fits – football shirts as outfits',
+  'fits.title': 'Blokecore fits',
+  'fits.intro': 'How people wear football shirts – outfits picked by Maillot.',
+  'fits.find': 'Find your retro shirt',
+  'fits.consent': 'The outfits come from our Pinterest board. Showing them loads Pinterest, which then sees your visit.',
+  'fits.show': 'Show outfits',
+  'fits.failed': 'Pinterest couldn’t be loaded.',
+  'fits.open': 'Open the board on Pinterest',
   // @@end
 };
 

@@ -2104,5 +2104,15 @@ export const de: Messages = {
   'find.c.white': 'Weiss',
   'find.c.black': 'Schwarz',
   'find.c.grey': 'Grau',
+  'feed.shirts': 'Trikots',
+  'fits.tab': 'Fits',
+  'fits.meta': 'Blokecore-Fits – Fussballtrikots als Outfit',
+  'fits.title': 'Blokecore-Fits',
+  'fits.intro': 'So trägt man Fussballtrikots – Outfits, ausgewählt von Maillot.',
+  'fits.find': 'Finde dein Retro-Trikot',
+  'fits.consent': 'Die Outfits kommen von unserem Pinterest-Board. Beim Anzeigen wird Pinterest geladen und sieht deinen Besuch.',
+  'fits.show': 'Outfits anzeigen',
+  'fits.failed': 'Pinterest konnte nicht geladen werden.',
+  'fits.open': 'Board auf Pinterest öffnen',
   // @@end
 };

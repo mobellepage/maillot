@@ -31,3 +31,11 @@ export const AUTH_PROVIDERS = String(import.meta.env.VITE_AUTH_PROVIDERS ?? '')
   .split(',')
   .map((s) => s.trim())
   .filter((s): s is 'apple' | 'google' => s === 'apple' || s === 'google');
+
+/**
+ * The Pinterest board shown under Feed → Fits (blokecore outfits), e.g.
+ * "https://www.pinterest.com/<user>/<board>/". Empty = the Fits tab is hidden.
+ * Shown with Pinterest's own board widget, loaded only after a tap
+ * (features/feed/PinterestBoard.tsx).
+ */
+export const PINTEREST_BOARD: string = import.meta.env.VITE_PINTEREST_BOARD || '';

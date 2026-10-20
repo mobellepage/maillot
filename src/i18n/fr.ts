@@ -2104,5 +2104,15 @@ export const fr: Messages = {
   'find.c.white': 'Blanc',
   'find.c.black': 'Noir',
   'find.c.grey': 'Gris',
+  'feed.shirts': 'Maillots',
+  'fits.tab': 'Fits',
+  'fits.meta': 'Fits blokecore – le maillot de foot en tenue',
+  'fits.title': 'Fits blokecore',
+  'fits.intro': 'Comment porter un maillot de foot – des tenues choisies par Maillot.',
+  'fits.find': 'Trouve ton maillot rétro',
+  'fits.consent': 'Les tenues viennent de notre tableau Pinterest. Les afficher charge Pinterest, qui voit alors ta visite.',
+  'fits.show': 'Afficher les tenues',
+  'fits.failed': 'Pinterest n’a pas pu être chargé.',
+  'fits.open': 'Ouvrir le tableau sur Pinterest',
   // @@end
 };

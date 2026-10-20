@@ -247,7 +247,8 @@ export const DOCS: Record<LegalDoc, { title: string; intro?: string; sections: S
         body: (
           <P>
             We use no advertising or analytics trackers. Your browser stores only what the app needs to work: your sign-in session, your currency and language choice, unfinished
-            drafts and cached exchange rates. Fonts are hosted by us, not loaded from third parties.
+            drafts and cached exchange rates. Fonts are hosted by us, not loaded from third parties. The outfit board under Feed → Fits is Pinterest’s own widget: it
+            loads from Pinterest (which then sees your visit and may set its cookies) only after you tap “Show”.
           </P>
         )
       },
