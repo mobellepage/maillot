@@ -2,7 +2,7 @@
 // library (where its owners show), the heart takes it off again.
 import { Link } from 'react-router';
 import { usePrefs } from '../../lib/prefs.tsx';
-import { HeartIcon } from '../../ui/index.ts';
+import { BookmarkIcon } from '../../ui/index.ts';
 import { variantLabel } from '../library/model.ts';
 import { useKitLikes } from './useKitLikes.ts';
 
@@ -37,7 +37,7 @@ export function LikedKits() {
                 onClick={() => likes.toggle(k)}
                 style={{ position: 'absolute', top: 18, right: 18, zIndex: 2, width: 34, height: 34, borderRadius: '50%', border: 0, background: 'rgba(10,12,11,0.72)', color: 'var(--accent-fill, #4BFF8B)', display: 'grid', placeItems: 'center', cursor: 'pointer' }}
               >
-                <HeartIcon size={16} filled />
+                <BookmarkIcon size={16} filled />
               </button>
             </li>
           );

@@ -5,7 +5,7 @@
 import { useState, type CSSProperties, type MouseEvent } from 'react';
 import { Link } from 'react-router';
 import { haptic } from '../lib/native.ts';
-import { HeartIcon } from './icons.tsx';
+import { BookmarkIcon } from './icons.tsx';
 import { usePrefs } from '../lib/prefs.tsx';
 import { ShirtGraphic, type ShirtLook } from './ShirtGraphic.tsx';
 
@@ -95,7 +95,7 @@ export function WatchButton({ watched, onToggle, name, style, size = 36 }: { wat
       className={pop ? 'watch-btn watch-btn--pop' : 'watch-btn'}
       style={{ width: size, height: size, color: watched ? 'var(--accent)' : 'var(--text)', ...style }}
     >
-      <HeartIcon size={15} filled={watched} />
+      <BookmarkIcon size={15} filled={watched} />
     </button>
   );
 }

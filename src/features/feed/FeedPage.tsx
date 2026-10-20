@@ -15,7 +15,7 @@ import { usePhotoUrls } from '../../lib/usePhotoUrls.ts';
 import { loadJSON, saveJSON } from '../../utils/storage.ts';
 import * as db from '../../utils/db.ts';
 import type { Photo } from '../../types/domain.ts';
-import { Button, ButtonLink, CloseIcon, HeartIcon, ShirtGraphic, alpha } from '../../ui/index.ts';
+import { BookmarkIcon, Button, ButtonLink, CloseIcon, HeartIcon, ShirtGraphic, alpha } from '../../ui/index.ts';
 import { useCatalog } from '../catalog/useCatalog.ts';
 import { marketValue } from '../catalog/model.ts';
 import { useWatchlist } from '../watchlist/useWatchlist.ts';
@@ -342,7 +342,7 @@ export default function FeedPage() {
         <span style={{ fontSize: 12.5, color: 'var(--muted)' }}>{t('feed.hint')}</span>
         <Link to="/watchlist" aria-label={t('feed.wishlistCount', { n: liked })} style={{ fontSize: 13, display: 'flex', alignItems: 'center', gap: 6 }}>
           <span key={pulse} style={{ display: 'inline-flex', animation: pulse ? 'kvHeart .5s ease' : undefined }}>
-            <HeartIcon size={14} filled style={{ color: 'var(--accent)' }} />
+            <BookmarkIcon size={14} filled style={{ color: 'var(--accent)' }} />
           </span>
           {liked}
         </Link>

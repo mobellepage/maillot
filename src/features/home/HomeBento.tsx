@@ -4,7 +4,7 @@ import { Link } from 'react-router';
 import { BY } from '../../data.ts';
 import { usePrefs } from '../../lib/prefs.tsx';
 import { useSession } from '../../lib/session.tsx';
-import { ButtonLink, HeartIcon, ShirtGraphic } from '../../ui/index.ts';
+import { BookmarkIcon, ButtonLink, ShirtGraphic } from '../../ui/index.ts';
 import { SITE_URL } from '../../config/site.ts';
 import { Avatar } from '../avatars/Avatar.tsx';
 
@@ -83,7 +83,7 @@ export function HomeBento() {
               <Thumb id="ned-88" size={52} />
               <span style={{ minWidth: 0 }}>
                 <span style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, fontWeight: 700 }}>
-                  <HeartIcon size={13} filled style={{ color: 'var(--accent)' }} /> {t('notif.wanted.title')}
+                  <BookmarkIcon size={13} filled style={{ color: 'var(--accent)' }} /> {t('notif.wanted.title')}
                 </span>
                 <span style={{ display: 'block', fontSize: 12.5, color: 'var(--muted)', marginTop: 2 }}>{t('home.bento.wanted.sample')}</span>
               </span>

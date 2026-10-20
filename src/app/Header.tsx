@@ -1,6 +1,6 @@
 import { lazy, Suspense } from 'react';
 import { Link, NavLink, useLocation, useNavigate, useSearchParams } from 'react-router';
-import { HeartIcon, MoonIcon, SearchIcon, SunIcon } from '../ui/index.ts';
+import { BookmarkIcon, MoonIcon, SearchIcon, SunIcon } from '../ui/index.ts';
 import { isDark, setThemePref, useThemePref } from '../lib/theme.ts';
 import { usePrefs } from '../lib/prefs.tsx';
 import { useSession } from '../lib/session.tsx';
@@ -96,7 +96,7 @@ export default function Header() {
         </select>
         <ThemeToggle />
         <Link to="/watchlist" aria-label={t('header.watchlist', { n: wished })} className="icon-btn" style={{ width: 'auto', padding: '0 12px', borderRadius: 999, gap: 6, display: 'flex', alignItems: 'center', fontFamily: 'var(--font-mono)', fontSize: 13, color: 'var(--text)' }}>
-          <HeartIcon size={15} filled style={{ color: 'var(--accent)' }} />
+          <BookmarkIcon size={15} filled style={{ color: 'var(--accent)' }} />
           {wished}
         </Link>
         {user ? (
