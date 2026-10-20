@@ -63,7 +63,7 @@ export function ShirtSocial({ itemId }: { itemId: string }) {
   const signIn = { from: pathname, notice: 'social.signIn' };
 
   return (
-    <section aria-labelledby="social-title" style={{ marginTop: 28, maxWidth: 720 }}>
+    <section id="comments" aria-labelledby="social-title" style={{ marginTop: 28, maxWidth: 720, scrollMarginTop: 90 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
         {user && !s.isOwner ? (
           <button type="button" className="option-btn" aria-pressed={s.liked} onClick={() => like.mutate(!s.liked)} disabled={like.isPending} style={{ padding: '8px 14px', fontSize: 14, fontWeight: 650, display: 'inline-flex', alignItems: 'center', gap: 8 }}>

@@ -646,6 +646,7 @@ export type Database = {
           stripe_customer_id: string | null;
           premium_waitlist_at: string | null;
           trial_until: string | null;
+          bio: string | null;
           avatar: string | null;
           collection_private: boolean;
         };
@@ -669,6 +670,7 @@ export type Database = {
           stripe_customer_id?: string | null;
           premium_waitlist_at?: string | null;
           trial_until?: string | null;
+          bio?: string | null;
           avatar?: string | null;
           collection_private?: boolean;
         };
@@ -1034,7 +1036,10 @@ export type Database = {
       };
       follow_collector: { Args: { p_handle: string }; Returns: undefined };
       unfollow_collector: { Args: { p_handle: string }; Returns: undefined };
-      collector_profile: { Args: { p_handle: string }; Returns: { followers: number; following: number; show_value: boolean; is_following: boolean; is_me: boolean; dealer: boolean; collection_private: boolean; avatar: string | null }[] };
+      collector_profile: { Args: { p_handle: string }; Returns: { followers: number; following: number; show_value: boolean; is_following: boolean; is_me: boolean; dealer: boolean; collection_private: boolean; avatar: string | null; bio: string | null; club_id: string | null; club_name: string | null; shirts: number }[] };
+      collector_follows: { Args: { p_handle: string }; Returns: { direction: 'following' | 'follower'; handle: string; avatar: string | null; shirts: number }[] };
+      following_feed: { Args: { p_before?: string | null; p_limit?: number }; Returns: { id: string; handle: string; avatar: string | null; catalog_id: string | null; kit_id: string | null; kit_image: string | null; club: string | null; season: string | null; variant: string | null; version: string | null; size: string | null; player_name: string | null; player_number: string | null; photo_path: string | null; thumb_path: string | null; added_at: string; likes: number; liked: boolean; comments: number; last_comment: { handle: string | null; body: string } | null }[] };
+      following_stories: { Args: never; Returns: { handle: string; avatar: string | null; latest: string; items: { id: string; catalog_id: string | null; kit_image: string | null; club: string | null; season: string | null; variant: string | null; photo_path: string | null; added_at: string }[] }[] };
       admin_set_dealer: { Args: { p_handle: string; p_verified: boolean; p_commission_rate?: number | null }; Returns: undefined };
       admin_dealers: { Args: never; Returns: { handle: string; dealer_verified_at: string | null; commission_rate: number | null; listings: number; sales: number }[] };
       my_follows: { Args: never; Returns: { direction: 'following' | 'follower'; handle: string; avatar: string | null; shirts: number; since: string }[] };

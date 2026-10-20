@@ -85,6 +85,36 @@ export async function loadMyFollowing(): Promise<Followed[]> {
 }
 
 export type MyFollow = RpcReturns<'my_follows'>[number];
+export type CollectorFollow = RpcReturns<'collector_follows'>[number];
+export type FollowingPost = RpcReturns<'following_feed'>[number];
+export type FollowingStory = RpcReturns<'following_stories'>[number];
+
+/** Whom a collector follows and who follows them (any profile). */
+export async function loadCollectorFollows(handle: string): Promise<CollectorFollow[]> {
+  const { data, error } = await (await sb()).rpc('collector_follows', { p_handle: handle });
+  if (error) throw error;
+  return data ?? [];
+}
+
+/** The shirts the collectors I follow added, newest first (before: the last one shown, for the next page). */
+export async function loadFollowingFeed(before: string | null, limit = 20): Promise<FollowingPost[]> {
+  const { data, error } = await (await sb()).rpc('following_feed', { p_before: before, p_limit: limit });
+  if (error) throw error;
+  return data ?? [];
+}
+
+/** Collectors I follow who added shirts in the last 24 hours, with those shirts. */
+export async function loadFollowingStories(): Promise<FollowingStory[]> {
+  const { data, error } = await (await sb()).rpc('following_stories');
+  if (error) throw error;
+  return data ?? [];
+}
+
+/** My short bio on my profile (up to 160 characters). */
+export async function saveBio(userId: string, bio: string): Promise<void> {
+  const { error } = await (await sb()).from('profiles').update({ bio: bio.trim().slice(0, 160) || null }).eq('id', userId);
+  if (error) throw error;
+}
 
 /** Whom I follow and who follows me, newest first (my own profile). */
 export async function loadMyFollows(): Promise<MyFollow[]> {

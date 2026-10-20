@@ -7,7 +7,7 @@ import { usePrefs } from '../../lib/prefs.tsx';
 import { useSession } from '../../lib/session.tsx';
 import { useToast } from '../../lib/toast.tsx';
 import * as db from '../../utils/db.ts';
-import { Card } from '../../ui/index.ts';
+import { Button, Card } from '../../ui/index.ts';
 import { Avatar } from '../avatars/Avatar.tsx';
 
 export function ProfileCard() {
@@ -45,12 +45,45 @@ export function ProfileCard() {
       toast(t('coll.saveFailed'));
     }
   });
+  // The bio on my public profile (160 characters, like Instagram's 150).
+  const [bio, setBio] = useState<string | null>(null);
+  const saveBio = useMutation({
+    mutationFn: (text: string) => db.saveBio(user!.id, text),
+    onSuccess: () => {
+      toast(t('ig.bioSaved'));
+      setBio(null);
+      qc.invalidateQueries({ queryKey: ['profile', user?.id] });
+      qc.invalidateQueries({ queryKey: ['collectorStats'] });
+    },
+    onError: () => toast(t('coll.saveFailed'))
+  });
   if (!user || !profile) return null;
   const isPrivate = privateChosen ?? profile.collectionPrivate;
+  const bioText = bio ?? profile.bio ?? '';
 
   return (
-    <Card>
+    <Card id="profile">
       <h2 style={{ fontSize: 17, marginBottom: 6 }}>{t('coll.profileCard')}</h2>
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          saveBio.mutate(bioText);
+        }}
+        style={{ padding: '14px 0', borderTop: '1px solid var(--line)' }}
+      >
+        <label htmlFor="bio" style={{ display: 'block', fontSize: 14.5 }}>
+          {t('ig.bio')}
+        </label>
+        <div className="field" style={{ marginTop: 8 }}>
+          <textarea id="bio" value={bioText} maxLength={160} rows={3} onChange={(e) => setBio(e.target.value)} placeholder={t('ig.bioPlaceholder')} style={{ resize: 'vertical', minHeight: 72 }} />
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 8 }}>
+          <span className="mono" style={{ fontSize: 12, color: 'var(--muted)' }}>{bioText.length}/160</span>
+          <Button size="sm" type="submit" busy={saveBio.isPending} disabled={bio === null || bio === (profile.bio ?? '')}>
+            {t('ig.saveBio')}
+          </Button>
+        </div>
+      </form>
       <label style={{ display: 'flex', alignItems: 'flex-start', gap: 12, padding: '14px 0', borderTop: '1px solid var(--line)', cursor: 'pointer' }}>
         <input
           type="checkbox"

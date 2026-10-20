@@ -16,7 +16,7 @@ import { LikedKits } from '../watchlist/LikedKits.tsx';
 import { useKitLikes } from '../watchlist/useKitLikes.ts';
 import { OffersPanel } from './OffersPanel.tsx';
 import { CollectionTab } from './CollectionTab.tsx';
-import { badgeFor, itemLook, itemName, valueOf } from './model.ts';
+import { badgeFor, highlightsFirst, itemLook, itemName, libraryPicture, mainPhoto, valueOf } from './model.ts';
 import { useCollection } from './useCollection.ts';
 import { VaultSummary } from './VaultSummary.tsx';
 import { PayoutsCard } from './PayoutsCard.tsx';
@@ -24,7 +24,11 @@ import { SITE_URL, shareOrigin } from '../../config/site.ts';
 import { mainColor, renderCard, shareCard } from './shareCard.ts';
 import { Avatar } from '../avatars/Avatar.tsx';
 import { PlanChip } from '../premium/PlanChip.tsx';
-import { MyFollows } from '../collectors/MyFollows.tsx';
+import { FollowCounts } from '../collectors/FollowCounts.tsx';
+import { HighlightsRow } from '../collectors/HighlightsRow.tsx';
+import { useQuery } from '@tanstack/react-query';
+import * as db from '../../utils/db.ts';
+import { usePhotoUrls } from '../../lib/usePhotoUrls.ts';
 import { LevelBadge, LevelCard } from '../levels/LevelBadge.tsx';
 import { PointsCard } from '../levels/PointsCard.tsx';
 import { FavoriteClub } from '../library/FavoriteClub.tsx';
@@ -47,6 +51,11 @@ export default function VaultPage({ tab }: { tab: Tab }) {
   const orders = useOrders(!!user);
   const watched = watch.ids.map((id) => getShirt(id)).filter((s) => !!s);
   const totalValue = items.reduce((a, c) => a + (valueOf(c) ?? 0), 0);
+  const myStats = useQuery({ queryKey: ['collectorStats', (profile?.handle ?? '').toLowerCase(), user?.id], queryFn: () => db.loadCollectorStats(profile!.handle!), enabled: !!profile?.handle });
+  // My highlights as circles, like on my public profile (the library picture first, as in my collection).
+  const tops = highlightsFirst(items).filter((c) => c.highlightedAt);
+  const topThumb = usePhotoUrls(tops.map(mainPhoto), true);
+  const highlightCircles = tops.map((c) => ({ id: c.id, to: '/vault/item/' + c.id, name: itemName(c), src: libraryPicture(c, true) ?? topThumb(mainPhoto(c)) }));
 
   const share = () => {
     const payload = {
@@ -131,7 +140,17 @@ export default function VaultPage({ tab }: { tab: Tab }) {
             {handle ?? <Link to="/welcome?step=username">{t('vault.chooseHandle')}</Link>}
             {since && ' · ' + t('vault.memberSince', { date: since })}
           </div>
-          <MyFollows />
+          {myStats.data && (
+            <div style={{ marginTop: 12 }}>
+              <FollowCounts handle={profile!.handle!} shirts={items.length} followers={myStats.data.followers} following={myStats.data.following} />
+            </div>
+          )}
+          {profile?.bio && <p style={{ margin: '10px 0 0', fontSize: 14.5, lineHeight: 1.5, whiteSpace: 'pre-line', maxWidth: 520 }}>{profile.bio}</p>}
+          {profile?.handle && (
+            <Link to="/account#profile" style={{ display: 'inline-block', fontSize: 13, marginTop: 6, marginRight: 12 }}>
+              {profile.bio ? t('ig.editProfile') : t('ig.addBio')}
+            </Link>
+          )}
           <PlanChip style={{ marginTop: 10, marginRight: 8 }} />
           {expert > 0 && (
             <Badge tone="warn" style={{ marginTop: 10, fontFamily: 'var(--font-sans)', fontSize: 12 }}>
@@ -150,6 +169,10 @@ export default function VaultPage({ tab }: { tab: Tab }) {
           </>
         )}
         <ButtonLink to="/vault/add">{t('vault.add')}</ButtonLink>
+      </div>
+
+      <div style={{ marginTop: 18 }}>
+        <HighlightsRow items={highlightCircles} />
       </div>
 
       {/* The collector's level first, then the favourite team's checklist. */}

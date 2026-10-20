@@ -15,7 +15,8 @@ import { useToast } from '../../lib/toast.tsx';
 import * as db from '../../utils/db.ts';
 import type { PublicShirt } from '../../utils/db.ts';
 import type { Photo } from '../../types/domain.ts';
-import { Badge, HEX, HeartIcon, ScrollRow, ShirtGraphic, StarIcon, alpha } from '../../ui/index.ts';
+import { Badge, GridIcon, HEX, HeartIcon, ListIcon, ScrollRow, ShirtGraphic, StarIcon, alpha } from '../../ui/index.ts';
+import { loadJSON, saveJSON } from '../../utils/storage.ts';
 import { isCutoutPath } from '../vault/addshirt/studio.ts';
 import { PendingPhotos } from '../vault/PendingPhotos.tsx';
 import { PhotoStrip } from '../vault/PhotoStrip.tsx';
@@ -67,6 +68,12 @@ export function PublicCollection({ shirts, owner }: { shirts: PublicShirt[]; own
   const url = usePhotoUrls(shirts.map(photoOf), true);
   const clubs = useQuery({ queryKey: ['kitClubs'], queryFn: db.loadKitClubs, staleTime: 10 * 60_000 });
   const [league, setLeague] = useState('all');
+  // A grid like Instagram, or the row to swipe through; remembered on this device.
+  const [view, setViewState] = useState<'grid' | 'row'>(() => (loadJSON<string>('kv_coll_view', 'grid') === 'row' ? 'row' : 'grid'));
+  const setView = (v: 'grid' | 'row') => {
+    setViewState(v);
+    saveJSON('kv_coll_view', v);
+  };
   // Each shirt's league, and the leagues as round buttons (with a picture of one of its shirts).
   const leagueKeys = shirts.map((s) => leagueOf({ catalogId: s.catalog_id, proposedClub: s.club ?? '' }, clubs.data ?? []) ?? '?');
   const leagues = [...new Set(leagueKeys)]
@@ -78,8 +85,63 @@ export function PublicCollection({ shirts, owner }: { shirts: PublicShirt[]; own
   const active = league !== 'all' && leagues.some((l) => l.key === league) ? league : 'all';
   const shown = shirts.filter((_, i) => active === 'all' || leagueKeys[i] === active);
 
+  const leagueButtons = leagues.length > 1 && (
+    <div role="group" aria-label={t('vault.byLeague')} className="coll-leagues">
+      {[{ key: 'all', count: shirts.length, pic: undefined as string | undefined }, ...leagues].map((l) => (
+        <button key={l.key} type="button" aria-pressed={active === l.key} onClick={() => setLeague(l.key)} className="coll-league">
+          <span className="coll-league-disc">{l.pic ? <img src={l.pic} alt="" loading="lazy" /> : <span aria-hidden="true">👕</span>}</span>
+          <span className="coll-league-name">{l.key === 'all' ? t('vault.allLeagues') : l.key === 'National Teams' ? t('lib.nations') : l.key === '?' ? t('vault.otherLeague') : l.key}</span>
+          <span className="coll-league-count">{l.count}</span>
+        </button>
+      ))}
+    </div>
+  );
+  const toolbar = (
+    <div role="group" aria-label={t('coll.view')} style={{ display: 'flex', justifyContent: 'flex-end', gap: 4 }}>
+      <button type="button" className="icon-btn" aria-pressed={view === 'grid'} aria-label={t('coll.viewGrid')} onClick={() => setView('grid')} style={{ color: view === 'grid' ? 'var(--text)' : 'var(--muted)' }}>
+        <GridIcon size={17} />
+      </button>
+      <button type="button" className="icon-btn" aria-pressed={view === 'row'} aria-label={t('coll.viewRow')} onClick={() => setView('row')} style={{ color: view === 'row' ? 'var(--text)' : 'var(--muted)' }}>
+        <ListIcon size={17} />
+      </button>
+    </div>
+  );
+
+  if (view === 'grid')
+    return (
+      <>
+        {toolbar}
+        {leagueButtons}
+        <ul aria-label={t('coll.row', { handle: owner })} className="ig-grid">
+          {shown.map((s) => {
+            const name = publicShirtName(s, t('coll.untitled'));
+            const own = url(photoOf(s));
+            const src = own ?? libraryOf(s);
+            return (
+              <li key={s.id}>
+                <Link to={'/u/' + owner + '/' + encodeURIComponent(s.id)} aria-label={name}>
+                  {src && <img src={src} alt="" loading="lazy" decoding="async" className={own && !isCutoutPath(s.photo_path) ? undefined : 'ig-grid__cutout'} />}
+                  {s.highlighted && (
+                    <span aria-hidden="true" style={{ position: 'absolute', top: 6, right: 6, color: 'var(--warn)', filter: 'drop-shadow(0 1px 2px rgba(0,0,0,.4))' }}>
+                      <StarIcon size={15} filled />
+                    </span>
+                  )}
+                  {s.visibility !== 'public' && (
+                    <span className="badge badge--info" style={{ position: 'absolute', left: 6, bottom: 6, fontSize: 9 }}>
+                      {t('vault.vis.' + s.visibility)}
+                    </span>
+                  )}
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
+      </>
+    );
+
   return (
     <>
+      {toolbar}
       <ScrollRow label={t('coll.row', { handle: owner })} prevLabel={t('common.scrollPrev')} nextLabel={t('common.scrollNext')}>
         {shown.map((s) => {
           const cat = s.catalog_id ? BY[s.catalog_id] : undefined;
@@ -148,17 +210,7 @@ export function PublicCollection({ shirts, owner }: { shirts: PublicShirt[]; own
           );
         })}
       </ScrollRow>
-      {leagues.length > 1 && (
-        <div role="group" aria-label={t('vault.byLeague')} className="coll-leagues">
-          {[{ key: 'all', count: shirts.length, pic: undefined as string | undefined }, ...leagues].map((l) => (
-            <button key={l.key} type="button" aria-pressed={active === l.key} onClick={() => setLeague(l.key)} className="coll-league">
-              <span className="coll-league-disc">{l.pic ? <img src={l.pic} alt="" loading="lazy" /> : <span aria-hidden="true">👕</span>}</span>
-              <span className="coll-league-name">{l.key === 'all' ? t('vault.allLeagues') : l.key === 'National Teams' ? t('lib.nations') : l.key === '?' ? t('vault.otherLeague') : l.key}</span>
-              <span className="coll-league-count">{l.count}</span>
-            </button>
-          ))}
-        </div>
-      )}
+      {leagueButtons}
     </>
   );
 }

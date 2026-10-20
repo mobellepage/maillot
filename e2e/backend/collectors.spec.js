@@ -40,16 +40,17 @@ test('a member follows and unfollows a collector', async ({ page }) => {
   await signIn(page, 'buyer@maillot.test');
   await page.goto('/u/zurich_kits');
   await page.getByRole('button', { name: 'Follow', exact: true }).click();
-  await expect(page.getByRole('button', { name: 'Following' })).toHaveAttribute('aria-pressed', 'true');
-  await expect(page.getByText('1 follower')).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Following', exact: true })).toHaveAttribute('aria-pressed', 'true');
+  // The profile's numbers, like Instagram: shirts · followers · following.
+  await expect(page.getByRole('button', { name: /^1\s*Followers$/ })).toBeVisible();
 
   await page.goto('/account');
   await expect(page.getByRole('link', { name: /@zurich_kits/ })).toBeVisible();
 
   await page.goto('/u/zurich_kits');
-  await page.getByRole('button', { name: 'Following' }).click();
+  await page.getByRole('button', { name: 'Following', exact: true }).click();
   await expect(page.getByRole('button', { name: 'Follow', exact: true })).toBeVisible();
-  await expect(page.getByText('0 followers')).toBeVisible();
+  await expect(page.getByRole('button', { name: /^0\s*Followers$/ })).toBeVisible();
 });
 
 test('a member picks a legend as profile picture and can go back to initials', async ({ page }) => {

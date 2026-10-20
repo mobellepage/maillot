@@ -1,7 +1,7 @@
 // /u/:handle — a member's public page: the shirts they show (visibility other
 // than private, for sale ones marked), track record and reviews. Only what the
 // member chose to make public plus facts from completed orders.
-import { useParams } from 'react-router';
+import { Link, useParams } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
 import { BY } from '../../data.ts';
 import { formatDate } from '../../lib/format.ts';
@@ -18,6 +18,9 @@ import { DealerBadge } from '../collectors/DealerBadge.tsx';
 import { publicCollectionValue } from '../collectors/collectionValue.ts';
 import { useSession } from '../../lib/session.tsx';
 import { Avatar } from '../avatars/Avatar.tsx';
+import { FollowCounts } from '../collectors/FollowCounts.tsx';
+import { HighlightsRow } from '../collectors/HighlightsRow.tsx';
+import { usePhotoUrls } from '../../lib/usePhotoUrls.ts';
 
 export default function SellerPage() {
   useCatalog();
@@ -30,6 +33,15 @@ export default function SellerPage() {
   const stats = useQuery({ queryKey: ['collectorStats', handle.toLowerCase(), user?.id], queryFn: () => db.loadCollectorStats(handle), enabled: !!profile.data });
   const value = stats.data?.show_value && collection.data ? publicCollectionValue(collection.data) : null;
   usePageMeta(t('seller.meta', { handle }), t('seller.metaDesc', { handle }));
+  // The highlights as circles: the owner's photo, else the library picture.
+  const top = (collection.data ?? []).filter((x) => x.highlighted);
+  const thumb = usePhotoUrls(top.map((x) => (x.photo_path ? { path: x.photo_path, thumbPath: x.thumb_path ?? undefined } : undefined)), true);
+  const highlights = top.map((x) => ({
+    id: x.id,
+    to: '/u/' + handle + '/' + encodeURIComponent(x.id),
+    name: (x.catalog_id ? BY[x.catalog_id]?.name : undefined) ?? ([x.club, x.season].filter(Boolean).join(' ') || t('coll.untitled')),
+    src: thumb(x.photo_path ? { path: x.photo_path, thumbPath: x.thumb_path ?? undefined } : undefined) ?? x.kit_image ?? undefined
+  }));
 
   if (profile.isLoading)
     return (
@@ -53,31 +65,41 @@ export default function SellerPage() {
 
   return (
     <Page>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 20, flexWrap: 'wrap' }}>
-        <div aria-hidden="true" style={{ width: 80, height: 80, borderRadius: '50%', border: '3px solid var(--accent)', padding: 4, flex: 'none' }}>
-          <Avatar avatar={stats.data?.avatar} name={p.handle} size={66} ring={false} style={{ width: '100%', height: '100%' }} />
+      {/* Like Instagram: picture and numbers, then name, bio, favourite club, the button and the highlights. */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 'clamp(16px,5vw,40px)' }}>
+        <div aria-hidden="true" style={{ width: 'clamp(76px,20vw,96px)', aspectRatio: '1/1', borderRadius: '50%', border: '3px solid var(--accent)', padding: 4, flex: 'none' }}>
+          <Avatar avatar={stats.data?.avatar} name={p.handle} size={84} ring={false} style={{ width: '100%', height: '100%' }} />
         </div>
-        <div style={{ flex: '1 1 200px', minWidth: 0 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-            <span className="eyebrow">{stats.data?.dealer ? t('dealer.eyebrow') : t('seller.eyebrow')}</span>
-            {stats.data?.dealer && <DealerBadge />}
-            {!!collection.data?.length && <LevelBadge shirts={collection.data.length} value={value?.total ?? 0} />}
-          </div>
-          <h1 className="display" style={{ fontSize: p.handle.length > 14 ? 'clamp(18px,5vw,40px)' : 'clamp(28px,4vw,44px)', margin: '6px 0 0', overflowWrap: 'anywhere' }}>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <h1 className="display" style={{ fontSize: p.handle.length > 14 ? 'clamp(18px,5vw,34px)' : 'clamp(24px,4vw,38px)', margin: '0 0 10px', overflowWrap: 'anywhere' }}>
             @{p.handle}
           </h1>
-          <div style={{ fontSize: 13.5, color: 'var(--muted)', marginTop: 6 }}>{t('seller.since', { date: formatDate(p.member_since, lang) })}</div>
-          {stats.data && (
-            <div style={{ fontSize: 13.5, color: 'var(--text-2)', marginTop: 4 }}>
-              {tp('coll.followers', stats.data.followers)} · {t('coll.followingCount', { n: stats.data.following })}
-            </div>
-          )}
+          {stats.data && <FollowCounts handle={p.handle} shirts={stats.data.shirts} followers={stats.data.followers} following={stats.data.following} />}
         </div>
+      </div>
+      <div style={{ marginTop: 14, maxWidth: 560 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+          <span className="eyebrow">{stats.data?.dealer ? t('dealer.eyebrow') : t('seller.eyebrow')}</span>
+          {stats.data?.dealer && <DealerBadge />}
+          {!!collection.data?.length && <LevelBadge shirts={collection.data.length} value={value?.total ?? 0} />}
+        </div>
+        {stats.data?.bio && <p style={{ margin: '8px 0 0', fontSize: 15, lineHeight: 1.5, whiteSpace: 'pre-line' }}>{stats.data.bio}</p>}
+        {stats.data?.club_id && (
+          <Link to={'/library/' + stats.data.club_id} style={{ display: 'inline-block', marginTop: 6, fontSize: 14, fontWeight: 600 }}>
+            ⭐ {stats.data.club_name}
+          </Link>
+        )}
+        <div style={{ fontSize: 12.5, color: 'var(--muted)', marginTop: 6 }}>{t('seller.since', { date: formatDate(p.member_since, lang) })}</div>
+      </div>
+      <div style={{ marginTop: 14 }}>
         <FollowButton handle={p.handle} stats={stats.data ?? undefined} />
+      </div>
+      <div style={{ marginTop: 18 }}>
+        <HighlightsRow items={highlights} />
       </div>
 
       {/* The collection first; the figures and reviews follow. */}
-      <section aria-labelledby="collection-title" style={{ marginTop: 32 }}>
+      <section aria-labelledby="collection-title" style={{ marginTop: 20 }}>
         <h2 id="collection-title" className="title">
           {t('coll.title')} <span className="mono" style={{ color: 'var(--muted)', fontSize: 13 }}>{collection.data?.length ?? ''}</span>
         </h2>
