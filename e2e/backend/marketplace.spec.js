@@ -79,6 +79,7 @@ test('new member: sign up, answer the welcome questions, land on the first step'
 test('seller profile: public page with the shirts of the collection, for sale ones marked', async ({ page }) => {
   await page.goto('/u/zurich_kits');
   await expect(page.getByRole('heading', { level: 1 })).toContainText('@zurich_kits');
-  await seen(page, page.getByRole('heading', { name: /Ajax 1994\/95/ }));
+  // The collection shows as a grid of pictures (Instagram-like); each one is a link named after the shirt.
+  await seen(page, page.getByRole('link', { name: /Ajax 1994\/95/ }).first());
   await expect(page.getByText('Open to offers').first()).toBeVisible();
 });
