@@ -2063,5 +2063,6 @@ export const de: Messages = {
   'hl.added': 'Als Highlight markiert ({n}/{max}) – es erscheint zuerst in deiner Sammlung.',
   'hl.removed': 'Aus deinen Highlights entfernt.',
   'hl.full': 'Du hast schon {n} Highlights – entferne zuerst eines.',
+  'vault.libraryPhoto': 'Bild aus der Bibliothek',
   // @@end
 };

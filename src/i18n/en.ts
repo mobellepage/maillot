@@ -2062,6 +2062,7 @@ export const en = {
   'hl.added': 'Highlighted ({n}/{max}) – it comes first in your collection.',
   'hl.removed': 'Removed from your highlights.',
   'hl.full': 'You already have {n} highlights – remove one first.',
+  'vault.libraryPhoto': 'Library picture',
   // @@end
 };
 

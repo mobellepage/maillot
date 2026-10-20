@@ -1,13 +1,12 @@
 import { useState } from 'react';
 import { Link } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
-import { BY } from '../../data.ts';
 import * as db from '../../utils/db.ts';
 import { usePrefs } from '../../lib/prefs.tsx';
 import type { CustomItem } from '../../types/domain.ts';
 import { downloadVaultCard } from '../../utils/cardExport.js';
 import { ButtonLink, DownloadIcon, EmptyState, ErrorState, Notice, ScrollRow, ShirtGraphic, Skeleton, StarIcon, HEX } from '../../ui/index.ts';
-import { badgeFor, highlightsFirst, itemLook, itemName, leagueOf, valueOf } from './model.ts';
+import { badgeFor, highlightsFirst, itemLook, itemName, leagueOf, libraryPicture, valueOf } from './model.ts';
 import { HighlightButton } from './HighlightButton.tsx';
 import type { Photo } from '../../types/domain.ts';
 import { isCutout } from './addshirt/studio.ts';
@@ -39,8 +38,7 @@ export function CollectionTab({ items: all, loading, error, onRetry }: { items: 
       const idx = leagueKeys.indexOf(key);
       const c = items[idx]!;
       const own = shots[idx]![0];
-      const cat = c.catalogId ? BY[c.catalogId] : undefined;
-      const pic = (own && url(own.photo)) || c.kitImage || (cat?.photo ? (cat.photo.endsWith('.webp') ? cat.photo : cat.photo + '-400.webp') : undefined);
+      const pic = libraryPicture(c, true) || (own && url(own.photo)) || undefined;
       return { key, count: leagueKeys.filter((k) => k === key).length, pic };
     })
     .sort((a, b) => (a.key === '?' ? 1 : b.key === '?' ? -1 : b.count - a.count));
@@ -90,9 +88,11 @@ export function CollectionTab({ items: all, loading, error, onRetry }: { items: 
           const { look, glow } = itemLook(c);
           const value = valueOf(c);
           const name = itemName(c);
-          const slides = shots[i]!.map((x) => ({ src: url(x.photo), cutout: isCutout(x.key) })).filter((x): x is { src: string; cutout: boolean } => !!x.src);
           // Greyed out only while the member has no photos of their own (not while theirs load).
           const hasOwn = shots[i]!.length > 0;
+          // The library picture leads (the collection looks like a catalogue); swiping shows the member's own photos.
+          const lib = hasOwn ? libraryPicture(c, true) : undefined;
+          const slides = [...(lib ? [{ src: lib, cutout: true }] : []), ...shots[i]!.map((x) => ({ src: url(x.photo), cutout: isCutout(x.key) }))].filter((x): x is { src: string; cutout: boolean } => !!x.src);
           return (
             <li key={c.id} className="coll-slide">
               <article className="card card--interactive" style={{ position: 'relative', padding: 0, borderRadius: 22, overflow: 'hidden' }}>

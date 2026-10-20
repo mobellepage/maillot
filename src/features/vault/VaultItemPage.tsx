@@ -9,7 +9,7 @@ import { downloadVaultCard } from '../../utils/cardExport.js';
 import { PendingPhotos } from './PendingPhotos.tsx';
 import { AddOwnPhotos } from './AddOwnPhotos.tsx';
 import { Badge, Button, Card, ErrorState, KeyValueList, Notice, Page, ShirtGraphic, Skeleton, HEX, useConfirm } from '../../ui/index.ts';
-import { badgeFor, itemLook, itemName, valueOf } from './model.ts';
+import { badgeFor, itemLook, itemName, libraryPicture, valueOf } from './model.ts';
 import { VisibilityEditor } from './VisibilityEditor.tsx';
 import { PrecheckPrompt } from './PrecheckPrompt.tsx';
 import { usePhotoUrls } from '../../lib/usePhotoUrls.ts';
@@ -52,7 +52,10 @@ export default function VaultItemPage() {
   const name = itemName(c);
   const badge = badgeFor(c);
   const { look, glow } = itemLook(c);
-  const photos = entries.map(([key, p]) => ({ key, url: fullUrl(p), thumb: thumbUrl(p), label: p.label || key }));
+  // With photos of their own, the library picture leads (like a catalogue); theirs follow.
+  const lib = entries.length ? libraryPicture(c) : undefined;
+  const photos = [...(lib ? [{ key: 'library', url: lib as string | undefined, thumb: libraryPicture(c, true) as string | undefined, label: t('vault.libraryPhoto') }] : []), ...entries.map(([key, p]) => ({ key, url: fullUrl(p), thumb: thumbUrl(p), label: p.label || key }))];
+  const cutout = (key: string) => key === 'library' || isCutout(key);
   const photo = photos[photoIdx];
   const val = currentValuation(c);
   const from = c.initialValuation && !c.initialValuation.blocked ? c.initialValuation.mid : null;
@@ -74,9 +77,9 @@ export default function VaultItemPage() {
       </div>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 28 }}>
         <div style={{ flex: '1 1 360px', minWidth: 0 }}>
-          <div style={{ position: 'relative', aspectRatio: '1/1', borderRadius: 24, overflow: 'hidden', background: photo?.url && !isCutout(photo.key) ? `url(${photo.url}) center/cover` : `radial-gradient(circle at 50% 45%,${glow},rgba(0,0,0,0) 62%),var(--sunken)`, border: '1px solid var(--line)', display: 'grid', placeItems: 'center' }} role="img" aria-label={photo ? photo.label : name}>
+          <div style={{ position: 'relative', aspectRatio: '1/1', borderRadius: 24, overflow: 'hidden', background: photo?.url && !cutout(photo.key) ? `url(${photo.url}) center/cover` : `radial-gradient(circle at 50% 45%,${glow},rgba(0,0,0,0) 62%),var(--sunken)`, border: '1px solid var(--line)', display: 'grid', placeItems: 'center' }} role="img" aria-label={photo ? photo.label : name}>
             {!photo?.url && (c.kitImage ? <PendingPhotos src={c.kitImage} /> : <ShirtGraphic hero {...look} style={{ width: '58%' }} />)}
-            {photo?.url && isCutout(photo.key) && <img src={photo.url} alt="" className="shirt-photo" style={{ width: '86%', height: '86%', objectFit: 'contain' }} />}
+            {photo?.url && cutout(photo.key) && <img src={photo.url} alt="" className="shirt-photo" style={{ width: '86%', height: '86%', objectFit: 'contain' }} />}
             <Badge tone={badge.tone} title={t(badge.desc)} style={{ position: 'absolute', top: 14, left: 14 }}>
               {t(badge.label)}
             </Badge>
@@ -87,7 +90,7 @@ export default function VaultItemPage() {
           {photos.length > 0 && (
             <div role="group" aria-label={t('vault.photos')} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(64px,1fr))', gap: 8, marginTop: 10 }}>
               {photos.map((p, i) => (
-                <button key={p.key} type="button" aria-label={p.label} aria-pressed={i === photoIdx} onClick={() => setPhotoIdx(i)} style={{ aspectRatio: '1/1', borderRadius: 10, border: `1.5px solid ${i === photoIdx ? 'var(--accent)' : 'rgba(255,255,255,0.1)'}`, background: p.thumb ? `url(${p.thumb}) center/${isCutout(p.key) ? 'contain no-repeat' : 'cover'}, var(--sunken)` : 'var(--sunken)', cursor: 'pointer', padding: 0 }} />
+                <button key={p.key} type="button" aria-label={p.label} aria-pressed={i === photoIdx} onClick={() => setPhotoIdx(i)} style={{ aspectRatio: '1/1', borderRadius: 10, border: `1.5px solid ${i === photoIdx ? 'var(--accent)' : 'rgba(255,255,255,0.1)'}`, background: p.thumb ? `url(${p.thumb}) center/${cutout(p.key) ? 'contain no-repeat' : 'cover'}, var(--sunken)` : 'var(--sunken)', cursor: 'pointer', padding: 0 }} />
               ))}
             </div>
           )}

@@ -7,3 +7,12 @@ describe('highlightsFirst', () => {
     expect(highlightsFirst(items).map((x) => x.id)).toEqual(['d', 'b', 'a', 'c', 'e']);
   });
 });
+
+describe('libraryPicture (leads in the own collection)', () => {
+  it('takes the library kit, else the catalogue photo, else nothing', async () => {
+    const { libraryPicture } = await import('../features/vault/model.ts');
+    expect(libraryPicture({ kitImage: '/library/yb/2018-19-home-kit.webp', catalogId: 'acm-0607' })).toBe('/library/yb/2018-19-home-kit.webp');
+    expect(libraryPicture({ kitImage: null, catalogId: 'acm-0607' }, true)).toMatch(/acm-0607.*\.webp$/);
+    expect(libraryPicture({ kitImage: null, catalogId: null })).toBeUndefined();
+  });
+});

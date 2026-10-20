@@ -42,6 +42,18 @@ export function mainPhoto(c: CustomItem): Photo | undefined {
   return c.photos?.front_studio ?? c.photos?.front;
 }
 
+/**
+ * The shirt's picture from the library (or the catalogue): what leads in the
+ * member's own collection, so every collection looks like a catalogue; their
+ * own photos follow. small = the 400 px catalogue file.
+ */
+export function libraryPicture(c: CustomItem, small = false): string | undefined {
+  if (c.kitImage) return c.kitImage;
+  const photo = c.catalogId ? BY[c.catalogId]?.photo : undefined;
+  if (!photo) return undefined;
+  return photo.endsWith('.webp') ? photo : photo + (small ? '-400.webp' : '.webp');
+}
+
 export function valueOf(c: CustomItem): number | null {
   const v = currentValuation(c);
   return v && !v.blocked ? v.mid : null;
