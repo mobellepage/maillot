@@ -2113,6 +2113,8 @@ export const en = {
   'fits.show': 'Show outfits',
   'fits.failed': 'Pinterest couldn’t be loaded.',
   'fits.open': 'Open the board on Pinterest',
+  'pshirt.prevPhoto': 'Previous photo',
+  'pshirt.nextPhoto': 'Next photo',
   // @@end
 };
 

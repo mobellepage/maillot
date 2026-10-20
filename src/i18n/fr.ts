@@ -2114,5 +2114,7 @@ export const fr: Messages = {
   'fits.show': 'Afficher les tenues',
   'fits.failed': 'Pinterest n’a pas pu être chargé.',
   'fits.open': 'Ouvrir le tableau sur Pinterest',
+  'pshirt.prevPhoto': 'Photo précédente',
+  'pshirt.nextPhoto': 'Photo suivante',
   // @@end
 };

@@ -86,7 +86,8 @@ export default function PublicShirtPage() {
   const gallery = [
     ...pics.map((p) => ({ key: p.kind, src: full(p.photo), thumb: thumb(p.photo), cutout: isCutoutPath(p.photo.path), alt: p.kind === 'back' ? t('pshirt.backPhoto') : name }))
   ];
-  const current = gallery[Math.min(shown, gallery.length - 1)];
+  const at0 = Math.max(0, Math.min(shown, gallery.length - 1));
+  const current = gallery[at0];
   const src = current?.src;
   const player = [s.player_name, s.player_number].filter(Boolean).join(' ');
   const facts: [string, string][] = [
@@ -136,13 +137,13 @@ export default function PublicShirtPage() {
             data-swipe
             onTouchStart={(e) => (touch.current = e.touches[0]?.clientX ?? null)}
             onTouchEnd={(e) => {
-              // A clear sideways swipe goes to the next (or previous) shirt.
+              // A clear sideways swipe shows the shirt's next (or previous) photo.
               const from = touch.current;
               const x = e.changedTouches[0]?.clientX;
               touch.current = null;
               if (from === null || x === undefined || Math.abs(x - from) < 60) return;
-              if (x < from && nextTo) navigate(nextTo);
-              if (x > from && prevTo) navigate(prevTo);
+              if (x < from && at0 < gallery.length - 1) setShown(at0 + 1);
+              if (x > from && at0 > 0) setShown(at0 - 1);
             }}
             style={{ position: 'relative', aspectRatio: '1/1', borderRadius: 28, overflow: 'hidden', display: 'grid', placeItems: 'center', border: '1px solid var(--line)', background: src && !current?.cutout ? 'var(--sunken)' : `radial-gradient(circle at 50% 44%,${alpha(cat ? cat.glow : HEX.muted, 0.3)},rgba(0,0,0,0) 60%),var(--sunken)` }}
           >
@@ -155,15 +156,16 @@ export default function PublicShirtPage() {
             ) : (
               <ShirtGraphic hero pat={cat?.pat ?? HEX.placeholderPat} trim={cat?.trim ?? HEX.muted} crest={cat?.crest ?? HEX.muted} photo={cat?.photo} title={name} style={{ width: '66%' }} />
             )}
-            {prevTo && (
-              <Link to={prevTo} className="photo-strip__arrow photo-strip__arrow--prev" aria-label={t('pshirt.prev')} style={{ zIndex: 3 }}>
+            {/* The arrows on the photo go through this shirt's photos; the next shirt is at the top. */}
+            {at0 > 0 && (
+              <button type="button" className="photo-strip__arrow photo-strip__arrow--prev" aria-label={t('pshirt.prevPhoto')} onClick={() => setShown(at0 - 1)} style={{ zIndex: 3 }}>
                 <ChevronIcon size={14} style={{ transform: 'rotate(180deg)' }} />
-              </Link>
+              </button>
             )}
-            {nextTo && (
-              <Link to={nextTo} className="photo-strip__arrow photo-strip__arrow--next" aria-label={t('pshirt.next')} style={{ zIndex: 3 }}>
+            {at0 < gallery.length - 1 && (
+              <button type="button" className="photo-strip__arrow photo-strip__arrow--next" aria-label={t('pshirt.nextPhoto')} onClick={() => setShown(at0 + 1)} style={{ zIndex: 3 }}>
                 <ChevronIcon size={14} />
-              </Link>
+              </button>
             )}
           </div>
           {gallery.length > 1 && (

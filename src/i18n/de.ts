@@ -2114,5 +2114,7 @@ export const de: Messages = {
   'fits.show': 'Outfits anzeigen',
   'fits.failed': 'Pinterest konnte nicht geladen werden.',
   'fits.open': 'Board auf Pinterest öffnen',
+  'pshirt.prevPhoto': 'Vorheriges Foto',
+  'pshirt.nextPhoto': 'Nächstes Foto',
   // @@end
 };
