@@ -16,11 +16,10 @@ async function signIn(page, email) {
 test('a collector’s piece takes inquiries: ask, reply, read', async ({ browser }) => {
   const buyer = await browser.newPage();
   await signIn(buyer, 'buyer@maillot.test');
-  await buyer.goto('/u/zurich_kits');
-  // The seller also lists this shirt for sale; the collection card is the one marked as a collector's piece.
-  const card = buyer.getByRole('listitem').filter({ hasText: 'Real Madrid 2026/27 Home' }).filter({ hasText: 'Collector’s piece · not for sale' });
-  await expect(card).toHaveCount(1);
-  await card.getByRole('button', { name: 'Ask anyway' }).click();
+  // "Ask anyway" is on the shirt's own page (the profile's cards only show the collection).
+  await buyer.goto('/u/zurich_kits/seed-piece');
+  await expect(buyer.getByText('Collector’s piece · not for sale')).toBeVisible();
+  await buyer.getByRole('button', { name: 'Ask anyway' }).click();
   const dialog = buyer.getByRole('dialog');
   await dialog.getByLabel('Your message').fill('Would you ever part with it?');
   await dialog.getByLabel(/What you would pay/).fill('400');

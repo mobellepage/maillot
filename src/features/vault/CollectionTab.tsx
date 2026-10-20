@@ -4,8 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import * as db from '../../utils/db.ts';
 import { usePrefs } from '../../lib/prefs.tsx';
 import type { CustomItem } from '../../types/domain.ts';
-import { downloadVaultCard } from '../../utils/cardExport.js';
-import { ButtonLink, DownloadIcon, EmptyState, ErrorState, Notice, ScrollRow, ShirtGraphic, Skeleton, StarIcon, HEX } from '../../ui/index.ts';
+import { ButtonLink, EmptyState, ErrorState, Notice, ScrollRow, ShirtGraphic, Skeleton, StarIcon } from '../../ui/index.ts';
 import { badgeFor, highlightsFirst, itemLook, itemName, leagueOf, libraryPicture, valueOf } from './model.ts';
 import { HighlightButton } from './HighlightButton.tsx';
 import type { Photo } from '../../types/domain.ts';
@@ -136,18 +135,7 @@ export function CollectionTab({ items: all, loading, error, onRetry }: { items: 
                         {value !== null ? money(value) : t('vault.pending')}
                       </div>
                     </div>
-                    <span style={{ display: 'flex', gap: 6 }}>
                     <HighlightButton item={c} items={all} />
-                    <button
-                      type="button"
-                      className="icon-btn"
-                      aria-label={t('vault.export', { name })}
-                      onClick={() => downloadVaultCard({ name, size: c.size, priceFmt: value !== null ? money(value) : '—', paid: t('vault.estimated'), gain: '', gainC: HEX.muted, glowA: glow, ...look, badgeLabel: t(badge.label), badgeColor: badge.color })}
-                      style={{ position: 'relative', zIndex: 2, width: 32, height: 32, borderRadius: 8 }}
-                    >
-                      <DownloadIcon />
-                    </button>
-                    </span>
                   </div>
                 </div>
               </article>

@@ -19,9 +19,9 @@ async function signIn(page, email) {
 test('an offer on a collection shirt becomes an order when accepted', async ({ browser }) => {
   const buyer = await browser.newPage();
   await signIn(buyer, 'buyer@maillot.test');
-  await buyer.goto('/u/zurich_kits');
-  const card = buyer.getByRole('listitem').filter({ hasText: 'Ajax 1994/95 Home' });
-  await card.getByRole('button', { name: 'Make an offer' }).click();
+  // Offers start on the shirt's own page (the profile's cards only show the collection).
+  await buyer.goto('/u/zurich_kits/seed-ajax-offers');
+  await buyer.getByRole('button', { name: 'Make an offer' }).click();
   const dialog = buyer.getByRole('dialog');
   await dialog.getByLabel('Your offer').fill('175');
   await dialog.getByRole('button', { name: 'Send offer' }).click();
@@ -45,8 +45,8 @@ test('an offer on a collection shirt becomes an order when accepted', async ({ b
 test('the owner counters an offer and the buyer accepts the counter-offer', async ({ browser }) => {
   const buyer = await browser.newPage();
   await signIn(buyer, 'buyer@maillot.test');
-  await buyer.goto('/u/zurich_kits');
-  await buyer.getByRole('listitem').filter({ hasText: 'Ajax 1994/95 Home' }).getByRole('button', { name: 'Make an offer' }).click();
+  await buyer.goto('/u/zurich_kits/seed-ajax-offers');
+  await buyer.getByRole('button', { name: 'Make an offer' }).click();
   await buyer.getByRole('dialog').getByLabel('Your offer').fill('160');
   await buyer.getByRole('dialog').getByRole('button', { name: 'Send offer' }).click();
   await expect(buyer.getByText('Offer sent to @zurich_kits.')).toBeVisible();

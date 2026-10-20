@@ -26,7 +26,8 @@ test('visitors find a collector by username and are asked to sign in to follow',
 
 test('a shirt in a collection opens as the member’s own shirt, not the catalogue entry', async ({ page }) => {
   await page.goto('/u/zurich_kits');
-  await page.locator('a[href="/u/zurich_kits/seed-ajax-offers"]').click();
+  // The card's photos and its title all open the shirt; the title is the last link.
+  await page.locator('a[href="/u/zurich_kits/seed-ajax-offers"]').last().click();
   await expect(page).toHaveURL(/\/u\/zurich_kits\/seed-ajax-offers$/);
   await expect(page.getByText('From @zurich_kits’s collection')).toBeVisible();
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Ajax 1994/95 Home');
