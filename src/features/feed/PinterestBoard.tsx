@@ -65,7 +65,7 @@ export function PinterestBoard({ url }: { url: string }) {
         </p>
       ) : (
         // Pinterest turns this link into the board (pins in columns).
-        <a data-pin-do="embedBoard" data-pin-board-width={String(Math.max(300, width - 24))} data-pin-scale-height="2000" data-pin-scale-width="135" href={url}>
+        <a data-pin-do="embedBoard" data-pin-board-width={String(Math.max(300, width - 24))} data-pin-scale-height="1100" data-pin-scale-width="135" href={url}>
           {t('fits.open')}
         </a>
       )}

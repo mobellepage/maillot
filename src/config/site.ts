@@ -38,4 +38,4 @@ export const AUTH_PROVIDERS = String(import.meta.env.VITE_AUTH_PROVIDERS ?? '')
  * Shown with Pinterest's own board widget, loaded only after a tap
  * (features/feed/PinterestBoard.tsx).
  */
-export const PINTEREST_BOARD: string = import.meta.env.VITE_PINTEREST_BOARD || '';
+export const PINTEREST_BOARD: string = import.meta.env.VITE_PINTEREST_BOARD || 'https://www.pinterest.com/monazarm1/blokecore/';
