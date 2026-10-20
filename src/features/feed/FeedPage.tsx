@@ -385,6 +385,7 @@ export default function FeedPage() {
                 role="group"
                 aria-roledescription={t('feed.card')}
                 aria-label={titleOf(current)}
+                data-swipe
                 onPointerDown={down}
                 onPointerMove={move}
                 onPointerUp={up}

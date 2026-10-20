@@ -136,6 +136,7 @@ export default function PublicShirtPage() {
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'clamp(24px,4vw,56px)', marginTop: 16, alignItems: 'flex-start' }}>
         <div style={{ flex: '1 1 420px', minWidth: 0 }}>
           <div
+            data-swipe
             onTouchStart={(e) => (touch.current = e.touches[0]?.clientX ?? null)}
             onTouchEnd={(e) => {
               // A clear sideways swipe goes to the next (or previous) shirt.

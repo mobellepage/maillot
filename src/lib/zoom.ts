@@ -5,7 +5,7 @@
 // gesture events are stopped too.
 import { isNative } from './native.ts';
 
-const inApp = () => isNative() || (typeof matchMedia !== 'undefined' && (matchMedia('(display-mode: standalone)').matches || (navigator as { standalone?: boolean }).standalone === true));
+export const inApp = () => isNative() || (typeof matchMedia !== 'undefined' && (matchMedia('(display-mode: standalone)').matches || (navigator as { standalone?: boolean }).standalone === true));
 
 export function lockZoom(): void {
   if (typeof document === 'undefined' || !inApp()) return;

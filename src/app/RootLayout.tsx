@@ -13,6 +13,7 @@ import { RouteAnnouncer } from './RouteAnnouncer.tsx';
 import { AuthLinkNotice } from './AuthLinkNotice.tsx';
 import { PrototypeBar } from './PrototypeBar.tsx';
 import { AppUpdates } from './AppUpdates.tsx';
+import { EdgeBack } from './EdgeBack.tsx';
 import { FeatureRail } from './FeatureRail.tsx';
 
 export default function RootLayout() {
@@ -44,6 +45,7 @@ export default function RootLayout() {
       <AppUpdates />
       <FeatureRail />
       <MobileNav />
+      <EdgeBack />
       {/* Every full page load has location.key "default", so keying on it
           would restore one page's scroll position on another. Key initial
           loads by path; in-app navigations by entry (back restores, new
