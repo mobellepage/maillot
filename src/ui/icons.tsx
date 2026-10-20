@@ -31,6 +31,14 @@ export function StarIcon({ size = 16, filled = false, ...rest }: IconProps & { f
   );
 }
 
+export function BookmarkIcon({ size = 16, filled = false, ...rest }: IconProps & { filled?: boolean }) {
+  return (
+    <svg {...base(size, rest)} fill={filled ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth={2} strokeLinejoin="round">
+      <path d="M6.5 3.5h11v17l-5.5-4-5.5 4z" />
+    </svg>
+  );
+}
+
 export function BellIcon({ size = 17, ...rest }: IconProps) {
   return (
     <svg {...base(size, rest)} fill="none" stroke="currentColor" strokeWidth={2}>

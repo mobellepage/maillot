@@ -973,6 +973,11 @@ export type Database = {
           kit_image: string | null;
           /** One of the owner's top five (shown first). */
           highlighted: boolean;
+          likes: number;
+          /** The viewer likes it. */
+          liked: boolean;
+          /** The library kit it is (for the visitor's wishlist). */
+          kit_id: string | null;
         }[];
       };
       feed_events: {
@@ -1032,6 +1037,7 @@ export type Database = {
       collector_profile: { Args: { p_handle: string }; Returns: { followers: number; following: number; show_value: boolean; is_following: boolean; is_me: boolean; dealer: boolean; collection_private: boolean; avatar: string | null }[] };
       admin_set_dealer: { Args: { p_handle: string; p_verified: boolean; p_commission_rate?: number | null }; Returns: undefined };
       admin_dealers: { Args: never; Returns: { handle: string; dealer_verified_at: string | null; commission_rate: number | null; listings: number; sales: number }[] };
+      my_follows: { Args: never; Returns: { direction: 'following' | 'follower'; handle: string; avatar: string | null; shirts: number; since: string }[] };
       my_following: { Args: never; Returns: { handle: string; followed_at: string; shirts: number; avatar: string | null }[] };
       make_collection_offer: { Args: { p_item_id: string; p_amount: number; p_message?: string | null }; Returns: string };
       respond_collection_offer: { Args: { p_offer_id: string; p_accept: boolean }; Returns: string | null };

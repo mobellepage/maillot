@@ -2063,6 +2063,21 @@ export const en = {
   'hl.removed': 'Removed from your highlights.',
   'hl.full': 'You already have {n} highlights – remove one first.',
   'vault.libraryPhoto': 'Library picture',
+  'pshirt.prev': 'Previous shirt',
+  'pshirt.next': 'Next shirt',
+  'pshirt.browse': 'Browse the collection',
+  'social.signInToLike': 'Sign in to like shirts in other collections.',
+  'coll.row': 'Shirts of @{handle}',
+  'wish.add': 'Add to wishlist',
+  'wish.on': 'On your wishlist',
+  'wish.remove': 'Remove from wishlist',
+  'follows.title': 'Followers & following',
+  'follows.following': 'Following ({n})',
+  'follows.followers': 'Followers ({n})',
+  'follows.noneFollowing': 'You don’t follow any collectors yet – follow them on their profile.',
+  'follows.noneFollowers': 'Nobody follows you yet.',
+  'follows.shirts.one': '{n} shirt',
+  'follows.shirts.other': '{n} shirts',
   // @@end
 };
 

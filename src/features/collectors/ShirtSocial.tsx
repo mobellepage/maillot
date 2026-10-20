@@ -40,6 +40,8 @@ export function ShirtSocial({ itemId }: { itemId: string }) {
     onSuccess: (likes, on) => {
       const cur = qc.getQueryData<ItemSocial | null>(key);
       if (cur) qc.setQueryData<ItemSocial>(key, { ...cur, liked: on, likes });
+      // The heart on the collector's overview shows the same.
+      qc.invalidateQueries({ queryKey: ['publicCollection'] });
     }
   });
   const send = useMutation({

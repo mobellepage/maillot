@@ -25,8 +25,8 @@ export default function SellerPage() {
   const { t, tp, money, lang } = usePrefs();
   const profile = useQuery({ queryKey: ['seller', handle], queryFn: () => db.loadSellerProfile(handle) });
   const reviews = useQuery({ queryKey: ['sellerReviews', handle], queryFn: () => db.loadSellerReviews(handle), enabled: !!profile.data });
-  const collection = useQuery({ queryKey: ['publicCollection', handle], queryFn: () => db.loadPublicCollection(handle), enabled: !!profile.data });
   const { user } = useSession();
+  const collection = useQuery({ queryKey: ['publicCollection', handle, user?.id], queryFn: () => db.loadPublicCollection(handle), enabled: !!profile.data });
   const stats = useQuery({ queryKey: ['collectorStats', handle.toLowerCase(), user?.id], queryFn: () => db.loadCollectorStats(handle), enabled: !!profile.data });
   const value = stats.data?.show_value && collection.data ? publicCollectionValue(collection.data) : null;
   usePageMeta(t('seller.meta', { handle }), t('seller.metaDesc', { handle }));
@@ -76,7 +76,18 @@ export default function SellerPage() {
         <FollowButton handle={p.handle} stats={stats.data ?? undefined} />
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(170px,1fr))', gap: 12, marginTop: 28 }}>
+      {/* The collection first; the figures and reviews follow. */}
+      <section aria-labelledby="collection-title" style={{ marginTop: 32 }}>
+        <h2 id="collection-title" className="title">
+          {t('coll.title')} <span className="mono" style={{ color: 'var(--muted)', fontSize: 13 }}>{collection.data?.length ?? ''}</span>
+        </h2>
+        {collection.isLoading && <Skeleton height={220} radius={20} style={{ marginTop: 14 }} />}
+        {collection.isError && <ErrorState compact what={t('coll.title')} onRetry={() => collection.refetch()} />}
+        {collection.data && !collection.data.length && <p style={{ color: 'var(--muted)', fontSize: 14 }}>{stats.data?.collection_private ? (stats.data.is_me ? t('coll.privateMine') : t('coll.privateOther')) : t('coll.empty')}</p>}
+        {!!collection.data?.length && <PublicCollection shirts={collection.data} owner={p.handle} />}
+      </section>
+
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(170px,1fr))', gap: 12, marginTop: 40 }}>
         <StatTile
           highlight={p.rating !== null}
           label={t('seller.rating')}
@@ -89,15 +100,6 @@ export default function SellerPage() {
         <StatTile label={t('seller.shipTime')} value={p.avg_ship_days === null ? t('seller.na') : t('seller.days', { n: Math.max(1, Math.ceil(Number(p.avg_ship_days))) })} />
       </div>
 
-      <section aria-labelledby="collection-title" style={{ marginTop: 40 }}>
-        <h2 id="collection-title" className="title">
-          {t('coll.title')} <span className="mono" style={{ color: 'var(--muted)', fontSize: 13 }}>{collection.data?.length ?? ''}</span>
-        </h2>
-        {collection.isLoading && <Skeleton height={220} radius={20} style={{ marginTop: 14 }} />}
-        {collection.isError && <ErrorState compact what={t('coll.title')} onRetry={() => collection.refetch()} />}
-        {collection.data && !collection.data.length && <p style={{ color: 'var(--muted)', fontSize: 14 }}>{stats.data?.collection_private ? (stats.data.is_me ? t('coll.privateMine') : t('coll.privateOther')) : t('coll.empty')}</p>}
-        {!!collection.data?.length && <PublicCollection shirts={collection.data} owner={p.handle} canOffer={!stats.data?.is_me} />}
-      </section>
 
       <section aria-labelledby="reviews-title" style={{ marginTop: 40, maxWidth: 760 }}>
         <h2 id="reviews-title" className="title">

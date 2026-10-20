@@ -84,6 +84,15 @@ export async function loadMyFollowing(): Promise<Followed[]> {
   return data ?? [];
 }
 
+export type MyFollow = RpcReturns<'my_follows'>[number];
+
+/** Whom I follow and who follows me, newest first (my own profile). */
+export async function loadMyFollows(): Promise<MyFollow[]> {
+  const { data, error } = await (await sb()).rpc('my_follows');
+  if (error) throw error;
+  return data ?? [];
+}
+
 /** The most-followed public collections (home page). */
 export async function loadTopCollectors(limit = 10): Promise<TopCollector[]> {
   const { data, error } = await (await sb()).rpc('top_collectors', { p_limit: limit });

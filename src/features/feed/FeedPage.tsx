@@ -20,6 +20,7 @@ import { useCatalog } from '../catalog/useCatalog.ts';
 import { marketValue } from '../catalog/model.ts';
 import { useWatchlist } from '../watchlist/useWatchlist.ts';
 import { useKitLikes } from '../watchlist/useKitLikes.ts';
+import { useWish } from '../watchlist/useWish.ts';
 import { SHOW_DEMO_EXEMPLARS } from '../../config/rules.ts';
 import { demoEvents, estimate, fromEventRow, isReservation, orderEvents, type FeedEvent } from '../market/exemplars/model.ts';
 import { OfferButton } from '../collectors/OfferButton.tsx';
@@ -178,6 +179,7 @@ export default function FeedPage() {
   usePageMeta(t('feed.metaTitle'), t('feed.metaDesc'));
   const watch = useWatchlist();
   const kitLikes = useKitLikes();
+  const wish = useWish();
   const liked = watch.ids.length + kitLikes.kits.length;
   const { user, profile } = useSession();
   const navigate = useNavigate();
@@ -247,11 +249,11 @@ export default function FeedPage() {
   const current = items[index];
   const next = items[index + 1];
 
-  // Liking a collector's shirt likes that shirt (signed in); a demo shirt, or a visitor, watches the model instead.
+  // A right swipe always goes on the wishlist: the shirt's library kit, else its model.
+  // (Liking a collector's own shirt is done on their profile and the shirt's page.)
   const likeExemplar = (ev: FeedEvent, like: boolean) => {
     const e = ev.exemplar;
-    if (!e.demo && user) void db.setItemLike(e.id, like).catch(() => {});
-    else if (e.catalogId && watch.has(e.catalogId) !== like) watch.toggle(e.catalogId, { quiet: true });
+    wish.set({ catalogId: e.catalogId, kitId: e.kitId, kitImage: e.kitImage, club: e.club, season: e.season }, like);
   };
 
   const decide = (like: boolean) => {

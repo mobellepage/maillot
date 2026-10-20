@@ -24,6 +24,7 @@ import { SITE_URL, shareOrigin } from '../../config/site.ts';
 import { mainColor, renderCard, shareCard } from './shareCard.ts';
 import { Avatar } from '../avatars/Avatar.tsx';
 import { PlanChip } from '../premium/PlanChip.tsx';
+import { MyFollows } from '../collectors/MyFollows.tsx';
 import { LevelBadge, LevelCard } from '../levels/LevelBadge.tsx';
 import { PointsCard } from '../levels/PointsCard.tsx';
 import { FavoriteClub } from '../library/FavoriteClub.tsx';
@@ -130,6 +131,7 @@ export default function VaultPage({ tab }: { tab: Tab }) {
             {handle ?? <Link to="/welcome?step=username">{t('vault.chooseHandle')}</Link>}
             {since && ' · ' + t('vault.memberSince', { date: since })}
           </div>
+          <MyFollows />
           <PlanChip style={{ marginTop: 10, marginRight: 8 }} />
           {expert > 0 && (
             <Badge tone="warn" style={{ marginTop: 10, fontFamily: 'var(--font-sans)', fontSize: 12 }}>
@@ -146,11 +148,6 @@ export default function VaultPage({ tab }: { tab: Tab }) {
               {t('vault.shareImage')}
             </Button>
           </>
-        )}
-        {items.length > 0 && (
-          <ButtonLink to="/vault/insurance" variant="ghost">
-            {t('vault.insurance')}
-          </ButtonLink>
         )}
         <ButtonLink to="/vault/add">{t('vault.add')}</ButtonLink>
       </div>
