@@ -10,7 +10,9 @@ export function Eras() {
       <h2 id="era-title" className="title" style={{ margin: '0 0 6px' }}>
         {t('home.era.title')}
       </h2>
-      <p style={{ margin: '0 0 16px', color: 'var(--text-2)', fontSize: 14.5 }}>{t('home.era.body')}</p>
+      <p style={{ margin: '0 0 16px', color: 'var(--text-2)', fontSize: 14.5 }}>
+        {t('home.era.body')} <Link to="/library/find">{t('find.entry')} ›</Link>
+      </p>
       <ul className="era-grid">
         {ERAS.map((e) => (
           <li key={e.decade}>

@@ -48,8 +48,18 @@ export default function LibraryPage() {
         </p>
       )}
 
+      {/* Kits by colour and era — e.g. a red retro shirt for an outfit. */}
+      <Link to="/library/find" className="card card--interactive" style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 18px', marginTop: 18, maxWidth: 680, color: 'var(--text)' }}>
+        <span aria-hidden="true" style={{ width: 28, height: 28, borderRadius: '50%', flex: 'none', background: 'conic-gradient(#D7192A,#F5CF1E,#1E8C45,#6CB4EE,#1D4FC4,#6B3FA0,#D7192A)' }} />
+        <span style={{ flex: 1, minWidth: 0 }}>
+          <span style={{ display: 'block', fontWeight: 700 }}>{t('find.entry')}</span>
+          <span style={{ display: 'block', fontSize: 13, color: 'var(--text-2)', marginTop: 2 }}>{t('find.entryBody')}</span>
+        </span>
+        <span aria-hidden="true">›</span>
+      </Link>
+
       {/* The models with a market value: look them up, see who has one, watch them. */}
-      <Link to="/library/catalog" className="card card--interactive" style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 18px', marginTop: 18, maxWidth: 680, color: 'var(--text)' }}>
+      <Link to="/library/catalog" className="card card--interactive" style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 18px', marginTop: 10, maxWidth: 680, color: 'var(--text)' }}>
         <span aria-hidden="true" style={{ fontSize: 24 }}>
           📈
         </span>

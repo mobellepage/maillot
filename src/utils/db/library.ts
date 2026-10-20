@@ -134,6 +134,22 @@ export async function loadEraKits(decade: number, league: string | null, offset 
   return data || [];
 }
 
+export type KitColor = 'red' | 'claret' | 'orange' | 'yellow' | 'green' | 'sky' | 'blue' | 'navy' | 'purple' | 'pink' | 'white' | 'black' | 'grey';
+export interface KitQuery {
+  color: KitColor | null;
+  from: number | null;
+  to: number | null;
+  kind: string | null;
+  league: string | null;
+}
+
+/** Kits by colour, era, kind and league (library_find), with the number of matches. */
+export async function findKits(q: KitQuery, offset = 0, limit = 48): Promise<{ kits: KitTile[]; total: number }> {
+  const { data, error } = await (await sb()).rpc('library_find', { p_color: q.color, p_from: q.from, p_to: q.to, p_kind: q.kind, p_league: q.league, p_offset: offset, p_limit: limit });
+  if (error) throw error;
+  return { kits: data ?? [], total: data?.[0]?.total ?? 0 };
+}
+
 export async function loadLegendKits(legend: string): Promise<KitTile[]> {
   const { data, error } = await (await sb()).rpc('legend_kits_for', { p_legend: legend });
   if (error) throw error;
