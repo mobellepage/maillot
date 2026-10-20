@@ -15,7 +15,7 @@ import { usePhotoUrls } from '../../lib/usePhotoUrls.ts';
 import { loadJSON, saveJSON } from '../../utils/storage.ts';
 import * as db from '../../utils/db.ts';
 import type { Photo } from '../../types/domain.ts';
-import { BookmarkIcon, Button, ButtonLink, CloseIcon, HeartIcon, ShirtGraphic, alpha } from '../../ui/index.ts';
+import { BookmarkIcon, Button, ButtonLink, CloseIcon, ShirtGraphic, alpha } from '../../ui/index.ts';
 import { useCatalog } from '../catalog/useCatalog.ts';
 import { marketValue } from '../catalog/model.ts';
 import { useWatchlist } from '../watchlist/useWatchlist.ts';
@@ -353,7 +353,7 @@ export default function FeedPage() {
 
         {done && (
           <div style={{ textAlign: 'center', maxWidth: 360 }}>
-            <HeartIcon size={40} filled style={{ color: 'var(--accent)' }} />
+            <BookmarkIcon size={40} filled style={{ color: 'var(--accent)' }} />
             <h2 style={{ fontSize: 22, margin: '12px 0 6px' }}>{t('feed.doneTitle')}</h2>
             <p style={{ color: 'var(--text-2)', lineHeight: 1.5, margin: 0 }}>{t('feed.doneBody', { n: liked })}</p>
             <div style={{ display: 'flex', gap: 10, justifyContent: 'center', marginTop: 18, flexWrap: 'wrap' }}>
@@ -422,7 +422,7 @@ export default function FeedPage() {
                 <CloseIcon size={26} />
               </button>
               <button type="button" aria-label={t('feed.like', { name: titleOf(current) })} onClick={() => decide(true)} style={{ width: 64, height: 64, borderRadius: '50%', border: 0, background: 'var(--accent-fill)', color: 'var(--accent-ink)', display: 'grid', placeItems: 'center', cursor: 'pointer' }}>
-                <HeartIcon size={26} filled />
+                <BookmarkIcon size={26} filled />
               </button>
               <Link to={href(current)} className="icon-btn" aria-label={t('feed.details', { name: titleOf(current) })} style={{ width: 48, height: 48, borderRadius: '50%', display: 'grid', placeItems: 'center', fontWeight: 700 }}>
                 i

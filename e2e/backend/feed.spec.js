@@ -19,7 +19,7 @@ test('swiping through the feed: like puts the kit on the wishlist, skip does not
 
   const liked = (await card.getAttribute('aria-label')) ?? '';
   const heading = (await card.getByRole('heading', { level: 2 }).innerText()).trim();
-  await page.getByRole('button', { name: 'Like ' + liked }).click();
+  await page.getByRole('button', { name: 'Put ' + liked + ' on your wishlist' }).click();
   await expect(wishlist).toHaveAccessibleName('Wishlist: 1 shirts');
   await expect(page.getByRole('button', { name: 'Back to the last shirt' })).toBeEnabled();
 
