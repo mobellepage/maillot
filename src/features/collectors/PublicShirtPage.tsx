@@ -82,11 +82,8 @@ export default function PublicShirtPage() {
       </Page>
     );
 
-  // With photos of the owner's, the library picture leads (like their collection); theirs follow.
-  const libPhoto = cat?.photo ? (cat.photo.endsWith('.webp') ? cat.photo : cat.photo + '.webp') : undefined;
-  const lib = pics.length ? (s.kit_image ?? libPhoto) : undefined;
+  // The owner's own photos (the library picture only while they have none).
   const gallery = [
-    ...(lib ? [{ key: 'library', src: lib as string | undefined, thumb: lib as string | undefined, cutout: true, alt: name }] : []),
     ...pics.map((p) => ({ key: p.kind, src: full(p.photo), thumb: thumb(p.photo), cutout: isCutoutPath(p.photo.path), alt: p.kind === 'back' ? t('pshirt.backPhoto') : name }))
   ];
   const current = gallery[Math.min(shown, gallery.length - 1)];
@@ -172,7 +169,7 @@ export default function PublicShirtPage() {
           {gallery.length > 1 && (
             <div role="group" aria-label={t('pshirt.photos')} style={{ display: 'flex', gap: 10, marginTop: 12 }}>
               {gallery.map((p, i) => (
-                <button key={p.key} type="button" aria-pressed={i === shown} aria-label={p.key === 'library' ? t('vault.libraryPhoto') : p.alt} onClick={() => setShown(i)} style={{ width: 72, height: 72, padding: 0, borderRadius: 14, overflow: 'hidden', cursor: 'pointer', border: `2px solid ${i === shown ? 'var(--text)' : 'var(--line)'}`, background: 'var(--sunken)' }}>
+                <button key={p.key} type="button" aria-pressed={i === shown} aria-label={p.alt} onClick={() => setShown(i)} style={{ width: 72, height: 72, padding: 0, borderRadius: 14, overflow: 'hidden', cursor: 'pointer', border: `2px solid ${i === shown ? 'var(--text)' : 'var(--line)'}`, background: 'var(--sunken)' }}>
                   {p.thumb && <img src={p.thumb} alt="" style={{ width: '100%', height: '100%', objectFit: p.cutout ? 'contain' : 'cover' }} />}
                 </button>
               ))}

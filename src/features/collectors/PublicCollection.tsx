@@ -1,6 +1,6 @@
 // A collector's visible shirts on their profile (/u/:handle), laid out like
-// the member's own collection: a row to swipe through (library picture
-// first, then the owner's photo), a heart on every card and the leagues
+// the member's own collection: a row to swipe through (the owner's own
+// photos), a heart on every card and the leagues
 // below to look for shirts of one league. No values and no offer buttons
 // here — what a collection is worth stays with its owner, and offers start
 // on the shirt's own page.
@@ -85,10 +85,9 @@ export function PublicCollection({ shirts, owner }: { shirts: PublicShirt[]; own
           const cat = s.catalog_id ? BY[s.catalog_id] : undefined;
           const name = publicShirtName(s, t('coll.untitled'));
           const to = '/u/' + owner + '/' + encodeURIComponent(s.id);
+          // Other collectors' shirts show their own photo (the library picture only while they have none).
           const own = url(photoOf(s));
-          // The library picture leads, the owner's photo follows (as in one's own collection).
-          const lib = s.photo_path ? libraryOf(s) : undefined;
-          const slides = [...(lib ? [{ src: lib, cutout: true }] : []), ...(own ? [{ src: own, cutout: isCutoutPath(s.photo_path) }] : [])];
+          const slides = own ? [{ src: own, cutout: isCutoutPath(s.photo_path) }] : [];
           const player = [s.player_name, s.player_number].filter(Boolean).join(' ');
           return (
             <li key={s.id} className="coll-slide">
