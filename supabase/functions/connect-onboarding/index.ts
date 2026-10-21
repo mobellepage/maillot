@@ -16,7 +16,7 @@ const json = (body: unknown, status = 200) => new Response(JSON.stringify(body),
 // only our own (or localhost) — never an arbitrary origin. In the iOS app:
 // the site's /return page, which hands over to the app via maillot://.
 function returnUrl(req: Request, path: string, app: boolean) {
-  const site = (Deno.env.get("APP_URL") || "https://maillot-two.vercel.app").replace(/\/$/, "");
+  const site = (Deno.env.get("APP_URL") || "https://maillot.app").replace(/\/$/, "");
   if (app) return `${site}/return?to=${encodeURIComponent(path)}`;
   const origin = req.headers.get("origin") ?? "";
   const ours = origin === site || /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin) || /^https:\/\/maillot-[a-z0-9-]+\.vercel\.app$/.test(origin);

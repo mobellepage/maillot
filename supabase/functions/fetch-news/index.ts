@@ -10,7 +10,7 @@ import { createClient } from "jsr:@supabase/supabase-js@2";
 import { parseNews } from "./parse.ts";
 
 const PAGE = "https://www.soccerbible.com/performance/football-apparel/";
-const UA = "MaillotNews/1.0 (+https://maillot-two.vercel.app)";
+const UA = "MaillotNews/1.0 (+https://maillot.app)";
 const BUCKET = "news-images";
 const TYPES: Record<string, string> = { "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp" };
 const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json" } });

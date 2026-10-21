@@ -1,4 +1,17 @@
 {
+  "redirects": [
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "maillot-two.vercel.app"
+        }
+      ],
+      "destination": "https://maillot.app/:path*",
+      "permanent": true
+    }
+  ],
   "rewrites": [
     {
       "source": "/((?!assets/|sw.js|workbox-|manifest|favicon|apple-touch-icon|icons|og/|catalog/|robots.txt|sitemap.xml).*)",

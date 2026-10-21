@@ -22,7 +22,7 @@ function json(body: unknown, status = 200) {
 
 // Same rule as checkout: back to our own site (or localhost), never elsewhere.
 function returnUrl(req: Request, path: string, app: boolean) {
-  const site = (Deno.env.get("APP_URL") || "https://maillot-two.vercel.app").replace(/\/$/, "");
+  const site = (Deno.env.get("APP_URL") || "https://maillot.app").replace(/\/$/, "");
   if (app) return `${site}/return?to=${encodeURIComponent(path)}`;
   const origin = req.headers.get("origin") ?? "";
   const ours = origin === site || /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin) || /^https:\/\/maillot-[a-z0-9-]+\.vercel\.app$/.test(origin);

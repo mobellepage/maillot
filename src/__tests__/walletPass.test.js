@@ -10,7 +10,7 @@ import { signManifest } from '../../supabase/functions/wallet-pass/sign.ts';
 import * as images from '../../supabase/functions/wallet-pass/images.ts';
 
 const cert = { code: 'MLT-AB12-CD34-EF56', shirtName: 'Netherlands 1988 Home', club: 'Netherlands', season: '1988', size: 'L', issuedAt: '2026-10-05T12:00:00Z', revoked: false, checksPassed: 14 };
-const cfg = { passTypeIdentifier: 'pass.ch.maillot.certificate', teamIdentifier: 'ABCDE12345', siteUrl: 'https://maillot-two.vercel.app/' };
+const cfg = { passTypeIdentifier: 'pass.ch.maillot.certificate', teamIdentifier: 'ABCDE12345', siteUrl: 'https://maillot.app/' };
 
 // A throwaway CA (standing in for Apple's WWDR) and a pass certificate it signed.
 function testPki() {
@@ -37,7 +37,7 @@ describe('Apple Wallet certificate pass', () => {
   it('describes the certificate with a QR code to its public page', () => {
     const p = buildPassJson(cert, cfg);
     expect(p).toMatchObject({ formatVersion: 1, serialNumber: 'MLT-AB12-CD34-EF56', passTypeIdentifier: 'pass.ch.maillot.certificate', teamIdentifier: 'ABCDE12345', voided: false });
-    expect(p.barcodes[0]).toMatchObject({ format: 'PKBarcodeFormatQR', message: 'https://maillot-two.vercel.app/verify/MLT-AB12-CD34-EF56' });
+    expect(p.barcodes[0]).toMatchObject({ format: 'PKBarcodeFormatQR', message: 'https://maillot.app/verify/MLT-AB12-CD34-EF56' });
     expect(p.generic.primaryFields[0]).toMatchObject({ label: 'AUTHENTICATED', value: 'Netherlands 1988 Home' });
     expect(p.generic.auxiliaryFields.map((f) => f.key)).toEqual(['size', 'issued']);
   });

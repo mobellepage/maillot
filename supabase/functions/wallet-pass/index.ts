@@ -46,7 +46,7 @@ Deno.serve(async (req: Request) => {
     revoked: cert.revoked,
     checksPassed: CHECKS[(cert.checks as { checklist?: string })?.checklist ?? "v1"] ?? 14,
   };
-  const passJson = buildPassJson(info, { passTypeIdentifier: env("PASS_TYPE_ID"), teamIdentifier: env("APPLE_TEAM_ID"), siteUrl: env("APP_URL") || "https://maillot-two.vercel.app" });
+  const passJson = buildPassJson(info, { passTypeIdentifier: env("PASS_TYPE_ID"), teamIdentifier: env("APPLE_TEAM_ID"), siteUrl: env("APP_URL") || "https://maillot.app" });
 
   const files: Record<string, Uint8Array> = {
     "pass.json": new TextEncoder().encode(JSON.stringify(passJson)),

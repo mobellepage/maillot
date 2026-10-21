@@ -114,7 +114,7 @@ await shoot(
     <div style="position:absolute;right:30px;top:80px;width:520px;height:480px">
       ${KITS.map((src, i) => `<div style="position:absolute;left:${[0, 200, 95][i]}px;top:${[30, 0, 190][i]}px;width:${[270, 270, 290][i]}px;transform:rotate(${[-8, 6, 0][i]}deg);filter:drop-shadow(0 24px 30px rgba(0,0,0,.18))"><img src="${src}" alt="" style="width:100%;display:block"></div>`).join('')}
     </div>
-    <div class="mono" style="position:absolute;left:72px;bottom:52px;font-size:20px;color:var(--muted);letter-spacing:.08em">maillot-two.vercel.app</div>
+    <div class="mono" style="position:absolute;left:72px;bottom:52px;font-size:20px;color:var(--muted);letter-spacing:.08em">maillot.app</div>
   </div>`,
   1200,
   630,

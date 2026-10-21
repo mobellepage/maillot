@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { appPathFromUrl, isNative } from '../lib/native.ts';
 
-const SITE = 'https://maillot-two.vercel.app';
+const SITE = 'https://maillot.app';
 
 describe('deep links into the iOS app', () => {
   it('turns maillot:// links into in-app paths, keeping the query', () => {

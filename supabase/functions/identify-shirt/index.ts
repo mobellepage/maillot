@@ -19,7 +19,7 @@ const CORS = {
 const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status, headers: { ...CORS, "Content-Type": "application/json" } });
 
 /** Where the library's kit pictures are served (the app's public folder). */
-const SITE = (Deno.env.get("APP_URL") || "https://maillot-two.vercel.app").replace(/\/$/, "");
+const SITE = (Deno.env.get("APP_URL") || "https://maillot.app").replace(/\/$/, "");
 /** A comparison only names the kit when it is at least this sure; below, the member picks. */
 const MATCH_SURE = 0.7;
 

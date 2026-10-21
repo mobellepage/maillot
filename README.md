@@ -197,8 +197,8 @@ app). Branded templates in `supabase/templates/` pick the reader's language from
 user metadata (`lang`, stored at sign-up), English otherwise; `config.toml`
 wires them up locally. In production (Supabase dashboard):
 
-1. **Authentication → URL Configuration**: Site URL `https://maillot-two.vercel.app`;
-   Redirect URLs `https://maillot-two.vercel.app/**` and `http://localhost:5173/**`.
+1. **Authentication → URL Configuration**: Site URL `https://maillot.app`;
+   Redirect URLs `https://maillot.app/**` and `http://localhost:5173/**`.
 2. **Authentication → Emails → SMTP**: a custom sender (e.g. Resend:
    `smtp.resend.com`, port 465, user `resend`, password = Resend API key,
    sender name `Maillot`, a verified domain). Supabase's built-in sender is for
@@ -373,7 +373,7 @@ Admin rights only apply to sessions verified with that second factor (`aal2`).
 
 ## Hosting
 
-Production: https://maillot-two.vercel.app — Vercel project `maillot`, every
+Production: https://maillot.app — Vercel project `maillot`, every
 push to `main` deploys. Build env: `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`
 (publishable key); optional `SITE_URL` once a custom domain is attached.
 
