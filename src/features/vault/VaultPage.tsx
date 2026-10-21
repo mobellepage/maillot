@@ -24,6 +24,7 @@ import { SITE_URL, shareOrigin } from '../../config/site.ts';
 import { mainColor, renderCard, shareCard } from './shareCard.ts';
 import { Avatar } from '../avatars/Avatar.tsx';
 import { PlanChip } from '../premium/PlanChip.tsx';
+import { LIBRARY_PICTURE_FIRST } from '../../config/rules.ts';
 import { FollowCounts } from '../collectors/FollowCounts.tsx';
 import { HighlightsRow } from '../collectors/HighlightsRow.tsx';
 import { useQuery } from '@tanstack/react-query';
@@ -56,8 +57,9 @@ export default function VaultPage({ tab }: { tab: Tab }) {
   const tops = highlightsFirst(items).filter((c) => c.highlightedAt);
   const topThumb = usePhotoUrls(tops.map(mainPhoto), true);
   const highlightCircles = tops.map((c) => {
-    const lib = libraryPicture(c, true);
-    return { id: c.id, to: '/vault/item/' + c.id, name: itemName(c), src: lib ?? topThumb(mainPhoto(c)), cutout: !!lib };
+    const own = topThumb(mainPhoto(c));
+    const lib = LIBRARY_PICTURE_FIRST || !mainPhoto(c) ? libraryPicture(c, true) : undefined;
+    return { id: c.id, to: '/vault/item/' + c.id, name: itemName(c), src: lib ?? own, cutout: !!lib };
   });
 
   const share = () => {

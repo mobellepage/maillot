@@ -49,6 +49,13 @@ export const PUBLIC_VALUE_HINT = 1000;
 /** Below this many real shirts to buy, the marketplace says it's just getting started. */
 export const MARKET_FEW_OFFERS = 12;
 
+/**
+ * One's own collection shows the shirt's library picture first and the own
+ * photos after it (cards, the shirt's page, highlight circles). Off for now:
+ * the own photos lead.
+ */
+export const LIBRARY_PICTURE_FIRST = false;
+
 /** Top shirts a member can highlight (shown first) — private.highlight_limit(). */
 export const HIGHLIGHTS = 5;
 

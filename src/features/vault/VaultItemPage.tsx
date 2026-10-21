@@ -17,6 +17,7 @@ import { currentValuation, displayStatus, useCollection, useCollectionActions } 
 import { isCutout } from './addshirt/studio.ts';
 import { StudioButton } from './StudioButton.tsx';
 import { HighlightButton } from './HighlightButton.tsx';
+import { LIBRARY_PICTURE_FIRST } from '../../config/rules.ts';
 
 
 
@@ -53,7 +54,7 @@ export default function VaultItemPage() {
   const badge = badgeFor(c);
   const { look, glow } = itemLook(c);
   // With photos of their own, the library picture leads (like a catalogue); theirs follow.
-  const lib = entries.length ? libraryPicture(c) : undefined;
+  const lib = entries.length && LIBRARY_PICTURE_FIRST ? libraryPicture(c) : undefined;
   const photos = [...(lib ? [{ key: 'library', url: lib as string | undefined, thumb: libraryPicture(c, true) as string | undefined, label: t('vault.libraryPhoto') }] : []), ...entries.map(([key, p]) => ({ key, url: fullUrl(p), thumb: thumbUrl(p), label: p.label || key }))];
   const cutout = (key: string) => key === 'library' || isCutout(key);
   const photo = photos[photoIdx];

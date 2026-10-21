@@ -7,6 +7,7 @@ import type { CustomItem } from '../../types/domain.ts';
 import { ButtonLink, EmptyState, ErrorState, Notice, ScrollRow, ShirtGraphic, Skeleton, StarIcon } from '../../ui/index.ts';
 import { badgeFor, highlightsFirst, itemLook, itemName, leagueOf, libraryPicture, valueOf } from './model.ts';
 import { HighlightButton } from './HighlightButton.tsx';
+import { LIBRARY_PICTURE_FIRST } from '../../config/rules.ts';
 import type { Photo } from '../../types/domain.ts';
 import { isCutout } from './addshirt/studio.ts';
 import { PhotoStrip } from './PhotoStrip.tsx';
@@ -90,7 +91,7 @@ export function CollectionTab({ items: all, loading, error, onRetry }: { items: 
           // Greyed out only while the member has no photos of their own (not while theirs load).
           const hasOwn = shots[i]!.length > 0;
           // The library picture leads (the collection looks like a catalogue); swiping shows the member's own photos.
-          const lib = hasOwn ? libraryPicture(c, true) : undefined;
+          const lib = hasOwn && LIBRARY_PICTURE_FIRST ? libraryPicture(c, true) : undefined;
           const slides = [...(lib ? [{ src: lib, cutout: true }] : []), ...shots[i]!.map((x) => ({ src: url(x.photo), cutout: isCutout(x.key) }))].filter((x): x is { src: string; cutout: boolean } => !!x.src);
           return (
             <li key={c.id} className="coll-slide">
