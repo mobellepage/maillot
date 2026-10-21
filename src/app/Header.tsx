@@ -52,7 +52,7 @@ export default function Header() {
         <Logo />
         <nav aria-label={t('header.mainNav')} className="hide-mobile" style={{ display: 'flex', gap: 2 }}>
           {items.map((n) => (
-            <NavLink key={n.to} to={n.to} end={n.to === '/'} className="nav-link" aria-current={n.match?.(pathname) || pathname === n.to ? 'page' : undefined}>
+            <NavLink key={n.to} to={n.to} end={n.to === '/' || n.to === '/feed'} className="nav-link" aria-current={n.match?.(pathname) || pathname === n.to ? 'page' : undefined}>
               {n.label}
             </NavLink>
           ))}

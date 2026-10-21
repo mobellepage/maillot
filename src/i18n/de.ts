@@ -2148,5 +2148,8 @@ export const de: Messages = {
   'stories.prev': 'Zurück',
   'stories.next': 'Weiter',
   'stories.open': 'Zum Trikot',
+  'nav.swipe': 'Swipe',
+  'feed.hintRight': 'Rechts wischen = Wunschliste',
+  'feed.hintLeft': 'Links wischen = weiter',
   // @@end
 };

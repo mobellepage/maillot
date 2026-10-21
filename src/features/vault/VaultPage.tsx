@@ -55,7 +55,10 @@ export default function VaultPage({ tab }: { tab: Tab }) {
   // My highlights as circles, like on my public profile (the library picture first, as in my collection).
   const tops = highlightsFirst(items).filter((c) => c.highlightedAt);
   const topThumb = usePhotoUrls(tops.map(mainPhoto), true);
-  const highlightCircles = tops.map((c) => ({ id: c.id, to: '/vault/item/' + c.id, name: itemName(c), src: libraryPicture(c, true) ?? topThumb(mainPhoto(c)) }));
+  const highlightCircles = tops.map((c) => {
+    const lib = libraryPicture(c, true);
+    return { id: c.id, to: '/vault/item/' + c.id, name: itemName(c), src: lib ?? topThumb(mainPhoto(c)), cutout: !!lib };
+  });
 
   const share = () => {
     const payload = {
@@ -128,7 +131,7 @@ export default function VaultPage({ tab }: { tab: Tab }) {
   return (
     <Page>
       <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 20 }}>
-        <div aria-hidden="true" style={{ width: 88, height: 88, borderRadius: '50%', border: '3px solid var(--accent)', padding: 4, flex: 'none' }}>
+        <div aria-hidden="true" style={{ width: 88, height: 88, borderRadius: '50%', flex: 'none' }}>
           <Avatar avatar={profile?.avatar} name={profile?.handle || user.email || '?'} size={72} ring={false} style={{ width: '100%', height: '100%' }} />
         </div>
         <div style={{ flex: 1, minWidth: 220 }}>
@@ -168,17 +171,15 @@ export default function VaultPage({ tab }: { tab: Tab }) {
             </Button>
           </>
         )}
+        {/* Selling has no menu entry of its own any more: it starts here (and on a shirt's page). */}
+        <ButtonLink to="/sell" variant="secondary">
+          {t('nav.sell')}
+        </ButtonLink>
         <ButtonLink to="/vault/add">{t('vault.add')}</ButtonLink>
       </div>
 
       <div style={{ marginTop: 18 }}>
         <HighlightsRow items={highlightCircles} />
-      </div>
-
-      {/* The collector's level first, then the favourite team's checklist. */}
-      {!loading && !error && <LevelCard shirts={items.length} value={totalValue} />}
-      <div style={{ marginTop: 16 }}>
-        <FavoriteClub />
       </div>
 
       <nav aria-label={t('vault.sections')} style={{ display: 'flex', gap: 28, marginTop: 32, borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
@@ -196,6 +197,11 @@ export default function VaultPage({ tab }: { tab: Tab }) {
         <>
           <OffersPanel />
           <CollectionTab items={items} loading={loading} error={error} onRetry={refetch} />
+          {/* Under the shirts: the collector's level, then the favourite team's checklist. */}
+          <div style={{ marginTop: 28 }}>{!loading && !error && <LevelCard shirts={items.length} value={totalValue} />}</div>
+          <div style={{ marginTop: 16 }}>
+            <FavoriteClub />
+          </div>
           {/* Collector points: only ever shown here, to the collector themselves. */}
           {!loading && !error && <PointsCard />}
         </>

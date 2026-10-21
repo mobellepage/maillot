@@ -55,7 +55,7 @@ export function PinterestBoard({ url }: { url: string }) {
       </div>
     );
   return (
-    <div ref={box} style={{ minHeight: 400 }}>
+    <div ref={box} className="fits-board" style={{ minHeight: 400 }}>
       {failed ? (
         <p style={{ color: 'var(--muted)' }}>
           {t('fits.failed')}{' '}

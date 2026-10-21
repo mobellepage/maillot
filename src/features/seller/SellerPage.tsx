@@ -21,6 +21,7 @@ import { Avatar } from '../avatars/Avatar.tsx';
 import { FollowCounts } from '../collectors/FollowCounts.tsx';
 import { HighlightsRow } from '../collectors/HighlightsRow.tsx';
 import { usePhotoUrls } from '../../lib/usePhotoUrls.ts';
+import { isCutoutPath } from '../vault/addshirt/studio.ts';
 
 export default function SellerPage() {
   useCatalog();
@@ -40,7 +41,8 @@ export default function SellerPage() {
     id: x.id,
     to: '/u/' + handle + '/' + encodeURIComponent(x.id),
     name: (x.catalog_id ? BY[x.catalog_id]?.name : undefined) ?? ([x.club, x.season].filter(Boolean).join(' ') || t('coll.untitled')),
-    src: thumb(x.photo_path ? { path: x.photo_path, thumbPath: x.thumb_path ?? undefined } : undefined) ?? x.kit_image ?? undefined
+    src: thumb(x.photo_path ? { path: x.photo_path, thumbPath: x.thumb_path ?? undefined } : undefined) ?? x.kit_image ?? undefined,
+    cutout: !x.photo_path || isCutoutPath(x.photo_path)
   }));
 
   if (profile.isLoading)
@@ -67,7 +69,7 @@ export default function SellerPage() {
     <Page>
       {/* Like Instagram: picture and numbers, then name, bio, favourite club, the button and the highlights. */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 'clamp(16px,5vw,40px)' }}>
-        <div aria-hidden="true" style={{ width: 'clamp(76px,20vw,96px)', aspectRatio: '1/1', borderRadius: '50%', border: '3px solid var(--accent)', padding: 4, flex: 'none' }}>
+        <div aria-hidden="true" style={{ width: 'clamp(76px,20vw,96px)', aspectRatio: '1/1', borderRadius: '50%', flex: 'none' }}>
           <Avatar avatar={stats.data?.avatar} name={p.handle} size={84} ring={false} style={{ width: '100%', height: '100%' }} />
         </div>
         <div style={{ flex: 1, minWidth: 0 }}>

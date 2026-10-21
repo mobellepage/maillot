@@ -107,6 +107,16 @@ export function ShirtIcon({ size = 22, ...rest }: IconProps) {
   );
 }
 
+/** The feed: posts stacked like on a phone screen. */
+export function FeedIcon({ size = 22, ...rest }: IconProps) {
+  return (
+    <svg {...base(size, rest)} fill="none" stroke="currentColor" strokeWidth={1.9} strokeLinejoin="round" strokeLinecap="round">
+      <rect x="3.5" y="3.5" width="17" height="17" rx="4" />
+      <path d="M3.5 9h17M8 14h8M8 17h5" />
+    </svg>
+  );
+}
+
 export function PlayCardIcon({ size = 22, ...rest }: IconProps) {
   return (
     <svg {...base(size, rest)} fill="none" stroke="currentColor" strokeWidth={1.9} strokeLinejoin="round">

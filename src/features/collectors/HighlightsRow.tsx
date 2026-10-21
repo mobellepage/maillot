@@ -8,6 +8,8 @@ export interface HighlightCircle {
   to: string;
   name: string;
   src: string | undefined;
+  /** A cut-out (library or studio picture): shown whole, not cropped. */
+  cutout?: boolean;
 }
 
 export function HighlightsRow({ items }: { items: HighlightCircle[] }) {
@@ -19,7 +21,7 @@ export function HighlightsRow({ items }: { items: HighlightCircle[] }) {
         <li key={h.id}>
           <Link to={h.to} className="ig-highlight" aria-label={h.name}>
             <span className="ig-highlight__ring">
-              <span className="ig-highlight__img">{h.src && <img src={h.src} alt="" loading="lazy" decoding="async" />}</span>
+              <span className="ig-highlight__img">{h.src && <img src={h.src} alt="" loading="lazy" decoding="async" className={h.cutout ? 'ig-highlight__cutout' : undefined} />}</span>
             </span>
             <span className="ig-highlight__name">{h.name}</span>
           </Link>

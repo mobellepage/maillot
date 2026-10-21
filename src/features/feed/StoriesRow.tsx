@@ -3,6 +3,7 @@
 // shirts full screen, one after another (tap right = next, left = back);
 // rings already watched turn grey (remembered on this device).
 import { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Link } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
 import { BY } from '../../data.ts';
@@ -54,14 +55,21 @@ function Viewer({ stories, start, onClose, onSeen }: { stories: FollowingStory[]
       if (e.key === 'ArrowLeft') prev();
     };
     window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
+    // The page behind doesn't scroll while a story is open.
+    const overflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      window.removeEventListener('keydown', onKey);
+      document.body.style.overflow = overflow;
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   if (!story || !item) return null;
   const src = (item.photo_path ? url({ path: item.photo_path }) : undefined) ?? item.kit_image ?? undefined;
   const name = itemName(item, t('coll.untitled'));
 
-  return (
+  // Into <body>: a page's entrance animation would otherwise trap the full screen inside it.
+  return createPortal(
     <div role="dialog" aria-modal="true" aria-label={t('stories.of', { handle: story.handle })} className="story-viewer">
       <div className="story-viewer__bars" aria-hidden="true">
         {story.items.map((x, i) => (
@@ -90,7 +98,8 @@ function Viewer({ stories, start, onClose, onSeen }: { stories: FollowingStory[]
           {t('stories.open')} ›
         </Link>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
 

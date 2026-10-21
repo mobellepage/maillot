@@ -2147,6 +2147,9 @@ export const en = {
   'stories.prev': 'Previous',
   'stories.next': 'Next',
   'stories.open': 'Open the shirt',
+  'nav.swipe': 'Swipe',
+  'feed.hintRight': 'Swipe right = wishlist',
+  'feed.hintLeft': 'Swipe left = next',
   // @@end
 };
 

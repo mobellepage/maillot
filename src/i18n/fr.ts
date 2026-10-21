@@ -2148,5 +2148,8 @@ export const fr: Messages = {
   'stories.prev': 'Précédent',
   'stories.next': 'Suivant',
   'stories.open': 'Voir le maillot',
+  'nav.swipe': 'Swipe',
+  'feed.hintRight': 'À droite = liste d’envies',
+  'feed.hintLeft': 'À gauche = suivant',
   // @@end
 };

@@ -1,5 +1,6 @@
-// The feed's tabs: Following (members), shirts to swipe, and Fits (outfits
-// from the Pinterest board, when one is set — config PINTEREST_BOARD).
+// The Feed's tabs: Following (members) and Fits (outfits from the Pinterest
+// board, when one is set — config PINTEREST_BOARD). Swiping through shirts
+// is a menu entry of its own (Swipe, /feed).
 import type { ReactNode } from 'react';
 import { NavLink } from 'react-router';
 import { PINTEREST_BOARD } from '../../config/site.ts';
@@ -20,9 +21,6 @@ export function FeedTabs({ children }: { children?: ReactNode }) {
             {t('following.tab')}
           </NavLink>
         )}
-        <NavLink to="/feed" end style={tab}>
-          {t('feed.shirts')}
-        </NavLink>
         {PINTEREST_BOARD && (
           <NavLink to="/fits" style={tab}>
             {t('fits.tab')}
