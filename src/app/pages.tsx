@@ -48,3 +48,6 @@ export const FantasyAlbumsPage = lazy(() => import('../features/fantasy/AlbumsPa
 export const FantasyAlbumPage = lazy(() => import('../features/fantasy/AlbumPage.tsx'));
 export const FantasyShopPage = lazy(() => import('../features/fantasy/ShopPage.tsx'));
 export const FantasyMatchdayPage = lazy(() => import('../features/fantasy/MatchdayPage.tsx'));
+export const FantasyLeaguesPage = lazy(() => import('../features/fantasy/LeaguesPage.tsx'));
+export const FantasyLeaguePage = lazy(() => import('../features/fantasy/LeaguePage.tsx'));
+export const FantasyStandingsPage = lazy(() => import('../features/fantasy/StandingsPage.tsx'));

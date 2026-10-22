@@ -997,6 +997,34 @@ export type Database = {
       };
       fantasy_save_lineup: { Args: { p_md: number; p_kits: string[]; p_captain: string; p_chip?: string | null; p_pred_fixture?: number | null; p_pred_home?: number | null; p_pred_away?: number | null }; Returns: undefined };
       fantasy_rescore: { Args: { p_md: number }; Returns: undefined };
+      fantasy_my_leagues: {
+        Args: never;
+        Returns: { id: string; name: string; format: string; is_public: boolean; members: number; rank: number | null; points: number; h2h_pts: number; is_owner: boolean; invite_code: string }[];
+      };
+      fantasy_league: {
+        Args: { p_id: string };
+        Returns: { id: string; name: string; format: string; is_public: boolean; owner_handle: string | null; members: number; is_member: boolean; is_owner: boolean; invite_code: string | null; cup_name: string | null; cup_id: number | null; matchday_id: number | null; matchday_status: string | null }[];
+      };
+      fantasy_table: {
+        Args: { p_scope: string; p_scope_id: string; p_period: string; p_limit?: number };
+        Returns: { rank: number; user_id: string; handle: string; avatar: string | null; points: number; played: number; avg_filled: number; wins: number; draws: number; losses: number; h2h_pts: number; is_me: boolean; this_md: number | null }[];
+      };
+      fantasy_league_members: { Args: { p_id: string }; Returns: { user_id: string; handle: string; avatar: string | null; joined_at: string }[] };
+      fantasy_league_pairings: {
+        Args: { p_id: string; p_md: number };
+        Returns: { user_a: string; handle_a: string; avatar_a: string | null; user_b: string | null; handle_b: string | null; avatar_b: string | null; points_a: number; points_b: number; result: string | null }[];
+      };
+      fantasy_league_posts: { Args: { p_id: string; p_limit?: number }; Returns: { id: number; user_id: string; handle: string; avatar: string | null; body: string; created_at: string; is_me: boolean }[] };
+      fantasy_public_leagues: { Args: { p_limit?: number }; Returns: { id: string; name: string; format: string; members: number; owner_handle: string | null }[] };
+      fantasy_my_standing: {
+        Args: never;
+        Returns: { cup_id: number; cup_name: string; season_id: number; season_name: string; division_id: number | null; division_number: number | null; division_rank: number | null; division_size: number | null; overall_rank: number | null; overall_players: number; season_rank: number | null; season_players: number; cup_points: number; season_points: number }[];
+      };
+      fantasy_create_league: { Args: { p_name: string; p_format: string; p_public?: boolean }; Returns: string };
+      fantasy_join_league: { Args: { p_code: string }; Returns: string };
+      fantasy_leave_league: { Args: { p_league: string }; Returns: undefined };
+      fantasy_league_post: { Args: { p_league: string; p_body: string }; Returns: number };
+      fantasy_report_post: { Args: { p_post: number }; Returns: undefined };
       fantasy_odds: { Args: never; Returns: { rarity: string; odds: number; dup_points: number; kits: number }[] };
       public_wishlist: {
         Args: { p_handle: string };

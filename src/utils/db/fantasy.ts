@@ -125,3 +125,77 @@ export async function saveLineup(md: number, kits: string[], captain: string, ch
   const { error } = await (await sb()).rpc('fantasy_save_lineup', { p_md: md, p_kits: kits, p_captain: captain, p_chip: chip, p_pred_fixture: pred?.fixture ?? null, p_pred_home: pred?.home ?? null, p_pred_away: pred?.away ?? null });
   if (error) throw error;
 }
+
+// ---- Phases 4 & 5: leagues, cups, divisions, season ---------------------------
+export type MyLeague = RpcReturns<'fantasy_my_leagues'>[number];
+export type League = RpcReturns<'fantasy_league'>[number];
+export type StandingRow = RpcReturns<'fantasy_table'>[number];
+export type LeagueMember = RpcReturns<'fantasy_league_members'>[number];
+export type Pairing = RpcReturns<'fantasy_league_pairings'>[number];
+export type LeaguePost = RpcReturns<'fantasy_league_posts'>[number];
+export type PublicLeague = RpcReturns<'fantasy_public_leagues'>[number];
+export type MyStanding = RpcReturns<'fantasy_my_standing'>[number];
+
+export async function loadMyLeagues(): Promise<MyLeague[]> {
+  const { data, error } = await (await sb()).rpc('fantasy_my_leagues');
+  if (error) throw error;
+  return data ?? [];
+}
+export async function loadLeague(id: string): Promise<League | null> {
+  const { data, error } = await (await sb()).rpc('fantasy_league', { p_id: id });
+  if (error) throw error;
+  return data?.[0] ?? null;
+}
+export async function loadTable(scope: 'league' | 'division' | 'overall' | 'season', scopeId: string, period: string, limit = 100): Promise<StandingRow[]> {
+  const { data, error } = await (await sb()).rpc('fantasy_table', { p_scope: scope, p_scope_id: scopeId, p_period: period, p_limit: limit });
+  if (error) throw error;
+  return data ?? [];
+}
+export async function loadLeagueMembers(id: string): Promise<LeagueMember[]> {
+  const { data, error } = await (await sb()).rpc('fantasy_league_members', { p_id: id });
+  if (error) throw error;
+  return data ?? [];
+}
+export async function loadPairings(id: string, md: number): Promise<Pairing[]> {
+  const { data, error } = await (await sb()).rpc('fantasy_league_pairings', { p_id: id, p_md: md });
+  if (error) throw error;
+  return data ?? [];
+}
+export async function loadLeaguePosts(id: string): Promise<LeaguePost[]> {
+  const { data, error } = await (await sb()).rpc('fantasy_league_posts', { p_id: id, p_limit: 50 });
+  if (error) throw error;
+  return data ?? [];
+}
+export async function loadPublicLeagues(): Promise<PublicLeague[]> {
+  const { data, error } = await (await sb()).rpc('fantasy_public_leagues', { p_limit: 30 });
+  if (error) throw error;
+  return data ?? [];
+}
+export async function loadMyStanding(): Promise<MyStanding | null> {
+  const { data, error } = await (await sb()).rpc('fantasy_my_standing');
+  if (error) throw error;
+  return data?.[0] ?? null;
+}
+export async function createLeague(name: string, format: 'classic' | 'h2h', isPublic: boolean): Promise<string> {
+  const { data, error } = await (await sb()).rpc('fantasy_create_league', { p_name: name, p_format: format, p_public: isPublic });
+  if (error) throw error;
+  return data as string;
+}
+/** Errors: P0481 not found, P0482 full. */
+export async function joinLeague(code: string): Promise<string> {
+  const { data, error } = await (await sb()).rpc('fantasy_join_league', { p_code: code });
+  if (error) throw error;
+  return data as string;
+}
+export async function leaveLeague(id: string): Promise<void> {
+  const { error } = await (await sb()).rpc('fantasy_leave_league', { p_league: id });
+  if (error) throw error;
+}
+export async function postInLeague(id: string, body: string): Promise<void> {
+  const { error } = await (await sb()).rpc('fantasy_league_post', { p_league: id, p_body: body });
+  if (error) throw error;
+}
+export async function reportLeaguePost(postId: number): Promise<void> {
+  const { error } = await (await sb()).rpc('fantasy_report_post', { p_post: postId });
+  if (error) throw error;
+}
