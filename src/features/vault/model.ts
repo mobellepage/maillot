@@ -82,3 +82,8 @@ export function highlightsFirst<T extends { highlightedAt?: number | null }>(xs:
     .sort((a, b) => rank(a.x) - rank(b.x) || a.i - b.i)
     .map((o) => o.x);
 }
+
+// The studio cut-out first, then the camera photos (front, back, details) —
+// the stored order is the database's (it puts "back" before "front").
+const PHOTO_ORDER = ['front_studio', 'front', 'back'];
+export const photoRank = (key: string) => PHOTO_ORDER.indexOf(key) + 1 || 99;

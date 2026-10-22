@@ -1,7 +1,8 @@
 // "Sammlerkarte": one of my shirts as a shiny trading card — in the app with
-// a holographic shine, and (on Apple devices, once the pass service is set
-// up) as a card in Apple Wallet whose QR code opens the shirt's public page.
-import { useState, type CSSProperties } from 'react';
+// a holographic shine (tap to turn it: front and back), as a picture to send
+// (WhatsApp …) with the link to the shirt on Maillot, and (on Apple devices,
+// once the pass service is set up) as a card in Apple Wallet.
+import { useEffect, useState, type CSSProperties } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { usePrefs } from '../../../lib/prefs.tsx';
 import { useSession } from '../../../lib/session.tsx';
@@ -12,17 +13,53 @@ import type { CustomItem } from '../../../types/domain.ts';
 import { Button, Dialog } from '../../../ui/index.ts';
 import { HoloCard, type HoloCardData } from './HoloCard.tsx';
 import { renderPassStrip } from './passStrip.ts';
+import { renderShareCard } from './collectorShare.ts';
+import { shareCard } from '../shareCard.ts';
+import { SITE_URL } from '../../../config/site.ts';
 
 const PASS_URL = (import.meta.env.VITE_SUPABASE_URL ?? '') + '/functions/v1/wallet-pass';
 const onApple = () => typeof navigator !== 'undefined' && (isNative() || /iPhone|iPad|Macintosh/.test(navigator.userAgent));
 
-export function CollectorCardButton({ item, card, style }: { item: CustomItem; card: Omit<HoloCardData, 'handle'>; style?: CSSProperties }) {
+export function CollectorCardButton({ item, card, print, style }: { item: CustomItem; card: Omit<HoloCardData, 'handle'>; print: string | null; style?: CSSProperties }) {
   const { t } = usePrefs();
   const { profile } = useSession();
   const toast = useToast();
   const [open, setOpen] = useState(false);
   const [colors, setColors] = useState<[string, string]>(['#1b3a2a', '#0b0c0b']);
   const [busy, setBusy] = useState(false);
+  const [turned, setTurned] = useState(false);
+  // The picture to send is made as soon as the card is open, so the share sheet opens right on the tap.
+  const [picture, setPicture] = useState<Blob | null>(null);
+  const handle = profile?.handle ?? null;
+  // The link opens the shirt on the owner's profile — only when others can see it.
+  const visible = item.visibility !== 'private' && !!handle;
+  const link = visible ? `${SITE_URL}/u/${encodeURIComponent(handle!)}/${encodeURIComponent(item.id)}` : SITE_URL;
+  const frontLabel = t('card.front');
+  const backLabel = t('card.back');
+  useEffect(() => {
+    if (!open) return;
+    let live = true;
+    renderShareCard({ front: card.image, frontCutout: card.cutout, back: card.back, colors, title: card.title, subtitle: card.subtitle, print, handle, link, labels: { front: frontLabel, back: backLabel } })
+      .then((b) => live && setPicture(b))
+      .catch(() => {});
+    return () => {
+      live = false;
+    };
+  }, [open, card.image, card.cutout, card.back, card.title, card.subtitle, print, handle, link, colors, frontLabel, backLabel]);
+
+  const share = async () => {
+    if (!picture) return;
+    const text = t('card.shareText', { name: card.title }) + '\n' + link;
+    try {
+      const how = await shareCard(picture, text, 'maillot-card.jpg');
+      if (how === 'downloaded') {
+        await navigator.clipboard?.writeText(link).catch(() => {});
+        toast(t('card.saved'));
+      }
+    } catch (e) {
+      if ((e as Error)?.name !== 'AbortError') toast(t('card.shareFailed'));
+    }
+  };
   const wallet = useQuery({
     queryKey: ['walletPassConfigured'],
     queryFn: async () => ((await (await fetch(PASS_URL + '?probe=1')).json()) as { configured?: boolean }).configured === true,
@@ -56,8 +93,21 @@ export function CollectorCardButton({ item, card, style }: { item: CustomItem; c
       {open && (
         <Dialog open onClose={() => setOpen(false)} title={t('card.title')} width={420}>
           <div style={{ display: 'grid', justifyItems: 'center', gap: 14 }}>
-            <HoloCard card={{ ...card, handle: profile?.handle ?? null }} onColors={setColors} />
-            <p style={{ margin: 0, fontSize: 12.5, color: 'var(--muted)', textAlign: 'center' }}>{t('card.hint')}</p>
+            <div onClick={() => card.back && setTurned((v) => !v)} style={{ cursor: card.back ? 'pointer' : undefined }}>
+              <HoloCard card={{ ...card, handle }} onColors={setColors} turned={turned} />
+            </div>
+            <p style={{ margin: 0, fontSize: 12.5, color: 'var(--muted)', textAlign: 'center' }}>{card.back ? t('card.hintTurn') : t('card.hint')}</p>
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', justifyContent: 'center' }}>
+              {card.back && (
+                <Button variant="secondary" size="sm" onClick={() => setTurned((v) => !v)}>
+                  ↻ {turned ? t('card.showFront') : t('card.showBack')}
+                </Button>
+              )}
+              <Button size="sm" onClick={share} disabled={!picture} aria-busy={!picture}>
+                {t('card.share')}
+              </Button>
+            </div>
+            {!visible && <p style={{ margin: 0, fontSize: 12, color: 'var(--muted)', textAlign: 'center' }}>{t('card.privateLink')}</p>}
             {wallet.data && card.image && (
               <button type="button" className="wallet-btn" onClick={addToWallet} disabled={busy} aria-busy={busy}>
                 <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none">

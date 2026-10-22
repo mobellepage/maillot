@@ -29,7 +29,7 @@ export function mainColor(background: string): string {
   return /#[0-9a-f]{6}\b|#[0-9a-f]{3}\b|rgba?\([^)]*\)/i.exec(background)?.[0] ?? ACCENT;
 }
 
-function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
+export function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
   ctx.beginPath();
   ctx.moveTo(x + r, y);
   ctx.arcTo(x + w, y, x + w, y + h, r);
@@ -49,7 +49,7 @@ function shirt(ctx: CanvasRenderingContext2D, x: number, y: number, size: number
   ctx.fill();
 }
 
-function fit(ctx: CanvasRenderingContext2D, text: string, max: number) {
+export function fit(ctx: CanvasRenderingContext2D, text: string, max: number) {
   if (ctx.measureText(text).width <= max) return text;
   let s = text;
   while (s.length > 1 && ctx.measureText(s + '…').width > max) s = s.slice(0, -1);
@@ -129,8 +129,8 @@ export async function renderCard(m: CardModel): Promise<Blob> {
 }
 
 /** Share sheet with the picture where supported, otherwise a download. */
-export async function shareCard(blob: Blob, text: string): Promise<'shared' | 'downloaded'> {
-  const file = new File([blob], 'maillot-collection.png', { type: 'image/png' });
+export async function shareCard(blob: Blob, text: string, name = 'maillot-collection.png'): Promise<'shared' | 'downloaded'> {
+  const file = new File([blob], name, { type: blob.type || 'image/png' });
   if (navigator.canShare?.({ files: [file] })) {
     await navigator.share({ files: [file], text });
     return 'shared';

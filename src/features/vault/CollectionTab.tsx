@@ -5,7 +5,7 @@ import * as db from '../../utils/db.ts';
 import { usePrefs } from '../../lib/prefs.tsx';
 import type { CustomItem } from '../../types/domain.ts';
 import { ButtonLink, EmptyState, ErrorState, Notice, ScrollRow, ShirtGraphic, Skeleton, StarIcon } from '../../ui/index.ts';
-import { badgeFor, highlightsFirst, itemLook, itemName, leagueOf, libraryPicture, valueOf } from './model.ts';
+import { badgeFor, highlightsFirst, itemLook, itemName, leagueOf, libraryPicture, photoRank, valueOf } from './model.ts';
 import { HighlightButton } from './HighlightButton.tsx';
 import { LIBRARY_PICTURE_FIRST } from '../../config/rules.ts';
 import type { Photo } from '../../types/domain.ts';
@@ -14,12 +14,10 @@ import { PhotoStrip } from './PhotoStrip.tsx';
 import { usePhotoUrls } from '../../lib/usePhotoUrls.ts';
 import { PendingPhotos } from './PendingPhotos.tsx';
 
-// The studio cut-out first, then the camera photos (front, back, details).
-const ORDER = ['front_studio', 'front', 'back'];
 const photosOf = (c: CustomItem): { key: string; photo: Photo }[] =>
   Object.entries(c.photos || {})
     .filter((e): e is [string, Photo] => !!e[1])
-    .sort(([a], [b]) => (ORDER.indexOf(a) + 1 || 99) - (ORDER.indexOf(b) + 1 || 99))
+    .sort(([a], [b]) => photoRank(a) - photoRank(b))
     .map(([key, photo]) => ({ key, photo }));
 
 export function CollectionTab({ items: all, loading, error, onRetry }: { items: CustomItem[]; loading?: boolean; error?: boolean; onRetry?: () => void }) {

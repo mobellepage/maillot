@@ -18,6 +18,7 @@ import { KitOwners } from './KitOwners.tsx';
 import { AddKitDialog } from '../vault/AddKitDialog.tsx';
 import { WishKitDialog } from '../watchlist/WishKitDialog.tsx';
 import { printLabel } from '../watchlist/printLabel.ts';
+import { eraNumber } from '../discover/model.ts';
 import { useKitLikes } from '../watchlist/useKitLikes.ts';
 
 export default function ClubLibraryPage() {
@@ -36,6 +37,8 @@ export default function ClubLibraryPage() {
   }, [kits.data, hash]);
   const [kind, setKind] = useState<string>('all');
   const [ownedOnly, setOwnedOnly] = useState(false);
+  // One decade at a time, so a 60s kit doesn't take a long scroll.
+  const [era, setEra] = useState<number | 'all'>('all');
   const [suggest, setSuggest] = useState(false);
   // ?add=<kit> (back from signing in) opens the pop-up for that kit.
   const [params, setParams] = useSearchParams();
@@ -58,7 +61,9 @@ export default function ClubLibraryPage() {
   const kinds = KIT_KINDS.filter((k) => all.some((x) => x.kind === k));
   const ownersOf = new Map<string, db.KitOwner[]>();
   for (const o of owners.data ?? []) ownersOf.set(o.kit_id, [...(ownersOf.get(o.kit_id) ?? []), o]);
-  const groups = bySeason(all.filter((x) => (kind === 'all' || x.kind === kind) && (!ownedOnly || ownersOf.has(x.id))));
+  const decadeOf = (k: db.Kit) => Math.floor(k.season_year / 10) * 10;
+  const decades = [...new Set(all.map(decadeOf))].sort((a, b) => b - a);
+  const groups = bySeason(all.filter((x) => (kind === 'all' || x.kind === kind) && (!ownedOnly || ownersOf.has(x.id)) && (era === 'all' || decadeOf(x) === era)));
 
   return (
     <Page>
@@ -102,6 +107,16 @@ export default function ClubLibraryPage() {
           </Link>
         )}
       </div>
+
+      {decades.length > 1 && (
+        <div role="group" aria-label={t('era.decades')} className="no-scrollbar" style={{ display: 'flex', gap: 8, overflowX: 'auto', marginTop: 10, paddingBottom: 2 }}>
+          {(['all', ...decades] as const).map((d) => (
+            <button key={d} type="button" className="option-btn" aria-pressed={era === d} onClick={() => setEra(d)} style={{ padding: '7px 13px', fontSize: 13, flex: 'none' }}>
+              {d === 'all' ? t('lib.allEras') : t('era.label', { d: eraNumber(d) })}
+            </button>
+          ))}
+        </div>
+      )}
 
       {kits.isLoading && <Skeleton height={260} radius={20} style={{ marginTop: 20 }} />}
       {kits.isError && <ErrorState what={t('lib.title')} onRetry={() => kits.refetch()} />}

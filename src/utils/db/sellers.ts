@@ -170,3 +170,12 @@ export async function loadMyReview(orderId: string): Promise<{ rating: number; c
   if (error) throw error;
   return data;
 }
+
+export type PublicWish = RpcReturns<'public_wishlist'>[number];
+
+/** A collector's wishlist (library kits with the print wanted, and watched catalogue shirts); empty when their collection is private. */
+export async function loadPublicWishlist(handle: string): Promise<PublicWish[]> {
+  const { data, error } = await (await sb()).rpc('public_wishlist', { p_handle: handle });
+  if (error) throw error;
+  return data ?? [];
+}

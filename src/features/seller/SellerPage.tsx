@@ -1,7 +1,7 @@
 // /u/:handle — a member's public page: the shirts they show (visibility other
 // than private, for sale ones marked), track record and reviews. Only what the
 // member chose to make public plus facts from completed orders.
-import { Link, useParams } from 'react-router';
+import { Link, useParams, useSearchParams } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
 import { BY } from '../../data.ts';
 import { formatDate } from '../../lib/format.ts';
@@ -12,6 +12,7 @@ import { useCatalog } from '../catalog/useCatalog.ts';
 import { Card, EmptyState, ErrorState, Page, Skeleton, StatTile } from '../../ui/index.ts';
 import { Stars } from '../../ui/Stars.tsx';
 import { PublicCollection } from '../collectors/PublicCollection.tsx';
+import { PublicWishlist } from '../collectors/PublicWishlist.tsx';
 import { LevelBadge } from '../levels/LevelBadge.tsx';
 import { FollowButton } from '../collectors/FollowButton.tsx';
 import { DealerBadge } from '../collectors/DealerBadge.tsx';
@@ -32,6 +33,10 @@ export default function SellerPage() {
   const { user } = useSession();
   const collection = useQuery({ queryKey: ['publicCollection', handle, user?.id], queryFn: () => db.loadPublicCollection(handle), enabled: !!profile.data });
   const stats = useQuery({ queryKey: ['collectorStats', handle.toLowerCase(), user?.id], queryFn: () => db.loadCollectorStats(handle), enabled: !!profile.data });
+  const wishlist = useQuery({ queryKey: ['publicWishlist', handle.toLowerCase()], queryFn: () => db.loadPublicWishlist(handle), enabled: !!profile.data });
+  // Collection or wishlist, kept in the address so Back and shared links keep it.
+  const [params, setParams] = useSearchParams();
+  const tab = params.get('tab') === 'wishlist' ? 'wishlist' : 'collection';
   const value = stats.data?.show_value && collection.data ? publicCollectionValue(collection.data) : null;
   usePageMeta(t('seller.meta', { handle }), t('seller.metaDesc', { handle }));
   // The highlights as circles: the owner's photo, else the library picture.
@@ -100,16 +105,37 @@ export default function SellerPage() {
         <HighlightsRow items={highlights} />
       </div>
 
-      {/* The collection first; the figures and reviews follow. */}
-      <section aria-labelledby="collection-title" style={{ marginTop: 20 }}>
-        <h2 id="collection-title" className="title">
-          {t('coll.title')} <span className="mono" style={{ color: 'var(--muted)', fontSize: 13 }}>{collection.data?.length ?? ''}</span>
-        </h2>
-        {collection.isLoading && <Skeleton height={220} radius={20} style={{ marginTop: 14 }} />}
-        {collection.isError && <ErrorState compact what={t('coll.title')} onRetry={() => collection.refetch()} />}
-        {collection.data && !collection.data.length && <p style={{ color: 'var(--muted)', fontSize: 14 }}>{stats.data?.collection_private ? (stats.data.is_me ? t('coll.privateMine') : t('coll.privateOther')) : t('coll.empty')}</p>}
-        {!!collection.data?.length && <PublicCollection shirts={collection.data} owner={p.handle} />}
-      </section>
+      {/* The collection first (and what they're looking for); the figures and reviews follow. */}
+      <nav aria-label={t('coll.sections')} style={{ display: 'flex', gap: 28, marginTop: 24, borderBottom: '1px solid var(--line)' }}>
+        {(
+          [
+            ['collection', t('coll.title'), collection.data?.length],
+            ['wishlist', t('vault.title.watchlist'), wishlist.data?.length]
+          ] as const
+        ).map(([k, label, n]) => (
+          <button key={k} type="button" aria-current={tab === k ? 'page' : undefined} onClick={() => setParams(k === 'collection' ? {} : { tab: k }, { replace: true })} style={{ background: 'none', border: 0, cursor: 'pointer', padding: '0 0 12px', fontSize: 16, fontWeight: 700, color: tab === k ? 'var(--text)' : 'var(--muted)', borderBottom: `2px solid ${tab === k ? 'var(--accent)' : 'transparent'}`, marginBottom: -1, display: 'flex', gap: 8, alignItems: 'center' }}>
+            {label}
+            <span className="mono" style={{ fontSize: 12, color: 'var(--muted)' }}>
+              {n ?? ''}
+            </span>
+          </button>
+        ))}
+      </nav>
+      {tab === 'collection' ? (
+        <section aria-label={t('coll.title')} style={{ marginTop: 14 }}>
+          {collection.isLoading && <Skeleton height={220} radius={20} style={{ marginTop: 14 }} />}
+          {collection.isError && <ErrorState compact what={t('coll.title')} onRetry={() => collection.refetch()} />}
+          {collection.data && !collection.data.length && <p style={{ color: 'var(--muted)', fontSize: 14 }}>{stats.data?.collection_private ? (stats.data.is_me ? t('coll.privateMine') : t('coll.privateOther')) : t('coll.empty')}</p>}
+          {!!collection.data?.length && <PublicCollection shirts={collection.data} owner={p.handle} />}
+        </section>
+      ) : (
+        <section aria-label={t('vault.title.watchlist')}>
+          {wishlist.isLoading && <Skeleton height={220} radius={20} style={{ marginTop: 14 }} />}
+          {wishlist.isError && <ErrorState compact what={t('vault.title.watchlist')} onRetry={() => wishlist.refetch()} />}
+          {wishlist.data && !wishlist.data.length && <p style={{ color: 'var(--muted)', fontSize: 14, marginTop: 14 }}>{stats.data?.collection_private ? t('coll.wishPrivate') : t('coll.wishEmpty', { handle: p.handle })}</p>}
+          {!!wishlist.data?.length && <PublicWishlist wishes={wishlist.data} />}
+        </section>
+      )}
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(170px,1fr))', gap: 12, marginTop: 40 }}>
         <StatTile

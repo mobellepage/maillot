@@ -9,7 +9,7 @@ import { downloadVaultCard } from '../../utils/cardExport.js';
 import { PendingPhotos } from './PendingPhotos.tsx';
 import { AddOwnPhotos } from './AddOwnPhotos.tsx';
 import { Badge, Button, Card, ErrorState, KeyValueList, Notice, Page, ShirtGraphic, Skeleton, HEX, useConfirm } from '../../ui/index.ts';
-import { badgeFor, itemLook, itemName, libraryPicture, valueOf } from './model.ts';
+import { badgeFor, itemLook, itemName, libraryPicture, photoRank, valueOf } from './model.ts';
 import { VisibilityEditor } from './VisibilityEditor.tsx';
 import { PrecheckPrompt } from './PrecheckPrompt.tsx';
 import { usePhotoUrls } from '../../lib/usePhotoUrls.ts';
@@ -33,8 +33,8 @@ export default function VaultItemPage() {
   const [photoIdx, setPhotoIdx] = useState(0);
   const c = items.find((x) => x.id === id);
   usePageMeta(c ? itemName(c) : t('vault.title.collection'));
-  // The studio photo (if any) leads; the originals follow for the details.
-  const entries = Object.entries(c?.photos || {}).sort(([a], [b]) => Number(b === 'front_studio') - Number(a === 'front_studio'));
+  // The studio photo (if any) leads, then front and back; the details follow.
+  const entries = Object.entries(c?.photos || {}).sort(([a], [b]) => photoRank(a) - photoRank(b));
   const fullUrl = usePhotoUrls(entries.map(([, p]) => p));
   const thumbUrl = usePhotoUrls(entries.map(([, p]) => p), true);
   if (loading)
@@ -65,12 +65,14 @@ export default function VaultItemPage() {
   const change = from !== null && to !== null && from !== to ? ((to - from) / from) * 100 : null;
   const status = displayStatus(c, reviews);
   const flockLine = c.flock.source === 'Keine' ? t('vault.none') : label('opt', c.flock.source) + (c.flock.name ? ' · ' + c.flock.name : '') + (c.flock.number ? ' #' + c.flock.number : '') + (c.flock.type ? ' (' + label('opt', c.flock.type) + ')' : '');
-  // The card shows the leading picture: the studio cut-out or a photo of theirs, else the library's.
+  // The card: the leading picture (studio cut-out or front photo, else the library's), and the back photo to turn it over.
   const lead = photos[0];
-  const print = [c.flock.name, c.flock.number].filter(Boolean).join(' ').toUpperCase();
+  const backPhoto = photos.find((p) => p.key === 'back');
+  const print = [c.flock.name, c.flock.number].filter(Boolean).join(' ').toUpperCase() || null;
   const collectorCard = {
     image: lead?.url ?? libraryPicture(c),
     cutout: lead ? cutout(lead.key) : true,
+    back: backPhoto && backPhoto !== lead ? backPhoto.url : undefined,
     title: name,
     subtitle: [c.version ? label('opt', c.version) : null, c.size ? t('card.size', { size: c.size }) : null].filter(Boolean).join(' · '),
     chips: [print, c.signature.signed ? t('card.signed') : null].filter((x): x is string => !!x),
@@ -114,7 +116,7 @@ export default function VaultItemPage() {
           </h1>
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center', marginTop: 12 }}>
             <HighlightButton item={c} items={items} labelled />
-            <CollectorCardButton item={c} card={collectorCard} />
+            <CollectorCardButton item={c} card={collectorCard} print={print} />
           </div>
           <Card tight style={{ marginTop: 18, padding: 20, borderRadius: 18 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>

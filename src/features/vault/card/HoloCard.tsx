@@ -8,6 +8,8 @@ export interface HoloCardData {
   image: string | undefined;
   /** A cut-out (library/studio picture), shown whole; a photo fills the frame. */
   cutout: boolean;
+  /** The back of the shirt (a photo), shown when the card is turned. */
+  back?: string | undefined;
   title: string;
   subtitle: string;
   chips: string[];
@@ -17,9 +19,10 @@ export interface HoloCardData {
 
 const reduced = () => typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-export function HoloCard({ card, onColors }: { card: HoloCardData; onColors?: (c: [string, string]) => void }) {
+export function HoloCard({ card, onColors, turned = false }: { card: HoloCardData; onColors?: (c: [string, string]) => void; turned?: boolean }) {
   const ref = useRef<HTMLDivElement>(null);
   const [colors, setColors] = useState<[string, string]>(['#1b3a2a', '#0b0c0b']);
+  const showBack = turned && !!card.back;
 
   // Shine and tilt from a point on the card (0..1).
   const point = (x: number, y: number) => {
@@ -57,7 +60,7 @@ export function HoloCard({ card, onColors }: { card: HoloCardData; onColors?: (c
   return (
     <div
       ref={ref}
-      className="holo"
+      className={'holo' + (showBack || !card.cutout ? ' holo--photo' : '')}
       style={{ '--c1': colors[0], '--c2': colors[1] } as CSSProperties}
       onPointerMove={(e) => {
         if (reduced()) return;
@@ -71,21 +74,26 @@ export function HoloCard({ card, onColors }: { card: HoloCardData; onColors?: (c
         <span className="holo__brand">Maillot</span>
         {card.badge && <span className="holo__badge">{card.badge}</span>}
       </div>
-      <div className="holo__art">
-        {card.image && (
-          <img
-            src={card.image}
-            alt=""
-            crossOrigin="anonymous"
-            className={card.cutout ? 'holo__cutout' : 'holo__photo'}
-            onLoad={(e) => {
-              const c = dominantColors(e.currentTarget);
-              if (c) {
-                setColors(c);
-                onColors?.(c);
-              }
-            }}
-          />
+      {/* Turning the card: the art turns in, showing the back photo (or the front again). */}
+      <div className="holo__art" key={showBack ? 'back' : 'front'} data-turn={showBack ? 'back' : 'front'}>
+        {showBack ? (
+          <img src={card.back} alt="" crossOrigin="anonymous" className="holo__photo" />
+        ) : (
+          card.image && (
+            <img
+              src={card.image}
+              alt=""
+              crossOrigin="anonymous"
+              className={card.cutout ? 'holo__cutout' : 'holo__photo'}
+              onLoad={(e) => {
+                const c = dominantColors(e.currentTarget);
+                if (c) {
+                  setColors(c);
+                  onColors?.(c);
+                }
+              }}
+            />
+          )
         )}
       </div>
       <div className="holo__text">

@@ -947,6 +947,24 @@ export type Database = {
       admin_set_premium: { Args: { p_handle: string; p_until: string | null }; Returns: undefined };
       free_shirt_limit: { Args: never; Returns: number };
       public_shirt_photos: { Args: { p_handle: string; p_item_id: string }; Returns: { kind: 'main' | 'back'; path: string; thumb_path: string | null }[] };
+      public_wishlist: {
+        Args: { p_handle: string };
+        Returns: {
+          /** A library kit they want … */
+          kit_id: string | null;
+          club_id: string | null;
+          club_name: string | null;
+          season: string | null;
+          kind: string | null;
+          variant: string | null;
+          image_path: string | null;
+          print_name: string | null;
+          print_number: string | null;
+          /** … or a catalogue shirt on their watchlist. */
+          shirt_id: string | null;
+          added_at: string;
+        }[];
+      };
       public_collection: {
         Args: { p_handle: string };
         Returns: {

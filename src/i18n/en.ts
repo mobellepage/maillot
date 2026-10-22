@@ -2177,6 +2177,20 @@ export const en = {
   'card.walletFailed': 'The card couldn’t be made for Wallet. Please try again.',
   'card.size': 'Size {size}',
   'card.signed': 'Signed',
+  'coll.sections': 'Collection and watchlist',
+  'coll.wishPrivate': 'This watchlist is private.',
+  'coll.wishEmpty': '@{handle} isn’t looking for any shirts yet.',
+  'lib.allEras': 'All eras',
+  'card.front': 'Front',
+  'card.back': 'Back',
+  'card.hintTurn': 'Tap the card to turn it over. Tilt your phone to make it shine.',
+  'card.showBack': 'Show the back',
+  'card.showFront': 'Show the front',
+  'card.share': 'Share card',
+  'card.shareText': 'My {name} on Maillot',
+  'card.saved': 'Picture saved, link copied.',
+  'card.shareFailed': 'The card couldn’t be shared. Please try again.',
+  'card.privateLink': 'This shirt is private: the picture links to Maillot, not to the shirt. Make it visible to share its page.',
   // @@end
 };
 
