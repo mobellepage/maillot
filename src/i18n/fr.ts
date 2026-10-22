@@ -2442,5 +2442,9 @@ export const fr: Messages = {
   'fantasy.sq.leagueFull': '{league} : déjà {n}',
   'fantasy.sq.pitchHint': 'Touche + et saisis un club. Les cinq sur le terrain jouent, les trois sur le banc attendent.',
   'fantasy.md.pitchHint': 'Touche un maillot pour le déplacer entre terrain et banc. C nomme capitaine un club dont tu possèdes le maillot.',
+  'fantasy.sq.sort': 'Trier',
+  'fantasy.sq.sort.priceDesc': 'Valeur ↓',
+  'fantasy.sq.sort.priceAsc': 'Valeur ↑',
+  'fantasy.sq.sort.name': 'A–Z',
   // @@end
 };

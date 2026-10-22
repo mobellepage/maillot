@@ -18,6 +18,10 @@ import { Pitch } from './Pitch.tsx';
 import { priceText, squadProblems, transferHits, transfersMade, untilText } from './model.ts';
 import { errorText } from './errors.ts';
 
+type Sort = 'priceDesc' | 'priceAsc' | 'name';
+const SORTS: Sort[] = ['priceDesc', 'priceAsc', 'name'];
+const bySort = (sort: Sort) => (a: Jersey, b: Jersey) => (sort === 'name' ? a.name.localeCompare(b.name) : sort === 'priceAsc' ? Number(a.price) - Number(b.price) || a.name.localeCompare(b.name) : Number(b.price) - Number(a.price) || a.name.localeCompare(b.name));
+
 export default function SquadPage() {
   const { t } = usePrefs();
   const { user } = useSession();
@@ -73,7 +77,10 @@ function SquadEditor({ m }: { m: NonNullable<Awaited<ReturnType<typeof db.loadMa
   const [pickFor, setPickFor] = useState<number | null>(null);
   const [detail, setDetail] = useState<number | null>(null);
   const [pq, setPq] = useState('');
+  const [pLeague, setPLeague] = useState<string>('all');
+  const [pSort, setPSort] = useState<Sort>('priceDesc');
   const [league, setLeague] = useState<string>('all');
+  const [sort, setSort] = useState<Sort>('priceDesc');
   const [q, setQ] = useState('');
   const [only, setOnly] = useState<'all' | 'plays' | 'owned'>('all');
   const byId = useMemo(() => new Map((jerseys.data ?? []).map((j) => [j.club_id, j])), [jerseys.data]);
@@ -125,8 +132,11 @@ function SquadEditor({ m }: { m: NonNullable<Awaited<ReturnType<typeof db.loadMa
     onSuccess: () => void qc.invalidateQueries({ queryKey: ['fantasyMatchday'] }),
     onError: (e) => toast(errorText(t, (e as { code?: string }).code))
   });
-  const list = (jerseys.data ?? []).filter((j) => (league === 'all' || j.league === league) && (only === 'all' || (only === 'plays' ? j.plays : j.owned)) && (!q || j.name.toLowerCase().includes(q.toLowerCase())));
-  const pickList = (jerseys.data ?? []).filter((j) => !picks.includes(j.club_id) && (!pq || j.name.toLowerCase().includes(pq.toLowerCase()) || j.league.toLowerCase().includes(pq.toLowerCase()))).slice(0, 40);
+  const list = (jerseys.data ?? []).filter((j) => (league === 'all' || j.league === league) && (only === 'all' || (only === 'plays' ? j.plays : j.owned)) && (!q || j.name.toLowerCase().includes(q.toLowerCase()))).sort(bySort(sort));
+  const pickList = (jerseys.data ?? [])
+    .filter((j) => !picks.includes(j.club_id) && (pLeague === 'all' || j.league === pLeague) && (!pq || j.name.toLowerCase().includes(pq.toLowerCase()) || j.league.toLowerCase().includes(pq.toLowerCase())))
+    .sort(bySort(pSort))
+    .slice(0, 60);
   const detailJersey = detail !== null && slots[detail] ? byId.get(slots[detail]!) : undefined;
   const usedChips = new Set(m.chips_used ?? []);
   const dateFmt = (iso: string) => new Date(iso).toLocaleString(lang, { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', timeZone: FANTASY.timeZone });
@@ -166,7 +176,7 @@ function SquadEditor({ m }: { m: NonNullable<Awaited<ReturnType<typeof db.loadMa
         </span>
         <Pitch
           slots={slots.map((id) => (id ? (byId.get(id) ?? null) : null))}
-          onTap={(i) => (slots[i] ? setDetail(i) : (setPq(''), setPickFor(i)))}
+          onTap={(i) => (slots[i] ? setDetail(i) : (setPq(''), setPLeague('all'), setPickFor(i)))}
           captainId={l?.captain ?? null}
           benchDim={false}
           disabled={!open}
@@ -228,6 +238,13 @@ function SquadEditor({ m }: { m: NonNullable<Awaited<ReturnType<typeof db.loadMa
               </option>
             ))}
           </select>
+          <select value={sort} onChange={(e) => setSort(e.target.value as Sort)} aria-label={t('fantasy.sq.sort')} style={{ flex: '0 1 150px' }}>
+            {SORTS.map((o) => (
+              <option key={o} value={o}>
+                {t('fantasy.sq.sort.' + o)}
+              </option>
+            ))}
+          </select>
         </div>
         <div role="group" className="no-scrollbar" style={{ display: 'flex', gap: 8, overflowX: 'auto', paddingBottom: 2, marginTop: 10 }}>
           {(['all', 'plays', 'owned'] as const).map((f) => (
@@ -259,6 +276,21 @@ function SquadEditor({ m }: { m: NonNullable<Awaited<ReturnType<typeof db.loadMa
       {pickFor !== null && (
         <Dialog open onClose={() => setPickFor(null)} title={t('fantasy.sq.pick')} width={460}>
           <input type="search" autoFocus value={pq} onChange={(e) => setPq(e.target.value)} placeholder={t('fantasy.sq.search')} aria-label={t('fantasy.sq.search')} style={{ width: '100%' }} />
+          <div role="group" aria-label={t('fantasy.sq.league')} className="no-scrollbar" style={{ display: 'flex', gap: 6, overflowX: 'auto', paddingBottom: 2, marginTop: 8 }}>
+            {['all', ...leagues].map((lg) => (
+              <button key={lg} type="button" className="option-btn" aria-pressed={pLeague === lg} onClick={() => setPLeague(lg)} style={{ padding: '5px 10px', fontSize: 12.5, flex: 'none' }}>
+                {lg === 'all' ? t('fantasy.sq.allLeagues') : lg}
+                {lg !== 'all' && leagueCount(lg) > 0 && <span className="mono" style={{ marginLeft: 4, fontSize: 11, color: 'var(--muted)' }}>{leagueCount(lg)}/{FANTASY.maxPerLeague}</span>}
+              </button>
+            ))}
+          </div>
+          <div role="group" aria-label={t('fantasy.sq.sort')} style={{ display: 'flex', gap: 6, marginTop: 6 }}>
+            {SORTS.map((o) => (
+              <button key={o} type="button" className="option-btn" aria-pressed={pSort === o} onClick={() => setPSort(o)} style={{ padding: '5px 10px', fontSize: 12.5 }}>
+                {t('fantasy.sq.sort.' + o)}
+              </button>
+            ))}
+          </div>
           <ul className="fantasy-picklist">
             {pickList.map((j) => {
               const no = leagueFull(j) ? t('fantasy.sq.leagueFull', { league: j.league, n: FANTASY.maxPerLeague }) : tooDear(j) ? t('fantasy.sq.tooDear') : null;

@@ -2441,6 +2441,10 @@ export const en = {
   'fantasy.sq.leagueFull': '{league}: already {n}',
   'fantasy.sq.pitchHint': 'Tap + and type a club. The five on the pitch play, the three on the bench wait.',
   'fantasy.md.pitchHint': 'Tap a jersey to move it between pitch and bench. C makes a club whose shirt you own the captain.',
+  'fantasy.sq.sort': 'Sort',
+  'fantasy.sq.sort.priceDesc': 'Value ↓',
+  'fantasy.sq.sort.priceAsc': 'Value ↑',
+  'fantasy.sq.sort.name': 'A–Z',
   // @@end
 };
 

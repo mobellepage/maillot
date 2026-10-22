@@ -1,8 +1,9 @@
-// The football data behind Fantasy's Matchday, behind one interface so the
-// source can be swapped. Two providers: a mock (default) that makes
-// believable fixtures and results for the clubs the game knows, and
-// football-data.org (set FANTASY_FOOTBALL_PROVIDER=football-data and
-// FOOTBALL_DATA_API_KEY; map clubs to its team ids in Admin → Fantasy).
+// The football data behind Fantasy's Gameweek, behind one interface so the
+// source can be swapped. Three providers: ESPN's public scoreboard (the
+// default; no key, team ids from its team lists, mapped in Admin → Fantasy),
+// football-data.org (FANTASY_FOOTBALL_PROVIDER=football-data and
+// FOOTBALL_DATA_API_KEY), and a mock that makes believable fixtures and
+// results for the clubs the game knows (FANTASY_FOOTBALL_PROVIDER=mock).
 
 export interface Team {
   /** The library club (kit_clubs.id) the provider team maps to. */
@@ -192,7 +193,92 @@ export class FootballDataOrgProvider implements FootballDataProvider {
   }
 }
 
+
+// --- ESPN ------------------------------------------------------------------
+// The public scoreboard, one request per league and day of the window
+// (site.api.espn.com, no key). Teams are matched by ESPN's team id (the
+// provider_team_id in fantasy_team_mappings). League codes are the
+// competitions the game scores: the nine leagues on club weekends, the
+// nations' competitions in international windows.
+const ESPN_LEAGUES = ["eng.1", "esp.1", "ger.1", "ita.1", "fra.1", "ned.1", "por.1", "tur.1", "sui.1"];
+const ESPN_INTERNATIONAL = ["fifa.world", "fifa.worldq.uefa", "fifa.worldq.conmebol", "fifa.worldq.concacaf", "fifa.worldq.afc", "fifa.worldq.caf", "uefa.euro", "uefa.euroq", "uefa.nations", "fifa.friendly", "conmebol.america", "caf.nations", "concacaf.gold", "afc.asian"];
+
+interface EspnEvent {
+  id: string;
+  date: string;
+  status: { type: { state: string; completed?: boolean } };
+  competitions: { competitors: { homeAway: string; score?: string; team: { id: string; displayName: string } }[] }[];
+}
+
+export class EspnProvider implements FootballDataProvider {
+  constructor(private fetchImpl: typeof fetch = fetch) {}
+  /** The last request that failed (for the sync's answer). */
+  lastError: string | null = null;
+
+  private async scoreboard(code: string, day: string): Promise<EspnEvent[]> {
+    const res = await this.fetchImpl(`https://site.api.espn.com/apis/site/v2/sports/soccer/${code}/scoreboard?dates=${day}&limit=100`, { headers: { "User-Agent": "Mozilla/5.0 (Maillot Fantasy)", Accept: "application/json" } });
+    if (res.status === 400 || res.status === 404) return [];
+    if (!res.ok) throw new Error(`espn ${code} ${res.status}`);
+    const body = (await res.json()) as { events?: EspnEvent[] };
+    return body.events ?? [];
+  }
+
+  async getLiveScores(w: Window, teams: Team[]): Promise<Fixture[]> {
+    const byId = new Map(teams.map((t) => [t.providerTeamId, t]));
+    const codes = w.international ? ESPN_INTERNATIONAL : ESPN_LEAGUES;
+    const days: string[] = [];
+    for (let d = new Date(w.start.getTime() - 12 * 3_600_000); d <= w.end; d = new Date(d.getTime() + 24 * 3_600_000)) days.push(d.toISOString().slice(0, 10).replace(/-/g, ""));
+    const out: Fixture[] = [];
+    const seen = new Set<string>();
+    for (const code of codes) {
+      const lists = await Promise.all(
+        days.map((day) =>
+          this.scoreboard(code, day).catch((e: Error) => {
+            this.lastError = `${code} ${day}: ${e.message}`;
+            return [] as EspnEvent[];
+          })
+        )
+      );
+      for (const e of lists.flat()) {
+        if (seen.has(e.id)) continue;
+        const kickoff = new Date(e.date);
+        if (kickoff < w.start || kickoff > w.end) continue;
+        const comp = e.competitions[0];
+        if (!comp) continue;
+        const h = comp.competitors.find((c) => c.homeAway === "home");
+        const a = comp.competitors.find((c) => c.homeAway === "away");
+        if (!h || !a) continue;
+        const home = byId.get(h.team.id);
+        const away = byId.get(a.team.id);
+        if (!home && !away) continue;
+        seen.add(e.id);
+        const state = e.status.type.state;
+        const status: Fixture["status"] = state === "post" ? "finished" : state === "in" ? "live" : "scheduled";
+        const stub = (t: { id: string; displayName: string }): Team => ({ clubId: "", providerTeamId: t.id, name: t.displayName, league: "", national: w.international });
+        out.push({
+          providerFixtureId: `espn:${e.id}`,
+          competition: w.international ? "international" : "league",
+          home: home ?? stub(h.team),
+          away: away ?? stub(a.team),
+          kickoff,
+          status,
+          homeGoals: status === "scheduled" ? null : Number(h.score ?? 0),
+          awayGoals: status === "scheduled" ? null : Number(a.score ?? 0)
+        });
+      }
+    }
+    return out.sort((x, y) => x.kickoff.getTime() - y.kickoff.getTime());
+  }
+  async getFixtures(w: Window, teams: Team[]): Promise<Fixture[]> {
+    return (await this.getLiveScores(w, teams)).map((f) => ({ ...f, status: "scheduled", homeGoals: null, awayGoals: null }));
+  }
+  async getResults(w: Window, teams: Team[]): Promise<Fixture[]> {
+    return (await this.getLiveScores(w, teams)).filter((f) => f.status === "finished");
+  }
+}
+
 export function providerFor(name: string): FootballDataProvider {
+  if (name === "espn") return new EspnProvider();
   if (name === "mock") return new MockFootballDataProvider();
   if (name === "football-data") {
     const key = Deno.env.get("FOOTBALL_DATA_API_KEY");

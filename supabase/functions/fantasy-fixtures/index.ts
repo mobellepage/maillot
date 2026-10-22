@@ -1,12 +1,13 @@
 // Fantasy: fixtures and results for the given matchdays, from the football
-// data provider (provider.ts), into fantasy_fixtures. Called by the game's
+// data provider (provider.ts; ESPN unless FANTASY_FOOTBALL_PROVIDER says
+// otherwise), into fantasy_fixtures. Called by the game's
 // clock (public.fantasy_tick → private.fantasy_request_fixtures, every ten
 // minutes) and by admins to resync. Results an admin overrode are left alone.
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import { providerFor, type Team, type Window } from "./provider.ts";
 
 const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json" } });
-const PROVIDER = Deno.env.get("FANTASY_FOOTBALL_PROVIDER") ?? "mock";
+const PROVIDER = Deno.env.get("FANTASY_FOOTBALL_PROVIDER") ?? "espn";
 
 Deno.serve(async (req: Request) => {
   if (req.method !== "POST") return json({ error: "POST only" }, 405);
@@ -69,5 +70,5 @@ Deno.serve(async (req: Request) => {
       written += rows.length;
     }
   }
-  return json({ provider: PROVIDER, matchdays: (mds ?? []).length, fixtures: written });
+  return json({ provider: PROVIDER, matchdays: (mds ?? []).length, fixtures: written, teams: teams.length, error: (provider as { lastError?: string | null }).lastError ?? null });
 });
