@@ -12,7 +12,7 @@ import { useSession } from '../../lib/session.tsx';
 import { useToast } from '../../lib/toast.tsx';
 import * as db from '../../utils/db.ts';
 import type { Fixture, LineupClub, Matchday, MatchdayLineup, SquadClub, SquadState } from '../../utils/db.ts';
-import { Button, ErrorState, Notice, Page, Segmented, Skeleton } from '../../ui/index.ts';
+import { Button, Dialog, ErrorState, Notice, Page, Segmented, Skeleton } from '../../ui/index.ts';
 import { Avatar } from '../avatars/Avatar.tsx';
 import { Pitch } from './Pitch.tsx';
 import { priceText, untilText } from './model.ts';
@@ -126,15 +126,25 @@ function LineupForm({ m, clubs }: { m: Matchday; clubs: SquadClub[] }) {
   const l = (m.lineup as MatchdayLineup | null) ?? null;
   const [starters, setStarters] = useState<string[]>(() => clubs.filter((c) => c.starter).map((c) => c.club_id));
   const [captain, setCaptain] = useState<string | null>(() => clubs.find((c) => c.captain)?.club_id ?? null);
+  // Substituting: first the question, then the bench lights up to choose from.
+  const [ask, setAsk] = useState<SquadClub | null>(null);
+  const [outId, setOutId] = useState<string | null>(null);
   const byId = useMemo(() => new Map(clubs.map((c) => [c.club_id, c])), [clubs]);
   const chip = (l?.chip as Chip | null) ?? null;
   const usedChips = new Set(m.chips_used ?? []);
   const captainClub = captain ? byId.get(captain) : undefined;
 
-  const toggle = (c: SquadClub) => {
+  // On the pitch: ask to substitute. On the bench: come on for the one going off (or fill a free place).
+  const tap = (c: SquadClub) => {
     if (starters.includes(c.club_id)) {
-      setStarters(starters.filter((x) => x !== c.club_id));
-      if (captain === c.club_id) setCaptain(null);
+      if (outId === c.club_id) setOutId(null);
+      else setAsk(c);
+      return;
+    }
+    if (outId) {
+      setStarters(starters.map((x) => (x === outId ? c.club_id : x)));
+      if (captain === outId) setCaptain(null);
+      setOutId(null);
     } else if (starters.length < FANTASY.starters) {
       setStarters([...starters, c.club_id]);
     }
@@ -178,7 +188,7 @@ function LineupForm({ m, clubs }: { m: Matchday; clubs: SquadClub[] }) {
           slots={[...Array.from({ length: FANTASY.starters }, (_, i) => (starters[i] ? (byId.get(starters[i]!) ?? null) : null)), ...bench]}
           onTap={(i) => {
             const c = i < FANTASY.starters ? (starters[i] ? byId.get(starters[i]!) : undefined) : bench[i - FANTASY.starters];
-            if (c) toggle(c);
+            if (c) tap(c);
           }}
           onCaptain={(i) => {
             const c = starters[i] ? byId.get(starters[i]!) : undefined;
@@ -186,7 +196,16 @@ function LineupForm({ m, clubs }: { m: Matchday; clubs: SquadClub[] }) {
           }}
           captainId={captain}
           benchDim={chip !== 'bench_boost'}
+          outId={outId}
         />
+        {outId && (
+          <p style={{ margin: '8px 0 0', fontSize: 13, color: 'var(--pos)', fontWeight: 600 }}>
+            {t('fantasy.md.subHint', { club: byId.get(outId)?.name ?? '' })}{' '}
+            <button type="button" className="btn btn--ghost btn--sm" onClick={() => setOutId(null)} style={{ marginLeft: 6 }}>
+              {t('fantasy.md.subCancel')}
+            </button>
+          </p>
+        )}
         {idle > 0 && <p style={{ margin: '8px 0 0', fontSize: 13, color: 'var(--neg)' }}>{t('fantasy.md.idleWarn', { n: idle })}</p>}
         <p className="fantasy-panel__fine">{t('fantasy.md.pitchHint')}</p>
         <div className="fantasy-md__opts">
@@ -228,6 +247,24 @@ function LineupForm({ m, clubs }: { m: Matchday; clubs: SquadClub[] }) {
           {l && l.hits > 0 && <span style={{ fontSize: 13, color: 'var(--neg)' }}>{t('fantasy.sq.hits', { n: l.hits })}</span>}
         </div>
       </section>
+      {ask && (
+        <Dialog open onClose={() => setAsk(null)} title={t('fantasy.md.subTitle', { club: ask.name })} width={380}>
+          <p style={{ margin: 0, fontSize: 14, color: 'var(--text-2)' }}>{t('fantasy.md.subBody')}</p>
+          <div style={{ display: 'flex', gap: 8, marginTop: 16, flexWrap: 'wrap' }}>
+            <Button
+              onClick={() => {
+                setOutId(ask.club_id);
+                setAsk(null);
+              }}
+            >
+              {t('fantasy.md.subGo')}
+            </Button>
+            <Button variant="ghost" onClick={() => setAsk(null)}>
+              {t('fantasy.md.subCancel')}
+            </Button>
+          </div>
+        </Dialog>
+      )}
       <p style={{ margin: '18px 0 0', fontSize: 12.5, color: 'var(--muted)', lineHeight: 1.5 }}>
         <b>{t('fantasy.md.scoringTitle')}:</b> {t('fantasy.md.scoring', { win: FANTASY.points.win, draw: FANTASY.points.draw, cap: FANTASY.captainMult })}
       </p>

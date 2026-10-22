@@ -2441,7 +2441,7 @@ export const de: Messages = {
   'fantasy.sq.tooDear': 'über Budget',
   'fantasy.sq.leagueFull': '{league}: schon {n}',
   'fantasy.sq.pitchHint': 'Tippe auf + und gib einen Club ein. Die fünf auf dem Platz spielen, die drei auf der Bank warten.',
-  'fantasy.md.pitchHint': 'Tippe auf ein Trikot, um es zwischen Platz und Bank zu bewegen. C macht einen Club, dessen Trikot du besitzt, zum Captain.',
+  'fantasy.md.pitchHint': 'Tippe auf ein Trikot auf dem Platz, um es von der Bank zu ersetzen. C macht einen Club, dessen Trikot du besitzt, zum Captain.',
   'fantasy.sq.sort': 'Sortieren',
   'fantasy.sq.sort.priceDesc': 'Wert ↓',
   'fantasy.sq.sort.priceAsc': 'Wert ↑',
@@ -2449,5 +2449,10 @@ export const de: Messages = {
   'fantasy.sq.maxValue': 'bis {n}',
   'fantasy.sq.maxValueLabel': 'Maximaler Wert',
   'fantasy.sq.inBudget': 'Im Budget ({n})',
+  'fantasy.md.subTitle': '{club} auswechseln?',
+  'fantasy.md.subBody': 'Wähle danach auf der Bank das Trikot, das dafür reinkommt.',
+  'fantasy.md.subGo': 'Auswechseln',
+  'fantasy.md.subCancel': 'Abbrechen',
+  'fantasy.md.subHint': 'Tippe auf ein Trikot auf der Bank, das für {club} reinkommt.',
   // @@end
 };

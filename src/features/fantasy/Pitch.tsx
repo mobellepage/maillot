@@ -15,9 +15,11 @@ export interface PitchProps {
   /** The bench is greyed unless it scores (Bench Boost). */
   benchDim?: boolean;
   disabled?: boolean;
+  /** While substituting: the pitch jersey going off, and the bench framed green to choose from. */
+  outId?: string | null;
 }
 
-export function Pitch({ slots, onTap, onCaptain, captainId, benchDim = true, disabled = false }: PitchProps) {
+export function Pitch({ slots, onTap, onCaptain, captainId, benchDim = true, disabled = false, outId = null }: PitchProps) {
   const { t } = usePrefs();
   const rows = [[0, 1, 2], [3, 4]];
   const place = (i: number, bench: boolean) => {
@@ -31,10 +33,11 @@ export function Pitch({ slots, onTap, onCaptain, captainId, benchDim = true, dis
         </li>
       );
     const isCap = !!captainId && captainId === j.club_id;
+    const subbing = !!outId;
     return (
-      <li key={j.club_id} className={'fantasy-pitch__slot' + (isCap ? ' is-captain' : '')}>
+      <li key={j.club_id} className={'fantasy-pitch__slot' + (isCap ? ' is-captain' : '') + (subbing && bench ? ' is-pick' : '') + (outId === j.club_id ? ' is-out' : '')}>
         <button type="button" className="fantasy-md__cardbtn" onClick={() => onTap(i)} disabled={disabled} aria-label={j.name}>
-          <JerseyCard j={{ ...j, captain: isCap }} small dim={bench && benchDim} />
+          <JerseyCard j={{ ...j, captain: isCap }} small dim={bench && benchDim && !subbing} />
         </button>
         {onCaptain && !bench && (
           <button type="button" className={'fantasy-md__cap' + (isCap ? ' is-on' : '')} aria-pressed={isCap} disabled={disabled || !j.owned} onClick={() => onCaptain(i)} title={j.owned ? t('fantasy.md.makeCaptain') : t('fantasy.md.captainOwnedOnly')}>
@@ -53,7 +56,7 @@ export function Pitch({ slots, onTap, onCaptain, captainId, benchDim = true, dis
           </ul>
         ))}
       </div>
-      <div className="fantasy-bench">
+      <div className={'fantasy-bench' + (outId ? ' is-pick' : '')}>
         <span className="fantasy-bench__label">{t('fantasy.md.bench')}</span>
         <ul className="fantasy-pitch__row">{Array.from({ length: FANTASY.squadSize - FANTASY.starters }, (_, k) => place(FANTASY.starters + k, true))}</ul>
       </div>

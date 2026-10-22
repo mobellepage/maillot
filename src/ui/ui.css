@@ -3116,6 +3116,29 @@ html .logo-word {
     gap: 6px;
   }
 }
+/* Substituting: the bench lights up, the jersey going off fades. */
+.fantasy-pitch__slot.is-pick .fantasy-jersey__img {
+  box-shadow: 0 0 0 3px var(--accent-fill, #4bff8b);
+  animation: fantasyPick 1.1s ease-in-out infinite alternate;
+}
+.fantasy-pitch__slot.is-pick .fantasy-jersey {
+  opacity: 1;
+}
+.fantasy-pitch__slot.is-out .fantasy-jersey__img {
+  opacity: 0.45;
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.6);
+}
+.fantasy-bench.is-pick {
+  background: rgba(75, 255, 139, 0.08);
+}
+@keyframes fantasyPick {
+  from {
+    box-shadow: 0 0 0 2px var(--accent-fill, #4bff8b);
+  }
+  to {
+    box-shadow: 0 0 0 4px var(--accent-fill, #4bff8b);
+  }
+}
 /* The picker: a jersey a row. */
 .fantasy-picklist {
   list-style: none;

@@ -2440,7 +2440,7 @@ export const en = {
   'fantasy.sq.tooDear': 'over budget',
   'fantasy.sq.leagueFull': '{league}: already {n}',
   'fantasy.sq.pitchHint': 'Tap + and type a club. The five on the pitch play, the three on the bench wait.',
-  'fantasy.md.pitchHint': 'Tap a jersey to move it between pitch and bench. C makes a club whose shirt you own the captain.',
+  'fantasy.md.pitchHint': 'Tap a jersey on the pitch to substitute it from the bench. C makes a club whose shirt you own the captain.',
   'fantasy.sq.sort': 'Sort',
   'fantasy.sq.sort.priceDesc': 'Value ↓',
   'fantasy.sq.sort.priceAsc': 'Value ↑',
@@ -2448,6 +2448,11 @@ export const en = {
   'fantasy.sq.maxValue': 'up to {n}',
   'fantasy.sq.maxValueLabel': 'Maximum value',
   'fantasy.sq.inBudget': 'In budget ({n})',
+  'fantasy.md.subTitle': 'Substitute {club}?',
+  'fantasy.md.subBody': 'Then pick the jersey from the bench that comes on in its place.',
+  'fantasy.md.subGo': 'Substitute',
+  'fantasy.md.subCancel': 'Cancel',
+  'fantasy.md.subHint': 'Tap a jersey on the bench to bring it on for {club}.',
   // @@end
 };
 

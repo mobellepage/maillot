@@ -2441,7 +2441,7 @@ export const fr: Messages = {
   'fantasy.sq.tooDear': 'trop cher',
   'fantasy.sq.leagueFull': '{league} : déjà {n}',
   'fantasy.sq.pitchHint': 'Touche + et saisis un club. Les cinq sur le terrain jouent, les trois sur le banc attendent.',
-  'fantasy.md.pitchHint': 'Touche un maillot pour le déplacer entre terrain et banc. C nomme capitaine un club dont tu possèdes le maillot.',
+  'fantasy.md.pitchHint': 'Touche un maillot sur le terrain pour le remplacer depuis le banc. C nomme capitaine un club dont tu possèdes le maillot.',
   'fantasy.sq.sort': 'Trier',
   'fantasy.sq.sort.priceDesc': 'Valeur ↓',
   'fantasy.sq.sort.priceAsc': 'Valeur ↑',
@@ -2449,5 +2449,10 @@ export const fr: Messages = {
   'fantasy.sq.maxValue': 'jusqu’à {n}',
   'fantasy.sq.maxValueLabel': 'Valeur maximale',
   'fantasy.sq.inBudget': 'Dans le budget ({n})',
+  'fantasy.md.subTitle': 'Remplacer {club} ?',
+  'fantasy.md.subBody': 'Choisis ensuite sur le banc le maillot qui entre à sa place.',
+  'fantasy.md.subGo': 'Remplacer',
+  'fantasy.md.subCancel': 'Annuler',
+  'fantasy.md.subHint': 'Touche un maillot du banc pour le faire entrer à la place de {club}.',
   // @@end
 };
