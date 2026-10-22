@@ -44,11 +44,11 @@ drop table if exists
   public.fantasy_cards, public.fantasy_players cascade;
 alter table public.kits drop column if exists rarity;
 
--- The game starts over: nothing played yet counts (the first Gameweek is a week out).
+-- The game starts over: nothing played yet counts (the first Gameweek is this Friday).
 truncate public.fantasy_fixtures, public.fantasy_h2h, public.fantasy_standings, public.fantasy_division_members, public.fantasy_divisions,
   public.fantasy_chips_used, public.fantasy_badges, public.fantasy_prizes, public.fantasy_matchdays, private.fantasy_notified;
 delete from public.notifications where type like 'fantasy_%';
-insert into private.app_settings (key, value) values ('fantasy_start', '2026-10-30') on conflict (key) do update set value = excluded.value;
+insert into private.app_settings (key, value) values ('fantasy_start', '2026-10-23') on conflict (key) do update set value = excluded.value;
 
 -- Prizes are shirts and vouchers now (Kit Points no longer exist).
 update public.fantasy_prize_pool set active = false where type = 'points';
