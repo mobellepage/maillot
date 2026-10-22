@@ -3372,6 +3372,17 @@ html .logo-word {
   justify-content: flex-end;
   text-align: right;
 }
+.fantasy-fixture__noimg {
+  width: 28px;
+  height: 28px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border-radius: 6px;
+  background: var(--surface-2);
+  font-size: 14px;
+  opacity: 0.55;
+}
 .fantasy-fixture__team img {
   width: 26px;
   height: 26px;

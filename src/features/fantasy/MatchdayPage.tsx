@@ -436,13 +436,13 @@ function Fixtures({ rows, loading }: { rows: Fixture[]; loading: boolean }) {
             {list.map((f) => (
               <li key={f.id} className={'fantasy-fixture is-' + f.status}>
                 <span className="fantasy-fixture__team">
-                  {f.home_image && <img src={f.home_image} alt="" loading="lazy" />}
+                  {f.home_image ? <img src={f.home_image} alt="" loading="lazy" /> : <span className="fantasy-fixture__noimg" aria-hidden="true">👕</span>}
                   {f.home_name}
                 </span>
                 <span className="fantasy-fixture__score mono">{f.status === 'scheduled' ? '–' : `${f.home_goals ?? 0}:${f.away_goals ?? 0}`}</span>
                 <span className="fantasy-fixture__team is-away">
                   {f.away_name}
-                  {f.away_image && <img src={f.away_image} alt="" loading="lazy" />}
+                  {f.away_image ? <img src={f.away_image} alt="" loading="lazy" /> : <span className="fantasy-fixture__noimg" aria-hidden="true">👕</span>}
                 </span>
                 {f.status === 'live' && <span className="fantasy-fixture__live">LIVE</span>}
               </li>
