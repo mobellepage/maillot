@@ -16,6 +16,7 @@ export function FantasyPanel() {
         <Prizes />
         <Missions />
         <Rarity />
+        <TeamMappings />
         <Albums />
       </div>
     </section>
@@ -264,6 +265,39 @@ function Albums() {
           Create album
         </Button>
       </div>
+    </Card>
+  );
+}
+
+function TeamMappings() {
+  const toast = useToast();
+  const qc = useQueryClient();
+  const list = useQuery({ queryKey: ['adminTeamMappings'], queryFn: db.adminTeamMappings });
+  const [q, setQ] = useState('');
+  const set = useMutation({
+    mutationFn: ({ club, provider, id }: { club: string; provider: string; id: string }) => db.adminSetTeamMapping(club, provider, id),
+    onSuccess: () => void qc.invalidateQueries({ queryKey: ['adminTeamMappings'] }),
+    onError: (e: Error) => toast('Error: ' + e.message)
+  });
+  const rows = (list.data ?? []).filter((m) => !q || (m.club_name ?? m.club_id).toLowerCase().includes(q.toLowerCase()));
+  return (
+    <Card tight>
+      <b>Team mappings</b> <small style={{ color: 'var(--muted)' }}>(club → provider team id; for football-data.org use its numeric team id and provider "football-data")</small>
+      <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="filter clubs" style={{ height: 32, borderRadius: 8, padding: '0 8px', marginTop: 8, width: 220 }} />
+      <ul style={{ listStyle: 'none', padding: 0, margin: '8px 0 0', display: 'grid', gap: 4, fontSize: 12.5, maxHeight: 320, overflowY: 'auto' }}>
+        {rows.slice(0, 300).map((m) => (
+          <li key={m.club_id} style={{ display: 'grid', gridTemplateColumns: '1fr 120px 160px auto', gap: 6, alignItems: 'center' }}>
+            <span>
+              {m.club_name ?? m.club_id} <small style={{ color: 'var(--muted)' }}>{m.league}</small>
+            </span>
+            <input defaultValue={m.provider} id={'pv' + m.club_id} style={{ height: 28 }} />
+            <input defaultValue={m.provider_team_id} id={'pt' + m.club_id} style={{ height: 28 }} />
+            <Button size="sm" variant="ghost" onClick={() => set.mutate({ club: m.club_id, provider: (document.getElementById('pv' + m.club_id) as HTMLInputElement).value, id: (document.getElementById('pt' + m.club_id) as HTMLInputElement).value })}>
+              Save
+            </Button>
+          </li>
+        ))}
+      </ul>
     </Card>
   );
 }

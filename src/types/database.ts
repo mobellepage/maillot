@@ -391,6 +391,12 @@ export type Database = {
         Update: { sort?: number };
         Relationships: [];
       };
+      fantasy_team_mappings: {
+        Row: { club_id: string; provider: string; provider_team_id: string; team_name: string | null };
+        Insert: { club_id: string; provider?: string; provider_team_id: string; team_name?: string | null };
+        Update: { provider?: string; provider_team_id?: string; team_name?: string | null };
+        Relationships: [];
+      };
       kits: {
         Row: { id: string; club_id: string; season: string; season_year: number; kind: string; variant: string; image_path: string | null; image_credit: string | null; image_credit_url: string | null; brand: string | null; sponsor: string | null; pattern: string; colors: string[]; note: string | null; catalog_id: string | null; source: string; status: string; suggested_by: string | null; created_at: string; rarity: string };
         Insert: { id?: string; club_id: string; season: string; season_year: number; kind: string; brand?: string | null; sponsor?: string | null; pattern?: string; colors: string[]; note?: string | null; catalog_id?: string | null; source: string; status?: string; suggested_by?: string | null; created_at?: string };

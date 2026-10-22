@@ -11,7 +11,7 @@ import { useSession } from '../../lib/session.tsx';
 import { useToast } from '../../lib/toast.tsx';
 import * as db from '../../utils/db.ts';
 import type { Fixture, LineupCard, Matchday, MatchdayLineup, SquadCard } from '../../utils/db.ts';
-import { Button, ErrorState, Notice, Page, Segmented, Skeleton } from '../../ui/index.ts';
+import { Button, Dialog, ErrorState, Notice, Page, Segmented, Skeleton } from '../../ui/index.ts';
 import { Avatar } from '../avatars/Avatar.tsx';
 import { GameCard } from './GameCard.tsx';
 import { untilText } from './model.ts';
@@ -106,6 +106,8 @@ function LineupEditor({ m, fixtures }: { m: Matchday; fixtures: Fixture[] }) {
   const [chip, setChip] = useState<Chip | null>((existing?.chip as Chip | null) ?? null);
   const [pred, setPred] = useState<{ home: string; away: string }>({ home: existing?.pred_home?.toString() ?? '', away: existing?.pred_away?.toString() ?? '' });
   const [filter, setFilter] = useState<'plays' | 'all' | 'gold'>('plays');
+  // A card up close: the big holo card, its value and its club's match this weekend.
+  const [detail, setDetail] = useState<SquadCard | null>(null);
   const byId = useMemo(() => new Map((cards.data ?? []).map((c) => [c.kit_id, c])), [cards.data]);
   const chosen = kits.map((k) => byId.get(k)).filter((c): c is SquadCard => !!c);
   const used = chosen.reduce((a, c) => a + Number(c.value), 0);
@@ -278,11 +280,48 @@ function LineupEditor({ m, fixtures }: { m: Matchday; fixtures: Fixture[] }) {
                   <b>{money(Number(c.value))}</b>
                   <span className={c.plays ? 'is-plays' : ''}>{c.plays ? '● ' + t('fantasy.md.plays') : t('fantasy.md.noMatch')}</span>
                 </span>
+                <button type="button" className="fantasy-md__info" aria-label={t('fantasy.md.detail') + ' · ' + c.club_name} onClick={() => setDetail(c)}>
+                  i
+                </button>
               </li>
             );
           })}
         </ul>
       </section>
+      {detail && (
+        <Dialog open onClose={() => setDetail(null)} title={`${detail.club_name} ${detail.season}`} width={420}>
+          <div style={{ display: 'grid', justifyItems: 'center', gap: 12 }}>
+            <GameCard c={detail} small={false} />
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', justifyContent: 'center', fontSize: 13.5 }}>
+              <span className="fantasy-badge">{money(Number(detail.value))}</span>
+              <span className={'fantasy-badge' + (detail.gold ? ' is-gold' : '')}>{detail.gold ? t('fantasy.gold.badge') : t('fantasy.rarity.' + detail.rarity)}</span>
+              <span className="fantasy-badge">{detail.league}</span>
+            </div>
+            {(() => {
+              const f = fixtures.find((x) => x.home_club_id === detail.club_id || x.away_club_id === detail.club_id);
+              return f ? (
+                <p style={{ margin: 0, fontSize: 14, textAlign: 'center' }}>
+                  ⚽ {f.home_name} – {f.away_name}
+                  <br />
+                  <span style={{ color: 'var(--muted)', fontSize: 12.5 }}>{new Date(f.kickoff).toLocaleString(undefined, { weekday: 'short', hour: '2-digit', minute: '2-digit' })}</span>
+                </p>
+              ) : (
+                <p style={{ margin: 0, fontSize: 13.5, color: 'var(--muted)' }}>{t('fantasy.md.noMatch')}</p>
+              );
+            })()}
+            <Button
+              size="sm"
+              variant={kits.includes(detail.kit_id) ? 'secondary' : 'primary'}
+              onClick={() => {
+                toggle(detail);
+                setDetail(null);
+              }}
+            >
+              {kits.includes(detail.kit_id) ? t('fantasy.md.remove') : t('fantasy.md.add')}
+            </Button>
+          </div>
+        </Dialog>
+      )}
       <p style={{ margin: '18px 0 0', fontSize: 12.5, color: 'var(--muted)', lineHeight: 1.5 }}>
         <b>{t('fantasy.md.scoringTitle')}:</b> {t('fantasy.md.scoring', { win: MATCHDAY.points.win, draw: MATCHDAY.points.draw, goal: MATCHDAY.points.goal, cs: MATCHDAY.points.cleanSheet, gold: MATCHDAY.multipliers.gold, cap: MATCHDAY.multipliers.captain })}
       </p>

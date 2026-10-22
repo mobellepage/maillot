@@ -2519,6 +2519,9 @@ export const en = {
   'fantasy.intro.3': 'Before Saturday: line up five cards for the Matchday. Real results, real points.',
   'fantasy.intro.dismiss': 'Got it',
   'fantasy.intro.go': 'Set my line-up',
+  'fantasy.md.detail': 'Card details',
+  'fantasy.md.add': 'Add to line-up',
+  'fantasy.md.remove': 'Remove from line-up',
   // @@end
 };
 

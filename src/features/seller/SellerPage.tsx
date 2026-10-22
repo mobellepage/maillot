@@ -90,13 +90,13 @@ export default function SellerPage() {
           <span className="eyebrow">{stats.data?.dealer ? t('dealer.eyebrow') : t('seller.eyebrow')}</span>
           {stats.data?.dealer && <DealerBadge />}
           {!!collection.data?.length && <LevelBadge shirts={collection.data.length} value={value?.total ?? 0} />}
+          {stats.data?.club_id && (
+            <Link to={'/library/' + stats.data.club_id} style={{ fontSize: 13.5, fontWeight: 600 }}>
+              ⭐ {stats.data.club_name}
+            </Link>
+          )}
         </div>
         {stats.data?.bio && <p style={{ margin: '8px 0 0', fontSize: 15, lineHeight: 1.5, whiteSpace: 'pre-line' }}>{stats.data.bio}</p>}
-        {stats.data?.club_id && (
-          <Link to={'/library/' + stats.data.club_id} style={{ display: 'inline-block', marginTop: 6, fontSize: 14, fontWeight: 600 }}>
-            ⭐ {stats.data.club_name}
-          </Link>
-        )}
         <div style={{ fontSize: 12.5, color: 'var(--muted)', marginTop: 6 }}>{t('seller.since', { date: formatDate(p.member_since, lang) })}</div>
       </div>
       <div style={{ marginTop: 14 }}>

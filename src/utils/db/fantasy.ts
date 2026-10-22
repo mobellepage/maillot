@@ -282,3 +282,17 @@ export async function adminCreateAlbum(slug: string, title: { en: string; de: st
   const { error: e2 } = await client.from('fantasy_album_slots').insert(kitIds.map((kit_id, i) => ({ album_id: data.id, kit_id, sort: i + 1 })));
   if (e2) throw e2;
 }
+
+export type TeamMapping = { club_id: string; provider: string; provider_team_id: string; team_name: string | null; club_name?: string; league?: string };
+export async function adminTeamMappings(): Promise<TeamMapping[]> {
+  const { data, error } = await (await sb()).from('fantasy_team_mappings').select('club_id, provider, provider_team_id, team_name, kit_clubs(name, league)').order('club_id');
+  if (error) throw error;
+  return (data ?? []).map((m) => {
+    const c = (Array.isArray(m.kit_clubs) ? m.kit_clubs[0] : m.kit_clubs) as { name: string; league: string } | null;
+    return { club_id: m.club_id, provider: m.provider, provider_team_id: m.provider_team_id, team_name: m.team_name, club_name: c?.name, league: c?.league };
+  });
+}
+export async function adminSetTeamMapping(clubId: string, provider: string, providerTeamId: string): Promise<void> {
+  const { error } = await (await sb()).from('fantasy_team_mappings').upsert({ club_id: clubId, provider, provider_team_id: providerTeamId }, { onConflict: 'club_id' });
+  if (error) throw error;
+}

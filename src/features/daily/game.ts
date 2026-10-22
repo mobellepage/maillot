@@ -32,12 +32,11 @@ export function hash(s: string): number {
   return h >>> 0;
 }
 
-/** Where the crop is centred, in % of the picture: collar, chest/sponsor, sleeve or hem — never the crest, that would give it away at once. */
+/** Where the crop is centred, in % of the picture: collar, sleeve or hem — never the chest, where the crest sits and would give it away at once. */
 export const FOCI = [
   { key: 'collar', x: 50, y: 12 },
-  { key: 'chest', x: 42, y: 50 },
-  { key: 'sleeve', x: 84, y: 30 },
-  { key: 'hem', x: 50, y: 84 }
+  { key: 'sleeve', x: 88, y: 28 },
+  { key: 'hem', x: 50, y: 86 }
 ] as const;
 export function focusFor(id: string, n: number) {
   return FOCI[hash(id + ':' + n) % FOCI.length]!;

@@ -2520,5 +2520,8 @@ export const de: Messages = {
   'fantasy.intro.3': 'Vor Samstag: Stell fünf Karten für den Matchday auf. Echte Resultate, echte Punkte.',
   'fantasy.intro.dismiss': 'Verstanden',
   'fantasy.intro.go': 'Aufstellung machen',
+  'fantasy.md.detail': 'Kartendetails',
+  'fantasy.md.add': 'Aufstellen',
+  'fantasy.md.remove': 'Aus der Aufstellung nehmen',
   // @@end
 };

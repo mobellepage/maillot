@@ -1,6 +1,8 @@
 // The football data behind Fantasy's Matchday, behind one interface so the
-// source can be swapped (a real feed later). Today: a mock that makes
-// believable fixtures and results for the clubs the game knows.
+// source can be swapped. Two providers: a mock (default) that makes
+// believable fixtures and results for the clubs the game knows, and
+// football-data.org (set FANTASY_FOOTBALL_PROVIDER=football-data and
+// FOOTBALL_DATA_API_KEY; map clubs to its team ids in Admin → Fantasy).
 
 export interface Team {
   /** The library club (kit_clubs.id) the provider team maps to. */
@@ -120,8 +122,82 @@ export class MockFootballDataProvider implements FootballDataProvider {
   }
 }
 
+// --- football-data.org -----------------------------------------------------
+// One request per window: /v4/matches?dateFrom&dateTo across the plan's
+// competitions. Teams are matched by their football-data id (the
+// provider_team_id in fantasy_team_mappings). Nations' competitions (WC, EC
+// and friendlies' codes) count as international; CL/EL as European.
+const INTERNATIONAL = new Set(["WC", "EC", "CLI", "AFC", "CAF", "CONCACAF", "UNL"]);
+const EUROPEAN = new Set(["CL", "EL", "ECL", "UCL", "UEL"]);
+
+interface FdMatch {
+  id: number;
+  utcDate: string;
+  status: string;
+  competition: { code: string; type?: string };
+  homeTeam: { id: number; name: string };
+  awayTeam: { id: number; name: string };
+  score: { fullTime: { home: number | null; away: number | null }; halfTime?: { home: number | null; away: number | null } };
+}
+
+export class FootballDataOrgProvider implements FootballDataProvider {
+  constructor(private apiKey: string, private fetchImpl: typeof fetch = fetch) {}
+
+  private async matches(w: Window): Promise<FdMatch[]> {
+    const day = (d: Date) => d.toISOString().slice(0, 10);
+    const to = new Date(w.end.getTime() + 24 * 3_600_000);
+    const res = await this.fetchImpl(`https://api.football-data.org/v4/matches?dateFrom=${day(w.start)}&dateTo=${day(to)}`, { headers: { "X-Auth-Token": this.apiKey } });
+    if (!res.ok) throw new Error(`football-data.org ${res.status}`);
+    const body = (await res.json()) as { matches?: FdMatch[] };
+    return body.matches ?? [];
+  }
+
+  private convert(ms: FdMatch[], w: Window, teams: Team[]): Fixture[] {
+    const byId = new Map(teams.map((t) => [t.providerTeamId, t]));
+    const out: Fixture[] = [];
+    for (const m of ms) {
+      const kickoff = new Date(m.utcDate);
+      if (kickoff < w.start || kickoff > w.end) continue;
+      const home = byId.get(String(m.homeTeam.id));
+      const away = byId.get(String(m.awayTeam.id));
+      if (!home && !away) continue;
+      const code = m.competition?.code ?? "";
+      const competition: Fixture["competition"] = INTERNATIONAL.has(code) ? "international" : EUROPEAN.has(code) ? "european" : m.competition?.type === "CUP" ? "cup" : "league";
+      // Clubs score on league weekends, nations in international windows — the matchday decides.
+      if (w.international !== (competition === "international")) continue;
+      const status: Fixture["status"] = m.status === "FINISHED" ? "finished" : ["IN_PLAY", "PAUSED", "LIVE"].includes(m.status) ? "live" : "scheduled";
+      const stub = (t: { id: number; name: string }): Team => ({ clubId: "", providerTeamId: String(t.id), name: t.name, league: "", national: competition === "international" });
+      out.push({
+        providerFixtureId: `fd:${m.id}`,
+        competition,
+        home: home ?? stub(m.homeTeam),
+        away: away ?? stub(m.awayTeam),
+        kickoff,
+        status,
+        homeGoals: status === "scheduled" ? null : (m.score.fullTime.home ?? m.score.halfTime?.home ?? 0),
+        awayGoals: status === "scheduled" ? null : (m.score.fullTime.away ?? m.score.halfTime?.away ?? 0)
+      });
+    }
+    return out.sort((a, b) => a.kickoff.getTime() - b.kickoff.getTime());
+  }
+
+  async getFixtures(w: Window, teams: Team[]): Promise<Fixture[]> {
+    return this.convert(await this.matches(w), w, teams).map((f) => ({ ...f, status: "scheduled", homeGoals: null, awayGoals: null }));
+  }
+  async getLiveScores(w: Window, teams: Team[]): Promise<Fixture[]> {
+    return this.convert(await this.matches(w), w, teams);
+  }
+  async getResults(w: Window, teams: Team[]): Promise<Fixture[]> {
+    return (await this.getLiveScores(w, teams)).filter((f) => f.status === "finished");
+  }
+}
+
 export function providerFor(name: string): FootballDataProvider {
-  // A real provider (e.g. football-data.org) plugs in here by name.
   if (name === "mock") return new MockFootballDataProvider();
+  if (name === "football-data") {
+    const key = Deno.env.get("FOOTBALL_DATA_API_KEY");
+    if (!key) throw new Error("FOOTBALL_DATA_API_KEY is not set");
+    return new FootballDataOrgProvider(key);
+  }
   throw new Error(`unknown football data provider: ${name}`);
 }

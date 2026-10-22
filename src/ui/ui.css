@@ -3071,6 +3071,12 @@ html .logo-word {
   color: var(--muted);
 }
 
+/* On phones the rail would cover inputs and prices; its three places live in the menu (Feed → Fits), on the home page (puzzle) and in Discover (library). */
+@media (max-width: 767px) {
+  .feature-rail {
+    display: none;
+  }
+}
 /* Quick links under the pack: albums, shop, cards. */
 .fantasy-links {
   display: grid;
@@ -3402,6 +3408,24 @@ html .logo-word {
 }
 .fantasy-md__pick.is-idle .holo {
   opacity: 0.6;
+}
+.fantasy-md__pick {
+  position: relative;
+}
+.fantasy-md__info {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 24px;
+  height: 24px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  background: rgba(10, 12, 11, 0.55);
+  color: #fff;
+  font-weight: 800;
+  font-size: 12px;
+  cursor: pointer;
+  z-index: 5;
 }
 .fantasy-md__meta {
   display: grid;

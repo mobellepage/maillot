@@ -2520,5 +2520,8 @@ export const fr: Messages = {
   'fantasy.intro.3': 'Avant samedi : aligne cinq cartes pour le Matchday. Vrais résultats, vrais points.',
   'fantasy.intro.dismiss': 'Compris',
   'fantasy.intro.go': 'Faire ma composition',
+  'fantasy.md.detail': 'Détails de la carte',
+  'fantasy.md.add': 'Aligner',
+  'fantasy.md.remove': 'Retirer de la composition',
   // @@end
 };

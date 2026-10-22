@@ -194,6 +194,7 @@ function LiveRow({ l }: { l: League }) {
           <Avatar avatar={r.avatar} name={r.handle} size={28} ring={false} />
           <Link to={'/u/' + r.handle} style={{ flex: 1, fontWeight: 650 }}>
             @{r.handle}
+            {i === 0 && l.matchday_status === 'scored' && <span className="fantasy-table__crown"> 👑 {t('fantasy.md.manager')}</span>}
           </Link>
           <b className="mono">{r.this_md}</b>
         </li>

@@ -27,7 +27,7 @@ export function Movers() {
                 <ShirtGraphic pat={m.pat} trim={m.trim} crest={m.crest} photo={m.photo} flat style={{ width: '78%' }} />
               </span>
               <span style={{ flex: 1, minWidth: 0 }}>
-                <span style={{ display: 'block', fontSize: 15, fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{m.name}</span>
+                <span style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', fontSize: 15, fontWeight: 600, lineHeight: 1.25, overflow: 'hidden' }}>{m.name}</span>
                 <span style={{ display: 'block', fontSize: 12.5, color: 'var(--muted)', marginTop: 3 }}>
                   {m.brand} · {m.league}
                 </span>

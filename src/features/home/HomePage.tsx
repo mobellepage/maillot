@@ -61,6 +61,7 @@ function VisitorPage() {
   return (
     <main id="main" style={{ animation: 'kvIn .45s ease both' }}>
       <Hero />
+      <HomePlay />
       <KitNews />
       <Categories />
       <PopularToday />
@@ -68,7 +69,6 @@ function VisitorPage() {
       <Legends />
       <Trending shirts={trending} grid />
       <DiscoverCollectors />
-      <HomePlay />
       <HomeBento />
       <SecondLife />
       <TopCollectors />
@@ -92,13 +92,13 @@ function MemberPage() {
   return (
     <main id="main" style={{ animation: 'kvIn .45s ease both' }}>
       <MemberHome />
+      <HomePlay />
       <KitNews />
       <Categories />
       <PopularToday />
       <DiscoverCollectors />
       <Eras />
       <Legends />
-      <HomePlay />
       {wanted.length > 0 && (
         <section aria-labelledby="wish-title" style={section}>
           <SectionHeader
