@@ -18,7 +18,6 @@ import { isCutout } from './addshirt/studio.ts';
 import { StudioButton } from './StudioButton.tsx';
 import { HighlightButton } from './HighlightButton.tsx';
 import { CollectorCardButton } from './card/CollectorCardButton.tsx';
-import { useFantasyEvent } from '../fantasy/useFantasy.ts';
 import { LIBRARY_PICTURE_FIRST } from '../../config/rules.ts';
 
 
@@ -35,7 +34,6 @@ export default function VaultItemPage() {
   const c = items.find((x) => x.id === id);
   usePageMeta(c ? itemName(c) : t('vault.title.collection'));
   // Fantasy mission: checking one of your shirts' value.
-  useFantasyEvent('check_value', !!c);
   // The studio photo (if any) leads, then front and back; the details follow.
   const entries = Object.entries(c?.photos || {}).sort(([a], [b]) => photoRank(a) - photoRank(b));
   const fullUrl = usePhotoUrls(entries.map(([, p]) => p));

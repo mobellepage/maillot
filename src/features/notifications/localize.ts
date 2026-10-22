@@ -47,8 +47,8 @@ const BY_TITLE: Record<string, [MessageKey, MessageKey | null]> = {
   'Your counter-offer was declined': ['notif.counterDeclined.title', 'notif.counterDeclined.body'],
   'Your collection went up this week': ['notif.weekUp.title', 'notif.weekUp.body'],
   'Your collection went down this week': ['notif.weekDown.title', 'notif.weekDown.body'],
-  'Your pack is ready': ['notif.fantasyPack.title', 'notif.fantasyPack.body'],
-  'Deadline in 3 hours – set your captain': ['notif.fantasyDeadline.title', 'notif.fantasyDeadline.body'],
+  'Deadline in 3 hours – check your line-up': ['notif.fantasyDeadline.title', 'notif.fantasyDeadline.body'],
+  'Prices moved in your squad': ['notif.fantasyPrice.title', 'notif.fantasyPrice.body'],
   'Matchday result': ['notif.fantasyResult.title', 'notif.fantasyResult.body'],
   'Manager of the Matchday': ['notif.fantasyMotm.title', 'notif.fantasyMotm.body'],
   'Head-to-head: won': ['notif.fantasyH2hWon.title', 'notif.fantasyH2h.body'],
@@ -64,10 +64,9 @@ const BY_TITLE: Record<string, [MessageKey, MessageKey | null]> = {
 type N = { title: string; body: string | null; data: unknown };
 
 export function localizeNotification(n: N, t: (key: MessageKey, vars?: Vars) => string, money: (chf: number) => string): { title: string; body: string | null } {
-  // Album nudges carry the album's name in the title.
-  const keys = BY_TITLE[n.title] ?? (n.title.startsWith('1 shirt missing for ') ? (['notif.fantasyAlbum.title', 'notif.fantasyAlbum.body'] as [MessageKey, MessageKey]) : undefined);
+  const keys = BY_TITLE[n.title];
   if (!keys) return { title: n.title, body: n.body };
-  const data = (n.data ?? {}) as { shirt_id?: string; catalog_id?: string; size?: string; amount?: number; delta?: number; tracking_code?: string; change_pct?: number; handle?: string | null; matchday?: number; points?: number; rank?: number; players?: number; a?: number; b?: number; league?: string; division?: number; album?: string; offers?: number; prize?: string; cup?: string; season?: string };
+  const data = (n.data ?? {}) as { shirt_id?: string; catalog_id?: string; size?: string; amount?: number; delta?: number; tracking_code?: string; change_pct?: number; handle?: string | null; matchday?: number; points?: number; rank?: number; players?: number; a?: number; b?: number; league?: string; division?: number; moves?: string; prize?: string; cup?: string; season?: string };
   const body = n.body ?? '';
   const vars: Vars = {
     shirt: ((data.shirt_id ?? data.catalog_id) && BY[(data.shirt_id ?? data.catalog_id)!]?.name) || data.shirt_id || data.catalog_id || '',
@@ -85,8 +84,7 @@ export function localizeNotification(n: N, t: (key: MessageKey, vars?: Vars) => 
     b: data.b ?? '',
     league: data.league ?? '',
     division: data.division ?? '',
-    album: data.album ?? '',
-    offers: data.offers ?? '',
+    moves: data.moves ?? '',
     prize: data.prize ?? '',
     cup: data.cup ?? '',
     season: data.season ?? ''

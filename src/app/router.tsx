@@ -44,7 +44,7 @@ import {
   NewsPage,
   ReturnPage,
   AccountPage,
-  ResetPasswordPage, FantasyPage, FantasyCardsPage, FantasyOddsPage, FantasyAlbumsPage, FantasyAlbumPage, FantasyShopPage, FantasyMatchdayPage, FantasyLeaguesPage, FantasyLeaguePage, FantasyStandingsPage, FantasyPrizesPage, FantasyRulesPage } from './pages.tsx';
+  ResetPasswordPage, FantasyPage, FantasySquadPage, FantasyMatchdayPage, FantasyLeaguesPage, FantasyLeaguePage, FantasyStandingsPage, FantasyPrizesPage, FantasyRulesPage } from './pages.tsx';
 
 // Private partner preview (scripts/partner-demo.mjs): development only, never in a production build.
 const PartnerDemoPage = import.meta.env.DEV ? lazy(() => import('../features/demo/PartnerDemoPage.tsx')) : null;
@@ -63,10 +63,7 @@ export const routes: RouteObject[] = [
           { path: 'feed/following', element: <FollowingPage /> },
           { path: 'daily', element: <DailyPage /> },
           { path: 'fantasy', element: <FantasyPage /> },
-          { path: 'fantasy/odds', element: <FantasyOddsPage /> },
-          { path: 'fantasy/albums', element: <FantasyAlbumsPage /> },
-          { path: 'fantasy/album/:slug', element: <FantasyAlbumPage /> },
-          { path: 'fantasy/shop', element: <FantasyShopPage /> },
+          { path: 'fantasy/squad', element: <FantasySquadPage /> },
           { path: 'fantasy/matchday', element: <FantasyMatchdayPage /> },
           { path: 'fantasy/matchday/:id', element: <FantasyMatchdayPage /> },
           { path: 'fantasy/leagues', element: <FantasyLeaguesPage /> },
@@ -75,14 +72,6 @@ export const routes: RouteObject[] = [
           { path: 'fantasy/standings', element: <FantasyStandingsPage /> },
           { path: 'fantasy/prizes', element: <FantasyPrizesPage /> },
           { path: 'fantasy/rules', element: <FantasyRulesPage /> },
-          {
-            path: 'fantasy/cards',
-            element: (
-              <RequireAuth>
-                <FantasyCardsPage />
-              </RequireAuth>
-            )
-          },
           { path: 'library', element: <LibraryPage /> },
           { path: 'library/catalog', element: <BrowsePage /> },
           { path: 'library/find', element: <KitFinderPage /> },

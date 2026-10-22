@@ -19,7 +19,7 @@ export default function PrizesPage() {
   const pool = useQuery({ queryKey: ['fantasyPrizePool'], queryFn: db.loadPrizePool, staleTime: 60_000, retry: false });
   const mine = useQuery({ queryKey: ['fantasyPrizes', user?.id], queryFn: db.loadMyPrizes, enabled: !!user, staleTime: 30_000, retry: false });
   const [claiming, setClaiming] = useState<Prize | null>(null);
-  const prizeLabel = (p: { type: string; value: number | null; title: string }) => (p.type === 'points' ? t('fantasy.prizes.points', { n: p.value ?? 0 }) : p.type === 'voucher' ? t('fantasy.prizes.voucher', { amount: money(Number(p.value ?? 0)) }) : t('fantasy.prizes.shirt'));
+  const prizeLabel = (p: { type: string; value: number | null; title: string }) => (p.type === 'voucher' ? t('fantasy.prizes.voucher', { amount: money(Number(p.value ?? 0)) }) : t('fantasy.prizes.shirt'));
   return (
     <Page>
       <Link to="/fantasy" className="btn btn--ghost btn--sm" style={{ marginBottom: 16 }}>
@@ -60,7 +60,7 @@ export default function PrizesPage() {
                   {p.status === 'shipped' && <ReceivedButton p={p} />}
                   {p.status === 'received' && p.item_id && (
                     <Link to={'/vault/' + encodeURIComponent(p.item_id)} className="btn btn--secondary btn--sm">
-                      {t('fantasy.gold.add')}
+                      {t('fantasy.prizes.addShirt')}
                     </Link>
                   )}
                 </div>
@@ -109,7 +109,7 @@ function ReceivedButton({ p }: { p: Prize }) {
       void qc.invalidateQueries({ queryKey: ['fantasyPrizes'] });
       void qc.invalidateQueries({ queryKey: ['collection'] });
     },
-    onError: () => toast(t('fantasy.err.failed'))
+    onError: () => toast(t('fantasy.md.err.failed'))
   });
   return (
     <Button size="sm" onClick={() => m.mutate()} busy={m.isPending}>
@@ -130,7 +130,7 @@ function ClaimDialog({ p, onClose }: { p: Prize; onClose: () => void }) {
       void qc.invalidateQueries({ queryKey: ['fantasyPrizes'] });
       onClose();
     },
-    onError: () => toast(t('fantasy.err.failed'))
+    onError: () => toast(t('fantasy.md.err.failed'))
   });
   const set = (k: keyof typeof f) => (e: React.ChangeEvent<HTMLInputElement>) => setF({ ...f, [k]: e.target.value });
   return (

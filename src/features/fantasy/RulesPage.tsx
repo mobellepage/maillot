@@ -26,7 +26,7 @@ export default function RulesPage() {
         ))}
       </ol>
       <p style={{ margin: '18px 0 0', fontSize: 13, color: 'var(--muted)' }}>
-        <Link to="/fantasy/odds">{t('fantasy.odds.link')}</Link> · <Link to="/legal/terms">{t('footer.terms')}</Link> · <Link to="/legal/privacy">{t('footer.privacy')}</Link>
+        <Link to="/legal/terms">{t('footer.terms')}</Link> · <Link to="/legal/privacy">{t('footer.privacy')}</Link>
       </p>
     </Page>
   );

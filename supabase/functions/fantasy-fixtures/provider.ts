@@ -70,7 +70,7 @@ function poisson(lambda: number, r: () => number) {
   return k;
 }
 
-const SLOTS_H = [1, 3.5, 6, 25, 27.5]; // hours after the window start (Sat 12:00 UTC): Sat 13:00/15:30/18:00, Sun 13:00/15:30 UTC
+const SLOTS_H = [2.5, 21.5, 24.5, 45.5, 47.5, 74.5]; // hours after the window start (Fri 18:00 Zurich): Fri 20:30, Sat 15:30/18:30, Sun 15:30/17:30, Mon 20:30
 
 export class MockFootballDataProvider implements FootballDataProvider {
   constructor(private now: () => Date = () => new Date()) {}

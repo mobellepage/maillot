@@ -373,22 +373,10 @@ export type Database = {
         Update: { cup_id?: number | null; scope?: string; rank?: number; type?: string; title?: string; description?: string | null; value?: number | null; sponsor_name?: string | null; sponsor_logo?: string | null; active?: boolean };
         Relationships: [];
       };
-      fantasy_missions: {
-        Row: { key: string; points: number; how: string; always: boolean; active: boolean; sort: number };
-        Insert: { key: string; points: number; how: string; always?: boolean; active?: boolean; sort?: number };
-        Update: { points?: number; how?: string; always?: boolean; active?: boolean; sort?: number };
-        Relationships: [];
-      };
-      fantasy_albums: {
-        Row: { id: string; slug: string; title: Json; description: Json; reward_points: number; active: boolean; sort: number; created_at: string };
-        Insert: { id?: string; slug: string; title: Json; description?: Json; reward_points?: number; active?: boolean; sort?: number; created_at?: string };
-        Update: { slug?: string; title?: Json; description?: Json; reward_points?: number; active?: boolean; sort?: number };
-        Relationships: [];
-      };
-      fantasy_album_slots: {
-        Row: { album_id: string; kit_id: string; sort: number };
-        Insert: { album_id: string; kit_id: string; sort?: number };
-        Update: { sort?: number };
+      fantasy_club_prices: {
+        Row: { club_id: string; price: number; base_price: number; updated_at: string };
+        Insert: { club_id: string; price: number; base_price: number; updated_at?: string };
+        Update: { price?: number; base_price?: number; updated_at?: string };
         Relationships: [];
       };
       fantasy_team_mappings: {
@@ -398,7 +386,7 @@ export type Database = {
         Relationships: [];
       };
       kits: {
-        Row: { id: string; club_id: string; season: string; season_year: number; kind: string; variant: string; image_path: string | null; image_credit: string | null; image_credit_url: string | null; brand: string | null; sponsor: string | null; pattern: string; colors: string[]; note: string | null; catalog_id: string | null; source: string; status: string; suggested_by: string | null; created_at: string; rarity: string };
+        Row: { id: string; club_id: string; season: string; season_year: number; kind: string; variant: string; image_path: string | null; image_credit: string | null; image_credit_url: string | null; brand: string | null; sponsor: string | null; pattern: string; colors: string[]; note: string | null; catalog_id: string | null; source: string; status: string; suggested_by: string | null; created_at: string };
         Insert: { id?: string; club_id: string; season: string; season_year: number; kind: string; brand?: string | null; sponsor?: string | null; pattern?: string; colors: string[]; note?: string | null; catalog_id?: string | null; source: string; status?: string; suggested_by?: string | null; created_at?: string };
         Update: { id?: string; club_id?: string; season?: string; season_year?: number; kind?: string; brand?: string | null; sponsor?: string | null; pattern?: string; colors?: string[]; note?: string | null; catalog_id?: string | null; source?: string; status?: string; suggested_by?: string | null; created_at?: string };
         Relationships: [];
@@ -977,55 +965,37 @@ export type Database = {
       admin_set_premium: { Args: { p_handle: string; p_until: string | null }; Returns: undefined };
       free_shirt_limit: { Args: never; Returns: number };
       public_shirt_photos: { Args: { p_handle: string; p_item_id: string }; Returns: { kind: 'main' | 'back'; path: string; thumb_path: string | null }[] };
-      fantasy_state: {
-        Args: never;
-        Returns: { packs: number; next_pack_at: string | null; points: number; streak: number; extra_packs: number; missions: Json; cards: Json; gold: number; duplicates: number; dup_points: number }[];
-      };
-      fantasy_open_pack: {
-        Args: { p_extra?: boolean };
-        Returns: { kit_id: string; club_id: string; club_name: string; season: string; kind: string; variant: string; image_path: string | null; rarity: string; duplicate: boolean }[];
-      };
-      fantasy_convert_duplicates: { Args: { p_kit?: string | null }; Returns: number };
-      fantasy_event: { Args: { p_key: string }; Returns: number };
-      fantasy_my_cards: {
-        Args: never;
-        Returns: { kit_id: string; club_id: string; club_name: string; season: string; season_year: number; kind: string; variant: string; image_path: string | null; rarity: string; copies: number; gold: boolean; verified: boolean; item_id: string | null; photo_path: string | null; thumb_path: string | null; since: string }[];
-      };
-      fantasy_gold_todo: { Args: never; Returns: { item_id: string; name: string | null; needs: string }[] };
-      fantasy_albums: {
-        Args: never;
-        Returns: { id: string; slug: string; title: Json; description: Json; reward_points: number; total: number; have: number; gold: number; done: boolean; done_gold: boolean; cover: string | null; sort: number }[];
-      };
-      fantasy_album: {
-        Args: { p_slug: string };
-        Returns: { kit_id: string; club_id: string; club_name: string; season: string; kind: string; variant: string; image_path: string | null; rarity: string; sort: number; state: string; copies: number; item_id: string | null; photo_path: string | null; thumb_path: string | null; offers: number; min_price: number | null; owners: number; wished: boolean }[];
-      };
-      fantasy_shop: {
-        Args: never;
-        Returns: { kit_id: string; club_id: string; club_name: string; season: string; kind: string; variant: string; image_path: string | null; rarity: string; price: number; owned: boolean; bought: boolean; week_ends: string }[];
-      };
-      fantasy_buy_card: { Args: { p_kit: string }; Returns: number };
       fantasy_matchday: {
         Args: { p_md?: number | null };
-        Returns: { id: number; number: number; window_start: string; window_end: string; deadline: string; international: boolean; status: string; cup_name: string; season_name: string; budget: number; fixtures: number; lineup: Json | null; chips_used: string[]; previous_id: number | null; next_id: number | null; players: number; rank: number | null }[];
+        Returns: { id: number; number: number; window_start: string; window_end: string; deadline: string; international: boolean; status: string; cup_name: string; season_name: string; budget: number; fixtures: number; squad: Json | null; lineup: Json | null; chips_used: string[]; previous_id: number | null; next_id: number | null; players: number; rank: number | null }[];
       };
       fantasy_fixtures: {
         Args: { p_md: number };
         Returns: { id: number; competition: string; home_club_id: string | null; away_club_id: string | null; home_name: string; away_name: string; kickoff: string; status: string; home_goals: number | null; away_goals: number | null; home_image: string | null; away_image: string | null }[];
       };
-      fantasy_squad_cards: {
-        Args: { p_md: number };
-        Returns: { kit_id: string; club_id: string; club_name: string; league: string; season: string; kind: string; variant: string; image_path: string | null; rarity: string; gold: boolean; verified: boolean; photo_path: string | null; thumb_path: string | null; value: number; plays: boolean; is_national: boolean }[];
+      fantasy_jerseys: {
+        Args: { p_md?: number | null };
+        Returns: { club_id: string; name: string; league: string; country: string; price: number; delta: number | null; kit_id: string; season: string; kind: string; image_path: string; plays: boolean; fixture: string | null; kickoff: string | null; is_national: boolean; owned: boolean; picked_pct: number }[];
       };
-      fantasy_lineup_cards: {
+      fantasy_squad_clubs: {
+        Args: { p_md?: number | null };
+        Returns: { club_id: string; name: string; league: string; price: number; delta: number | null; kit_id: string | null; season: string | null; image_path: string | null; plays: boolean; fixture: string | null; kickoff: string | null; is_national: boolean; owned: boolean; starter: boolean; captain: boolean; in_locked: boolean }[];
+      };
+      fantasy_lineup_clubs: {
         Args: { p_md: number; p_user?: string | null };
-        Returns: { kit_id: string; club_id: string; club_name: string; season: string; kind: string; variant: string; image_path: string | null; rarity: string; gold: boolean; captain: boolean; played: boolean; base: number; multiplier: number; total: number; detail: Json; value: number }[];
+        Returns: { club_id: string; name: string; league: string; price: number; image_path: string | null; starter: boolean; captain: boolean; played: boolean; base: number; multiplier: number; total: number; detail: Json }[];
       };
       fantasy_matchday_table: {
         Args: { p_md: number; p_limit?: number };
-        Returns: { user_id: string; handle: string; avatar: string | null; points: number; pred_points: number; captain_name: string | null; is_me: boolean }[];
+        Returns: { user_id: string; handle: string; avatar: string | null; points: number; hits: number; captain_name: string | null; chip: string | null; is_me: boolean }[];
       };
-      fantasy_save_lineup: { Args: { p_md: number; p_kits: string[]; p_captain: string; p_chip?: string | null; p_pred_fixture?: number | null; p_pred_home?: number | null; p_pred_away?: number | null }; Returns: undefined };
+      fantasy_price_moves: {
+        Args: { p_limit?: number };
+        Returns: { club_id: string; name: string; league: string; image_path: string | null; delta: number; price: number; matchday: number }[];
+      };
+      fantasy_save_squad: { Args: { p_clubs: string[]; p_md?: number | null }; Returns: undefined };
+      fantasy_save_lineup: { Args: { p_md: number; p_starters: string[]; p_captain?: string | null }; Returns: undefined };
+      fantasy_play_chip: { Args: { p_md: number; p_chip?: string | null }; Returns: undefined };
       fantasy_rescore: { Args: { p_md: number }; Returns: undefined };
       fantasy_my_leagues: {
         Args: never;
@@ -1057,7 +1027,7 @@ export type Database = {
       fantasy_report_post: { Args: { p_post: number }; Returns: undefined };
       fantasy_public_profile: {
         Args: { p_handle: string };
-        Returns: { plays: boolean; division_number: number | null; season_points: number; season_rank: number | null; best_points: number | null; best_matchday: number | null; played: number; leagues: number; badges: Json; albums: Json; gold: Json }[];
+        Returns: { plays: boolean; division_number: number | null; season_points: number; season_rank: number | null; best_points: number | null; best_matchday: number | null; played: number; leagues: number; badges: Json; squad: Json; squad_value: number }[];
       };
       fantasy_my_prizes: {
         Args: never;
@@ -1071,9 +1041,8 @@ export type Database = {
       };
       fantasy_admin_prize_update: { Args: { p_id: string; p_status: string; p_kit?: string | null }; Returns: undefined };
       fantasy_admin_fixture: { Args: { p_id: number; p_home: number; p_away: number; p_status?: string }; Returns: undefined };
-      fantasy_admin_set_rarity: { Args: { p_kit: string; p_rarity: string }; Returns: undefined };
+      fantasy_admin_set_price: { Args: { p_club: string; p_price: number }; Returns: undefined };
       fantasy_admin_matchdays: { Args: never; Returns: { id: number; number: number; window_start: string; status: string; fixtures: number; lineups: number; cup_name: string }[] };
-      fantasy_odds: { Args: never; Returns: { rarity: string; odds: number; dup_points: number; kits: number }[] };
       public_wishlist: {
         Args: { p_handle: string };
         Returns: {

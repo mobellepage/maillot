@@ -1,6 +1,6 @@
 // Fantasy for admins: override a result and rescore, the prize pool and
 // fulfilment (claimed → shipped with the kit → the winner confirms),
-// missions (points, on/off), a kit's rarity, and new albums.
+// the clubs' prices, and the provider's team mappings.
 import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '../../lib/toast.tsx';
@@ -10,14 +10,12 @@ import { Button, Card, SectionHeader } from '../../ui/index.ts';
 export function FantasyPanel() {
   return (
     <section aria-labelledby="fantasy-admin-title" style={{ marginTop: 48 }}>
-      <SectionHeader id="fantasy-admin-title" eyebrow="Fantasy" title="Results, prizes, missions, albums" size="sm" />
+      <SectionHeader id="fantasy-admin-title" eyebrow="Fantasy" title="Results, prizes, prices, mappings" size="sm" />
       <div style={{ display: 'grid', gap: 14 }}>
         <Fixtures />
         <Prizes />
-        <Missions />
-        <Rarity />
+        <Prices />
         <TeamMappings />
-        <Albums />
       </div>
     </section>
   );
@@ -180,91 +178,37 @@ function Prizes() {
   );
 }
 
-function Missions() {
+function Prices() {
   const toast = useToast();
   const qc = useQueryClient();
-  const list = useQuery({ queryKey: ['adminFantasyMissions'], queryFn: db.adminMissions });
+  const list = useQuery({ queryKey: ['adminFantasyPrices'], queryFn: db.adminClubPrices });
+  const [q, setQ] = useState('');
   const set = useMutation({
-    mutationFn: ({ key, patch }: { key: string; patch: { points?: number; active?: boolean } }) => db.adminSetMission(key, patch),
-    onSuccess: () => void qc.invalidateQueries({ queryKey: ['adminFantasyMissions'] }),
-    onError: (e: Error) => toast('Error: ' + e.message)
-  });
-  return (
-    <Card tight>
-      <b>Missions</b>
-      <ul style={{ listStyle: 'none', padding: 0, margin: '8px 0 0', display: 'grid', gap: 4, fontSize: 12.5 }}>
-        {(list.data ?? []).map((m) => (
-          <li key={m.key} style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-            <span style={{ flex: 1 }}>
-              {m.key} <small style={{ color: 'var(--muted)' }}>({m.how}{m.always ? ', always' : ''})</small>
-            </span>
-            <input type="number" min={0} defaultValue={m.points} onBlur={(e) => Number(e.target.value) !== m.points && set.mutate({ key: m.key, patch: { points: Number(e.target.value) } })} style={{ width: 60, height: 30 }} />
-            <label style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
-              <input type="checkbox" checked={m.active} onChange={(e) => set.mutate({ key: m.key, patch: { active: e.target.checked } })} /> active
-            </label>
-          </li>
-        ))}
-      </ul>
-    </Card>
-  );
-}
-
-function Rarity() {
-  const toast = useToast();
-  const [kit, setKit] = useState('');
-  const [rarity, setRarity] = useState('rare');
-  const set = useMutation({ mutationFn: () => db.adminSetRarity(kit.trim(), rarity), onSuccess: () => toast('Rarity set'), onError: (e: Error) => toast('Error: ' + e.message) });
-  return (
-    <Card tight>
-      <b>Kit rarity override</b>
-      <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 8 }}>
-        <input value={kit} onChange={(e) => setKit(e.target.value)} placeholder="kit id (uuid)" style={{ height: 32, width: 320, borderRadius: 8, padding: '0 8px' }} />
-        <select value={rarity} onChange={(e) => setRarity(e.target.value)} style={{ height: 32, borderRadius: 8 }}>
-          {['common', 'rare', 'epic', 'legendary'].map((r) => (
-            <option key={r}>{r}</option>
-          ))}
-        </select>
-        <Button size="sm" onClick={() => set.mutate()} disabled={kit.trim().length < 30} busy={set.isPending}>
-          Set
-        </Button>
-      </div>
-    </Card>
-  );
-}
-
-function Albums() {
-  const toast = useToast();
-  const qc = useQueryClient();
-  const [f, setF] = useState({ slug: '', en: '', de: '', fr: '', den: '', dde: '', dfr: '', reward: 150, kits: '' });
-  const create = useMutation({
-    mutationFn: () => db.adminCreateAlbum(f.slug.trim(), { en: f.en, de: f.de || f.en, fr: f.fr || f.en }, { en: f.den, de: f.dde || f.den, fr: f.dfr || f.den }, f.reward, f.kits.split(/[\s,]+/).filter(Boolean)),
+    mutationFn: ({ club, price }: { club: string; price: number }) => db.adminSetPrice(club, price),
     onSuccess: () => {
-      toast('Album created');
-      void qc.invalidateQueries({ queryKey: ['fantasyAlbums'] });
-      setF({ slug: '', en: '', de: '', fr: '', den: '', dde: '', dfr: '', reward: 150, kits: '' });
+      void qc.invalidateQueries({ queryKey: ['adminFantasyPrices'] });
+      void qc.invalidateQueries({ queryKey: ['fantasyJerseys'] });
     },
     onError: (e: Error) => toast('Error: ' + e.message)
   });
-  const inp = { height: 32, borderRadius: 8, padding: '0 8px', fontSize: 12.5 } as const;
+  const rows = (list.data ?? []).filter((m) => !q || (m.club_name ?? m.club_id).toLowerCase().includes(q.toLowerCase()) || (m.league ?? '').toLowerCase().includes(q.toLowerCase()));
   return (
     <Card tight>
-      <b>New album</b> <small style={{ color: 'var(--muted)' }}>(kit ids from the library; one per line)</small>
-      <div style={{ display: 'grid', gap: 6, marginTop: 8, gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))' }}>
-        <input value={f.slug} onChange={(e) => setF({ ...f, slug: e.target.value })} placeholder="slug (serie-a-90s)" style={inp} />
-        <input value={f.en} onChange={(e) => setF({ ...f, en: e.target.value })} placeholder="title EN" style={inp} />
-        <input value={f.de} onChange={(e) => setF({ ...f, de: e.target.value })} placeholder="title DE" style={inp} />
-        <input value={f.fr} onChange={(e) => setF({ ...f, fr: e.target.value })} placeholder="title FR" style={inp} />
-        <input value={f.den} onChange={(e) => setF({ ...f, den: e.target.value })} placeholder="description EN" style={inp} />
-        <input value={f.dde} onChange={(e) => setF({ ...f, dde: e.target.value })} placeholder="description DE" style={inp} />
-        <input value={f.dfr} onChange={(e) => setF({ ...f, dfr: e.target.value })} placeholder="description FR" style={inp} />
-        <input type="number" value={f.reward} onChange={(e) => setF({ ...f, reward: Number(e.target.value) })} placeholder="reward points" style={inp} />
-      </div>
-      <textarea value={f.kits} onChange={(e) => setF({ ...f, kits: e.target.value })} placeholder="kit ids" rows={4} style={{ width: '100%', marginTop: 6, borderRadius: 8, padding: 8, fontSize: 12, fontFamily: 'var(--font-mono)' }} />
-      <div style={{ marginTop: 6 }}>
-        <Button size="sm" onClick={() => create.mutate()} disabled={!f.slug || !f.en || !f.kits.trim()} busy={create.isPending}>
-          Create album
-        </Button>
-      </div>
+      <b>Jersey prices</b> <small style={{ color: 'var(--muted)' }}>(in M; they move with form after every Gameweek — this sets today's price)</small>
+      <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="filter clubs or leagues" style={{ height: 32, borderRadius: 8, padding: '0 8px', marginTop: 8, width: 220 }} />
+      <ul style={{ listStyle: 'none', padding: 0, margin: '8px 0 0', display: 'grid', gap: 4, fontSize: 12.5, maxHeight: 320, overflowY: 'auto' }}>
+        {rows.slice(0, 300).map((m) => (
+          <li key={m.club_id} style={{ display: 'grid', gridTemplateColumns: '1fr 80px auto', gap: 6, alignItems: 'center' }}>
+            <span>
+              {m.club_name ?? m.club_id} <small style={{ color: 'var(--muted)' }}>{m.league}{m.base_price !== m.price ? ` · start ${m.base_price}` : ''}</small>
+            </span>
+            <input type="number" step={0.5} min={1} defaultValue={m.price} id={'pr' + m.club_id} style={{ height: 28 }} />
+            <Button size="sm" variant="ghost" onClick={() => set.mutate({ club: m.club_id, price: Number((document.getElementById('pr' + m.club_id) as HTMLInputElement).value) })}>
+              Save
+            </Button>
+          </li>
+        ))}
+      </ul>
     </Card>
   );
 }

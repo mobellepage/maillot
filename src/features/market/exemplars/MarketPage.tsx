@@ -17,11 +17,9 @@ import { ExemplarFilters } from './ExemplarFilters.tsx';
 import { counts, filterExemplars, isBuyable, sortExemplars } from './model.ts';
 import { LIST_KEYS, useMarketParams } from './useMarketParams.ts';
 import { useExemplars } from './useExemplars.ts';
-import { useFantasyEvent } from '../../fantasy/useFantasy.ts';
 
 export default function MarketPage() {
   const { t, money } = usePrefs();
-  useFantasyEvent('visit_market');
   const { list, error, retry } = useExemplars();
   const { f, setStatus, setQ, toggle, setRange, clear, clearShirt } = useMarketParams();
   const [showFilters, setShowFilters] = useState(false);

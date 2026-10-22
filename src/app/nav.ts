@@ -21,7 +21,7 @@ export function useNavItems() {
     { to: user ? '/feed/following' : '/fits', icon: 'feed', label: t('nav.feed'), short: t('nav.feed'), match: (p) => p.startsWith('/feed/') || p === '/fits' },
     // Swipe: the shirt cards (right = wishlist).
     { to: '/feed', icon: 'swipe', label: t('nav.swipe'), short: t('nav.swipe'), match: (p) => p === '/feed' },
-    // Fantasy: the card game (packs, Gold cards, missions).
+    // Fantasy: the squad game (eight jerseys, five play each Gameweek).
     { to: '/fantasy', icon: 'fantasy', label: 'Fantasy', short: 'Fantasy', match: (p) => p.startsWith('/fantasy') },
     { to: '/market', icon: 'market', label: t('nav.marketplace'), short: t('nav.marketShort'), match: (p) => p.startsWith('/market') || p.startsWith('/shirt') },
     { to: '/vault', icon: 'collection', label: t('nav.collection'), short: t('nav.collectionShort'), match: (p) => p.startsWith('/vault') || p === '/watchlist' || p === '/orders' }

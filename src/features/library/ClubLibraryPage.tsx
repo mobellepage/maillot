@@ -19,7 +19,6 @@ import { AddKitDialog } from '../vault/AddKitDialog.tsx';
 import { WishKitDialog } from '../watchlist/WishKitDialog.tsx';
 import { printLabel } from '../watchlist/printLabel.ts';
 import { eraNumber } from '../discover/model.ts';
-import { useFantasyEvent } from '../fantasy/useFantasy.ts';
 import { useKitLikes } from '../watchlist/useKitLikes.ts';
 
 export default function ClubLibraryPage() {
@@ -32,7 +31,6 @@ export default function ClubLibraryPage() {
   // Who has which kit in their collection (shown collections only).
   const owners = useQuery({ queryKey: ['kitOwners', club], queryFn: () => db.loadKitOwners(club), staleTime: 60_000, retry: false });
   const { hash } = useLocation();
-  useFantasyEvent('view_library', !!club);
   // Coming from a search hit ("#season-2006/07"): jump to that season once the kits are there.
   useEffect(() => {
     if (kits.data && hash) document.getElementById(decodeURIComponent(hash.slice(1)))?.scrollIntoView({ block: 'start' });

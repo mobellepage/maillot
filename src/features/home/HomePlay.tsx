@@ -1,6 +1,7 @@
 // "Every day something new": the daily shirt puzzle and the kit library as
 // two big tiles that show what they are at a glance — today's mystery crop
 // and a row of real kits from the library.
+import { useState } from 'react';
 import { Link } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
 import { usePrefs } from '../../lib/prefs.tsx';
@@ -8,7 +9,8 @@ import * as db from '../../utils/db.ts';
 import { MAX_TRIES, ZOOMS, focusFor } from '../daily/game.ts';
 import { useDailyKit } from '../daily/useDailyKit.ts';
 import { useDailyStatus } from '../daily/useDailyStatus.ts';
-import { useFantasy } from '../fantasy/useFantasy.ts';
+import { useSession } from '../../lib/session.tsx';
+import { untilText } from '../fantasy/model.ts';
 
 /** Kits everyone knows, to show what the library holds. */
 const SHOWCASE = [
@@ -104,18 +106,21 @@ function LibraryTile() {
   );
 }
 
-/** Fantasy: the game — for members, with their pack waiting. */
+/** Fantasy: the game — for members, with the next deadline. */
 function FantasyTile() {
   const { t } = usePrefs();
-  const { user, state } = useFantasy();
-  const packs = state.data?.packs ?? 0;
+  const { user } = useSession();
+  const md = useQuery({ queryKey: ['fantasyMatchday', 'current', user?.id], queryFn: () => db.loadMatchday(), enabled: !!user, staleTime: 60_000, retry: false });
+  const m = md.data;
+  const [now] = useState(() => Date.now());
+  const open = !!m && m.status === 'upcoming' && new Date(m.deadline).getTime() > now;
   return (
     <Link to="/fantasy" className="play-card" style={{ ...tile, background: 'linear-gradient(160deg,#0f2a1b,#0A0C0B 70%)', color: '#F2F4F1' }}>
       <div style={{ display: 'grid', gap: 10, minWidth: 0 }}>
-        <span style={{ ...kicker, color: '#4BFF8B' }}>🃏 {t('home.play.fantasy.kicker')}</span>
+        <span style={{ ...kicker, color: '#4BFF8B' }}>⚽ {t('home.play.fantasy.kicker')}</span>
         <p style={{ ...big, color: '#F2F4F1' }}>{t('home.play.fantasy.title')}</p>
         <p style={{ margin: 0, fontSize: 15, lineHeight: 1.45, color: '#C9D0CB' }}>{t('home.play.fantasy.body')}</p>
-        {user && packs > 0 && <span style={{ fontSize: 13.5, color: '#4BFF8B', fontWeight: 700 }}>{t('home.play.fantasy.ready', { n: packs })}</span>}
+        {user && m && open && <span style={{ fontSize: 13.5, color: '#4BFF8B', fontWeight: 700 }}>{t('home.play.fantasy.ready', { n: m.number, t: untilText(m.deadline, now) ?? '' })}</span>}
       </div>
       <span style={{ ...cta, background: '#4BFF8B', color: '#06110A' }}>{t('home.play.fantasy.cta')} →</span>
     </Link>

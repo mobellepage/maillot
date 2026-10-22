@@ -1,99 +1,19 @@
-// Fantasy: the player's state, packs, cards, Kit Points and missions. The
-// game runs in the database; the app only asks and reports.
+// Fantasy: the squad game. The game runs in the database; the app only
+// asks and reports. Jerseys (clubs with their current kit), the squad of
+// eight, the Gameweek line-up, chips, prices — then leagues and prizes.
 import { sb } from '../supabase.ts';
 import type { RpcReturns } from '../../types/database.ts';
 
-export type FantasyState = RpcReturns<'fantasy_state'>[number];
-export type FantasyMission = { key: string; points: number; how: 'server' | 'client'; done: boolean };
-export type PackCard = RpcReturns<'fantasy_open_pack'>[number];
-export type FantasyCard = RpcReturns<'fantasy_my_cards'>[number];
-export type GoldTodo = RpcReturns<'fantasy_gold_todo'>[number];
-export type FantasyOdds = RpcReturns<'fantasy_odds'>[number];
-
-export async function loadFantasyState(): Promise<FantasyState> {
-  const { data, error } = await (await sb()).rpc('fantasy_state');
-  if (error) throw error;
-  const row = data?.[0];
-  if (!row) throw new Error('no state');
-  return row;
-}
-
-/** Opens a pack (an extra one, paid with Kit Points, when `extra`). Errors: P0460 daily limit, P0461 not enough points, P0462 no pack. */
-export async function openFantasyPack(extra = false): Promise<PackCard[]> {
-  const { data, error } = await (await sb()).rpc('fantasy_open_pack', { p_extra: extra });
-  if (error) throw error;
-  return data ?? [];
-}
-
-/** Duplicates (all, or one kit's) become Kit Points; returns how many. */
-export async function convertFantasyDuplicates(kitId?: string): Promise<number> {
-  const { data, error } = await (await sb()).rpc('fantasy_convert_duplicates', { p_kit: kitId ?? null });
-  if (error) throw error;
-  return data ?? 0;
-}
-
-/** The app noticed a mission being done (a value checked, a club page opened …). */
-export async function fantasyEvent(key: string): Promise<number> {
-  const { data, error } = await (await sb()).rpc('fantasy_event', { p_key: key });
-  if (error) throw error;
-  return data ?? 0;
-}
-
-export async function loadFantasyCards(): Promise<FantasyCard[]> {
-  const { data, error } = await (await sb()).rpc('fantasy_my_cards');
-  if (error) throw error;
-  return data ?? [];
-}
-
-export async function loadGoldTodo(): Promise<GoldTodo[]> {
-  const { data, error } = await (await sb()).rpc('fantasy_gold_todo');
-  if (error) throw error;
-  return data ?? [];
-}
-
-export async function loadFantasyOdds(): Promise<FantasyOdds[]> {
-  const { data, error } = await (await sb()).rpc('fantasy_odds');
-  if (error) throw error;
-  return data ?? [];
-}
-
-// ---- Phase 2: albums and the weekly shop ----------------------------------
-export type FantasyAlbum = RpcReturns<'fantasy_albums'>[number];
-export type AlbumSlot = RpcReturns<'fantasy_album'>[number];
-export type ShopKit = RpcReturns<'fantasy_shop'>[number];
-
-export async function loadFantasyAlbums(): Promise<FantasyAlbum[]> {
-  const { data, error } = await (await sb()).rpc('fantasy_albums');
-  if (error) throw error;
-  return data ?? [];
-}
-
-export async function loadFantasyAlbum(slug: string): Promise<AlbumSlot[]> {
-  const { data, error } = await (await sb()).rpc('fantasy_album', { p_slug: slug });
-  if (error) throw error;
-  return data ?? [];
-}
-
-export async function loadFantasyShop(): Promise<ShopKit[]> {
-  const { data, error } = await (await sb()).rpc('fantasy_shop');
-  if (error) throw error;
-  return data ?? [];
-}
-
-/** Buys this week's card with Kit Points; returns the price. Errors: P0461 points, P0463 not in shop, P0464 already bought. */
-export async function buyFantasyCard(kitId: string): Promise<number> {
-  const { data, error } = await (await sb()).rpc('fantasy_buy_card', { p_kit: kitId });
-  if (error) throw error;
-  return data ?? 0;
-}
-
-// ---- Phase 3: Matchday ------------------------------------------------------
 export type Matchday = RpcReturns<'fantasy_matchday'>[number];
-export type MatchdayLineup = { kits: string[]; golds: boolean[]; captain: string; chip: string | null; pred_fixture: number | null; pred_home: number | null; pred_away: number | null; budget_used: number; points: number; pred_points: number; locked: boolean; carried: boolean };
+/** The squad as the matchday RPC carries it (null before the first build). */
+export type SquadState = { clubs: string[]; bank: number; locked_clubs: string[]; bank_locked: number; free_transfers: number; first_locked: boolean; value: number };
+export type MatchdayLineup = { clubs: string[]; starters: string[]; bench: string[]; captain: string | null; chip: string | null; transfers: number; hits: number; points: number; locked: boolean; carried: boolean };
 export type Fixture = RpcReturns<'fantasy_fixtures'>[number];
-export type SquadCard = RpcReturns<'fantasy_squad_cards'>[number];
-export type LineupCard = RpcReturns<'fantasy_lineup_cards'>[number];
+export type Jersey = RpcReturns<'fantasy_jerseys'>[number];
+export type SquadClub = RpcReturns<'fantasy_squad_clubs'>[number];
+export type LineupClub = RpcReturns<'fantasy_lineup_clubs'>[number];
 export type MatchdayRow = RpcReturns<'fantasy_matchday_table'>[number];
+export type PriceMove = RpcReturns<'fantasy_price_moves'>[number];
 
 export async function loadMatchday(id?: number): Promise<Matchday | null> {
   const { data, error } = await (await sb()).rpc('fantasy_matchday', { p_md: id ?? null });
@@ -105,13 +25,20 @@ export async function loadFixtures(md: number): Promise<Fixture[]> {
   if (error) throw error;
   return data ?? [];
 }
-export async function loadSquadCards(md: number): Promise<SquadCard[]> {
-  const { data, error } = await (await sb()).rpc('fantasy_squad_cards', { p_md: md });
+/** Every jersey one can buy for the Gameweek (nations only in international ones). */
+export async function loadJerseys(md?: number): Promise<Jersey[]> {
+  const { data, error } = await (await sb()).rpc('fantasy_jerseys', { p_md: md ?? null });
   if (error) throw error;
   return data ?? [];
 }
-export async function loadLineupCards(md: number, user?: string): Promise<LineupCard[]> {
-  const { data, error } = await (await sb()).rpc('fantasy_lineup_cards', { p_md: md, p_user: user ?? null });
+/** My squad's eight clubs with the Gameweek's line-up flags. */
+export async function loadSquadClubs(md?: number): Promise<SquadClub[]> {
+  const { data, error } = await (await sb()).rpc('fantasy_squad_clubs', { p_md: md ?? null });
+  if (error) throw error;
+  return data ?? [];
+}
+export async function loadLineupClubs(md: number, user?: string): Promise<LineupClub[]> {
+  const { data, error } = await (await sb()).rpc('fantasy_lineup_clubs', { p_md: md, p_user: user ?? null });
   if (error) throw error;
   return data ?? [];
 }
@@ -120,9 +47,24 @@ export async function loadMatchdayTable(md: number, limit = 50): Promise<Matchda
   if (error) throw error;
   return data ?? [];
 }
-/** Errors: P0470 deadline passed, P0471 size, P0472 captain, P0473 not owned, P0474 over budget, P0475 chip used, P0476 prediction fixture. */
-export async function saveLineup(md: number, kits: string[], captain: string, chip: string | null, pred: { fixture: number; home: number; away: number } | null): Promise<void> {
-  const { error } = await (await sb()).rpc('fantasy_save_lineup', { p_md: md, p_kits: kits, p_captain: captain, p_chip: chip, p_pred_fixture: pred?.fixture ?? null, p_pred_home: pred?.home ?? null, p_pred_away: pred?.away ?? null });
+export async function loadPriceMoves(limit = 10): Promise<PriceMove[]> {
+  const { data, error } = await (await sb()).rpc('fantasy_price_moves', { p_limit: limit });
+  if (error) throw error;
+  return data ?? [];
+}
+/** The squad of eight (first build or transfers). Errors: P0470 deadline, P0471 size, P0473 not pickable, P0474 over budget, P0477 league limit, P0478 nation not playing. */
+export async function saveSquad(clubs: string[], md: number): Promise<void> {
+  const { error } = await (await sb()).rpc('fantasy_save_squad', { p_clubs: clubs, p_md: md });
+  if (error) throw error;
+}
+/** Five starters and the captain. Errors: P0470 deadline, P0471 size, P0472 captain not owned, P0478 nation not playing, P0479 no squad. */
+export async function saveLineup(md: number, starters: string[], captain: string | null): Promise<void> {
+  const { error } = await (await sb()).rpc('fantasy_save_lineup', { p_md: md, p_starters: starters, p_captain: captain });
+  if (error) throw error;
+}
+/** A chip for the Gameweek, or none. Errors: P0475 used, P0476 locked by transfers, P0479 no squad. */
+export async function playChip(md: number, chip: string | null): Promise<void> {
+  const { error } = await (await sb()).rpc('fantasy_play_chip', { p_md: md, p_chip: chip });
   if (error) throw error;
 }
 
@@ -262,25 +204,18 @@ export async function adminRescore(md: number): Promise<void> {
   const { error } = await (await sb()).rpc('fantasy_rescore', { p_md: md });
   if (error) throw error;
 }
-export async function adminSetRarity(kitId: string, rarity: string): Promise<void> {
-  const { error } = await (await sb()).rpc('fantasy_admin_set_rarity', { p_kit: kitId, p_rarity: rarity });
+export type ClubPrice = { club_id: string; price: number; base_price: number; club_name?: string; league?: string };
+export async function adminClubPrices(): Promise<ClubPrice[]> {
+  const { data, error } = await (await sb()).from('fantasy_club_prices').select('club_id, price, base_price, kit_clubs(name, league)').order('price', { ascending: false });
   if (error) throw error;
+  return (data ?? []).map((m) => {
+    const c = (Array.isArray(m.kit_clubs) ? m.kit_clubs[0] : m.kit_clubs) as { name: string; league: string } | null;
+    return { club_id: m.club_id, price: Number(m.price), base_price: Number(m.base_price), club_name: c?.name, league: c?.league };
+  });
 }
-export async function adminMissions(): Promise<{ key: string; points: number; how: string; always: boolean; active: boolean; sort: number }[]> {
-  const { data, error } = await (await sb()).from('fantasy_missions').select('*').order('sort');
+export async function adminSetPrice(clubId: string, price: number): Promise<void> {
+  const { error } = await (await sb()).rpc('fantasy_admin_set_price', { p_club: clubId, p_price: price });
   if (error) throw error;
-  return data ?? [];
-}
-export async function adminSetMission(key: string, patch: { points?: number; active?: boolean }): Promise<void> {
-  const { error } = await (await sb()).from('fantasy_missions').update(patch).eq('key', key);
-  if (error) throw error;
-}
-export async function adminCreateAlbum(slug: string, title: { en: string; de: string; fr: string }, description: { en: string; de: string; fr: string }, reward: number, kitIds: string[]): Promise<void> {
-  const client = await sb();
-  const { data, error } = await client.from('fantasy_albums').insert({ slug, title, description, reward_points: reward }).select('id').single();
-  if (error) throw error;
-  const { error: e2 } = await client.from('fantasy_album_slots').insert(kitIds.map((kit_id, i) => ({ album_id: data.id, kit_id, sort: i + 1 })));
-  if (e2) throw e2;
 }
 
 export type TeamMapping = { club_id: string; provider: string; provider_team_id: string; team_name: string | null; club_name?: string; league?: string };

@@ -1,52 +1,32 @@
-// The home of the game, as a view: the pack, missions, cards and Gold —
-// everything handed in, so it renders the same from live data and in
+// The home of the game, as a view: the next deadline and what to do before
+// it, the squad, the price moves, the way to leagues, standings and prizes.
+// Everything handed in, so it renders the same from live data and in
 // previews. FantasyPage loads and wires it.
-import { useState } from 'react';
 import { Link } from 'react-router';
-import { loadJSON, saveJSON } from '../../utils/storage.ts';
-import { FANTASY, RARITIES } from '../../config/fantasy.ts';
+import { FANTASY } from '../../config/fantasy.ts';
 import { usePrefs } from '../../lib/prefs.tsx';
-import type { FantasyCard, FantasyMission, FantasyState, GoldTodo, Matchday, MyStanding } from '../../utils/db.ts';
-import { Button } from '../../ui/index.ts';
-import { GameCard } from './GameCard.tsx';
-import { RARITY_COLOR, untilText } from './model.ts';
+import type { Matchday, MatchdayLineup, MyStanding, PriceMove, SquadClub, SquadState } from '../../utils/db.ts';
+import { JerseyCard } from './JerseyCard.tsx';
+import { deltaText, priceText, untilText } from './model.ts';
 
 export interface FantasyHomeProps {
-  s: FantasyState;
-  missions: FantasyMission[];
-  cardsByRarity: Record<string, number>;
-  goldCards: FantasyCard[];
-  todo: GoldTodo[];
-  /** How many albums there are (null while unknown). */
-  albums: number | null;
   matchday: Matchday | null;
+  squad: SquadClub[];
+  moves: PriceMove[];
   leagues: number | null;
   standing: MyStanding | null;
   now: number;
-  opening: boolean;
-  converting: boolean;
-  onOpen: (extra: boolean) => void;
-  onConvert: () => void;
 }
 
-const MISSION_LINK: Record<string, string> = { play_daily: '/daily', wishlist_add: '/library', like_shirt: '/feed/following', follow_collector: '/', check_value: '/vault', view_library: '/library', visit_market: '/market' };
-
-export function FantasyHome({ s, missions, cardsByRarity, goldCards, todo, albums, matchday, leagues, standing, now, opening, converting, onOpen, onConvert }: FantasyHomeProps) {
-  const { t } = usePrefs();
-  const next = untilText(s.next_pack_at, now);
-  const done = missions.filter((m) => m.done).length;
-  const digital = Object.values(cardsByRarity).reduce((a, n) => a + n, 0);
-  // How far the next pack is along its 12 hours (full when a pack is waiting).
-  const progress = s.next_pack_at ? Math.max(0, Math.min(1, 1 - (new Date(s.next_pack_at).getTime() - now) / (FANTASY.packIntervalHours * 3_600_000))) : 1;
-  const extraLeft = Math.max(0, FANTASY.extraPacksPerDay - s.extra_packs);
-  const canExtra = s.points >= FANTASY.extraPackCost && extraLeft > 0;
-  // Three steps for newcomers, until they've set a line-up or waved it away.
-  const [introGone, setIntroGone] = useState(() => loadJSON<boolean>('kv_fantasy_intro', false));
-  const showIntro = !introGone && !matchday?.lineup && s.streak <= 1;
-  const dismissIntro = () => {
-    setIntroGone(true);
-    saveJSON('kv_fantasy_intro', true);
-  };
+export function FantasyHome({ matchday: m, squad, moves, leagues, standing, now }: FantasyHomeProps) {
+  const { t, lang } = usePrefs();
+  const sq = (m?.squad as SquadState | null) ?? null;
+  const l = (m?.lineup as MatchdayLineup | null) ?? null;
+  const built = !!sq && sq.clubs.length === FANTASY.squadSize;
+  const open = !!m && m.status === 'upcoming' && new Date(m.deadline).getTime() > now;
+  const deadline = m ? new Date(m.deadline).toLocaleString(lang, { weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit', timeZone: FANTASY.timeZone }) : '';
+  const starters = squad.filter((c) => c.starter);
+  const captain = squad.find((c) => c.captain);
 
   return (
     <>
@@ -62,83 +42,82 @@ export function FantasyHome({ s, missions, cardsByRarity, goldCards, todo, album
         </div>
         <div className="fantasy-stats">
           <span className="fantasy-stat">
-            <b>{s.points.toLocaleString('de-CH')}</b>
+            <b>{standing?.season_points ?? 0}</b>
             <small>{t('fantasy.pointsLabel')}</small>
           </span>
           <span className="fantasy-stat">
-            <b>{s.streak} 🔥</b>
-            <small>{t('fantasy.streakLabel')}</small>
+            <b>{standing?.division_number ? t('fantasy.profile.division', { n: standing.division_number }) : '–'}</b>
+            <small>{standing?.division_rank ? t('fantasy.st.myRank', { rank: standing.division_rank, n: standing.division_size ?? 0 }) : t('fantasy.st.noDivision')}</small>
           </span>
           <span className="fantasy-stat fantasy-stat--gold">
-            <b>{s.gold}</b>
-            <small>{t('fantasy.goldLabel')}</small>
+            <b>{built ? priceText(sq!.value + sq!.bank) : priceText(FANTASY.budget)}</b>
+            <small>{built ? t('fantasy.sq.bank', { n: priceText(sq!.bank) }) : t('fantasy.sq.budget')}</small>
           </span>
         </div>
       </header>
 
-      {showIntro && (
+      {/* The Gameweek: the deadline, and what to do before it */}
+      <section className={'fantasy-gw' + (open ? ' is-open' : '')} aria-labelledby="gw-title">
+        <div className="fantasy-gw__body">
+          <p className="fantasy-gw__kicker">{m ? `${m.cup_name} · ${m.season_name}` : 'Fantasy'}</p>
+          <h2 id="gw-title" className="fantasy-gw__title">
+            {m ? (open ? t('fantasy.home.deadlineIn', { n: m.number, t: untilText(m.deadline, now) ?? '' }) : m.status === 'live' ? t('fantasy.home.live', { n: m.number }) : m.status === 'scored' ? t('fantasy.home.scored', { n: m.number, points: l?.points ?? 0 }) : t('fantasy.home.locked', { n: m.number })) : t('fantasy.md.fixturesNone')}
+          </h2>
+          <p className="fantasy-gw__sub">{open ? t('fantasy.home.deadlineAt', { date: deadline }) : m?.international ? t('fantasy.md.international') : ''}</p>
+          <div className="fantasy-gw__actions">
+            {!built ? (
+              <Link to="/fantasy/squad" className="btn btn--primary btn--lg">
+                {t('fantasy.sq.build')}
+              </Link>
+            ) : (
+              <>
+                <Link to="/fantasy/matchday" className="btn btn--primary">
+                  {open ? (l && !l.carried ? t('fantasy.home.lineupSet') : t('fantasy.home.setLineup')) : t('fantasy.home.matchday')}
+                </Link>
+                <Link to="/fantasy/squad" className="btn btn--secondary">
+                  {t('fantasy.sq.transfers')}
+                  {sq && sq.first_locked && <small style={{ marginLeft: 6, opacity: 0.8 }}>{t('fantasy.sq.freeShort', { n: sq.free_transfers })}</small>}
+                </Link>
+              </>
+            )}
+          </div>
+          {built && open && (
+            <p className="fantasy-gw__fine">
+              {captain ? t('fantasy.home.captainIs', { club: captain.name }) : t('fantasy.home.noCaptain')}
+              {l && l.hits > 0 && <> · {t('fantasy.sq.hits', { n: l.hits })}</>}
+              {l?.chip && <> · {t('fantasy.md.chip.' + l.chip)}</>}
+            </p>
+          )}
+        </div>
+        <ul className="fantasy-gw__five" aria-label={t('fantasy.md.tab.lineup')}>
+          {Array.from({ length: FANTASY.starters }, (_, i) => {
+            const c = starters[i];
+            return <li key={c?.club_id ?? i}>{c ? <JerseyCard j={c} small /> : <span className="fantasy-jersey is-small is-empty">?</span>}</li>;
+          })}
+        </ul>
+      </section>
+
+      {!built && (
         <section className="fantasy-intro" aria-labelledby="intro-title">
           <h2 id="intro-title" className="title" style={{ margin: 0 }}>
             {t('fantasy.intro.title')}
           </h2>
           <ol>
-            <li className={s.streak > 0 || digital > 0 ? 'is-done' : ''}>{t('fantasy.intro.1')}</li>
-            <li className={s.gold > 0 ? 'is-done' : ''}>{t('fantasy.intro.2')}</li>
+            <li>{t('fantasy.intro.1', { n: FANTASY.squadSize, budget: FANTASY.budget })}</li>
+            <li>{t('fantasy.intro.2', { n: FANTASY.starters })}</li>
             <li>{t('fantasy.intro.3')}</li>
           </ol>
-          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-            <Link to="/fantasy/matchday" className="btn btn--primary btn--sm">
-              {t('fantasy.intro.go')}
-            </Link>
-            <Button size="sm" variant="ghost" onClick={dismissIntro}>
-              {t('fantasy.intro.dismiss')}
-            </Button>
-          </div>
+          <Link to="/fantasy/rules" className="btn btn--ghost btn--sm">
+            {t('fantasy.rules.title')}
+          </Link>
         </section>
       )}
 
-      {/* The pack */}
-      <section className={'fantasy-pack' + (s.packs > 0 ? ' is-ready' : '')} aria-labelledby="pack-title">
-        <div className="fantasy-pack__art" aria-hidden="true">
-          <span className="fantasy-pack__card fantasy-pack__card--l" />
-          <span className="fantasy-pack__card fantasy-pack__card--r" />
-          <span className="fantasy-pack__card fantasy-pack__card--top">
-            <span className="fantasy-pack__m">M</span>
-            <span className="fantasy-pack__n">{FANTASY.cardsPerPack}</span>
-          </span>
-          {s.packs > 1 && <span className="fantasy-pack__stack">×{s.packs}</span>}
-        </div>
-        <div className="fantasy-pack__body">
-          <p className="fantasy-pack__kicker">{t('fantasy.packs.kicker')}</p>
-          <h2 id="pack-title" className="fantasy-pack__title">
-            {s.packs > 0 ? t('fantasy.packs.ready', { n: s.packs }) : t('fantasy.packs.none')}
-          </h2>
-          <div className="fantasy-pack__clock" role="img" aria-label={s.packs >= FANTASY.packStack ? t('fantasy.packs.full') : next ? t('fantasy.packs.next', { t: next }) : ''}>
-            <span className="fantasy-pack__bar">
-              <span style={{ width: `${progress * 100}%` }} />
-            </span>
-            <span>{s.packs >= FANTASY.packStack ? t('fantasy.packs.full') : next ? t('fantasy.packs.next', { t: next }) : t('fantasy.packs.cards', { n: FANTASY.cardsPerPack })}</span>
-          </div>
-          <div className="fantasy-pack__actions">
-            <Button size="lg" onClick={() => onOpen(false)} disabled={s.packs <= 0} busy={opening} busyLabel={t('fantasy.opening')}>
-              {t('fantasy.open')}
-            </Button>
-            <button type="button" className="fantasy-pack__extra" onClick={() => onOpen(true)} disabled={!canExtra || opening} title={t('fantasy.extraLeft', { n: extraLeft })}>
-              {t('fantasy.extra', { cost: FANTASY.extraPackCost })}
-              <small>{t('fantasy.extraLeft', { n: extraLeft })}</small>
-            </button>
-          </div>
-          <p className="fantasy-pack__fine">
-            <Link to="/fantasy/odds">{t('fantasy.odds.link')}</Link> · {t('fantasy.noMoney')}
-          </p>
-        </div>
-      </section>
-
       <div className="fantasy-links">
-        <Link to="/fantasy/matchday" className="fantasy-link fantasy-link--md">
-          <span aria-hidden="true">⚽</span>
-          <b>{t('fantasy.home.matchday')}{matchday ? ' ' + matchday.number : ''}</b>
-          <small>{matchday ? (matchday.status === 'live' ? t('fantasy.home.matchdayLive') : matchday.lineup ? t('fantasy.home.matchdaySet') : t('fantasy.home.matchdayBody', { t: untilText(matchday.deadline, now) ?? '' })) : ''}</small>
+        <Link to="/fantasy/squad" className="fantasy-link fantasy-link--md">
+          <span aria-hidden="true">👕</span>
+          <b>{t('fantasy.sq.title')}</b>
+          <small>{built ? t('fantasy.sq.valueBody', { value: priceText(sq!.value), bank: priceText(sq!.bank) }) : t('fantasy.sq.buildBody', { n: FANTASY.squadSize })}</small>
         </Link>
         <Link to="/fantasy/leagues" className="fantasy-link">
           <span aria-hidden="true">🏆</span>
@@ -150,142 +129,67 @@ export function FantasyHome({ s, missions, cardsByRarity, goldCards, todo, album
           <b>{t('fantasy.home.standings')}</b>
           <small>{standing?.division_number && standing.division_rank ? t('fantasy.home.standingsBody', { n: standing.division_number, rank: standing.division_rank }) : t('fantasy.home.standingsNone')}</small>
         </Link>
-        <Link to="/fantasy/albums" className="fantasy-link">
-          <span aria-hidden="true">📒</span>
-          <b>{t('fantasy.home.albums')}</b>
-          <small>{albums === null ? '' : t('fantasy.home.albumsBody', { n: albums })}</small>
-        </Link>
-        <Link to="/fantasy/shop" className="fantasy-link">
-          <span aria-hidden="true">🛍️</span>
-          <b>{t('fantasy.home.shop')}</b>
-          <small>{t('fantasy.home.shopBody')}</small>
-        </Link>
         <Link to="/fantasy/prizes" className="fantasy-link">
           <span aria-hidden="true">🎁</span>
           <b>{t('fantasy.home.prizes')}</b>
           <small>{t('fantasy.home.prizesBody')}</small>
         </Link>
-        <Link to="/fantasy/cards" className="fantasy-link">
-          <span aria-hidden="true">🃏</span>
-          <b>{t('fantasy.cards.title')}</b>
-          <small>{t('fantasy.cards.link', { n: digital + s.gold })}</small>
+        <Link to="/fantasy/rules" className="fantasy-link">
+          <span aria-hidden="true">📜</span>
+          <b>{t('fantasy.rules.title')}</b>
+          <small>{t('fantasy.home.rulesBody', { win: FANTASY.points.win, draw: FANTASY.points.draw })}</small>
         </Link>
       </div>
 
-      <div className="fantasy-grid">
-        {/* Missions */}
-        <section className="card fantasy-panel" aria-labelledby="missions-title">
+      {/* The squad */}
+      {built && (
+        <section className="card fantasy-panel" aria-labelledby="squad-title" style={{ marginTop: 18 }}>
           <div className="fantasy-panel__head">
-            <h2 id="missions-title" className="title" style={{ margin: 0 }}>
-              {t('fantasy.missions.title')}
+            <h2 id="squad-title" className="title" style={{ margin: 0 }}>
+              {t('fantasy.sq.mine')}
             </h2>
             <span className="mono" style={{ fontSize: 12.5, color: 'var(--muted)' }}>
-              {done}/{missions.length}
+              {priceText(sq!.value)}
             </span>
           </div>
-          <span className="fantasy-progress" aria-hidden="true">
-            <span style={{ width: `${missions.length ? (done / missions.length) * 100 : 0}%` }} />
-          </span>
-          <ul style={{ listStyle: 'none', padding: 0, margin: '12px 0 0', display: 'grid', gap: 8 }}>
-            {missions.map((m) => (
-              <li key={m.key} className={'fantasy-mission' + (m.done ? ' is-done' : '')}>
-                <span className="fantasy-mission__check" aria-hidden="true">
-                  {m.done ? '✓' : ''}
+          <ul className="fantasy-squadgrid">
+            {squad.map((c) => (
+              <li key={c.club_id}>
+                <JerseyCard j={c} dim={!c.starter} />
+              </li>
+            ))}
+          </ul>
+          <p className="fantasy-panel__fine">{t('fantasy.sq.ownedHint')}</p>
+        </section>
+      )}
+
+      {/* Prices on the move */}
+      {moves.length > 0 && (
+        <section className="card fantasy-panel" aria-labelledby="moves-title" style={{ marginTop: 18 }}>
+          <div className="fantasy-panel__head">
+            <h2 id="moves-title" className="title" style={{ margin: 0 }}>
+              {t('fantasy.sq.moves')}
+            </h2>
+            <span className="mono" style={{ fontSize: 12.5, color: 'var(--muted)' }}>
+              {t('fantasy.md.number', { n: moves[0]!.matchday })}
+            </span>
+          </div>
+          <ul className="fantasy-moves">
+            {moves.map((x) => (
+              <li key={x.club_id}>
+                {x.image_path && <img src={x.image_path} alt="" loading="lazy" />}
+                <span style={{ flex: 1, minWidth: 0 }}>
+                  <b>{x.name}</b>
+                  <small>{x.league}</small>
                 </span>
-                <span style={{ flex: 1, minWidth: 0 }}>{MISSION_LINK[m.key] && !m.done ? <Link to={MISSION_LINK[m.key]!}>{t('fantasy.m.' + m.key)}</Link> : t('fantasy.m.' + m.key)}</span>
-                <span className="mono fantasy-mission__pts">+{m.points}</span>
+                <span className={'mono ' + (Number(x.delta) > 0 ? 'is-up' : 'is-down')}>{deltaText(x.delta)}</span>
+                <span className="mono" style={{ color: 'var(--muted)' }}>{priceText(x.price)}</span>
               </li>
             ))}
           </ul>
-          <p className="fantasy-panel__fine">{done === missions.length && missions.length ? t('fantasy.missions.allDone', { n: FANTASY.allMissionsBonus }) : t('fantasy.missions.bonus', { n: FANTASY.allMissionsBonus })}</p>
+          <p className="fantasy-panel__fine">{t('fantasy.sq.movesBody')}</p>
         </section>
-
-        {/* Cards */}
-        <section className="card fantasy-panel" aria-labelledby="cards-title">
-          <div className="fantasy-panel__head">
-            <h2 id="cards-title" className="title" style={{ margin: 0 }}>
-              {t('fantasy.cards.title')}
-            </h2>
-            <span className="mono" style={{ fontSize: 12.5, color: 'var(--muted)' }}>
-              {digital + s.gold}
-            </span>
-          </div>
-          <ul className="fantasy-rarities" aria-label={t('fantasy.cards.byRarity')}>
-            <li style={{ '--rc': '#f3c53d' } as React.CSSProperties}>
-              <b>{s.gold}</b> {t('fantasy.gold.badge')}
-            </li>
-            {RARITIES.map((r) => (
-              <li key={r} style={{ '--rc': RARITY_COLOR[r] } as React.CSSProperties}>
-                <b>{cardsByRarity[r] ?? 0}</b> {t('fantasy.rarity.' + r)}
-              </li>
-            ))}
-          </ul>
-          {digital === 0 ? (
-            <p className="fantasy-panel__fine">{t('fantasy.cards.empty')}</p>
-          ) : (
-            s.duplicates > 0 && (
-              <div className="fantasy-dup">
-                <span style={{ flex: 1, minWidth: 0, fontSize: 13.5 }}>{t('fantasy.dup.body', { n: s.duplicates, points: s.dup_points })}</span>
-                <Button size="sm" variant="secondary" onClick={onConvert} busy={converting}>
-                  {t('fantasy.dup.convert')}
-                </Button>
-              </div>
-            )
-          )}
-          <div style={{ marginTop: 'auto', paddingTop: 14 }}>
-            <Link to="/fantasy/cards" className="btn btn--secondary btn--sm">
-              {t('fantasy.cards.link', { n: digital + s.gold })}
-            </Link>
-          </div>
-        </section>
-      </div>
-
-      {/* Gold: the real shirts */}
-      <section className="card fantasy-panel fantasy-gold" aria-labelledby="gold-title">
-        <div className="fantasy-gold__intro">
-          <div className="fantasy-panel__head">
-            <h2 id="gold-title" className="title" style={{ margin: 0 }}>
-              ✨ {t('fantasy.gold.title')}
-            </h2>
-            <span className="mono" style={{ fontSize: 12.5, color: 'var(--muted)' }}>
-              {s.gold}
-            </span>
-          </div>
-          <p style={{ margin: '8px 0 0', color: 'var(--text-2)', fontSize: 14, lineHeight: 1.5 }}>{t('fantasy.gold.body')}</p>
-          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 14 }}>
-            <Link to="/vault/add/library" className="btn btn--primary btn--sm">
-              {t('fantasy.gold.add')}
-            </Link>
-            {s.gold > 0 && (
-              <Link to="/fantasy/cards?f=gold" className="btn btn--secondary btn--sm">
-                {t('fantasy.cards.goldAll', { n: s.gold })}
-              </Link>
-            )}
-          </div>
-        </div>
-        {goldCards.length > 0 && (
-          <ul className="fantasy-cardrow no-scrollbar" aria-label={t('fantasy.goldLabel')}>
-            {goldCards.slice(0, 8).map((c) => (
-              <li key={c.kit_id}>
-                <GameCard c={c} />
-              </li>
-            ))}
-          </ul>
-        )}
-        {todo.length > 0 && (
-          <div className="fantasy-todo">
-            <p className="fantasy-todo__title">{t('fantasy.gold.todoTitle', { n: todo.length })}</p>
-            <ul>
-              {todo.slice(0, 6).map((x) => (
-                <li key={x.item_id}>
-                  <Link to={'/vault/' + encodeURIComponent(x.item_id)}>{x.name ?? '?'}</Link>
-                  <span>{x.needs === 'kit' ? t('fantasy.gold.needKit') : t('fantasy.gold.needPhoto')}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-      </section>
+      )}
     </>
   );
 }
