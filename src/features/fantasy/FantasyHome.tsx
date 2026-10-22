@@ -15,6 +15,8 @@ export interface FantasyHomeProps {
   cardsByRarity: Record<string, number>;
   goldCards: FantasyCard[];
   todo: GoldTodo[];
+  /** How many albums there are (null while unknown). */
+  albums: number | null;
   now: number;
   opening: boolean;
   converting: boolean;
@@ -24,7 +26,7 @@ export interface FantasyHomeProps {
 
 const MISSION_LINK: Record<string, string> = { play_daily: '/daily', wishlist_add: '/library', like_shirt: '/feed/following', follow_collector: '/', check_value: '/vault', view_library: '/library', visit_market: '/market' };
 
-export function FantasyHome({ s, missions, cardsByRarity, goldCards, todo, now, opening, converting, onOpen, onConvert }: FantasyHomeProps) {
+export function FantasyHome({ s, missions, cardsByRarity, goldCards, todo, albums, now, opening, converting, onOpen, onConvert }: FantasyHomeProps) {
   const { t } = usePrefs();
   const next = untilText(s.next_pack_at, now);
   const done = missions.filter((m) => m.done).length;
@@ -98,6 +100,24 @@ export function FantasyHome({ s, missions, cardsByRarity, goldCards, todo, now, 
           </p>
         </div>
       </section>
+
+      <div className="fantasy-links">
+        <Link to="/fantasy/albums" className="fantasy-link">
+          <span aria-hidden="true">📒</span>
+          <b>{t('fantasy.home.albums')}</b>
+          <small>{albums === null ? '' : t('fantasy.home.albumsBody', { n: albums })}</small>
+        </Link>
+        <Link to="/fantasy/shop" className="fantasy-link">
+          <span aria-hidden="true">🛍️</span>
+          <b>{t('fantasy.home.shop')}</b>
+          <small>{t('fantasy.home.shopBody')}</small>
+        </Link>
+        <Link to="/fantasy/cards" className="fantasy-link">
+          <span aria-hidden="true">🃏</span>
+          <b>{t('fantasy.cards.title')}</b>
+          <small>{t('fantasy.cards.link', { n: digital + s.gold })}</small>
+        </Link>
+      </div>
 
       <div className="fantasy-grid">
         {/* Missions */}

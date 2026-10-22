@@ -56,3 +56,33 @@ export async function loadFantasyOdds(): Promise<FantasyOdds[]> {
   if (error) throw error;
   return data ?? [];
 }
+
+// ---- Phase 2: albums and the weekly shop ----------------------------------
+export type FantasyAlbum = RpcReturns<'fantasy_albums'>[number];
+export type AlbumSlot = RpcReturns<'fantasy_album'>[number];
+export type ShopKit = RpcReturns<'fantasy_shop'>[number];
+
+export async function loadFantasyAlbums(): Promise<FantasyAlbum[]> {
+  const { data, error } = await (await sb()).rpc('fantasy_albums');
+  if (error) throw error;
+  return data ?? [];
+}
+
+export async function loadFantasyAlbum(slug: string): Promise<AlbumSlot[]> {
+  const { data, error } = await (await sb()).rpc('fantasy_album', { p_slug: slug });
+  if (error) throw error;
+  return data ?? [];
+}
+
+export async function loadFantasyShop(): Promise<ShopKit[]> {
+  const { data, error } = await (await sb()).rpc('fantasy_shop');
+  if (error) throw error;
+  return data ?? [];
+}
+
+/** Buys this week's card with Kit Points; returns the price. Errors: P0461 points, P0463 not in shop, P0464 already bought. */
+export async function buyFantasyCard(kitId: string): Promise<number> {
+  const { data, error } = await (await sb()).rpc('fantasy_buy_card', { p_kit: kitId });
+  if (error) throw error;
+  return data ?? 0;
+}

@@ -962,6 +962,19 @@ export type Database = {
         Returns: { kit_id: string; club_id: string; club_name: string; season: string; season_year: number; kind: string; variant: string; image_path: string | null; rarity: string; copies: number; gold: boolean; verified: boolean; item_id: string | null; photo_path: string | null; thumb_path: string | null; since: string }[];
       };
       fantasy_gold_todo: { Args: never; Returns: { item_id: string; name: string | null; needs: string }[] };
+      fantasy_albums: {
+        Args: never;
+        Returns: { id: string; slug: string; title: Json; description: Json; reward_points: number; total: number; have: number; gold: number; done: boolean; done_gold: boolean; cover: string | null; sort: number }[];
+      };
+      fantasy_album: {
+        Args: { p_slug: string };
+        Returns: { kit_id: string; club_id: string; club_name: string; season: string; kind: string; variant: string; image_path: string | null; rarity: string; sort: number; state: string; copies: number; item_id: string | null; photo_path: string | null; thumb_path: string | null; offers: number; min_price: number | null; owners: number; wished: boolean }[];
+      };
+      fantasy_shop: {
+        Args: never;
+        Returns: { kit_id: string; club_id: string; club_name: string; season: string; kind: string; variant: string; image_path: string | null; rarity: string; price: number; owned: boolean; bought: boolean; week_ends: string }[];
+      };
+      fantasy_buy_card: { Args: { p_kit: string }; Returns: number };
       fantasy_odds: { Args: never; Returns: { rarity: string; odds: number; dup_points: number; kits: number }[] };
       public_wishlist: {
         Args: { p_handle: string };

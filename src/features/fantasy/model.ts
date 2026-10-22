@@ -33,3 +33,9 @@ export function bestRarity(cards: { rarity: string }[]): Rarity {
   for (const r of order) if (cards.some((c) => c.rarity === r)) return r;
   return 'common';
 }
+
+/** An album's title or description in the reader's language (English when missing). */
+export function albumText(j: unknown, lang: string): string {
+  const o = (j ?? {}) as Record<string, string>;
+  return o[lang] || o.en || Object.values(o)[0] || '';
+}

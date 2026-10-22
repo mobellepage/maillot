@@ -29,6 +29,7 @@ export default function FantasyPage() {
   const gold = state.data?.gold ?? 0;
   const cards = useQuery({ queryKey: ['fantasyCards', user?.id], queryFn: db.loadFantasyCards, enabled: !!user && gold > 0, staleTime: 60_000, retry: false });
   const todo = useQuery({ queryKey: ['fantasyGoldTodo', user?.id], queryFn: db.loadGoldTodo, enabled: !!user, staleTime: 60_000, retry: false });
+  const albums = useQuery({ queryKey: ['fantasyAlbums', user?.id], queryFn: db.loadFantasyAlbums, enabled: !!user, staleTime: 60_000, retry: false });
 
   const openPack = async (extra: boolean) => {
     try {
@@ -52,6 +53,7 @@ export default function FantasyPage() {
           cardsByRarity={cardsByRarity}
           goldCards={(cards.data ?? []).filter((c) => c.gold)}
           todo={todo.data ?? []}
+          albums={albums.data?.length ?? null}
           now={now}
           opening={open.isPending}
           converting={convert.isPending}

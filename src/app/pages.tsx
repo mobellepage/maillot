@@ -44,3 +44,6 @@ export const ClubLibraryPage = lazy(() => import('../features/library/ClubLibrar
 export const FantasyPage = lazy(() => import('../features/fantasy/FantasyPage.tsx'));
 export const FantasyCardsPage = lazy(() => import('../features/fantasy/CardsPage.tsx'));
 export const FantasyOddsPage = lazy(() => import('../features/fantasy/OddsPage.tsx'));
+export const FantasyAlbumsPage = lazy(() => import('../features/fantasy/AlbumsPage.tsx'));
+export const FantasyAlbumPage = lazy(() => import('../features/fantasy/AlbumPage.tsx'));
+export const FantasyShopPage = lazy(() => import('../features/fantasy/ShopPage.tsx'));
