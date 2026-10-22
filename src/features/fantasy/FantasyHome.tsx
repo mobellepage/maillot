@@ -4,7 +4,7 @@
 import { Link } from 'react-router';
 import { FANTASY, RARITIES } from '../../config/fantasy.ts';
 import { usePrefs } from '../../lib/prefs.tsx';
-import type { FantasyCard, FantasyMission, FantasyState, GoldTodo } from '../../utils/db.ts';
+import type { FantasyCard, FantasyMission, FantasyState, GoldTodo, Matchday } from '../../utils/db.ts';
 import { Button } from '../../ui/index.ts';
 import { GameCard } from './GameCard.tsx';
 import { RARITY_COLOR, untilText } from './model.ts';
@@ -17,6 +17,7 @@ export interface FantasyHomeProps {
   todo: GoldTodo[];
   /** How many albums there are (null while unknown). */
   albums: number | null;
+  matchday: Matchday | null;
   now: number;
   opening: boolean;
   converting: boolean;
@@ -26,7 +27,7 @@ export interface FantasyHomeProps {
 
 const MISSION_LINK: Record<string, string> = { play_daily: '/daily', wishlist_add: '/library', like_shirt: '/feed/following', follow_collector: '/', check_value: '/vault', view_library: '/library', visit_market: '/market' };
 
-export function FantasyHome({ s, missions, cardsByRarity, goldCards, todo, albums, now, opening, converting, onOpen, onConvert }: FantasyHomeProps) {
+export function FantasyHome({ s, missions, cardsByRarity, goldCards, todo, albums, matchday, now, opening, converting, onOpen, onConvert }: FantasyHomeProps) {
   const { t } = usePrefs();
   const next = untilText(s.next_pack_at, now);
   const done = missions.filter((m) => m.done).length;
@@ -102,6 +103,11 @@ export function FantasyHome({ s, missions, cardsByRarity, goldCards, todo, album
       </section>
 
       <div className="fantasy-links">
+        <Link to="/fantasy/matchday" className="fantasy-link fantasy-link--md">
+          <span aria-hidden="true">⚽</span>
+          <b>{t('fantasy.home.matchday')}{matchday ? ' ' + matchday.number : ''}</b>
+          <small>{matchday ? (matchday.status === 'live' ? t('fantasy.home.matchdayLive') : matchday.lineup ? t('fantasy.home.matchdaySet') : t('fantasy.home.matchdayBody', { t: untilText(matchday.deadline, now) ?? '' })) : ''}</small>
+        </Link>
         <Link to="/fantasy/albums" className="fantasy-link">
           <span aria-hidden="true">📒</span>
           <b>{t('fantasy.home.albums')}</b>

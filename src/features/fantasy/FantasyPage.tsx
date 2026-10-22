@@ -30,6 +30,7 @@ export default function FantasyPage() {
   const cards = useQuery({ queryKey: ['fantasyCards', user?.id], queryFn: db.loadFantasyCards, enabled: !!user && gold > 0, staleTime: 60_000, retry: false });
   const todo = useQuery({ queryKey: ['fantasyGoldTodo', user?.id], queryFn: db.loadGoldTodo, enabled: !!user, staleTime: 60_000, retry: false });
   const albums = useQuery({ queryKey: ['fantasyAlbums', user?.id], queryFn: db.loadFantasyAlbums, enabled: !!user, staleTime: 60_000, retry: false });
+  const matchday = useQuery({ queryKey: ['fantasyMatchday', 'current', user?.id], queryFn: () => db.loadMatchday(), enabled: !!user, staleTime: 15_000, retry: false });
 
   const openPack = async (extra: boolean) => {
     try {
@@ -54,6 +55,7 @@ export default function FantasyPage() {
           goldCards={(cards.data ?? []).filter((c) => c.gold)}
           todo={todo.data ?? []}
           albums={albums.data?.length ?? null}
+          matchday={matchday.data ?? null}
           now={now}
           opening={open.isPending}
           converting={convert.isPending}

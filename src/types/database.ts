@@ -975,6 +975,28 @@ export type Database = {
         Returns: { kit_id: string; club_id: string; club_name: string; season: string; kind: string; variant: string; image_path: string | null; rarity: string; price: number; owned: boolean; bought: boolean; week_ends: string }[];
       };
       fantasy_buy_card: { Args: { p_kit: string }; Returns: number };
+      fantasy_matchday: {
+        Args: { p_md?: number | null };
+        Returns: { id: number; number: number; window_start: string; window_end: string; deadline: string; international: boolean; status: string; cup_name: string; season_name: string; budget: number; fixtures: number; lineup: Json | null; chips_used: string[]; previous_id: number | null; next_id: number | null; players: number; rank: number | null }[];
+      };
+      fantasy_fixtures: {
+        Args: { p_md: number };
+        Returns: { id: number; competition: string; home_club_id: string | null; away_club_id: string | null; home_name: string; away_name: string; kickoff: string; status: string; home_goals: number | null; away_goals: number | null; home_image: string | null; away_image: string | null }[];
+      };
+      fantasy_squad_cards: {
+        Args: { p_md: number };
+        Returns: { kit_id: string; club_id: string; club_name: string; league: string; season: string; kind: string; variant: string; image_path: string | null; rarity: string; gold: boolean; verified: boolean; photo_path: string | null; thumb_path: string | null; value: number; plays: boolean; is_national: boolean }[];
+      };
+      fantasy_lineup_cards: {
+        Args: { p_md: number; p_user?: string | null };
+        Returns: { kit_id: string; club_id: string; club_name: string; season: string; kind: string; variant: string; image_path: string | null; rarity: string; gold: boolean; captain: boolean; played: boolean; base: number; multiplier: number; total: number; detail: Json; value: number }[];
+      };
+      fantasy_matchday_table: {
+        Args: { p_md: number; p_limit?: number };
+        Returns: { user_id: string; handle: string; avatar: string | null; points: number; pred_points: number; captain_name: string | null; is_me: boolean }[];
+      };
+      fantasy_save_lineup: { Args: { p_md: number; p_kits: string[]; p_captain: string; p_chip?: string | null; p_pred_fixture?: number | null; p_pred_home?: number | null; p_pred_away?: number | null }; Returns: undefined };
+      fantasy_rescore: { Args: { p_md: number }; Returns: undefined };
       fantasy_odds: { Args: never; Returns: { rarity: string; odds: number; dup_points: number; kits: number }[] };
       public_wishlist: {
         Args: { p_handle: string };

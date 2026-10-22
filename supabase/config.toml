@@ -99,6 +99,9 @@ verify_jwt = false
 [functions.fetch-news]
 verify_jwt = false
 
+[functions.fantasy-fixtures]
+verify_jwt = false
+
 [functions.wallet-pass]
 verify_jwt = false
 

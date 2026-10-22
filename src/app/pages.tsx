@@ -47,3 +47,4 @@ export const FantasyOddsPage = lazy(() => import('../features/fantasy/OddsPage.t
 export const FantasyAlbumsPage = lazy(() => import('../features/fantasy/AlbumsPage.tsx'));
 export const FantasyAlbumPage = lazy(() => import('../features/fantasy/AlbumPage.tsx'));
 export const FantasyShopPage = lazy(() => import('../features/fantasy/ShopPage.tsx'));
+export const FantasyMatchdayPage = lazy(() => import('../features/fantasy/MatchdayPage.tsx'));

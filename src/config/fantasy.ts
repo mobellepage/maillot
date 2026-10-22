@@ -31,5 +31,22 @@ export const FANTASY = {
   goldMinLevel: 'self' as 'self' | 'precheck' | 'expert'
 } as const;
 
+/** Matchday — private.fantasy_md_policy() decides the same way. */
+export const MATCHDAY = {
+  lineupSize: 5,
+  /** The five cards' reference values (CHF, replica) must not exceed this. */
+  budgetChf: 1000,
+  points: { win: 3, draw: 1, goal: 1, cleanSheet: 2 },
+  multipliers: { gold: 2, captain: 2, goldRush: 3, tripleCaptain: 3, derby: 2 },
+  prediction: { exact: 5, outcome: 2 },
+  /** The line-up locks this long before the window opens (Saturday 12:00 UTC); the window lasts windowHours. */
+  deadlineHoursBefore: 1,
+  windowHours: 36,
+  /** Reference value by rarity for kits without a price-index value. */
+  valueChf: { common: 80, rare: 150, epic: 260, legendary: 450 },
+  chips: ['gold_rush', 'triple_captain', 'derby_day', 'wildcard'] as const
+} as const;
+export type Chip = (typeof MATCHDAY.chips)[number];
+
 export type Rarity = keyof typeof FANTASY.odds;
 export const RARITIES: Rarity[] = ['legendary', 'epic', 'rare', 'common'];

@@ -86,3 +86,42 @@ export async function buyFantasyCard(kitId: string): Promise<number> {
   if (error) throw error;
   return data ?? 0;
 }
+
+// ---- Phase 3: Matchday ------------------------------------------------------
+export type Matchday = RpcReturns<'fantasy_matchday'>[number];
+export type MatchdayLineup = { kits: string[]; golds: boolean[]; captain: string; chip: string | null; pred_fixture: number | null; pred_home: number | null; pred_away: number | null; budget_used: number; points: number; pred_points: number; locked: boolean; carried: boolean };
+export type Fixture = RpcReturns<'fantasy_fixtures'>[number];
+export type SquadCard = RpcReturns<'fantasy_squad_cards'>[number];
+export type LineupCard = RpcReturns<'fantasy_lineup_cards'>[number];
+export type MatchdayRow = RpcReturns<'fantasy_matchday_table'>[number];
+
+export async function loadMatchday(id?: number): Promise<Matchday | null> {
+  const { data, error } = await (await sb()).rpc('fantasy_matchday', { p_md: id ?? null });
+  if (error) throw error;
+  return data?.[0] ?? null;
+}
+export async function loadFixtures(md: number): Promise<Fixture[]> {
+  const { data, error } = await (await sb()).rpc('fantasy_fixtures', { p_md: md });
+  if (error) throw error;
+  return data ?? [];
+}
+export async function loadSquadCards(md: number): Promise<SquadCard[]> {
+  const { data, error } = await (await sb()).rpc('fantasy_squad_cards', { p_md: md });
+  if (error) throw error;
+  return data ?? [];
+}
+export async function loadLineupCards(md: number, user?: string): Promise<LineupCard[]> {
+  const { data, error } = await (await sb()).rpc('fantasy_lineup_cards', { p_md: md, p_user: user ?? null });
+  if (error) throw error;
+  return data ?? [];
+}
+export async function loadMatchdayTable(md: number, limit = 50): Promise<MatchdayRow[]> {
+  const { data, error } = await (await sb()).rpc('fantasy_matchday_table', { p_md: md, p_limit: limit });
+  if (error) throw error;
+  return data ?? [];
+}
+/** Errors: P0470 deadline passed, P0471 size, P0472 captain, P0473 not owned, P0474 over budget, P0475 chip used, P0476 prediction fixture. */
+export async function saveLineup(md: number, kits: string[], captain: string, chip: string | null, pred: { fixture: number; home: number; away: number } | null): Promise<void> {
+  const { error } = await (await sb()).rpc('fantasy_save_lineup', { p_md: md, p_kits: kits, p_captain: captain, p_chip: chip, p_pred_fixture: pred?.fixture ?? null, p_pred_home: pred?.home ?? null, p_pred_away: pred?.away ?? null });
+  if (error) throw error;
+}
