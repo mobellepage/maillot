@@ -21,9 +21,10 @@ export default function SquadPage() {
   const { t } = usePrefs();
   const { user } = useSession();
   usePageMeta(t('fantasy.sq.title') + ' · Fantasy', t('fantasy.sq.intro', { n: FANTASY.squadSize, budget: FANTASY.budget, per: FANTASY.maxPerLeague }));
+  const [now] = useState(() => Date.now());
   const current = useQuery({ queryKey: ['fantasyMatchday', 'current', user?.id], queryFn: () => db.loadMatchday(), enabled: !!user, staleTime: 15_000, retry: false });
   // While a Gameweek runs or waits to be scored, transfers are for the next one.
-  const closed = !!current.data && (current.data.status !== 'upcoming' || new Date(current.data.deadline).getTime() <= Date.now());
+  const closed = !!current.data && (current.data.status !== 'upcoming' || new Date(current.data.deadline).getTime() <= now);
   const nextId = closed ? current.data?.next_id : null;
   const next = useQuery({ queryKey: ['fantasyMatchday', nextId ?? 'none', user?.id], queryFn: () => db.loadMatchday(nextId!), enabled: !!nextId, staleTime: 15_000, retry: false });
   const md = nextId ? next : current;
