@@ -7,6 +7,8 @@ export type KitPattern = (typeof KIT_PATTERNS)[number];
 
 /** The leagues shown first, in this order; everything else follows as "more". */
 export const TOP5 = ['Premier League', 'La Liga', 'Bundesliga', 'Serie A', 'Ligue 1'] as const;
+/** The next leagues with every club's kits (Netherlands, Portugal, Türkiye). */
+export const MORE_LEAGUES = ['Eredivisie', 'Primeira Liga', 'Süper Lig'] as const;
 
 const darker = (hex: string, k = 0.82) => {
   const n = parseInt(hex.slice(1), 16);

@@ -11,6 +11,9 @@ const SCRIPT = 'https://assets.pinterest.com/js/pinit.js';
 
 type PinUtils = { build?: () => void };
 
+/** Pin column width: two columns on a phone, big pictures (about five or six columns) on a wide screen. */
+const pinWidth = (width: number) => (width < 640 ? 135 : Math.max(220, Math.min(300, Math.floor((width - 24) / 5.6))));
+
 function loadPinterest(): Promise<void> {
   const w = window as unknown as { PinUtils?: PinUtils };
   if (w.PinUtils?.build) return Promise.resolve();
@@ -65,7 +68,7 @@ export function PinterestBoard({ url }: { url: string }) {
         </p>
       ) : (
         // Pinterest turns this link into the board (pins in columns).
-        <a data-pin-do="embedBoard" data-pin-board-width={String(Math.max(300, width - 24))} data-pin-scale-height="1100" data-pin-scale-width="135" href={url}>
+        <a data-pin-do="embedBoard" data-pin-board-width={String(Math.max(300, width - 24))} data-pin-scale-height={width < 640 ? '1100' : '1700'} data-pin-scale-width={String(pinWidth(width))} href={url}>
           {t('fits.open')}
         </a>
       )}

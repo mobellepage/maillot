@@ -7,12 +7,12 @@ import { usePageMeta } from '../../lib/meta.ts';
 import { usePrefs } from '../../lib/prefs.tsx';
 import * as db from '../../utils/db.ts';
 import { Button, ErrorState, Page, Skeleton } from '../../ui/index.ts';
-import { TOP5 } from '../library/model.ts';
+import { MORE_LEAGUES, TOP5 } from '../library/model.ts';
 import { KitDisc } from './KitDisc.tsx';
 import { ERAS, eraNumber } from './model.ts';
 
 const PAGE = 48;
-const LEAGUES: readonly string[] = [...TOP5, 'Swiss Super League', 'National Teams'];
+const LEAGUES: readonly string[] = [...TOP5, ...MORE_LEAGUES, 'Swiss Super League', 'National Teams'];
 
 export default function EraPage() {
   const { t } = usePrefs();

@@ -12,6 +12,9 @@ export interface FeedKit {
   kind: string;
   variant: string;
   image_path: string | null;
+  /** On the wishlist: the print wanted on it (player and number), if any. */
+  print_name?: string | null;
+  print_number?: string | null;
 }
 
 /** A random mix of library kits, leaning towards these clubs and leagues. */
@@ -27,8 +30,17 @@ export async function loadLikedKits(): Promise<FeedKit[]> {
   return data || [];
 }
 
-export async function likeKit(kitId: string): Promise<void> {
-  const { error } = await (await sb()).from('kit_likes').upsert({ kit_id: kitId }, { onConflict: 'user_id,kit_id', ignoreDuplicates: true });
+export interface WishPrint {
+  name: string | null;
+  number: string | null;
+}
+
+/** Puts a kit on the wishlist; with a print, it says which (and updates one already there). */
+export async function likeKit(kitId: string, print?: WishPrint): Promise<void> {
+  const kit_likes = (await sb()).from('kit_likes');
+  const { error } = print
+    ? await kit_likes.upsert({ kit_id: kitId, print_name: print.name || null, print_number: print.number || null }, { onConflict: 'user_id,kit_id' })
+    : await kit_likes.upsert({ kit_id: kitId }, { onConflict: 'user_id,kit_id', ignoreDuplicates: true });
   if (error) throw error;
 }
 

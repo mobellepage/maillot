@@ -11,7 +11,7 @@ import type { KitColor, KitQuery } from '../../utils/db.ts';
 import { Button, ErrorState, Page, Skeleton } from '../../ui/index.ts';
 import { KitDisc } from '../discover/KitDisc.tsx';
 import { eraNumber } from '../discover/model.ts';
-import { TOP5 } from './model.ts';
+import { MORE_LEAGUES, TOP5 } from './model.ts';
 
 const PAGE = 48;
 
@@ -38,7 +38,7 @@ const ERAS: { key: string; from: number | null; to: number | null }[] = [
   ...[1960, 1970, 1980, 1990, 2000, 2010, 2020].map((d) => ({ key: String(d), from: d, to: d + 9 }))
 ];
 const KINDS = ['home', 'away', 'third', 'goalkeeper', 'special'] as const;
-const LEAGUES: readonly string[] = [...TOP5, 'Swiss Super League', 'National Teams'];
+const LEAGUES: readonly string[] = [...TOP5, ...MORE_LEAGUES, 'Swiss Super League', 'National Teams'];
 
 export default function KitFinderPage() {
   const { t } = usePrefs();

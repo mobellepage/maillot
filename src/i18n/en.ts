@@ -2150,6 +2150,22 @@ export const en = {
   'nav.swipe': 'Swipe',
   'feed.hintRight': 'Swipe right = wishlist',
   'feed.hintLeft': 'Swipe left = next',
+  'rail.fits': 'Fits',
+  'wishkit.title': 'On my wishlist',
+  'wishkit.editTitle': 'My wish',
+  'wishkit.question': 'Which player and number do you want on it?',
+  'wishkit.player': 'Player',
+  'wishkit.playerPlaceholder': 'e.g. Kaká',
+  'wishkit.number': 'Number',
+  'wishkit.optional': 'Both optional – leave them empty if any print is fine.',
+  'wishkit.add': 'Put it on my wishlist',
+  'wishkit.save': 'Save',
+  'wishkit.noPrint': 'Without a print',
+  'wishkit.added': 'On your wishlist.',
+  'wishkit.updated': 'Wish updated.',
+  'wishkit.wanted': 'Wanted: {print}',
+  'wishkit.change': 'Change',
+  'wishkit.addPrint': 'Add player & number',
   // @@end
 };
 

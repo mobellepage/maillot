@@ -38,7 +38,7 @@ export function useKitLikes() {
     if (!uid || !guest.length) return;
     const pending = guest;
     setGuest([]);
-    Promise.all(pending.map((k) => db.likeKit(k.id).catch(() => {}))).then(() => qc.invalidateQueries({ queryKey: ['kitLikes', uid] }));
+    Promise.all(pending.map((k) => db.likeKit(k.id, k.print_name || k.print_number ? { name: k.print_name ?? null, number: k.print_number ?? null } : undefined).catch(() => {}))).then(() => qc.invalidateQueries({ queryKey: ['kitLikes', uid] }));
   }, [uid, guest, qc]);
 
   const toggle = useMutation({
@@ -53,10 +53,32 @@ export function useKitLikes() {
     onSettled: () => qc.invalidateQueries({ queryKey: ['kitLikes', uid] })
   });
 
+  // On the wishlist with the print wanted (player and number) — or update that print.
+  const save = useMutation({
+    mutationFn: ({ kit, print }: { kit: FeedKit; print: db.WishPrint }) => db.likeKit(kit.id, print),
+    onMutate: async ({ kit, print }) => {
+      await qc.cancelQueries({ queryKey: ['kitLikes', uid] });
+      const prev = qc.getQueryData<FeedKit[]>(['kitLikes', uid]);
+      const entry = { ...kit, print_name: print.name, print_number: print.number };
+      qc.setQueryData<FeedKit[]>(['kitLikes', uid], (xs = []) => (xs.some((x) => x.id === kit.id) ? xs.map((x) => (x.id === kit.id ? entry : x)) : [entry, ...xs]));
+      return { prev };
+    },
+    onError: (_e, _v, ctx) => qc.setQueryData(['kitLikes', uid], ctx?.prev),
+    onSettled: () => qc.invalidateQueries({ queryKey: ['kitLikes', uid] })
+  });
+
   const kits: FeedKit[] = uid ? q.data ?? [] : guest;
   return {
     kits,
     has: (id: string) => kits.some((k) => k.id === id),
+    get: (id: string) => kits.find((k) => k.id === id),
+    save: (kit: FeedKit, print: db.WishPrint) => {
+      if (uid) save.mutate({ kit, print });
+      else {
+        const entry = { ...kit, print_name: print.name, print_number: print.number };
+        setGuest(guest.some((k) => k.id === kit.id) ? guest.map((k) => (k.id === kit.id ? entry : k)) : [entry, ...guest]);
+      }
+    },
     toggle: (kit: FeedKit) => {
       const on = !kits.some((k) => k.id === kit.id);
       if (uid) toggle.mutate({ kit, on });

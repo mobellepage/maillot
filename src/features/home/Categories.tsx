@@ -11,6 +11,9 @@ const CATEGORIES: { league: string; label?: string; img: string }[] = [
   { league: 'Bundesliga', img: '/library/bl/bayern/2026-27-home-kit.webp' },
   { league: 'Serie A', img: '/library/sa/milan/2006-07-home-kit.webp' },
   { league: 'Ligue 1', img: '/library/l1/psg/2025-26-home-kit.webp' },
+  { league: 'Eredivisie', img: '/library/ed/ajax/1994-95-home-kit.webp' },
+  { league: 'Primeira Liga', img: '/library/pt/benfica/2025-26-home-kit.webp' },
+  { league: 'Süper Lig', img: '/library/tr/galatasaray/2025-26-home-kit.webp' },
   { league: 'Swiss Super League', label: 'home.cat.ssl', img: '/library/yb/2025-26-home-kit.webp' }
 ];
 

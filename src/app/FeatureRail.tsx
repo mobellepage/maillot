@@ -1,5 +1,5 @@
 // A small tab on the right edge of every page with the "come back every
-// day" features — the daily puzzle and the kit library — so people find
+// day" features — the daily puzzle, the kit library and the Fits — so people find
 // them from anywhere. (The kit designer lives in the footer now.) Hidden in focused flows
 // (adding a shirt, signing in, onboarding).
 import { NavLink, useLocation } from 'react-router';
@@ -7,7 +7,8 @@ import { usePrefs } from '../lib/prefs.tsx';
 
 const ITEMS = [
   { to: '/daily', emoji: '🧩', label: 'rail.daily' },
-  { to: '/library', emoji: '📚', label: 'rail.library' }
+  { to: '/library', emoji: '📚', label: 'rail.library' },
+  { to: '/fits', emoji: '👕', label: 'rail.fits' }
 ] as const;
 
 const HIDDEN = ['/vault/add', '/signin', '/welcome', '/reset-password', '/return', '/admin'];

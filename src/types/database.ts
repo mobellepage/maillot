@@ -817,9 +817,9 @@ export type Database = {
         Relationships: [];
       };
       kit_likes: {
-        Row: { user_id: string; kit_id: string; created_at: string };
-        Insert: { user_id?: string; kit_id: string; created_at?: string };
-        Update: { user_id?: string; kit_id?: string; created_at?: string };
+        Row: { user_id: string; kit_id: string; created_at: string; print_name: string | null; print_number: string | null };
+        Insert: { user_id?: string; kit_id: string; created_at?: string; print_name?: string | null; print_number?: string | null };
+        Update: { user_id?: string; kit_id?: string; created_at?: string; print_name?: string | null; print_number?: string | null };
         Relationships: [];
       };
       watchlist: {
@@ -1099,7 +1099,7 @@ export type Database = {
       legend_kits_for: { Args: { p_legend: string }; Returns: { id: string; club_id: string; club_name: string; season: string; season_year: number; kind: string; variant: string; image_path: string | null; league: string }[] };
       legend_kits: { Args: { p_clubs: string[]; p_from: number[]; p_to: number[] }; Returns: { id: string; club_id: string; club_name: string; season: string; season_year: number; kind: string; variant: string; image_path: string | null }[] };
       feed_kits: { Args: { p_clubs: string[]; p_leagues: string[] }; Returns: { id: string; club_id: string; club_name: string; league: string; season: string; season_year: number; kind: string; variant: string; image_path: string | null }[] };
-      my_liked_kits: { Args: never; Returns: ({ id: string; club_id: string; club_name: string; league: string; season: string; season_year: number; kind: string; variant: string; image_path: string | null; liked_at: string })[] };
+      my_liked_kits: { Args: never; Returns: ({ id: string; club_id: string; club_name: string; league: string; season: string; season_year: number; kind: string; variant: string; image_path: string | null; liked_at: string; print_name: string | null; print_number: string | null })[] };
       set_favorite_club: { Args: { p_club: string | null }; Returns: undefined };
       my_club_kits: { Args: { p_club: string }; Returns: { kit_id: string; item_id: string }[] };
       daily_kit: {

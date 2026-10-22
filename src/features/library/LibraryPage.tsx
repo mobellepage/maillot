@@ -10,11 +10,11 @@ import * as db from '../../utils/db.ts';
 import type { KitClub } from '../../utils/db.ts';
 import { ErrorState, Page, Skeleton } from '../../ui/index.ts';
 import { ClubBand } from './ClubBand.tsx';
-import { TOP5 } from './model.ts';
+import { MORE_LEAGUES, TOP5 } from './model.ts';
 
 const NATIONS = 'National Teams';
 // Tabs with their own button; every other league sits under "Other".
-const TABS: readonly string[] = [...TOP5, 'Swiss Super League', NATIONS];
+const TABS: readonly string[] = [...TOP5, ...MORE_LEAGUES, 'Swiss Super League', NATIONS];
 const OTHER = 'other';
 // National teams by continent, in this order.
 const REGIONS = ['Europe', 'South America', 'North & Central America', 'Africa', 'Asia', 'Oceania'] as const;

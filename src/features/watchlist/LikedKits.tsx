@@ -1,14 +1,20 @@
-// Library kits liked in the feed, on the wishlist: each opens in the
-// library (where its owners show), the heart takes it off again.
+// Library kits on the wishlist (from the feed or the library), with the print
+// wanted on them: each opens in the library (where its owners show), the
+// bookmark takes it off again.
 import { Link } from 'react-router';
 import { usePrefs } from '../../lib/prefs.tsx';
 import { BookmarkIcon } from '../../ui/index.ts';
 import { variantLabel } from '../library/model.ts';
 import { useKitLikes } from './useKitLikes.ts';
+import { WishKitDialog } from './WishKitDialog.tsx';
+import { printLabel } from './printLabel.ts';
+import { useState } from 'react';
+import type { FeedKit } from '../../utils/db.ts';
 
 export function LikedKits() {
   const { t } = usePrefs();
   const likes = useKitLikes();
+  const [editing, setEditing] = useState<FeedKit | null>(null);
   if (!likes.kits.length) return null;
   return (
     <section aria-labelledby="liked-kits" style={{ marginBottom: 28 }}>
@@ -31,6 +37,13 @@ export function LikedKits() {
                 {t('lib.kind.' + k.kind)}
                 {variant && ' · ' + variant}
               </div>
+              {/* The print wanted on it, and a way to change it. */}
+              <div style={{ display: 'flex', gap: 8, alignItems: 'baseline', flexWrap: 'wrap', marginTop: 4, position: 'relative', zIndex: 2 }}>
+                {printLabel(k) && <span style={{ fontSize: 12.5, fontWeight: 650, color: 'var(--accent)' }}>{printLabel(k)}</span>}
+                <button type="button" className="link-btn" onClick={() => setEditing(k)} style={{ fontSize: 12.5 }}>
+                  {printLabel(k) ? t('wishkit.change') : t('wishkit.addPrint')}
+                </button>
+              </div>
               <button
                 type="button"
                 aria-label={t('wish.unlike', { name })}
@@ -43,6 +56,7 @@ export function LikedKits() {
           );
         })}
       </ul>
+      {editing && <WishKitDialog kit={editing} onClose={() => setEditing(null)} />}
     </section>
   );
 }

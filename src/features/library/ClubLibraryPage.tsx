@@ -9,13 +9,16 @@ import { usePageMeta } from '../../lib/meta.ts';
 import { usePrefs } from '../../lib/prefs.tsx';
 import { useSession } from '../../lib/session.tsx';
 import * as db from '../../utils/db.ts';
-import { Button, ErrorState, Page, ShirtGraphic, Skeleton } from '../../ui/index.ts';
+import { BookmarkIcon, Button, ErrorState, Page, ShirtGraphic, Skeleton } from '../../ui/index.ts';
 import { useCatalog } from '../catalog/useCatalog.ts';
 import { ClubBand } from './ClubBand.tsx';
 import { KIT_KINDS, bySeason, kitLook, variantLabel } from './model.ts';
 import { SuggestKitDialog } from './SuggestKitDialog.tsx';
 import { KitOwners } from './KitOwners.tsx';
 import { AddKitDialog } from '../vault/AddKitDialog.tsx';
+import { WishKitDialog } from '../watchlist/WishKitDialog.tsx';
+import { printLabel } from '../watchlist/printLabel.ts';
+import { useKitLikes } from '../watchlist/useKitLikes.ts';
 
 export default function ClubLibraryPage() {
   useCatalog();
@@ -37,6 +40,8 @@ export default function ClubLibraryPage() {
   // ?add=<kit> (back from signing in) opens the pop-up for that kit.
   const [params, setParams] = useSearchParams();
   const [adding, setAdding] = useState<db.Kit | null>(null);
+  const [wishing, setWishing] = useState<db.Kit | null>(null);
+  const likes = useKitLikes();
   const askedAdd = params.get('add');
   const [openedAdd, setOpenedAdd] = useState<string | null>(null);
   if (user && askedAdd && askedAdd !== openedAdd && kits.data) {
@@ -138,6 +143,11 @@ export default function ClubLibraryPage() {
                       {t('lib.credit')} {k.image_credit}
                     </div>
                   )}
+                  {likes.get(k.id) && printLabel(likes.get(k.id)!) && (
+                    <div style={{ fontSize: 12.5, color: 'var(--accent)', fontWeight: 650, marginTop: 4 }}>
+                      {t('wishkit.wanted', { print: printLabel(likes.get(k.id)!) })}
+                    </div>
+                  )}
                   {k.note && <div style={{ fontSize: 12.5, color: 'var(--text-2)', marginTop: 4, lineHeight: 1.4 }}>{k.note}</div>}
                   {/* Offers for this kit from every seller: the catalogue shirt when there is one, else a market search. */}
                   <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 8, fontSize: 12.5 }}>
@@ -150,13 +160,17 @@ export default function ClubLibraryPage() {
                     )}
                   </div>
                   {k.image_path && (
-                    <div style={{ marginTop: 'auto', paddingTop: 10 }}>
+                    <div style={{ marginTop: 'auto', paddingTop: 10, display: 'flex', gap: 6 }}>
+                      {/* On the wishlist (with the print wanted), next to: I have it. */}
+                      <button type="button" className={'btn btn--sm ' + (likes.has(k.id) ? 'btn--secondary' : 'btn--ghost')} aria-pressed={likes.has(k.id)} aria-label={(likes.has(k.id) ? t('wish.on') : t('wish.add')) + ' · ' + title} title={likes.has(k.id) ? t('wish.on') : t('wish.add')} onClick={() => setWishing(k)} style={{ flex: 'none', padding: '0 10px', color: likes.has(k.id) ? 'var(--accent)' : undefined }}>
+                        <BookmarkIcon size={16} filled={likes.has(k.id)} />
+                      </button>
                       {user ? (
-                        <button type="button" className="btn btn--secondary btn--sm btn--block kit-add-btn" onClick={() => setAdding(k)} aria-label={t('lib.addToCollectionFor', { name: title })}>
+                        <button type="button" className="btn btn--secondary btn--sm kit-add-btn" onClick={() => setAdding(k)} style={{ flex: 1, minWidth: 0 }} aria-label={t('lib.addToCollectionFor', { name: title })}>
                           + {t('lib.addToCollection')}
                         </button>
                       ) : (
-                        <Link to="/signin" state={{ from: `/library/${club}?add=${k.id}`, notice: 'lib.signInToAdd' }} className="btn btn--secondary btn--sm btn--block kit-add-btn" aria-label={t('lib.addToCollectionFor', { name: title })}>
+                        <Link to="/signin" state={{ from: `/library/${club}?add=${k.id}`, notice: 'lib.signInToAdd' }} className="btn btn--secondary btn--sm kit-add-btn" style={{ flex: 1, minWidth: 0 }} aria-label={t('lib.addToCollectionFor', { name: title })}>
                           + {t('lib.addToCollection')}
                         </Link>
                       )}
@@ -169,6 +183,7 @@ export default function ClubLibraryPage() {
           </ul>
         </section>
       ))}
+      {wishing && c && <WishKitDialog kit={{ id: wishing.id, club_id: c.id, club_name: c.name, league: c.league, season: wishing.season, season_year: wishing.season_year, kind: wishing.kind, variant: wishing.variant, image_path: wishing.image_path ?? null }} onClose={() => setWishing(null)} />}
       {suggest && c && <SuggestKitDialog club={c} onClose={() => setSuggest(false)} />}
       {adding && c && (
         <AddKitDialog
