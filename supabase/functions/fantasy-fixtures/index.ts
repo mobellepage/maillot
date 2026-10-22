@@ -23,11 +23,12 @@ Deno.serve(async (req: Request) => {
   const db = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
   const { data: mds, error: mdErr } = await db.from("fantasy_matchdays").select("id, number, window_start, window_end, international").in("id", ids);
   if (mdErr) return json({ error: mdErr.message }, 500);
-  const { data: maps, error: mapErr } = await db.from("fantasy_team_mappings").select("club_id, provider_team_id, team_name, kit_clubs(name, league)").eq("provider", PROVIDER);
+  // The Swiss league rides along with ESPN from TheSportsDB (provider "tsdb", ids prefixed).
+  const { data: maps, error: mapErr } = await db.from("fantasy_team_mappings").select("club_id, provider, provider_team_id, team_name, kit_clubs(name, league)").in("provider", PROVIDER === "espn" ? ["espn", "tsdb"] : [PROVIDER]);
   if (mapErr) return json({ error: mapErr.message }, 500);
   const teams: Team[] = (maps ?? []).map((m) => {
     const club = (Array.isArray(m.kit_clubs) ? m.kit_clubs[0] : m.kit_clubs) as { name: string; league: string } | null;
-    return { clubId: m.club_id, providerTeamId: m.provider_team_id, name: m.team_name ?? club?.name ?? m.club_id, league: club?.league ?? "", national: club?.league === "National Teams" };
+    return { clubId: m.club_id, providerTeamId: (m.provider === "tsdb" ? "tsdb:" : "") + m.provider_team_id, name: m.team_name ?? club?.name ?? m.club_id, league: club?.league ?? "", national: club?.league === "National Teams" };
   });
   let provider;
   try {

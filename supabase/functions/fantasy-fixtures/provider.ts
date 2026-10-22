@@ -198,8 +198,10 @@ export class FootballDataOrgProvider implements FootballDataProvider {
 // The public scoreboard, one request per league and day of the window
 // (site.api.espn.com, no key). Teams are matched by ESPN's team id (the
 // provider_team_id in fantasy_team_mappings). League codes are the
-// competitions the game scores: the nine leagues on club weekends, the
-// nations' competitions in international windows.
+// competitions the game scores: the leagues on club weekends, the nations'
+// competitions in international windows. ESPN stopped covering the Swiss
+// Super League in 2025, so that one comes from TheSportsDB (below): its
+// teams carry a "tsdb:" prefix on their id.
 const ESPN_LEAGUES = ["eng.1", "esp.1", "ger.1", "ita.1", "fra.1", "ned.1", "por.1", "tur.1", "sui.1"];
 const ESPN_INTERNATIONAL = ["fifa.world", "fifa.worldq.uefa", "fifa.worldq.conmebol", "fifa.worldq.concacaf", "fifa.worldq.afc", "fifa.worldq.caf", "uefa.euro", "uefa.euroq", "uefa.nations", "fifa.friendly", "conmebol.america", "caf.nations", "concacaf.gold", "afc.asian"];
 
@@ -225,10 +227,13 @@ export class EspnProvider implements FootballDataProvider {
 
   async getLiveScores(w: Window, teams: Team[]): Promise<Fixture[]> {
     const byId = new Map(teams.map((t) => [t.providerTeamId, t]));
+    const out: Fixture[] = w.international ? [] : await swissFixtures(w, teams, this.fetchImpl).catch((e: Error) => {
+      this.lastError = `tsdb: ${e.message}`;
+      return [] as Fixture[];
+    });
     const codes = w.international ? ESPN_INTERNATIONAL : ESPN_LEAGUES;
     const days: string[] = [];
     for (let d = new Date(w.start.getTime() - 12 * 3_600_000); d <= w.end; d = new Date(d.getTime() + 24 * 3_600_000)) days.push(d.toISOString().slice(0, 10).replace(/-/g, ""));
-    const out: Fixture[] = [];
     const seen = new Set<string>();
     for (const code of codes) {
       const lists = await Promise.all(
@@ -275,6 +280,77 @@ export class EspnProvider implements FootballDataProvider {
   async getResults(w: Window, teams: Team[]): Promise<Fixture[]> {
     return (await this.getLiveScores(w, teams)).filter((f) => f.status === "finished");
   }
+}
+
+// --- TheSportsDB (Swiss Super League) ---------------------------------------
+// The free test key: a round's six matches at a time, scores once a match is
+// over (no live scores on this tier), and a tight rate limit — so one
+// request at a time, a second apart: the next round's number, then the
+// rounds around it, matched to the window by date.
+const TSDB = "https://www.thesportsdb.com/api/v1/json/123";
+const TSDB_SWISS = 4675;
+
+interface TsdbEvent {
+  idEvent: string;
+  strTimestamp: string | null;
+  dateEvent: string;
+  strTime: string | null;
+  intRound: string | null;
+  strStatus: string | null;
+  idHomeTeam: string;
+  idAwayTeam: string;
+  strHomeTeam: string;
+  strAwayTeam: string;
+  intHomeScore: string | null;
+  intAwayScore: string | null;
+  strPostponed?: string | null;
+}
+
+const pause = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+async function tsdb(path: string, fetchImpl: typeof fetch): Promise<TsdbEvent[]> {
+  const res = await fetchImpl(`${TSDB}/${path}`, { headers: { "User-Agent": "Mozilla/5.0 (Maillot Fantasy)", Accept: "application/json" } });
+  if (res.status === 429) throw new Error("rate limited");
+  if (!res.ok) throw new Error(`${res.status}`);
+  const body = (await res.json()) as { events?: TsdbEvent[] | null };
+  return body.events ?? [];
+}
+
+async function swissFixtures(w: Window, teams: Team[], fetchImpl: typeof fetch): Promise<Fixture[]> {
+  const byId = new Map(teams.filter((t) => t.providerTeamId.startsWith("tsdb:")).map((t) => [t.providerTeamId.slice(5), t]));
+  if (!byId.size) return [];
+  const season = `${w.start.getUTCMonth() >= 6 ? w.start.getUTCFullYear() : w.start.getUTCFullYear() - 1}-${(w.start.getUTCMonth() >= 6 ? w.start.getUTCFullYear() : w.start.getUTCFullYear() - 1) + 1}`;
+  const next = await tsdb(`eventsnextleague.php?id=${TSDB_SWISS}`, fetchImpl);
+  const r = Number(next[0]?.intRound ?? 0);
+  if (!r) return [];
+  const events: TsdbEvent[] = [];
+  for (const round of [r - 1, r, r + 1, r + 2].filter((x) => x >= 1)) {
+    await pause(1200);
+    events.push(...(await tsdb(`eventsround.php?id=${TSDB_SWISS}&r=${round}&s=${season}`, fetchImpl)));
+  }
+  const out: Fixture[] = [];
+  for (const e of events) {
+    // Times are UTC on TheSportsDB.
+    const kickoff = new Date((e.strTimestamp ?? `${e.dateEvent}T${e.strTime ?? "00:00:00"}`) + "Z");
+    if (isNaN(kickoff.getTime()) || kickoff < w.start || kickoff > w.end) continue;
+    const home = byId.get(e.idHomeTeam);
+    const away = byId.get(e.idAwayTeam);
+    if (!home && !away) continue;
+    const st = (e.strStatus ?? "NS").toUpperCase();
+    const status: Fixture["status"] = ["FT", "AET", "PEN", "MATCH FINISHED"].includes(st) ? "finished" : ["NS", "NOT STARTED", "", "POSTPONED", "CANCELLED"].includes(st) ? "scheduled" : "live";
+    const stub = (id: string, name: string): Team => ({ clubId: "", providerTeamId: "tsdb:" + id, name, league: "Swiss Super League", national: false });
+    out.push({
+      providerFixtureId: `tsdb:${e.idEvent}`,
+      competition: "league",
+      home: home ?? stub(e.idHomeTeam, e.strHomeTeam),
+      away: away ?? stub(e.idAwayTeam, e.strAwayTeam),
+      kickoff,
+      status,
+      homeGoals: status === "scheduled" ? null : Number(e.intHomeScore ?? 0),
+      awayGoals: status === "scheduled" ? null : Number(e.intAwayScore ?? 0)
+    });
+  }
+  return out;
 }
 
 export function providerFor(name: string): FootballDataProvider {
