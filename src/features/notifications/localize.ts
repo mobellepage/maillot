@@ -56,7 +56,6 @@ const BY_TITLE: Record<string, [MessageKey, MessageKey | null]> = {
   'Head-to-head: draw': ['notif.fantasyH2hDraw.title', 'notif.fantasyH2h.body'],
   'Cup ends this weekend': ['notif.fantasyCupEnd.title', 'notif.fantasyCupEnd.body'],
   'Promoted': ['notif.fantasyPromoted.title', 'notif.fantasyPromoted.body'],
-  'You won a prize': ['notif.fantasyPrize.title', 'notif.fantasyPrize.body'],
   'Matchday live: you’re leading your league': ['notif.fantasyLiveLead.title', 'notif.fantasyLiveLead.body'],
   'Manager of the Season': ['notif.fantasySeason.title', 'notif.fantasySeason.body']
 };
@@ -66,7 +65,7 @@ type N = { title: string; body: string | null; data: unknown };
 export function localizeNotification(n: N, t: (key: MessageKey, vars?: Vars) => string, money: (chf: number) => string): { title: string; body: string | null } {
   const keys = BY_TITLE[n.title];
   if (!keys) return { title: n.title, body: n.body };
-  const data = (n.data ?? {}) as { shirt_id?: string; catalog_id?: string; size?: string; amount?: number; delta?: number; tracking_code?: string; change_pct?: number; handle?: string | null; matchday?: number; points?: number; rank?: number; players?: number; a?: number; b?: number; league?: string; division?: number; moves?: string; prize?: string; cup?: string; season?: string };
+  const data = (n.data ?? {}) as { shirt_id?: string; catalog_id?: string; size?: string; amount?: number; delta?: number; tracking_code?: string; change_pct?: number; handle?: string | null; matchday?: number; points?: number; rank?: number; players?: number; a?: number; b?: number; league?: string; division?: number; moves?: string; cup?: string; season?: string };
   const body = n.body ?? '';
   const vars: Vars = {
     shirt: ((data.shirt_id ?? data.catalog_id) && BY[(data.shirt_id ?? data.catalog_id)!]?.name) || data.shirt_id || data.catalog_id || '',
@@ -85,7 +84,6 @@ export function localizeNotification(n: N, t: (key: MessageKey, vars?: Vars) => 
     league: data.league ?? '',
     division: data.division ?? '',
     moves: data.moves ?? '',
-    prize: data.prize ?? '',
     cup: data.cup ?? '',
     season: data.season ?? ''
   };

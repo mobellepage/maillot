@@ -12,8 +12,9 @@ import { useSession } from '../../lib/session.tsx';
 import { useToast } from '../../lib/toast.tsx';
 import * as db from '../../utils/db.ts';
 import type { Jersey, MatchdayLineup, SquadState } from '../../utils/db.ts';
-import { Button, ErrorState, Notice, Page, Skeleton } from '../../ui/index.ts';
+import { Button, Dialog, ErrorState, Notice, Page, Skeleton } from '../../ui/index.ts';
 import { JerseyCard } from './JerseyCard.tsx';
+import { Pitch } from './Pitch.tsx';
 import { priceText, squadProblems, transferHits, transfersMade, untilText } from './model.ts';
 import { errorText } from './errors.ts';
 
@@ -60,7 +61,18 @@ function SquadEditor({ m }: { m: NonNullable<Awaited<ReturnType<typeof db.loadMa
   const l = (m.lineup as MatchdayLineup | null) ?? null;
   const [now] = useState(() => Date.now());
   const open = m.status === 'upcoming' && new Date(m.deadline).getTime() > now;
-  const [picks, setPicks] = useState<string[]>(sq?.clubs ?? []);
+  // Eight places: last week's starters first (they're on the pitch), the rest on the bench.
+  const [slots, setSlots] = useState<(string | null)[]>(() => {
+    const clubs = sq?.clubs ?? [];
+    const first = (l?.starters ?? []).filter((c) => clubs.includes(c));
+    const ordered = [...first, ...clubs.filter((c) => !first.includes(c))];
+    return Array.from({ length: FANTASY.squadSize }, (_, i) => ordered[i] ?? null);
+  });
+  const picks = slots.filter((c): c is string => !!c);
+  // The picker for one place, and a filled place up close.
+  const [pickFor, setPickFor] = useState<number | null>(null);
+  const [detail, setDetail] = useState<number | null>(null);
+  const [pq, setPq] = useState('');
   const [league, setLeague] = useState<string>('all');
   const [q, setQ] = useState('');
   const [only, setOnly] = useState<'all' | 'plays' | 'owned'>('all');
@@ -78,13 +90,27 @@ function SquadEditor({ m }: { m: NonNullable<Awaited<ReturnType<typeof db.loadMa
   const leagues = useMemo(() => [...new Set((jerseys.data ?? []).map((j) => j.league))].sort((a, b) => a.localeCompare(b)), [jerseys.data]);
   const leagueCount = (lg: string) => chosen.filter((j) => j.league === lg && !j.is_national).length;
 
+  const setSlot = (i: number, id: string | null) => setSlots(slots.map((c, k) => (k === i ? id : c)));
+  // From the market: into the first free place, or out again.
   const toggle = (j: Jersey) => {
     if (!open) return;
-    if (picks.includes(j.club_id)) setPicks(picks.filter((c) => c !== j.club_id));
-    else if (picks.length < FANTASY.squadSize) setPicks([...picks, j.club_id]);
+    const at = slots.indexOf(j.club_id);
+    if (at >= 0) setSlot(at, null);
+    else {
+      const free = slots.indexOf(null);
+      if (free >= 0) setSlot(free, j.club_id);
+    }
   };
+  const leagueFull = (j: Jersey) => !j.is_national && leagueCount(j.league) >= FANTASY.maxPerLeague;
+  const tooDear = (j: Jersey) => Number(j.price) > bank + (pickFor !== null && slots[pickFor] ? price(slots[pickFor]!) : 0);
   const save = useMutation({
-    mutationFn: () => db.saveSquad(picks, m.id),
+    mutationFn: async () => {
+      await db.saveSquad(picks, m.id);
+      // The five on the pitch play; the captain stays if still among them.
+      const five = slots.slice(0, FANTASY.starters).filter((c): c is string => !!c);
+      const cap = l?.captain && five.includes(l.captain) ? l.captain : null;
+      await db.saveLineup(m.id, five, cap).catch(() => undefined);
+    },
     onSuccess: () => {
       toast(t('fantasy.sq.saved'));
       void qc.invalidateQueries({ queryKey: ['fantasyMatchday'] });
@@ -100,6 +126,8 @@ function SquadEditor({ m }: { m: NonNullable<Awaited<ReturnType<typeof db.loadMa
     onError: (e) => toast(errorText(t, (e as { code?: string }).code))
   });
   const list = (jerseys.data ?? []).filter((j) => (league === 'all' || j.league === league) && (only === 'all' || (only === 'plays' ? j.plays : j.owned)) && (!q || j.name.toLowerCase().includes(q.toLowerCase())));
+  const pickList = (jerseys.data ?? []).filter((j) => !picks.includes(j.club_id) && (!pq || j.name.toLowerCase().includes(pq.toLowerCase()) || j.league.toLowerCase().includes(pq.toLowerCase()))).slice(0, 40);
+  const detailJersey = detail !== null && slots[detail] ? byId.get(slots[detail]!) : undefined;
   const usedChips = new Set(m.chips_used ?? []);
   const dateFmt = (iso: string) => new Date(iso).toLocaleString(lang, { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', timeZone: FANTASY.timeZone });
 
@@ -136,22 +164,14 @@ function SquadEditor({ m }: { m: NonNullable<Awaited<ReturnType<typeof db.loadMa
         <span className="fantasy-progress" aria-hidden="true">
           <span style={{ width: `${Math.min(100, (check.cost / FANTASY.budget) * 100)}%`, background: bank < 0 ? 'var(--neg)' : undefined }} />
         </span>
-        <ul className="fantasy-squadgrid fantasy-squadgrid--slots">
-          {Array.from({ length: FANTASY.squadSize }, (_, i) => {
-            const j = chosen[i];
-            return (
-              <li key={j?.club_id ?? i}>
-                {j ? (
-                  <button type="button" className="fantasy-md__cardbtn" onClick={() => toggle(j)} aria-label={`${j.name} · ${priceText(j.price)}`} disabled={!open}>
-                    <JerseyCard j={{ ...j, captain: false }} small />
-                  </button>
-                ) : (
-                  <span className="fantasy-jersey is-small is-empty">?</span>
-                )}
-              </li>
-            );
-          })}
-        </ul>
+        <Pitch
+          slots={slots.map((id) => (id ? (byId.get(id) ?? null) : null))}
+          onTap={(i) => (slots[i] ? setDetail(i) : (setPq(''), setPickFor(i)))}
+          captainId={l?.captain ?? null}
+          benchDim={false}
+          disabled={!open}
+        />
+        <p className="fantasy-panel__fine">{t('fantasy.sq.pitchHint')}</p>
         {check.problems.includes('league') && <p style={{ margin: '8px 0 0', fontSize: 13, color: 'var(--neg)' }}>{t('fantasy.sq.err.league', { n: FANTASY.maxPerLeague, league: check.leagues.join(', ') })}</p>}
         {bank < 0 && <p style={{ margin: '8px 0 0', fontSize: 13, color: 'var(--neg)' }}>{t('fantasy.sq.err.budget', { n: priceText(-bank) })}</p>}
 
@@ -184,7 +204,7 @@ function SquadEditor({ m }: { m: NonNullable<Awaited<ReturnType<typeof db.loadMa
             {sq?.first_locked ? t('fantasy.sq.confirm', { n: transfers }) : t('fantasy.sq.save')}
           </Button>
           {changed && (
-            <Button variant="ghost" onClick={() => setPicks(sq?.clubs ?? [])}>
+            <Button variant="ghost" onClick={() => setSlots(Array.from({ length: FANTASY.squadSize }, (_, i) => sq?.clubs[i] ?? null))}>
               {t('fantasy.sq.reset')}
             </Button>
           )}
@@ -199,8 +219,8 @@ function SquadEditor({ m }: { m: NonNullable<Awaited<ReturnType<typeof db.loadMa
       {/* The market */}
       <section style={{ marginTop: 18 }} aria-label={t('fantasy.sq.market')}>
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
-          <input type="search" value={q} onChange={(e) => setQ(e.target.value)} placeholder={t('fantasy.sq.search')} aria-label={t('fantasy.sq.search')} className="input" style={{ flex: '1 1 160px', minWidth: 0 }} />
-          <select value={league} onChange={(e) => setLeague(e.target.value)} aria-label={t('fantasy.sq.league')} className="input" style={{ flex: '0 1 200px' }}>
+          <input type="search" value={q} onChange={(e) => setQ(e.target.value)} placeholder={t('fantasy.sq.search')} aria-label={t('fantasy.sq.search')} style={{ flex: '1 1 160px', minWidth: 0 }} />
+          <select value={league} onChange={(e) => setLeague(e.target.value)} aria-label={t('fantasy.sq.league')} style={{ flex: '0 1 200px' }}>
             <option value="all">{t('fantasy.sq.allLeagues')}</option>
             {leagues.map((lg) => (
               <option key={lg} value={lg}>
@@ -223,7 +243,7 @@ function SquadEditor({ m }: { m: NonNullable<Awaited<ReturnType<typeof db.loadMa
         <ul className="fantasy-squadgrid fantasy-squadgrid--market">
           {list.map((j) => {
             const on = picks.includes(j.club_id);
-            const full = !on && (picks.length >= FANTASY.squadSize || (!j.is_national && leagueCount(j.league) >= FANTASY.maxPerLeague));
+            const full = !on && (picks.length >= FANTASY.squadSize || leagueFull(j));
             return (
               <li key={j.club_id} className={'fantasy-md__pick' + (on ? ' is-on' : '') + (full ? ' is-idle' : '')}>
                 <button type="button" className="fantasy-md__cardbtn" onClick={() => toggle(j)} aria-pressed={on} disabled={!open || full} aria-label={`${j.name} · ${priceText(j.price)}`}>
@@ -236,6 +256,73 @@ function SquadEditor({ m }: { m: NonNullable<Awaited<ReturnType<typeof db.loadMa
         </ul>
         {jerseys.data && !list.length && <Notice style={{ marginTop: 14 }}>{t('fantasy.sq.none')}</Notice>}
       </section>
+      {pickFor !== null && (
+        <Dialog open onClose={() => setPickFor(null)} title={t('fantasy.sq.pick')} width={460}>
+          <input type="search" autoFocus value={pq} onChange={(e) => setPq(e.target.value)} placeholder={t('fantasy.sq.search')} aria-label={t('fantasy.sq.search')} style={{ width: '100%' }} />
+          <ul className="fantasy-picklist">
+            {pickList.map((j) => {
+              const no = leagueFull(j) ? t('fantasy.sq.leagueFull', { league: j.league, n: FANTASY.maxPerLeague }) : tooDear(j) ? t('fantasy.sq.tooDear') : null;
+              return (
+                <li key={j.club_id}>
+                  <button
+                    type="button"
+                    disabled={!!no}
+                    onClick={() => {
+                      setSlot(pickFor, j.club_id);
+                      setPickFor(null);
+                    }}
+                  >
+                    {j.image_path && <img src={j.image_path} alt="" loading="lazy" />}
+                    <span style={{ flex: 1, minWidth: 0 }}>
+                      <b>{j.name}</b>
+                      <small>
+                        {j.league}
+                        {j.owned ? ' · 👕' : ''}
+                        {no ? ' · ' + no : j.fixture ? ' · ' + j.fixture : ''}
+                      </small>
+                    </span>
+                    <b className="mono">{priceText(j.price)}</b>
+                  </button>
+                </li>
+              );
+            })}
+            {!pickList.length && <li style={{ color: 'var(--muted)', fontSize: 13.5, padding: 8 }}>{t('fantasy.sq.none')}</li>}
+          </ul>
+        </Dialog>
+      )}
+      {detail !== null && detailJersey && (
+        <Dialog open onClose={() => setDetail(null)} title={detailJersey.name} width={380}>
+          <div style={{ display: 'grid', justifyItems: 'center', gap: 12 }}>
+            <div style={{ width: 160 }}>
+              <JerseyCard j={{ ...detailJersey, captain: l?.captain === detailJersey.club_id }} />
+            </div>
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', justifyContent: 'center' }}>
+              <Button
+                size="sm"
+                variant="secondary"
+                disabled={!open}
+                onClick={() => {
+                  setSlot(detail, null);
+                  setDetail(null);
+                }}
+              >
+                {t('fantasy.sq.remove')}
+              </Button>
+              <Button
+                size="sm"
+                disabled={!open}
+                onClick={() => {
+                  setPq('');
+                  setPickFor(detail);
+                  setDetail(null);
+                }}
+              >
+                {t('fantasy.sq.change')}
+              </Button>
+            </div>
+          </div>
+        </Dialog>
+      )}
     </div>
   );
 }

@@ -14,7 +14,7 @@ import * as db from '../../utils/db.ts';
 import type { Fixture, LineupClub, Matchday, MatchdayLineup, SquadClub, SquadState } from '../../utils/db.ts';
 import { Button, ErrorState, Notice, Page, Segmented, Skeleton } from '../../ui/index.ts';
 import { Avatar } from '../avatars/Avatar.tsx';
-import { JerseyCard } from './JerseyCard.tsx';
+import { Pitch } from './Pitch.tsx';
 import { priceText, untilText } from './model.ts';
 import { errorText } from './errors.ts';
 import { shareFantasy } from './fantasyShare.ts';
@@ -174,40 +174,21 @@ function LineupForm({ m, clubs }: { m: Matchday; clubs: SquadClub[] }) {
             {captainClub ? 'C: ' + captainClub.name : t('fantasy.md.noCaptainYet')}
           </span>
         </div>
-        <ul className="fantasy-squadgrid fantasy-squadgrid--slots">
-          {Array.from({ length: FANTASY.starters }, (_, i) => {
+        <Pitch
+          slots={[...Array.from({ length: FANTASY.starters }, (_, i) => (starters[i] ? (byId.get(starters[i]!) ?? null) : null)), ...bench]}
+          onTap={(i) => {
+            const c = i < FANTASY.starters ? (starters[i] ? byId.get(starters[i]!) : undefined) : bench[i - FANTASY.starters];
+            if (c) toggle(c);
+          }}
+          onCaptain={(i) => {
             const c = starters[i] ? byId.get(starters[i]!) : undefined;
-            return (
-              <li key={c?.club_id ?? i} className={c && captain === c.club_id ? 'is-captain' : ''}>
-                {c ? (
-                  <>
-                    <button type="button" className="fantasy-md__cardbtn" onClick={() => toggle(c)} aria-label={c.name}>
-                      <JerseyCard j={{ ...c, captain: captain === c.club_id }} small />
-                    </button>
-                    <button type="button" className={'fantasy-md__cap' + (captain === c.club_id ? ' is-on' : '')} aria-pressed={captain === c.club_id} disabled={!c.owned} onClick={() => makeCaptain(c)} title={c.owned ? t('fantasy.md.makeCaptain') : t('fantasy.md.captainOwnedOnly')}>
-                      C
-                    </button>
-                  </>
-                ) : (
-                  <span className="fantasy-jersey is-small is-empty">?</span>
-                )}
-              </li>
-            );
-          })}
-        </ul>
+            if (c) makeCaptain(c);
+          }}
+          captainId={captain}
+          benchDim={chip !== 'bench_boost'}
+        />
         {idle > 0 && <p style={{ margin: '8px 0 0', fontSize: 13, color: 'var(--neg)' }}>{t('fantasy.md.idleWarn', { n: idle })}</p>}
-        <p className="fantasy-md__label" style={{ marginTop: 14 }}>
-          {t('fantasy.md.bench')} · {t('fantasy.md.benchNote')}
-        </p>
-        <ul className="fantasy-squadgrid fantasy-squadgrid--slots">
-          {bench.map((c) => (
-            <li key={c.club_id}>
-              <button type="button" className="fantasy-md__cardbtn" onClick={() => toggle(c)} disabled={starters.length >= FANTASY.starters} aria-label={c.name}>
-                <JerseyCard j={{ ...c, captain: false }} small dim={chip !== 'bench_boost'} />
-              </button>
-            </li>
-          ))}
-        </ul>
+        <p className="fantasy-panel__fine">{t('fantasy.md.pitchHint')}</p>
         <div className="fantasy-md__opts">
           <div>
             <p className="fantasy-md__label">{t('fantasy.md.captain')}</p>

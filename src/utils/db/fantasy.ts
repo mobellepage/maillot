@@ -1,6 +1,6 @@
 // Fantasy: the squad game. The game runs in the database; the app only
 // asks and reports. Jerseys (clubs with their current kit), the squad of
-// eight, the Gameweek line-up, chips, prices — then leagues and prizes.
+// eight, the Gameweek line-up, chips, prices — then leagues.
 import { sb } from '../supabase.ts';
 import type { RpcReturns } from '../../types/database.ts';
 
@@ -142,55 +142,16 @@ export async function reportLeaguePost(postId: number): Promise<void> {
   if (error) throw error;
 }
 
-// ---- Phases 6–8: profile, prizes, admin -------------------------------------
+// ---- Profile and admin -------------------------------------
 export type FantasyProfile = RpcReturns<'fantasy_public_profile'>[number];
-export type Prize = RpcReturns<'fantasy_my_prizes'>[number];
-export type AdminPrize = RpcReturns<'fantasy_admin_prizes'>[number];
 export type AdminMatchday = RpcReturns<'fantasy_admin_matchdays'>[number];
-export type PrizePool = { id: number; cup_id: number | null; scope: string; rank: number; type: string; title: string; description: string | null; value: number | null; sponsor_name: string | null; sponsor_logo: string | null; active: boolean };
 
 export async function loadFantasyProfile(handle: string): Promise<FantasyProfile | null> {
   const { data, error } = await (await sb()).rpc('fantasy_public_profile', { p_handle: handle });
   if (error) throw error;
   return data?.[0] ?? null;
 }
-export async function loadMyPrizes(): Promise<Prize[]> {
-  const { data, error } = await (await sb()).rpc('fantasy_my_prizes');
-  if (error) throw error;
-  return data ?? [];
-}
-export async function loadPrizePool(): Promise<PrizePool[]> {
-  const { data, error } = await (await sb()).from('fantasy_prize_pool').select('*').order('scope').order('rank');
-  if (error) throw error;
-  return (data ?? []) as PrizePool[];
-}
-export async function claimPrize(id: string, claim: { name: string; street: string; zip: string; city: string; country: string }): Promise<void> {
-  const { error } = await (await sb()).rpc('fantasy_claim_prize', { p_id: id, p_claim: claim });
-  if (error) throw error;
-}
-export async function prizeReceived(id: string): Promise<string | null> {
-  const { data, error } = await (await sb()).rpc('fantasy_prize_received', { p_id: id });
-  if (error) throw error;
-  return data ?? null;
-}
 // Admin
-export async function adminFantasyPrizes(): Promise<AdminPrize[]> {
-  const { data, error } = await (await sb()).rpc('fantasy_admin_prizes', { p_limit: 200 });
-  if (error) throw error;
-  return data ?? [];
-}
-export async function adminPrizeUpdate(id: string, status: string, kitId?: string): Promise<void> {
-  const { error } = await (await sb()).rpc('fantasy_admin_prize_update', { p_id: id, p_status: status, p_kit: kitId ?? null });
-  if (error) throw error;
-}
-export async function adminAddPrize(p: Omit<PrizePool, 'id' | 'active'>): Promise<void> {
-  const { error } = await (await sb()).from('fantasy_prize_pool').insert(p);
-  if (error) throw error;
-}
-export async function adminRemovePrize(id: number): Promise<void> {
-  const { error } = await (await sb()).from('fantasy_prize_pool').update({ active: false }).eq('id', id);
-  if (error) throw error;
-}
 export async function adminMatchdays(): Promise<AdminMatchday[]> {
   const { data, error } = await (await sb()).rpc('fantasy_admin_matchdays');
   if (error) throw error;

@@ -1,5 +1,5 @@
 // The home of the game, as a view: the next deadline and what to do before
-// it, the squad, the price moves, the way to leagues, standings and prizes.
+// it, the squad, the price moves, the way to leagues, standings and rules.
 // Everything handed in, so it renders the same from live data and in
 // previews. FantasyPage loads and wires it.
 import { Link } from 'react-router';
@@ -128,11 +128,6 @@ export function FantasyHome({ matchday: m, squad, moves, leagues, standing, now 
           <span aria-hidden="true">📈</span>
           <b>{t('fantasy.home.standings')}</b>
           <small>{standing?.division_number && standing.division_rank ? t('fantasy.home.standingsBody', { n: standing.division_number, rank: standing.division_rank }) : t('fantasy.home.standingsNone')}</small>
-        </Link>
-        <Link to="/fantasy/prizes" className="fantasy-link">
-          <span aria-hidden="true">🎁</span>
-          <b>{t('fantasy.home.prizes')}</b>
-          <small>{t('fantasy.home.prizesBody')}</small>
         </Link>
         <Link to="/fantasy/rules" className="fantasy-link">
           <span aria-hidden="true">📜</span>

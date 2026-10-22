@@ -2980,6 +2980,184 @@ html .logo-word {
   opacity: 0.6;
 }
 
+
+/* The pitch: grass, lines, five places; the bench below. */
+.fantasy-pitch-wrap {
+  margin-top: 12px;
+  border-radius: 20px;
+  overflow: hidden;
+  background: var(--surface-2);
+}
+.fantasy-pitch {
+  position: relative;
+  padding: 18px 10px 14px;
+  display: grid;
+  gap: 14px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(0, 0, 0, 0.08)),
+    repeating-linear-gradient(180deg, #2f9a4f 0 48px, #2b8f49 48px 96px);
+  color: #f2f4f1;
+}
+.fantasy-pitch::before {
+  content: '';
+  position: absolute;
+  inset: 8px 8px auto;
+  height: 52px;
+  border: 2px solid rgba(255, 255, 255, 0.55);
+  border-top: 0;
+  border-radius: 0 0 6px 6px;
+  width: 44%;
+  left: 28%;
+  pointer-events: none;
+}
+.fantasy-pitch::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: -40px;
+  width: 80px;
+  height: 80px;
+  margin-left: -40px;
+  border: 2px solid rgba(255, 255, 255, 0.55);
+  border-radius: 50%;
+  pointer-events: none;
+}
+.fantasy-pitch__row {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  position: relative;
+  z-index: 1;
+}
+.fantasy-pitch__slot {
+  position: relative;
+  width: 96px;
+  max-width: 30%;
+}
+.fantasy-pitch .fantasy-jersey__img {
+  background: rgba(255, 255, 255, 0.92);
+  border-radius: 12px;
+}
+.fantasy-pitch .fantasy-jersey__name,
+.fantasy-pitch .fantasy-jersey__meta,
+.fantasy-pitch .fantasy-jersey__plays {
+  color: #f2f4f1;
+}
+.fantasy-pitch .fantasy-jersey__meta .is-up {
+  color: #4bff8b;
+}
+.fantasy-pitch .fantasy-jersey__meta .is-down {
+  color: #ffb3a7;
+}
+.fantasy-pitch__add {
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 12px;
+  border: 2px dashed rgba(255, 255, 255, 0.7);
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  font-size: 34px;
+  font-weight: 300;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.fantasy-pitch__add:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.24);
+}
+.fantasy-pitch__add:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.fantasy-bench {
+  padding: 10px 10px 12px;
+  border-top: 1px solid var(--border);
+}
+.fantasy-bench__label {
+  display: block;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-weight: 700;
+  margin: 0 0 8px 4px;
+}
+.fantasy-bench .fantasy-pitch__add {
+  border-color: var(--border);
+  background: var(--surface);
+  color: var(--muted);
+}
+.fantasy-bench .fantasy-jersey__img {
+  background: var(--surface);
+}
+.fantasy-pitch__slot .fantasy-md__cap {
+  position: absolute;
+  top: -6px;
+  right: -4px;
+}
+@media (max-width: 420px) {
+  .fantasy-pitch__slot {
+    width: 84px;
+  }
+  .fantasy-pitch__row {
+    gap: 6px;
+  }
+}
+/* The picker: a jersey a row. */
+.fantasy-picklist {
+  list-style: none;
+  padding: 0;
+  margin: 10px 0 0;
+  display: grid;
+  gap: 4px;
+  max-height: 52vh;
+  overflow-y: auto;
+}
+.fantasy-picklist button {
+  width: 100%;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  padding: 6px 8px;
+  border-radius: 12px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+}
+.fantasy-picklist button:hover:not(:disabled) {
+  background: var(--surface-2);
+}
+.fantasy-picklist button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.fantasy-picklist img {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  border-radius: 8px;
+  background: var(--surface-2);
+  flex: none;
+}
+.fantasy-picklist b {
+  display: block;
+  font-size: 14px;
+}
+.fantasy-picklist small {
+  display: block;
+  color: var(--muted);
+  font-size: 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 /* Matchday */
 .fantasy-link--md {
   background: linear-gradient(135deg, rgba(75, 255, 139, 0.18), var(--surface) 70%);

@@ -367,12 +367,6 @@ export type Database = {
         Update: { id?: string; name?: string; league?: string; country?: string; colors?: string[]; aliases?: string[]; top5?: boolean; region?: string | null };
         Relationships: [];
       };
-      fantasy_prize_pool: {
-        Row: { id: number; cup_id: number | null; scope: string; rank: number; type: string; title: string; description: string | null; value: number | null; sponsor_name: string | null; sponsor_logo: string | null; active: boolean; created_at: string };
-        Insert: { id?: number; cup_id?: number | null; scope: string; rank?: number; type: string; title: string; description?: string | null; value?: number | null; sponsor_name?: string | null; sponsor_logo?: string | null; active?: boolean; created_at?: string };
-        Update: { cup_id?: number | null; scope?: string; rank?: number; type?: string; title?: string; description?: string | null; value?: number | null; sponsor_name?: string | null; sponsor_logo?: string | null; active?: boolean };
-        Relationships: [];
-      };
       fantasy_club_prices: {
         Row: { club_id: string; price: number; base_price: number; updated_at: string };
         Insert: { club_id: string; price: number; base_price: number; updated_at?: string };
@@ -1029,17 +1023,6 @@ export type Database = {
         Args: { p_handle: string };
         Returns: { plays: boolean; division_number: number | null; season_points: number; season_rank: number | null; best_points: number | null; best_matchday: number | null; played: number; leagues: number; badges: Json; squad: Json; squad_value: number }[];
       };
-      fantasy_my_prizes: {
-        Args: never;
-        Returns: { id: string; cup_name: string; scope: string; scope_name: string | null; rank: number; type: string; title: string; value: number | null; sponsor_name: string | null; sponsor_logo: string | null; status: string; claim: Json | null; kit_id: string | null; kit_name: string | null; item_id: string | null; created_at: string; shipped_at: string | null }[];
-      };
-      fantasy_claim_prize: { Args: { p_id: string; p_claim: Json }; Returns: undefined };
-      fantasy_prize_received: { Args: { p_id: string }; Returns: string | null };
-      fantasy_admin_prizes: {
-        Args: { p_limit?: number };
-        Returns: { id: string; cup_name: string; scope_name: string | null; rank: number; type: string; title: string; value: number | null; sponsor_name: string | null; status: string; claim: Json | null; kit_id: string | null; winner_handle: string; created_at: string }[];
-      };
-      fantasy_admin_prize_update: { Args: { p_id: string; p_status: string; p_kit?: string | null }; Returns: undefined };
       fantasy_admin_fixture: { Args: { p_id: number; p_home: number; p_away: number; p_status?: string }; Returns: undefined };
       fantasy_admin_set_price: { Args: { p_club: string; p_price: number }; Returns: undefined };
       fantasy_admin_matchdays: { Args: never; Returns: { id: number; number: number; window_start: string; status: string; fixtures: number; lineups: number; cup_name: string }[] };
