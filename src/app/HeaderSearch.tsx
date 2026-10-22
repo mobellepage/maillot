@@ -66,7 +66,7 @@ export function HeaderSearch() {
   };
 
   return (
-    <div className="hide-narrow" style={{ position: 'relative', flex: 'none' }}>
+    <div className="hide-narrow" style={{ position: 'relative', flex: '0 1 280px', minWidth: 140 }}>
       <form
         role="search"
         onSubmit={(e) => {
@@ -74,7 +74,7 @@ export function HeaderSearch() {
           if (active >= 0 && options[active]) go(options[active]!.to);
           else go('/market' + (text ? '?q=' + encodeURIComponent(text) : ''));
         }}
-        style={{ display: 'flex', alignItems: 'center', gap: 8, height: 40, padding: '0 14px', borderRadius: 999, background: 'var(--elevated)', border: '1px solid var(--line)', width: 'min(280px,26vw)', color: 'var(--muted)' }}
+        style={{ display: 'flex', alignItems: 'center', gap: 8, height: 40, padding: '0 14px', borderRadius: 999, background: 'var(--elevated)', border: '1px solid var(--line)', width: '100%', color: 'var(--muted)' }}
       >
         <SearchIcon size={15} />
         <input

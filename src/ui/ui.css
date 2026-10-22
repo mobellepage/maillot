@@ -773,7 +773,7 @@ html[data-first-load] #root * {
 }
 .nav-link {
   border: 0;
-  padding: 8px 14px;
+  padding: 8px 12px;
   border-radius: 999px;
   cursor: pointer;
   font-size: 14px;

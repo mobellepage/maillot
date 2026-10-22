@@ -290,3 +290,30 @@ test('a shirt page is ready for search engines without JavaScript', async () => 
   expect(ld[0]).toMatchObject({ name: 'France 1998 Home', brand: { name: 'adidas' } });
   expect(ld[1].itemListElement.at(-1)).toMatchObject({ name: 'France 1998 Home' });
 });
+
+test('the header fits wide screens in every language, even with a member’s buttons', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  for (const lang of ['de', 'fr', 'en']) {
+    await page.addInitScript((l) => localStorage.setItem('kv_lang', JSON.stringify(l)), lang);
+    await page.goto('/library');
+    await expect(page.getByRole('search').first()).toBeVisible();
+    // Stand-ins for messages, notifications, avatar and "sign out" (the smoke run has no account).
+    const over = await page.evaluate(() => {
+      const row = document.querySelector('.app-header > div');
+      const signin = row.querySelector('a.btn--primary');
+      for (let i = 0; i < 3; i++) {
+        const d = document.createElement('span');
+        d.style.cssText = 'width:40px;height:40px;flex:none';
+        row.insertBefore(d, signin);
+      }
+      const out = document.createElement('button');
+      out.className = 'link-btn';
+      out.textContent = 'Se déconnecter';
+      out.style.cssText = 'font-size:12.5px;flex:none';
+      row.appendChild(out);
+      signin.remove();
+      return document.documentElement.scrollWidth - window.innerWidth;
+    });
+    expect(over, lang).toBeLessThanOrEqual(0);
+  }
+});

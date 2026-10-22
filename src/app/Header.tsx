@@ -47,7 +47,7 @@ export default function Header() {
       <a href="#main" className="skip-link" onClick={(e) => focusMain() && e.preventDefault()}>
         {t('a11y.skip')}
       </a>
-      <div style={{ maxWidth: 1360, margin: '0 auto', padding: '0 var(--gutter)', height: 68, display: 'flex', alignItems: 'center', gap: 'clamp(12px,2vw,28px)' }}>
+      <div style={{ maxWidth: 1360, margin: '0 auto', padding: '0 var(--gutter)', height: 68, display: 'flex', alignItems: 'center', gap: 'clamp(10px,1.1vw,16px)' }}>
         <Logo />
         <nav aria-label={t('header.mainNav')} className="hide-mobile" style={{ display: 'flex', gap: 2 }}>
           {items.map((n) => (
