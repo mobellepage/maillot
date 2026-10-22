@@ -2942,9 +2942,6 @@ html .logo-word {
   grid-template-columns: repeat(5, 1fr);
   gap: 8px;
 }
-.fantasy-gw__five .fantasy-jersey__img {
-  background: rgba(255, 255, 255, 0.06);
-}
 .fantasy-gw__five .fantasy-jersey.is-empty {
   border-color: rgba(255, 255, 255, 0.25);
   color: #a9b1ab;
@@ -3048,8 +3045,17 @@ html .logo-word {
   max-width: 30%;
 }
 .fantasy-pitch .fantasy-jersey__img {
-  background: rgba(255, 255, 255, 0.92);
+  background: transparent;
   border-radius: 12px;
+}
+.fantasy-pitch .fantasy-jersey__img img {
+  filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.35));
+}
+.fantasy-pitch .fantasy-jersey__own {
+  background: rgba(255, 255, 255, 0.9);
+}
+.fantasy-gw__five .fantasy-jersey__img {
+  background: transparent;
 }
 .fantasy-pitch .fantasy-jersey__name,
 .fantasy-pitch .fantasy-jersey__meta,
@@ -3101,7 +3107,7 @@ html .logo-word {
   color: var(--muted);
 }
 .fantasy-bench .fantasy-jersey__img {
-  background: var(--surface);
+  background: transparent;
 }
 .fantasy-pitch__slot .fantasy-md__cap {
   position: absolute;
