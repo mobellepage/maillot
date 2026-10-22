@@ -9,9 +9,11 @@ interface Props {
   label?: string | undefined;
   prevLabel: string;
   nextLabel: string;
+  /** Centre the cards while they all fit; still scrolls from the start once they don't. */
+  centered?: boolean;
 }
 
-export function ScrollRow({ children, label, prevLabel, nextLabel }: Props) {
+export function ScrollRow({ children, label, prevLabel, nextLabel, centered }: Props) {
   const ref = useRef<HTMLUListElement>(null);
   const [edge, setEdge] = useState({ start: true, end: true });
 
@@ -36,7 +38,7 @@ export function ScrollRow({ children, label, prevLabel, nextLabel }: Props) {
 
   return (
     <div className="scroll-row">
-      <ul ref={ref} aria-label={label} className="scroll-row__list">
+      <ul ref={ref} aria-label={label} className={'scroll-row__list' + (centered ? ' scroll-row__list--centered' : '')}>
         {children}
       </ul>
       {!edge.start && (

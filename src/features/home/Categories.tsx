@@ -24,7 +24,7 @@ export function Categories() {
       <h2 id="cat-title" className="title" style={{ margin: '0 0 14px' }}>
         {t('home.cat.title')}
       </h2>
-      <ul style={{ listStyle: 'none', padding: '4px 2px 8px', margin: 0, display: 'flex', gap: 'clamp(12px,2vw,22px)', overflowX: 'auto', scrollSnapType: 'x proximity' }}>
+      <ul className="no-scrollbar" style={{ listStyle: 'none', padding: '4px 2px 8px', margin: 0, display: 'flex', gap: 'clamp(12px,2vw,22px)', overflowX: 'auto', scrollSnapType: 'x proximity' }}>
         {CATEGORIES.map((c) => {
           const name = c.label ? t(c.label) : c.league;
           return (

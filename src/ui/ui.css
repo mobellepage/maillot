@@ -1070,6 +1070,13 @@ main:focus {
 .scroll-row__list::-webkit-scrollbar {
   display: none;
 }
+/* Auto margins centre the cards but give way (to 0) once the row overflows. */
+.scroll-row__list--centered > li:first-child {
+  margin-left: auto;
+}
+.scroll-row__list--centered > li:last-child {
+  margin-right: auto;
+}
 .scroll-row__list > li {
   flex: 0 0 clamp(190px, 19vw, 250px);
   scroll-snap-align: start;
@@ -2467,4 +2474,12 @@ html .logo-word {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+/* A sideways row that scrolls by swipe or trackpad without a visible bar. */
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
 }

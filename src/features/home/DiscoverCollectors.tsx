@@ -26,7 +26,7 @@ export function DiscoverCollectors() {
     <section aria-labelledby="discover-coll-title" style={{ maxWidth: 1360, margin: '0 auto', padding: 'clamp(40px,5vw,72px) var(--gutter) 0' }}>
       <SectionHeader id="discover-coll-title" eyebrow={t('home.dc.eyebrow')} title={t('home.dc.title')} />
       <p style={{ margin: '-6px 0 14px', color: 'var(--text-2)', fontSize: 14.5 }}>{t('home.dc.body')}</p>
-      <ScrollRow prevLabel={t('common.scrollPrev')} nextLabel={t('common.scrollNext')}>
+      <ScrollRow centered prevLabel={t('common.scrollPrev')} nextLabel={t('common.scrollNext')}>
         {all.map((c) => (
           <li key={c.handle} style={{ flexBasis: 'clamp(240px,24vw,290px)' }}>
             <CollectorCard c={c} url={url} />
