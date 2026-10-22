@@ -45,3 +45,10 @@ export async function signPhotoUrls(paths: string[]): Promise<Record<string, str
 export function persistablePhotos(photos: Record<string, Photo>): Record<string, Photo> {
   return Object.fromEntries(Object.entries(photos).map(([k, p]) => [k, p.path ? { ...p, dataUrl: undefined } : p]));
 }
+
+/** The collector card of one of my shirts for Apple Wallet: a short-lived link to the .pkpass, or { configured: false }. */
+export async function createCollectorPass(itemId: string, strip: { x2: string; x3: string }, color: string): Promise<{ configured: boolean; url?: string }> {
+  const { data, error } = await (await sb()).functions.invoke<{ configured: boolean; url?: string }>('wallet-pass', { body: { item: itemId, strip2x: strip.x2, strip3x: strip.x3, color }, timeout: 60_000 });
+  if (error) throw error;
+  return data ?? { configured: false };
+}

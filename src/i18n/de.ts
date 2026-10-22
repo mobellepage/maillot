@@ -2171,5 +2171,12 @@ export const de: Messages = {
   'header.suggest.clubs': 'Vereine',
   'header.suggest.collectors': 'Sammler',
   'header.suggest.all': 'Im Markt nach «{q}» suchen',
+  'card.open': 'Sammlerkarte',
+  'card.title': 'Deine Sammlerkarte',
+  'card.hint': 'Kipp dein Handy oder fahr mit dem Finger über die Karte.',
+  'card.making': 'Karte wird erstellt …',
+  'card.walletFailed': 'Die Karte für Wallet konnte nicht erstellt werden. Bitte nochmals versuchen.',
+  'card.size': 'Grösse {size}',
+  'card.signed': 'Signiert',
   // @@end
 };

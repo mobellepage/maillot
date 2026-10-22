@@ -2170,6 +2170,13 @@ export const en = {
   'header.suggest.clubs': 'Clubs',
   'header.suggest.collectors': 'Collectors',
   'header.suggest.all': 'Search the market for “{q}”',
+  'card.open': 'Collector card',
+  'card.title': 'Your collector card',
+  'card.hint': 'Tilt your phone or move your finger over the card.',
+  'card.making': 'Making your card …',
+  'card.walletFailed': 'The card couldn’t be made for Wallet. Please try again.',
+  'card.size': 'Size {size}',
+  'card.signed': 'Signed',
   // @@end
 };
 

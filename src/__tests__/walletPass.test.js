@@ -1,5 +1,5 @@
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import forge from 'node-forge';
@@ -7,7 +7,6 @@ import { unzipSync, zipSync } from 'fflate';
 import { describe, expect, it } from 'vitest';
 import { buildManifest, buildPassJson, CODE } from '../../supabase/functions/wallet-pass/pass.ts';
 import { signManifest } from '../../supabase/functions/wallet-pass/sign.ts';
-import * as images from '../../supabase/functions/wallet-pass/images.ts';
 
 const cert = { code: 'MLT-AB12-CD34-EF56', shirtName: 'Netherlands 1988 Home', club: 'Netherlands', season: '1988', size: 'L', issuedAt: '2026-10-05T12:00:00Z', revoked: false, checksPassed: 14 };
 const cfg = { passTypeIdentifier: 'pass.ch.maillot.certificate', teamIdentifier: 'ABCDE12345', siteUrl: 'https://maillot.app/' };
@@ -60,12 +59,12 @@ describe('Apple Wallet certificate pass', () => {
   });
 
   it('ships the brand images Wallet needs', () => {
-    for (const k of ['icon_png', 'icon_2x_png', 'icon_3x_png', 'logo_png', 'logo_2x_png']) expect(Buffer.from(images[k], 'base64').subarray(1, 4).toString()).toBe('PNG');
+    for (const f of ['icon.png', 'icon@2x.png', 'icon@3x.png', 'logo.png', 'logo@2x.png']) expect(readFileSync(new URL('../../public/wallet/' + f, import.meta.url)).subarray(1, 4).toString()).toBe('PNG');
   });
 
   it('signs the manifest so that OpenSSL verifies it against the issuing CA', async () => {
     const pki = testPki();
-    const files = { 'pass.json': new TextEncoder().encode(JSON.stringify(buildPassJson(cert, cfg))), 'icon.png': Buffer.from(images.icon_png, 'base64') };
+    const files = { 'pass.json': new TextEncoder().encode(JSON.stringify(buildPassJson(cert, cfg))), 'icon.png': readFileSync(new URL('../../public/wallet/icon.png', import.meta.url)) };
     const manifest = JSON.stringify(await buildManifest(files));
     const signature = signManifest(forge, manifest, pki);
     const pkpass = unzipSync(zipSync({ ...files, 'manifest.json': new TextEncoder().encode(manifest), signature }));
@@ -81,4 +80,23 @@ describe('Apple Wallet certificate pass', () => {
     writeFileSync(join(dir, 'manifest.json'), manifest.replace('pass.json', 'pass.jsoN'));
     expect(() => execFileSync('openssl', ['cms', '-verify', '-binary', '-inform', 'DER', '-in', join(dir, 'signature'), '-content', join(dir, 'manifest.json'), '-CAfile', join(dir, 'wwdr.pem'), '-purpose', 'any', '-out', '/dev/null'], { stdio: 'ignore' })).toThrow();
   }, 30000);
+});
+
+describe('collector card pass (a shirt of the collection)', () => {
+  const card = { itemId: 'custom-1', shirtName: 'AC Milan 2006/07 Home', subtitle: 'Home · 2006/07', size: 'XL', print: 'KAKÁ 22', version: 'Replica', grade: 9, handle: 'monazar', addedAt: '2026-10-20T10:00:00Z', background: 'rgb(120, 10, 20)' };
+  it('is a store card with the shirt, its details and a QR code to it on Maillot', async () => {
+    const { buildCollectionPassJson } = await import('../../supabase/functions/wallet-pass/pass.ts');
+    const p = buildCollectionPassJson(card, cfg);
+    expect(p.storeCard.primaryFields[0]).toMatchObject({ value: 'AC Milan 2006/07 Home', label: 'HOME · 2006/07' });
+    expect(p.storeCard.secondaryFields.map((f) => f.value)).toEqual(['XL', 'KAKÁ 22']);
+    expect(p.storeCard.auxiliaryFields.map((f) => f.value)).toEqual(['Replica', '9/10']);
+    expect(p.barcodes[0].message).toBe('https://maillot.app/u/monazar/custom-1');
+    expect(p.serialNumber).toBe('card-custom-1');
+  });
+  it('keeps the card dark enough for white text', async () => {
+    const { passColor } = await import('../../supabase/functions/wallet-pass/pass.ts');
+    expect(passColor('#7A1B2E')).toBe('rgb(122, 27, 46)');
+    expect(passColor('#F5CF1E')).not.toBe('rgb(245, 207, 30)');
+    expect(passColor('nonsense')).toBe('rgb(10, 12, 11)');
+  });
 });

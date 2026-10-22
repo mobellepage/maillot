@@ -17,6 +17,7 @@ import { currentValuation, displayStatus, useCollection, useCollectionActions } 
 import { isCutout } from './addshirt/studio.ts';
 import { StudioButton } from './StudioButton.tsx';
 import { HighlightButton } from './HighlightButton.tsx';
+import { CollectorCardButton } from './card/CollectorCardButton.tsx';
 import { LIBRARY_PICTURE_FIRST } from '../../config/rules.ts';
 
 
@@ -64,6 +65,17 @@ export default function VaultItemPage() {
   const change = from !== null && to !== null && from !== to ? ((to - from) / from) * 100 : null;
   const status = displayStatus(c, reviews);
   const flockLine = c.flock.source === 'Keine' ? t('vault.none') : label('opt', c.flock.source) + (c.flock.name ? ' · ' + c.flock.name : '') + (c.flock.number ? ' #' + c.flock.number : '') + (c.flock.type ? ' (' + label('opt', c.flock.type) + ')' : '');
+  // The card shows the leading picture: the studio cut-out or a photo of theirs, else the library's.
+  const lead = photos[0];
+  const print = [c.flock.name, c.flock.number].filter(Boolean).join(' ').toUpperCase();
+  const collectorCard = {
+    image: lead?.url ?? libraryPicture(c),
+    cutout: lead ? cutout(lead.key) : true,
+    title: name,
+    subtitle: [c.version ? label('opt', c.version) : null, c.size ? t('card.size', { size: c.size }) : null].filter(Boolean).join(' · '),
+    chips: [print, c.signature.signed ? t('card.signed') : null].filter((x): x is string => !!x),
+    badge: t(badge.label)
+  };
   const sigLine = c.signature.signed ? t('vault.signedBy', { by: c.signature.by || t('vault.unknown') }) + (c.signature.hasCoa ? t('vault.coa', { issuer: c.signature.issuer || t('vault.unknown') }) : t('vault.noCoa')) : t('vault.notSigned');
 
   return (
@@ -100,7 +112,10 @@ export default function VaultItemPage() {
           <h1 className="display" style={{ fontSize: 'clamp(26px,3.4vw,36px)', lineHeight: 1.05 }}>
             {name}
           </h1>
-          <HighlightButton item={c} items={items} labelled style={{ marginTop: 12 }} />
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center', marginTop: 12 }}>
+            <HighlightButton item={c} items={items} labelled />
+            <CollectorCardButton item={c} card={collectorCard} />
+          </div>
           <Card tight style={{ marginTop: 18, padding: 20, borderRadius: 18 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
               <div className="mono" style={{ fontSize: 11.5, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--muted)' }}>
