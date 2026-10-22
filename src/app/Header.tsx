@@ -1,6 +1,6 @@
 import { lazy, Suspense } from 'react';
-import { Link, NavLink, useLocation, useNavigate, useSearchParams } from 'react-router';
-import { BookmarkIcon, MoonIcon, SearchIcon, SunIcon } from '../ui/index.ts';
+import { Link, NavLink, useLocation, useNavigate } from 'react-router';
+import { BookmarkIcon, MoonIcon, SunIcon } from '../ui/index.ts';
 import { isDark, setThemePref, useThemePref } from '../lib/theme.ts';
 import { usePrefs } from '../lib/prefs.tsx';
 import { useSession } from '../lib/session.tsx';
@@ -15,6 +15,7 @@ const MessagesButton = lazy(() => import('./MessagesButton.tsx'));
 import { useNavItems } from './nav.ts';
 import { focusMain } from './focusMain.ts';
 import { Avatar } from '../features/avatars/Avatar.tsx';
+import { HeaderSearch } from './HeaderSearch.tsx';
 
 // The header mark is the app icon (brand/app-icon.webp → public/icons/logo-96.png,
 // made by scripts/brand-assets.mjs together with the favicon and app icons).
@@ -39,9 +40,7 @@ export default function Header() {
   const toast = useToast();
   const navigate = useNavigate();
   const { pathname } = useLocation();
-  const [params] = useSearchParams();
   const items = useNavItems();
-  const onMarket = pathname.startsWith('/market');
 
   return (
     <header className="app-header" style={{ position: 'sticky', top: 0, zIndex: 60, background: 'rgba(10,12,11,0.82)', backdropFilter: 'blur(18px)', WebkitBackdropFilter: 'blur(18px)', borderBottom: '1px solid var(--line)' }}>
@@ -58,28 +57,7 @@ export default function Header() {
           ))}
         </nav>
         <div style={{ flex: 1 }} />
-        <form
-          role="search"
-          className="hide-narrow"
-          onSubmit={(e) => {
-            e.preventDefault();
-            const q = String(new FormData(e.currentTarget).get('q') || '');
-            navigate('/market' + (q ? '?q=' + encodeURIComponent(q) : ''));
-          }}
-          style={{ display: 'flex', alignItems: 'center', gap: 8, height: 40, padding: '0 14px', borderRadius: 999, background: 'var(--elevated)', border: '1px solid var(--line)', width: 'min(280px,26vw)', color: 'var(--muted)' }}
-        >
-          <SearchIcon size={15} />
-          <input
-            key={onMarket ? 'market' : 'other'}
-            name="q"
-            type="search"
-            aria-label={t('header.search')}
-            defaultValue={onMarket ? params.get('q') || '' : ''}
-            placeholder={t('header.search')}
-            onChange={(e) => onMarket && navigate('/market?q=' + encodeURIComponent(e.target.value), { replace: true })}
-            style={{ flex: 1, minWidth: 0, background: 'none', border: 0, outline: 'none', fontSize: 13.5, color: 'var(--text)' }}
-          />
-        </form>
+        <HeaderSearch />
         <select className="hide-mobile" aria-label={t('header.currency') + ' — ' + t('header.currencyNote')} title={t('header.currencyNote')} value={currency} onChange={(e) => setCurrency(e.target.value as Currency)} style={pillSelect}>
           {currencies.map((c) => (
             <option key={c} value={c}>

@@ -2166,6 +2166,10 @@ export const en = {
   'wishkit.wanted': 'Wanted: {print}',
   'wishkit.change': 'Change',
   'wishkit.addPrint': 'Add player & number',
+  'lib.addShort': 'Collection',
+  'header.suggest.clubs': 'Clubs',
+  'header.suggest.collectors': 'Collectors',
+  'header.suggest.all': 'Search the market for “{q}”',
   // @@end
 };
 

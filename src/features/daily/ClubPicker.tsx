@@ -3,6 +3,7 @@
 // Arrow keys and Enter work as in any combobox.
 import { useId, useRef, useState } from 'react';
 import { usePrefs } from '../../lib/prefs.tsx';
+import { matchClubs } from '../library/clubMatch.ts';
 
 export interface PickerClub {
   id: string;
@@ -10,8 +11,6 @@ export interface PickerClub {
   league: string;
   aliases: string[];
 }
-
-const norm = (s: string) => s.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLowerCase();
 
 export function ClubPicker({ clubs, value, onChange, label, id = 'daily-club', placeholder }: { clubs: PickerClub[]; value: string; onChange: (id: string) => void; label: string; id?: string; placeholder?: string }) {
   const { t } = usePrefs();
@@ -28,19 +27,7 @@ export function ClubPicker({ clubs, value, onChange, label, id = 'daily-club', p
     if (!value) setText('');
   }
 
-  const q = norm(text.trim());
-  const hits = q
-    ? clubs
-        .map((c) => {
-          const names = [c.name, ...c.aliases].map(norm);
-          const rank = names.some((n) => n === q) ? 0 : names.some((n) => n.startsWith(q)) ? 1 : names.some((n) => n.split(/[\s.-]+/).some((w) => w.startsWith(q))) ? 2 : names.some((n) => n.includes(q)) ? 3 : 9;
-          return { c, rank };
-        })
-        .filter((x) => x.rank < 9)
-        .sort((a, b) => a.rank - b.rank || a.c.name.localeCompare(b.c.name))
-        .slice(0, 8)
-        .map((x) => x.c)
-    : [];
+  const hits = matchClubs(clubs, text);
   const shown = open && hits.length > 0 && chosen?.name !== text;
 
   const pick = (c: PickerClub) => {

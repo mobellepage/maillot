@@ -2167,5 +2167,9 @@ export const fr: Messages = {
   'wishkit.wanted': 'Recherché : {print}',
   'wishkit.change': 'Modifier',
   'wishkit.addPrint': 'Ajouter joueur & numéro',
+  'lib.addShort': 'Collection',
+  'header.suggest.clubs': 'Clubs',
+  'header.suggest.collectors': 'Collectionneurs',
+  'header.suggest.all': 'Chercher « {q} » sur le marché',
   // @@end
 };

@@ -162,16 +162,16 @@ export default function ClubLibraryPage() {
                   {k.image_path && (
                     <div style={{ marginTop: 'auto', paddingTop: 10, display: 'flex', gap: 6 }}>
                       {/* On the wishlist (with the print wanted), next to: I have it. */}
-                      <button type="button" className={'btn btn--sm ' + (likes.has(k.id) ? 'btn--secondary' : 'btn--ghost')} aria-pressed={likes.has(k.id)} aria-label={(likes.has(k.id) ? t('wish.on') : t('wish.add')) + ' · ' + title} title={likes.has(k.id) ? t('wish.on') : t('wish.add')} onClick={() => setWishing(k)} style={{ flex: 'none', padding: '0 10px', color: likes.has(k.id) ? 'var(--accent)' : undefined }}>
+                      <button type="button" className={'btn btn--sm ' + (likes.has(k.id) ? 'btn--secondary' : 'btn--ghost')} aria-pressed={likes.has(k.id)} aria-label={(likes.has(k.id) ? t('wish.on') : t('wish.add')) + ' · ' + title} title={likes.has(k.id) ? t('wish.on') : t('wish.add')} onClick={() => setWishing(k)} style={{ flex: 'none', width: 36, height: 36, padding: 0, justifyContent: 'center', color: likes.has(k.id) ? 'var(--accent)' : undefined }}>
                         <BookmarkIcon size={16} filled={likes.has(k.id)} />
                       </button>
                       {user ? (
                         <button type="button" className="btn btn--secondary btn--sm kit-add-btn" onClick={() => setAdding(k)} style={{ flex: 1, minWidth: 0 }} aria-label={t('lib.addToCollectionFor', { name: title })}>
-                          + {t('lib.addToCollection')}
+                          + {t('lib.addShort')}
                         </button>
                       ) : (
                         <Link to="/signin" state={{ from: `/library/${club}?add=${k.id}`, notice: 'lib.signInToAdd' }} className="btn btn--secondary btn--sm kit-add-btn" style={{ flex: 1, minWidth: 0 }} aria-label={t('lib.addToCollectionFor', { name: title })}>
-                          + {t('lib.addToCollection')}
+                          + {t('lib.addShort')}
                         </Link>
                       )}
                     </div>

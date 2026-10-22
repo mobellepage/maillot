@@ -32,7 +32,7 @@ export function KitOwners({ owners, kitId }: { owners: KitOwner[]; kitId: string
         </span>
       </button>
       {open && (
-        <ul id={listId} style={{ listStyle: 'none', padding: 0, margin: '10px 0 0', display: 'grid', gap: 12 }}>
+        <ul id={listId} style={{ listStyle: 'none', padding: 0, margin: '10px 0 0', display: 'grid', gridTemplateColumns: 'minmax(0, 1fr)', gap: 12 }}>
           {owners.map((o) => {
             const mine = !!profile?.handle && profile.handle === o.handle;
             const status = o.visibility === 'forsale' ? t('lib.own.forsale') : o.visibility === 'offers' ? t('lib.own.offers') : o.can_ask ? t('lib.own.ask') : t('lib.own.keeps');
@@ -41,11 +41,11 @@ export function KitOwners({ owners, kitId }: { owners: KitOwner[]; kitId: string
               <li key={o.item_id} style={{ fontSize: 12.5 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 7, minWidth: 0 }}>
                   <Avatar avatar={o.avatar} name={o.handle} size={24} ring={false} />
-                  <span style={{ fontWeight: 650, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>@{o.handle}</span>
+                  <span style={{ flex: 1, minWidth: 0, fontWeight: 650, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>@{o.handle}</span>
                   {o.size && <span style={{ color: 'var(--muted)', flex: 'none' }}>{o.size}</span>}
                 </div>
                 <div style={{ color: 'var(--muted)', margin: '2px 0 6px' }}>{status}</div>
-                <Link to={'/u/' + o.handle + '/' + encodeURIComponent(o.item_id)} className={'btn btn--sm ' + (o.can_ask && !mine ? 'btn--primary' : 'btn--secondary')} style={{ width: '100%', justifyContent: 'center' }} aria-label={action + ': @' + o.handle}>
+                <Link to={'/u/' + o.handle + '/' + encodeURIComponent(o.item_id)} className={'btn btn--sm ' + (o.can_ask && !mine ? 'btn--primary' : 'btn--secondary')} style={{ width: '100%', minWidth: 0, justifyContent: 'center' }} aria-label={action + ': @' + o.handle}>
                   {action}
                 </Link>
               </li>
