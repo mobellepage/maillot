@@ -44,8 +44,7 @@ import {
   NewsPage,
   ReturnPage,
   AccountPage,
-  ResetPasswordPage
-} from './pages.tsx';
+  ResetPasswordPage, FantasyPage, FantasyCardsPage, FantasyOddsPage } from './pages.tsx';
 
 // Private partner preview (scripts/partner-demo.mjs): development only, never in a production build.
 const PartnerDemoPage = import.meta.env.DEV ? lazy(() => import('../features/demo/PartnerDemoPage.tsx')) : null;
@@ -63,6 +62,16 @@ export const routes: RouteObject[] = [
           { path: 'feed', element: <FeedPage /> },
           { path: 'feed/following', element: <FollowingPage /> },
           { path: 'daily', element: <DailyPage /> },
+          { path: 'fantasy', element: <FantasyPage /> },
+          { path: 'fantasy/odds', element: <FantasyOddsPage /> },
+          {
+            path: 'fantasy/cards',
+            element: (
+              <RequireAuth>
+                <FantasyCardsPage />
+              </RequireAuth>
+            )
+          },
           { path: 'library', element: <LibraryPage /> },
           { path: 'library/catalog', element: <BrowsePage /> },
           { path: 'library/find', element: <KitFinderPage /> },

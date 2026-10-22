@@ -41,3 +41,6 @@ export const DesignerPage = lazy(() => import('../features/designer/DesignerPage
 export const DesignPage = lazy(() => import('../features/designer/DesignPage.tsx'));
 export const NewsPage = lazy(() => import('../features/discover/NewsPage.tsx'));
 export const ClubLibraryPage = lazy(() => import('../features/library/ClubLibraryPage.tsx'));
+export const FantasyPage = lazy(() => import('../features/fantasy/FantasyPage.tsx'));
+export const FantasyCardsPage = lazy(() => import('../features/fantasy/CardsPage.tsx'));
+export const FantasyOddsPage = lazy(() => import('../features/fantasy/OddsPage.tsx'));

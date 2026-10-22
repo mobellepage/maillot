@@ -2509,3 +2509,453 @@ html .logo-word {
     animation: none;
   }
 }
+
+/* ---------------------------------------------------------------------------
+   Fantasy — the game
+   --------------------------------------------------------------------------- */
+/* Cards by tone: the frame colour and how much the sheen shows. Gold is the collector card itself. */
+.holo[data-tone] {
+  --tone: #f3c53d;
+  --shine-k: 1;
+}
+.holo[data-tone='common'] {
+  --tone: #9aa39d;
+  --shine-k: 0.25;
+}
+.holo[data-tone='rare'] {
+  --tone: #3b82f6;
+  --shine-k: 0.4;
+}
+.holo[data-tone='epic'] {
+  --tone: #a855f7;
+  --shine-k: 0.6;
+}
+.holo[data-tone='legendary'] {
+  --tone: #f59e0b;
+  --shine-k: 0.85;
+}
+.holo[data-tone]:not([data-tone='gold']) {
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.3), inset 0 0 0 2px color-mix(in srgb, var(--tone) 80%, white 20%);
+}
+.holo[data-tone]:not([data-tone='gold']) .holo__badge {
+  background: color-mix(in srgb, var(--tone) 70%, black 30%);
+  border-color: color-mix(in srgb, var(--tone) 80%, white 20%);
+}
+.holo__shine {
+  opacity: calc(var(--shine) * var(--shine-k, 1));
+}
+/* Compact cards for grids: no tilt, smaller type. */
+.holo--sm {
+  width: 100%;
+  margin: 0;
+  border-radius: 14px;
+  transform: none;
+  transition: none;
+}
+.holo--sm .holo__top {
+  padding: 9px 10px 0;
+}
+.holo--sm .holo__brand {
+  display: none;
+}
+.holo--sm .holo__badge {
+  font-size: 8px;
+  padding: 2px 6px;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.holo--sm .holo__top {
+  justify-content: flex-end;
+}
+.holo--sm .holo__art {
+  padding: 2px 8px;
+}
+.holo--sm .holo__cutout {
+  inset: 2px 10px;
+  width: calc(100% - 20px);
+  height: calc(100% - 4px);
+}
+.holo--sm .holo__photo {
+  width: 88%;
+  border-radius: 10px;
+}
+.holo--sm .holo__text {
+  padding: 0 10px 10px;
+}
+.holo--sm .holo__title {
+  font-size: 12px;
+  line-height: 1.15;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.holo--sm .holo__sub {
+  font-size: 10px;
+}
+.holo--sm .holo__chips {
+  margin-top: 4px;
+}
+.holo--sm .holo__chips span {
+  font-size: 9px;
+  padding: 1px 5px;
+}
+
+.fantasy-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px 28px;
+  align-items: flex-end;
+  justify-content: space-between;
+}
+.fantasy-stats {
+  display: flex;
+  gap: 8px;
+}
+.fantasy-stat {
+  display: grid;
+  min-width: 92px;
+  padding: 10px 14px;
+  border-radius: 16px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+}
+.fantasy-stat b {
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+.fantasy-stat small {
+  font-size: 11px;
+  color: var(--muted);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.fantasy-grid {
+  display: grid;
+  gap: 14px;
+  margin-top: 22px;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr));
+}
+.fantasy-pack {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: 150px minmax(0, 1fr);
+  gap: 22px;
+  align-items: center;
+  padding: clamp(18px, 2.6vw, 28px);
+  border-radius: 28px;
+  background: radial-gradient(90% 90% at 0% 0%, rgba(75, 255, 139, 0.16), transparent 60%), #0a0c0b;
+  color: #f2f4f1;
+}
+.fantasy-pack .title {
+  color: #f2f4f1;
+}
+.fantasy-pack a {
+  color: #4bff8b;
+}
+@media (max-width: 520px) {
+  .fantasy-pack {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    text-align: center;
+  }
+  .fantasy-pack > div > div {
+    justify-content: center;
+  }
+}
+.fantasy-pack__art {
+  position: relative;
+  display: grid;
+  place-items: center;
+}
+.fantasy-pack__box {
+  width: 120px;
+  height: 160px;
+  border-radius: 18px;
+  display: grid;
+  place-items: center;
+  font-weight: 900;
+  font-size: 54px;
+  color: #06110a;
+  background: linear-gradient(160deg, #6dffa6, #22c55e 55%, #0f7a3a);
+  box-shadow: 0 24px 50px rgba(0, 0, 0, 0.45), inset 0 0 0 2px rgba(255, 255, 255, 0.35);
+  transform: rotate(-6deg);
+}
+.fantasy-pack.is-ready .fantasy-pack__box {
+  animation: packWobble 2.4s ease-in-out infinite;
+}
+@keyframes packWobble {
+  0%,
+  100% {
+    transform: rotate(-6deg) translateY(0);
+  }
+  50% {
+    transform: rotate(-3deg) translateY(-6px);
+  }
+}
+.fantasy-pack__stack {
+  position: absolute;
+  right: 4px;
+  top: -6px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: #f2f4f1;
+  color: #06110a;
+  font-weight: 800;
+  font-size: 13px;
+}
+.fantasy-missions,
+.fantasy-album,
+.fantasy-gold {
+  padding: 20px;
+  border-radius: 24px;
+}
+.fantasy-mission {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: var(--surface-2);
+  font-size: 14px;
+}
+.fantasy-mission.is-done {
+  color: var(--muted);
+  text-decoration: line-through;
+}
+.fantasy-mission__check {
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  border: 1.5px solid var(--line);
+  display: grid;
+  place-items: center;
+  font-size: 13px;
+  font-weight: 800;
+  flex: none;
+}
+.fantasy-mission.is-done .fantasy-mission__check {
+  background: var(--accent-fill, var(--accent));
+  border-color: transparent;
+  color: #06110a;
+}
+.fantasy-rarities {
+  list-style: none;
+  padding: 0;
+  margin: 12px 0 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(96px, 1fr));
+  gap: 8px;
+}
+.fantasy-rarities li {
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: var(--surface-2);
+  border-left: 4px solid var(--rc);
+  display: grid;
+}
+.fantasy-rarities b {
+  font-size: 18px;
+}
+.fantasy-rarities span {
+  font-size: 11.5px;
+  color: var(--muted);
+}
+.fantasy-dup {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-top: 12px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: var(--accent-soft);
+}
+.fantasy-cardrow {
+  list-style: none;
+  padding: 0;
+  margin: 14px 0 0;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+.fantasy-cardgrid {
+  list-style: none;
+  padding: 0;
+  margin: 18px 0 0;
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+}
+.fantasy-odds {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 18px;
+  font-size: 14.5px;
+}
+.fantasy-odds th,
+.fantasy-odds td {
+  text-align: left;
+  padding: 10px 8px;
+  border-bottom: 1px solid var(--line);
+}
+.fantasy-odds th {
+  font-size: 11.5px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* The pack opening, over everything. */
+.pack-reveal {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  padding: max(14px, env(safe-area-inset-top)) 14px max(18px, env(safe-area-inset-bottom));
+  color: #f2f4f1;
+  background: radial-gradient(80% 60% at 50% 30%, var(--mood, rgba(75, 255, 139, 0.18)), transparent 70%), #0b0c0b;
+  animation: kvIn 0.25s ease both;
+  user-select: none;
+}
+.pack-reveal[data-mood='rare'] {
+  --mood: rgba(59, 130, 246, 0.28);
+}
+.pack-reveal[data-mood='epic'] {
+  --mood: rgba(168, 85, 247, 0.32);
+}
+.pack-reveal[data-mood='legendary'] {
+  --mood: rgba(245, 158, 11, 0.38);
+}
+.pack-reveal__head {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #9aa39d;
+  font-weight: 700;
+}
+.pack-reveal__cards {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  align-self: center;
+  display: grid;
+  /* Three on top, two below, centred — six columns, each card two wide (no transforms: they'd flatten the flip). */
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 24px 10px;
+  max-width: 560px;
+  width: 100%;
+  justify-self: center;
+}
+.pack-reveal__cards li {
+  grid-column: span 2;
+}
+.pack-reveal__cards li:nth-child(4) {
+  grid-column: 2 / 4;
+}
+.pack-reveal__cards li:nth-child(5) {
+  grid-column: 4 / 6;
+}
+.pack-reveal__card {
+  position: relative;
+  aspect-ratio: 63 / 88;
+  perspective: 900px;
+}
+.pack-reveal__back,
+.pack-reveal__front {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+  border-radius: 14px;
+}
+.pack-reveal__back {
+  display: grid;
+  place-items: center;
+  font-weight: 900;
+  font-size: 40px;
+  color: #06110a;
+  background: linear-gradient(160deg, #6dffa6, #22c55e 55%, #0f7a3a);
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.5), inset 0 0 0 2px rgba(255, 255, 255, 0.35);
+}
+.pack-reveal__front {
+  transform: rotateY(180deg);
+}
+.pack-reveal__card.is-up .pack-reveal__back {
+  transform: rotateY(-180deg);
+}
+.pack-reveal__card.is-up .pack-reveal__front {
+  transform: rotateY(0);
+}
+.pack-reveal__card.is-hot::before {
+  content: '';
+  position: absolute;
+  inset: -14px;
+  border-radius: 24px;
+  background: radial-gradient(circle, var(--rc) 0%, transparent 70%);
+  opacity: 0;
+  animation: hotBurst 1.2s ease-out both;
+  pointer-events: none;
+}
+@keyframes hotBurst {
+  0% {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+  30% {
+    opacity: 0.9;
+  }
+  100% {
+    opacity: 0.35;
+    transform: scale(1.15);
+  }
+}
+.pack-reveal__tag {
+  position: absolute;
+  left: 50%;
+  bottom: -10px;
+  transform: translateX(-50%);
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  background: #4bff8b;
+  color: #06110a;
+}
+.pack-reveal__tag.is-dup {
+  background: rgba(255, 255, 255, 0.18);
+  color: #f2f4f1;
+}
+.pack-reveal__foot {
+  text-align: center;
+  display: grid;
+  gap: 12px;
+  justify-items: center;
+}
+.pack-reveal__summary {
+  margin: 0;
+  font-weight: 700;
+  font-size: 16px;
+}
+.pack-reveal__hint {
+  margin: 0;
+  color: #9aa39d;
+  font-size: 13.5px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .fantasy-pack.is-ready .fantasy-pack__box,
+  .pack-reveal__card.is-hot::before {
+    animation: none;
+  }
+  .pack-reveal__back,
+  .pack-reveal__front {
+    transition: none;
+  }
+}

@@ -10,6 +10,8 @@ export interface HoloCardData {
   cutout: boolean;
   /** The back of the shirt (a photo), shown when the card is turned. */
   back?: string | undefined;
+  /** Frame and sheen: a Gold card (own shirt) or a digital card's rarity. Default: gold. */
+  tone?: 'gold' | 'common' | 'rare' | 'epic' | 'legendary';
   title: string;
   subtitle: string;
   chips: string[];
@@ -19,7 +21,11 @@ export interface HoloCardData {
 
 const reduced = () => typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-export function HoloCard({ card, onColors, turned = false }: { card: HoloCardData; onColors?: (c: [string, string]) => void; turned?: boolean }) {
+/**
+ * `small`: a compact card for grids — no handle, smaller type, no tilt or
+ * pointer tracking (the sheen stays still), so a wall of cards stays cheap.
+ */
+export function HoloCard({ card, onColors, turned = false, small = false }: { card: HoloCardData; onColors?: (c: [string, string]) => void; turned?: boolean; small?: boolean }) {
   const ref = useRef<HTMLDivElement>(null);
   const [colors, setColors] = useState<[string, string]>(['#1b3a2a', '#0b0c0b']);
   const showBack = turned && !!card.back;
@@ -44,14 +50,14 @@ export function HoloCard({ card, onColors, turned = false }: { card: HoloCardDat
 
   // Tilting the phone moves the shine (Android at once; iOS asks once, on a tap).
   useEffect(() => {
-    if (reduced() || typeof window === 'undefined' || !('DeviceOrientationEvent' in window)) return;
+    if (small || reduced() || typeof window === 'undefined' || !('DeviceOrientationEvent' in window)) return;
     const on = (e: DeviceOrientationEvent) => {
       if (e.beta === null || e.gamma === null) return;
       point(Math.min(1, Math.max(0, 0.5 + e.gamma / 50)), Math.min(1, Math.max(0, 0.5 + (e.beta - 45) / 60)));
     };
     window.addEventListener('deviceorientation', on);
     return () => window.removeEventListener('deviceorientation', on);
-  }, []);
+  }, [small]);
   const askTilt = () => {
     const D = (window as unknown as { DeviceOrientationEvent?: { requestPermission?: () => Promise<string> } }).DeviceOrientationEvent;
     if (D?.requestPermission) void D.requestPermission().catch(() => {});
@@ -60,10 +66,11 @@ export function HoloCard({ card, onColors, turned = false }: { card: HoloCardDat
   return (
     <div
       ref={ref}
-      className={'holo' + (showBack || !card.cutout ? ' holo--photo' : '')}
+      className={'holo' + (showBack || !card.cutout ? ' holo--photo' : '') + (small ? ' holo--sm' : '')}
+      data-tone={card.tone ?? 'gold'}
       style={{ '--c1': colors[0], '--c2': colors[1] } as CSSProperties}
       onPointerMove={(e) => {
-        if (reduced()) return;
+        if (small || reduced()) return;
         const r = e.currentTarget.getBoundingClientRect();
         point((e.clientX - r.left) / r.width, (e.clientY - r.top) / r.height);
       }}
@@ -106,7 +113,7 @@ export function HoloCard({ card, onColors, turned = false }: { card: HoloCardDat
             ))}
           </div>
         )}
-        {card.handle && <div className="holo__handle">@{card.handle}</div>}
+        {card.handle && !small && <div className="holo__handle">@{card.handle}</div>}
       </div>
       <span className="holo__shine" aria-hidden="true" />
       <span className="holo__glare" aria-hidden="true" />

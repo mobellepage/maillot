@@ -368,7 +368,7 @@ export type Database = {
         Relationships: [];
       };
       kits: {
-        Row: { id: string; club_id: string; season: string; season_year: number; kind: string; variant: string; image_path: string | null; image_credit: string | null; image_credit_url: string | null; brand: string | null; sponsor: string | null; pattern: string; colors: string[]; note: string | null; catalog_id: string | null; source: string; status: string; suggested_by: string | null; created_at: string };
+        Row: { id: string; club_id: string; season: string; season_year: number; kind: string; variant: string; image_path: string | null; image_credit: string | null; image_credit_url: string | null; brand: string | null; sponsor: string | null; pattern: string; colors: string[]; note: string | null; catalog_id: string | null; source: string; status: string; suggested_by: string | null; created_at: string; rarity: string };
         Insert: { id?: string; club_id: string; season: string; season_year: number; kind: string; brand?: string | null; sponsor?: string | null; pattern?: string; colors: string[]; note?: string | null; catalog_id?: string | null; source: string; status?: string; suggested_by?: string | null; created_at?: string };
         Update: { id?: string; club_id?: string; season?: string; season_year?: number; kind?: string; brand?: string | null; sponsor?: string | null; pattern?: string; colors?: string[]; note?: string | null; catalog_id?: string | null; source?: string; status?: string; suggested_by?: string | null; created_at?: string };
         Relationships: [];
@@ -947,6 +947,22 @@ export type Database = {
       admin_set_premium: { Args: { p_handle: string; p_until: string | null }; Returns: undefined };
       free_shirt_limit: { Args: never; Returns: number };
       public_shirt_photos: { Args: { p_handle: string; p_item_id: string }; Returns: { kind: 'main' | 'back'; path: string; thumb_path: string | null }[] };
+      fantasy_state: {
+        Args: never;
+        Returns: { packs: number; next_pack_at: string | null; points: number; streak: number; extra_packs: number; missions: Json; cards: Json; gold: number; duplicates: number; dup_points: number }[];
+      };
+      fantasy_open_pack: {
+        Args: { p_extra?: boolean };
+        Returns: { kit_id: string; club_id: string; club_name: string; season: string; kind: string; variant: string; image_path: string | null; rarity: string; duplicate: boolean }[];
+      };
+      fantasy_convert_duplicates: { Args: { p_kit?: string | null }; Returns: number };
+      fantasy_event: { Args: { p_key: string }; Returns: number };
+      fantasy_my_cards: {
+        Args: never;
+        Returns: { kit_id: string; club_id: string; club_name: string; season: string; season_year: number; kind: string; variant: string; image_path: string | null; rarity: string; copies: number; gold: boolean; verified: boolean; item_id: string | null; photo_path: string | null; thumb_path: string | null; since: string }[];
+      };
+      fantasy_gold_todo: { Args: never; Returns: { item_id: string; name: string | null; needs: string }[] };
+      fantasy_odds: { Args: never; Returns: { rarity: string; odds: number; dup_points: number; kits: number }[] };
       public_wishlist: {
         Args: { p_handle: string };
         Returns: {

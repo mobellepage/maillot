@@ -8,6 +8,7 @@ import * as db from '../../utils/db.ts';
 import { MAX_TRIES, ZOOMS, focusFor } from '../daily/game.ts';
 import { useDailyKit } from '../daily/useDailyKit.ts';
 import { useDailyStatus } from '../daily/useDailyStatus.ts';
+import { useFantasy } from '../fantasy/useFantasy.ts';
 
 /** Kits everyone knows, to show what the library holds. */
 const SHOWCASE = [
@@ -32,6 +33,7 @@ export function HomePlay() {
         {t('home.play.title')}
       </h2>
       <div style={{ display: 'grid', gap: 14, gridTemplateColumns: 'repeat(auto-fit,minmax(min(100%,420px),1fr))' }}>
+        <FantasyTile />
         <PuzzleTile />
         <LibraryTile />
       </div>
@@ -98,6 +100,24 @@ function LibraryTile() {
       <span className="btn btn--primary" style={{ justifySelf: 'start' }}>
         {t('home.play.lib.cta')} →
       </span>
+    </Link>
+  );
+}
+
+/** Fantasy: the game — for members, with their pack waiting. */
+function FantasyTile() {
+  const { t } = usePrefs();
+  const { user, state } = useFantasy();
+  const packs = state.data?.packs ?? 0;
+  return (
+    <Link to="/fantasy" className="play-card" style={{ ...tile, background: 'linear-gradient(160deg,#0f2a1b,#0A0C0B 70%)', color: '#F2F4F1' }}>
+      <div style={{ display: 'grid', gap: 10, minWidth: 0 }}>
+        <span style={{ ...kicker, color: '#4BFF8B' }}>🃏 {t('home.play.fantasy.kicker')}</span>
+        <p style={{ ...big, color: '#F2F4F1' }}>{t('home.play.fantasy.title')}</p>
+        <p style={{ margin: 0, fontSize: 15, lineHeight: 1.45, color: '#C9D0CB' }}>{t('home.play.fantasy.body')}</p>
+        {user && packs > 0 && <span style={{ fontSize: 13.5, color: '#4BFF8B', fontWeight: 700 }}>{t('home.play.fantasy.ready', { n: packs })}</span>}
+      </div>
+      <span style={{ ...cta, background: '#4BFF8B', color: '#06110A' }}>{t('home.play.fantasy.cta')} →</span>
     </Link>
   );
 }
