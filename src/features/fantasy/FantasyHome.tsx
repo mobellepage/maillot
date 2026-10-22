@@ -1,7 +1,9 @@
 // The home of the game, as a view: the pack, missions, cards and Gold —
 // everything handed in, so it renders the same from live data and in
 // previews. FantasyPage loads and wires it.
+import { useState } from 'react';
 import { Link } from 'react-router';
+import { loadJSON, saveJSON } from '../../utils/storage.ts';
 import { FANTASY, RARITIES } from '../../config/fantasy.ts';
 import { usePrefs } from '../../lib/prefs.tsx';
 import type { FantasyCard, FantasyMission, FantasyState, GoldTodo, Matchday, MyStanding } from '../../utils/db.ts';
@@ -38,6 +40,13 @@ export function FantasyHome({ s, missions, cardsByRarity, goldCards, todo, album
   const progress = s.next_pack_at ? Math.max(0, Math.min(1, 1 - (new Date(s.next_pack_at).getTime() - now) / (FANTASY.packIntervalHours * 3_600_000))) : 1;
   const extraLeft = Math.max(0, FANTASY.extraPacksPerDay - s.extra_packs);
   const canExtra = s.points >= FANTASY.extraPackCost && extraLeft > 0;
+  // Three steps for newcomers, until they've set a line-up or waved it away.
+  const [introGone, setIntroGone] = useState(() => loadJSON<boolean>('kv_fantasy_intro', false));
+  const showIntro = !introGone && !matchday?.lineup && s.streak <= 1;
+  const dismissIntro = () => {
+    setIntroGone(true);
+    saveJSON('kv_fantasy_intro', true);
+  };
 
   return (
     <>
@@ -66,6 +75,27 @@ export function FantasyHome({ s, missions, cardsByRarity, goldCards, todo, album
           </span>
         </div>
       </header>
+
+      {showIntro && (
+        <section className="fantasy-intro" aria-labelledby="intro-title">
+          <h2 id="intro-title" className="title" style={{ margin: 0 }}>
+            {t('fantasy.intro.title')}
+          </h2>
+          <ol>
+            <li className={s.streak > 0 || digital > 0 ? 'is-done' : ''}>{t('fantasy.intro.1')}</li>
+            <li className={s.gold > 0 ? 'is-done' : ''}>{t('fantasy.intro.2')}</li>
+            <li>{t('fantasy.intro.3')}</li>
+          </ol>
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            <Link to="/fantasy/matchday" className="btn btn--primary btn--sm">
+              {t('fantasy.intro.go')}
+            </Link>
+            <Button size="sm" variant="ghost" onClick={dismissIntro}>
+              {t('fantasy.intro.dismiss')}
+            </Button>
+          </div>
+        </section>
+      )}
 
       {/* The pack */}
       <section className={'fantasy-pack' + (s.packs > 0 ? ' is-ready' : '')} aria-labelledby="pack-title">

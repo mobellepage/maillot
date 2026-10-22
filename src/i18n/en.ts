@@ -2504,6 +2504,21 @@ export const en = {
   'fantasy.share.saved': 'Picture saved.',
   'fantasy.home.prizes': 'Prizes',
   'fantasy.home.prizesBody': 'Real shirts for cup winners',
+  'notif.fantasyLiveLead.title': 'Matchday live: you’re leading your league',
+  'notif.fantasyLiveLead.body': '{league}: {points} points so far in Matchday {n}.',
+  'notif.fantasySeason.title': 'Manager of the Season',
+  'notif.fantasySeason.body': 'Season {season}: {points} points — the best of all. 👑',
+  'fantasy.badge.season': 'Manager of the Season {season}',
+  'fantasy.md.autofill': 'Best line-up',
+  'fantasy.md.autofillHint': 'Fills the five most valuable cards whose clubs play, Gold first, within the budget.',
+  'fantasy.md.lineupOf': '@{handle}’s line-up',
+  'fantasy.md.viewLineup': 'Line-up',
+  'fantasy.intro.title': 'Three steps to your first points',
+  'fantasy.intro.1': 'Open your free pack — 5 cards, every 12 hours.',
+  'fantasy.intro.2': 'Add a shirt you own with a photo: it becomes a Gold card and scores double.',
+  'fantasy.intro.3': 'Before Saturday: line up five cards for the Matchday. Real results, real points.',
+  'fantasy.intro.dismiss': 'Got it',
+  'fantasy.intro.go': 'Set my line-up',
   // @@end
 };
 

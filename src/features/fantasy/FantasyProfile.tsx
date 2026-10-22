@@ -23,6 +23,7 @@ export function FantasyProfile({ handle }: { handle: string }) {
   const badgeText = (b: Badge) => {
     const d = b.data as { matchday?: number; to?: number; division?: number; cup?: string; league?: string; album?: string };
     if (b.key.startsWith('motm:')) return t('fantasy.badge.motm', { n: d.matchday ?? '' });
+    if (b.key.startsWith('manager-of-season:')) return t('fantasy.badge.season', { season: (d as { season?: string }).season ?? '' });
     if (b.key.startsWith('promoted:')) return t('fantasy.badge.promoted', { n: d.to ?? '' });
     if (b.key.startsWith('division-winner:')) return t('fantasy.badge.divisionWinner', { n: d.division ?? '', cup: d.cup ?? '' });
     if (b.key.startsWith('league-winner:')) return t('fantasy.badge.leagueWinner', { league: d.league ?? '', cup: d.cup ?? '' });
@@ -71,7 +72,7 @@ export function FantasyProfile({ handle }: { handle: string }) {
           </h3>
           <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', gap: 6, flexWrap: 'wrap' }}>
             {badges.slice(0, 24).map((b) => (
-              <li key={b.key} className={'fantasy-badge' + (b.key.startsWith('gold-album') || b.key.startsWith('motm') ? ' is-gold' : '')}>
+              <li key={b.key} className={'fantasy-badge' + (b.key.startsWith('gold-album') || b.key.startsWith('motm') || b.key.startsWith('manager-of-season') ? ' is-gold' : '')}>
                 {badgeText(b)}
               </li>
             ))}

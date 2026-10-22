@@ -2639,6 +2639,29 @@ html .logo-word {
   text-transform: uppercase;
 }
 
+/* Three steps for newcomers. */
+.fantasy-intro {
+  margin-top: 18px;
+  padding: 18px 20px;
+  border-radius: 22px;
+  background: var(--accent-soft);
+  border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
+  display: grid;
+  gap: 10px;
+}
+.fantasy-intro ol {
+  margin: 0;
+  padding-left: 22px;
+  display: grid;
+  gap: 6px;
+  font-size: 14.5px;
+  line-height: 1.45;
+}
+.fantasy-intro li.is-done {
+  color: var(--muted);
+  text-decoration: line-through;
+}
+
 /* The pack: three fanned cards and what to do with them. */
 .fantasy-pack {
   position: relative;

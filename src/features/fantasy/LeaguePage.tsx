@@ -155,7 +155,9 @@ function Pairings({ l }: { l: League }) {
         <li key={p.user_a} className={'fantasy-pairing' + (p.result ? ' is-' + p.result : '')}>
           <span className="fantasy-pairing__side">
             <Avatar avatar={p.avatar_a} name={p.handle_a} size={28} ring={false} />
-            <Link to={'/u/' + p.handle_a}>@{p.handle_a}</Link>
+            <Link to={`/fantasy/matchday/${l.matchday_id}?user=${p.user_a}&handle=${encodeURIComponent(p.handle_a)}`} title={t('fantasy.md.viewLineup')}>
+              @{p.handle_a}
+            </Link>
           </span>
           <span className="fantasy-pairing__score mono">
             {p.points_a} : {p.points_b}
@@ -163,7 +165,9 @@ function Pairings({ l }: { l: League }) {
           <span className="fantasy-pairing__side is-b">
             {p.handle_b ? (
               <>
-                <Link to={'/u/' + p.handle_b}>@{p.handle_b}</Link>
+                <Link to={`/fantasy/matchday/${l.matchday_id}?user=${p.user_b}&handle=${encodeURIComponent(p.handle_b)}`} title={t('fantasy.md.viewLineup')}>
+                  @{p.handle_b}
+                </Link>
                 <Avatar avatar={p.avatar_b} name={p.handle_b} size={28} ring={false} />
               </>
             ) : (

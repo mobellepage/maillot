@@ -135,6 +135,28 @@ function LineupEditor({ m, fixtures }: { m: Matchday; fixtures: Fixture[] }) {
     }
   });
   const list = (cards.data ?? []).filter((c) => (filter === 'all' ? true : filter === 'gold' ? c.gold : c.plays));
+  // The best line-up on a tap: cards whose clubs play, Gold first, then by value, as long as the budget holds.
+  const autofill = () => {
+    const budgetLeft = chip === 'wildcard' ? Infinity : Number(m.budget);
+    const pool = [...(cards.data ?? [])].filter((c) => c.plays).sort((a, b) => Number(b.gold) - Number(a.gold) || Number(b.value) - Number(a.value));
+    const picked: SquadCard[] = [];
+    let spent = 0;
+    for (const c of pool) {
+      if (picked.length >= MATCHDAY.lineupSize) break;
+      if (spent + Number(c.value) > budgetLeft) continue;
+      picked.push(c);
+      spent += Number(c.value);
+    }
+    // Not enough playing cards within the budget: fill with the cheapest of the rest.
+    for (const c of [...(cards.data ?? [])].sort((a, b) => Number(a.value) - Number(b.value))) {
+      if (picked.length >= MATCHDAY.lineupSize) break;
+      if (picked.some((x) => x.kit_id === c.kit_id) || spent + Number(c.value) > budgetLeft) continue;
+      picked.push(c);
+      spent += Number(c.value);
+    }
+    setKits(picked.map((c) => c.kit_id));
+    setCaptain(picked[0]?.kit_id ?? null);
+  };
 
   if (!user)
     return (
@@ -221,9 +243,12 @@ function LineupEditor({ m, fixtures }: { m: Matchday; fixtures: Fixture[] }) {
             <p style={{ margin: '6px 0 0', fontSize: 12, color: 'var(--muted)' }}>{t('fantasy.md.predBody', { exact: MATCHDAY.prediction.exact, outcome: MATCHDAY.prediction.outcome })}</p>
           </div>
         </div>
-        <div style={{ marginTop: 16 }}>
+        <div style={{ marginTop: 16, display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
           <Button onClick={() => save.mutate()} disabled={kits.length !== MATCHDAY.lineupSize || !captain || over} busy={save.isPending}>
             {t('fantasy.md.save')}
+          </Button>
+          <Button variant="secondary" onClick={autofill} disabled={!cards.data?.length} title={t('fantasy.md.autofillHint')}>
+            ✨ {t('fantasy.md.autofill')}
           </Button>
         </div>
       </section>
@@ -269,8 +294,32 @@ function LineupView({ m }: { m: Matchday }) {
   const { t } = usePrefs();
   const { user, profile } = useSession();
   const toast = useToast();
-  const cards = useQuery({ queryKey: ['fantasyLineupCards', m.id, user?.id], queryFn: () => db.loadLineupCards(m.id), enabled: !!user, staleTime: 30_000, retry: false });
+  const [params] = useSearchParams();
+  // Someone else's locked line-up (from a league's pairings).
+  const other = params.get('user');
+  const otherHandle = params.get('handle');
+  const cards = useQuery({ queryKey: ['fantasyLineupCards', m.id, other ?? user?.id], queryFn: () => db.loadLineupCards(m.id, other ?? undefined), enabled: !!user || !!other, staleTime: 30_000, retry: false });
   const l = (m.lineup as MatchdayLineup | null) ?? null;
+  if (other) {
+    const total = (cards.data ?? []).reduce((a, c) => a + c.total, 0);
+    return (
+      <div className="fantasy-md">
+        <section className="card fantasy-md__squad">
+          <div className="fantasy-panel__head">
+            <h2 className="title" style={{ margin: 0 }}>
+              {t('fantasy.md.lineupOf', { handle: otherHandle ?? '?' })}: <span className="mono">{total}</span>
+            </h2>
+          </div>
+          {cards.isLoading && <Skeleton height={200} radius={16} style={{ marginTop: 12 }} />}
+          <ul className="fantasy-md__scores">
+            {(cards.data ?? []).map((c) => (
+              <ScoreRow key={c.kit_id} c={c} />
+            ))}
+          </ul>
+        </section>
+      </div>
+    );
+  }
   if (!user)
     return (
       <div style={{ marginTop: 18 }}>
