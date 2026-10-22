@@ -1,7 +1,7 @@
 // All my cards: Gold first, then by rarity. Filter by rarity or Gold; turn
 // duplicates into Kit Points.
 import { useState } from 'react';
-import { Link } from 'react-router';
+import { Link, useSearchParams } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
 import { RARITIES, type Rarity } from '../../config/fantasy.ts';
 import { usePageMeta } from '../../lib/meta.ts';
@@ -21,7 +21,8 @@ export default function CardsPage() {
   const toast = useToast();
   const { user, convert, state } = useFantasy();
   const cards = useQuery({ queryKey: ['fantasyCards', user?.id], queryFn: db.loadFantasyCards, enabled: !!user, staleTime: 60_000, retry: false });
-  const [filter, setFilter] = useState<Filter>('all');
+  const [params] = useSearchParams();
+  const [filter, setFilter] = useState<Filter>(params.get('f') === 'gold' ? 'gold' : 'all');
   const all = cards.data ?? [];
   const shown = all.filter((c) => (filter === 'all' ? true : filter === 'gold' ? c.gold : c.rarity === filter));
   const dup = state.data?.duplicates ?? 0;

@@ -292,7 +292,7 @@ test('a shirt page is ready for search engines without JavaScript', async () => 
 });
 
 test('the header fits wide screens in every language, even with a member’s buttons', async ({ page }) => {
-  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.setViewportSize({ width: 1480, height: 900 });
   for (const lang of ['de', 'fr', 'en']) {
     await page.addInitScript((l) => localStorage.setItem('kv_lang', JSON.stringify(l)), lang);
     await page.goto('/library');

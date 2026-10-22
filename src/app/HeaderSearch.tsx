@@ -66,7 +66,7 @@ export function HeaderSearch() {
   };
 
   return (
-    <div className="hide-narrow" style={{ position: 'relative', flex: '0 1 280px', minWidth: 140 }}>
+    <div className="hide-narrow" style={{ position: 'relative', flex: '0 1 280px', minWidth: 124 }}>
       <form
         role="search"
         onSubmit={(e) => {

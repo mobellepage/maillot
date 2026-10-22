@@ -2274,6 +2274,11 @@ export const en = {
   'home.play.fantasy.body': 'A free pack every 12 hours, missions, Kit Points — and your real collection counts double.',
   'home.play.fantasy.cta': 'Play Fantasy',
   'home.play.fantasy.ready': '{n} pack ready to open',
+  'fantasy.packs.kicker': 'Your pack',
+  'fantasy.cards.goldAll': 'All {n} Gold cards',
+  'fantasy.gold.todoTitle': '{n} shirts not Gold yet',
+  'fantasy.gold.needKit': 'Pick its kit in the library',
+  'fantasy.gold.needPhoto': 'Add a front photo',
   // @@end
 };
 

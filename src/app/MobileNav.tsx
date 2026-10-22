@@ -1,9 +1,9 @@
 import { NavLink, useLocation } from 'react-router';
 import { usePrefs } from '../lib/prefs.tsx';
 import { useNavItems, type NavIcon } from './nav.ts';
-import { BagIcon, CompassIcon, FeedIcon, PlayCardIcon, ShieldIcon, ShirtIcon, TagIcon } from '../ui/index.ts';
+import { BagIcon, CardsIcon, CompassIcon, FeedIcon, PlayCardIcon, ShieldIcon, ShirtIcon, TagIcon } from '../ui/index.ts';
 
-const ICONS: Record<NavIcon, typeof CompassIcon> = { discover: CompassIcon, collection: ShirtIcon, feed: FeedIcon, swipe: PlayCardIcon, market: BagIcon, sell: TagIcon, admin: ShieldIcon };
+const ICONS: Record<NavIcon, typeof CompassIcon> = { discover: CompassIcon, collection: ShirtIcon, feed: FeedIcon, swipe: PlayCardIcon, fantasy: CardsIcon, market: BagIcon, sell: TagIcon, admin: ShieldIcon };
 
 export default function MobileNav() {
   const items = useNavItems();

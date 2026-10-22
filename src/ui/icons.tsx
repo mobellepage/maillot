@@ -117,6 +117,17 @@ export function FeedIcon({ size = 22, ...rest }: IconProps) {
   );
 }
 
+/** Fantasy: two fanned cards. */
+export function CardsIcon({ size = 22, ...rest }: IconProps) {
+  return (
+    <svg {...base(size, rest)} fill="none" stroke="currentColor" strokeWidth={1.9} strokeLinejoin="round">
+      <rect x="7.5" y="3.5" width="12" height="16" rx="2.5" transform="rotate(10 13.5 11.5)" />
+      <rect x="4" y="5" width="12" height="16" rx="2.5" fill="var(--surface, #fff)" />
+      <path d="M10 10.2l.9 1.9 2.1.3-1.5 1.5.4 2.1-1.9-1-1.9 1 .4-2.1-1.5-1.5 2.1-.3z" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+
 export function PlayCardIcon({ size = 22, ...rest }: IconProps) {
   return (
     <svg {...base(size, rest)} fill="none" stroke="currentColor" strokeWidth={1.9} strokeLinejoin="round">

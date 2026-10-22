@@ -2275,5 +2275,10 @@ export const de: Messages = {
   'home.play.fantasy.body': 'Alle 12 Stunden ein Gratis-Päckli, Missionen, Kit Points — und deine echte Sammlung zählt doppelt.',
   'home.play.fantasy.cta': 'Fantasy spielen',
   'home.play.fantasy.ready': '{n} Päckli bereit',
+  'fantasy.packs.kicker': 'Dein Päckli',
+  'fantasy.cards.goldAll': 'Alle {n} Gold-Karten',
+  'fantasy.gold.todoTitle': '{n} Trikots sind noch nicht Gold',
+  'fantasy.gold.needKit': 'Trikot in der Bibliothek wählen',
+  'fantasy.gold.needPhoto': 'Foto von vorne hinzufügen',
   // @@end
 };

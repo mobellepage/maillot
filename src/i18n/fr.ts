@@ -2275,5 +2275,10 @@ export const fr: Messages = {
   'home.play.fantasy.body': 'Un pack gratuit toutes les 12 heures, des missions, des Kit Points — et ta vraie collection compte double.',
   'home.play.fantasy.cta': 'Jouer à Fantasy',
   'home.play.fantasy.ready': '{n} pack prêt à ouvrir',
+  'fantasy.packs.kicker': 'Ton pack',
+  'fantasy.cards.goldAll': 'Les {n} cartes Gold',
+  'fantasy.gold.todoTitle': '{n} maillots pas encore Gold',
+  'fantasy.gold.needKit': 'Choisir son maillot dans la bibliothèque',
+  'fantasy.gold.needPhoto': 'Ajouter une photo de face',
   // @@end
 };

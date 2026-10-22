@@ -6,7 +6,6 @@ import { NavLink, useLocation } from 'react-router';
 import { usePrefs } from '../lib/prefs.tsx';
 
 const ITEMS = [
-  { to: '/fantasy', emoji: '🃏', label: 'rail.fantasy' },
   { to: '/daily', emoji: '🧩', label: 'rail.daily' },
   { to: '/library', emoji: '📚', label: 'rail.library' },
   { to: '/fits', emoji: '👕', label: 'rail.fits' }
