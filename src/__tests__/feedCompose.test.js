@@ -14,6 +14,14 @@ const seq = (xs) => {
   let i = 0;
   return () => xs[i++ % xs.length];
 };
+// A seeded generator (mulberry32) for the statistical tests: the same seed
+// gives the same draws on every run, so the counts below never drift.
+const seeded = (seed) => () => {
+  seed = (seed + 0x6d2b79f5) | 0;
+  let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+  t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+  return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+};
 
 describe('composeFeed', () => {
   it('shows news from collections in the order given, a filler after every three', () => {
@@ -28,9 +36,10 @@ describe('composeFeed', () => {
   });
 
   it('leans towards the leagues and kinds picked at sign-up, before any like', () => {
+    const rand = seeded(1);
     let swissFirst = 0;
     for (let i = 0; i < 400; i++) {
-      const feed = composeFeed({ catalog, liked: [], seen: new Set(), interests: { leagues: ['Swiss Super League'], types: [] } });
+      const feed = composeFeed({ catalog, liked: [], seen: new Set(), interests: { leagues: ['Swiss Super League'], types: [] }, rand });
       if (catalog.find((c) => c.id === feed[0].shirtId).league === 'Swiss Super League') swissFirst++;
     }
     // Two of five shirts are Swiss: 40 % by chance, clearly more with the interest.
@@ -38,12 +47,13 @@ describe('composeFeed', () => {
   });
 
   it('puts what matches your likes first more often, and seen items further back', () => {
+    const rand = seeded(2);
     let likedFirst = 0;
     let seenFirst = 0;
     for (let i = 0; i < 400; i++) {
-      const a = composeFeed({ catalog, liked: ['yb'], seen: new Set() });
+      const a = composeFeed({ catalog, liked: ['yb'], seen: new Set(), rand });
       if (a[0].shirtId === 'fcb' || a[0].shirtId === 'yb') likedFirst++;
-      const b = composeFeed({ catalog, liked: [], seen: new Set(['c:nap', 'c:juv', 'c:liv', 'c:yb']) });
+      const b = composeFeed({ catalog, liked: [], seen: new Set(['c:nap', 'c:juv', 'c:liv', 'c:yb']), rand });
       if (b[0].shirtId !== 'fcb') seenFirst++;
     }
     // Same league as a liked shirt: well above the 2-in-5 a fair draw gives.
@@ -62,9 +72,10 @@ describe('composeFeed with library kits', () => {
     expect(feed).toHaveLength(31);
   });
   it('brings the favourite team forward', () => {
+    const rand = seeded(3);
     let early = 0;
     for (let i = 0; i < 300; i++) {
-      const feed = composeFeed({ catalog: [], liked: [], seen: new Set(), kits, interests: { club: 'young-boys' } });
+      const feed = composeFeed({ catalog: [], liked: [], seen: new Set(), kits, interests: { club: 'young-boys' }, rand });
       if (feed.findIndex((f) => f.kind === 'kit' && f.kit.club_id === 'young-boys') < 8) early++;
     }
     // Without a favourite it would be in the first 8 about a quarter of the time.
