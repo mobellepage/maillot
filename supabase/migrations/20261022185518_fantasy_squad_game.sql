@@ -5,7 +5,7 @@
 -- league's early kick-off is missed; the window runs until Tuesday morning.
 -- A club scores its real results that weekend: win 3, draw 1, defeat 0.
 -- The captain counts double — and only a club whose shirt the manager owns
--- can be captain. One free transfer a Gameweek (one unused rolls over, two
+-- can be captain. One free transfer a Gameweek (unused ones roll over, five
 -- at most), every further one costs 4 points. Three chips a season: Bench
 -- Boost, Wildcard, Free Hit. Prices move with form: over-performers rise,
 -- under-performers fall. Nations may only be bought for an international
@@ -66,7 +66,7 @@ returns table (
 )
 language sql immutable as $$
   select 8, 5, 100, 2,
-         2, 4,
+         5, 4,
          3, 1, 2,
          84, 5,
          3, 30

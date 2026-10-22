@@ -12,7 +12,7 @@ export const FANTASY = {
   maxPerLeague: 2,
   /** One free transfer a Gameweek; an unused one rolls over, up to freeTransfersMax; each further transfer costs hitPoints. */
   freeTransfers: 1,
-  freeTransfersMax: 2,
+  freeTransfersMax: 5,
   hitPoints: 4,
   /** What a club scores per match it plays in the Gameweek. */
   points: { win: 3, draw: 1, defeat: 0 },

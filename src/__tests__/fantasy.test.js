@@ -31,6 +31,7 @@ describe('Fantasy helpers', () => {
     expect(transferHits(1, 1, null, true)).toBe(0);
     expect(transferHits(3, 1, null, true)).toBe(2 * FANTASY.hitPoints);
     expect(transferHits(3, 2, null, true)).toBe(FANTASY.hitPoints);
+    expect(FANTASY.freeTransfersMax).toBe(5);
     expect(transferHits(5, 1, 'wildcard', true)).toBe(0);
     expect(transferHits(5, 1, 'free_hit', true)).toBe(0);
     expect(transferHits(5, 1, 'bench_boost', true)).toBe(4 * FANTASY.hitPoints);

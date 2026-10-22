@@ -1,7 +1,8 @@
-// The Gameweek: pick five of the squad's eight to play (one the captain —
-// a club whose shirt you own), play Bench Boost if you like, before Friday
-// 18:00; once locked, watch the clubs score with their real results;
-// afterwards the table.
+// The Gameweek: before Friday 18:00, pick five of the squad's eight to play
+// (one the captain — a club whose shirt you own) and Bench Boost if you
+// like. Once it has started: the points as they come in, "Pick team" for
+// the next Gameweek (and transfers), the fixtures and the table. Next
+// week's line-up opens only once this week has kicked off.
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -20,7 +21,7 @@ import { errorText } from './errors.ts';
 import { shareFantasy } from './fantasyShare.ts';
 import { SITE_URL } from '../../config/site.ts';
 
-type Tab = 'lineup' | 'fixtures' | 'table';
+type Tab = 'lineup' | 'points' | 'pick' | 'fixtures' | 'table';
 
 export default function MatchdayPage() {
   const { id } = useParams();
@@ -28,9 +29,13 @@ export default function MatchdayPage() {
   const { t, lang } = usePrefs();
   const { user } = useSession();
   const [params, setParams] = useSearchParams();
-  const tab = (params.get('tab') as Tab) || 'lineup';
   const md = useQuery({ queryKey: ['fantasyMatchday', mdId ?? 'current', user?.id], queryFn: () => db.loadMatchday(mdId), staleTime: 15_000, retry: false });
   const m = md.data;
+  // The Gameweek after this one — where the five are picked once this one has started.
+  const current = useQuery({ queryKey: ['fantasyMatchday', 'current', user?.id], queryFn: () => db.loadMatchday(), enabled: !!mdId, staleTime: 15_000, retry: false });
+  const isCurrent = !mdId || (current.data?.id ?? m?.id) === m?.id;
+  const nextId = isCurrent && m && m.status !== 'upcoming' ? m.next_id : null;
+  const next = useQuery({ queryKey: ['fantasyMatchday', nextId ?? 'none', user?.id], queryFn: () => db.loadMatchday(nextId!), enabled: !!nextId, staleTime: 15_000, retry: false });
   usePageMeta((m ? t('fantasy.md.number', { n: m.number }) : t('fantasy.md.title')) + ' · Fantasy', t('fantasy.md.intro'));
   const [now, setNow] = useState(() => Date.now());
   useEffect(() => {
@@ -40,6 +45,11 @@ export default function MatchdayPage() {
   const fixtures = useQuery({ queryKey: ['fantasyFixtures', m?.id], queryFn: () => db.loadFixtures(m!.id), enabled: !!m, staleTime: 60_000, retry: false });
 
   const open = !!m && m.status === 'upcoming' && new Date(m.deadline).getTime() > now;
+  const tabs: { value: Tab; label: string }[] = open
+    ? [{ value: 'lineup', label: t('fantasy.md.tab.lineup') }, { value: 'fixtures', label: t('fantasy.md.tab.fixtures') }]
+    : [{ value: 'points', label: t('fantasy.md.tab.points') }, ...(nextId ? [{ value: 'pick' as Tab, label: t('fantasy.md.tab.pick') }] : []), { value: 'fixtures', label: t('fantasy.md.tab.fixtures') }, { value: 'table', label: t('fantasy.md.tab.table') }];
+  const wanted = params.get('tab') as Tab | null;
+  const tab: Tab = wanted && tabs.some((x) => x.value === wanted) ? wanted : tabs[0]!.value;
   const dateFmt = (iso: string) => new Date(iso).toLocaleString(lang, { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', timeZone: FANTASY.timeZone });
 
   return (
@@ -75,17 +85,14 @@ export default function MatchdayPage() {
                 ← {t('fantasy.md.prev')}
               </Link>
             )}
-            {m.next_id && (
-              <Link to={'/fantasy/matchday/' + m.next_id} className="btn btn--ghost btn--sm">
-                {t('fantasy.md.next')} →
-              </Link>
-            )}
             <span style={{ flex: 1 }} />
-            <Segmented label={t('fantasy.md.title')} value={tab} onChange={(v) => setParams({ tab: v }, { replace: true })} options={[{ value: 'lineup', label: t('fantasy.md.tab.lineup') }, { value: 'fixtures', label: t('fantasy.md.tab.fixtures') }, { value: 'table', label: t('fantasy.md.tab.table') }]} />
+            <Segmented label={t('fantasy.md.title')} value={tab} onChange={(v) => setParams({ tab: v }, { replace: true })} options={tabs} />
           </div>
           <Notice style={{ marginTop: 14 }}>{m.international ? t('fantasy.md.international') : t('fantasy.md.clubsOnly')}</Notice>
 
-          {tab === 'lineup' && (open ? <LineupEditor m={m} /> : <LineupView m={m} />)}
+          {tab === 'lineup' && <LineupEditor m={m} />}
+          {tab === 'points' && <LineupView m={m} />}
+          {tab === 'pick' && nextId && (next.data ? <LineupEditor m={next.data} pickFor /> : <Skeleton height={300} radius={24} style={{ marginTop: 18 }} />)}
           {tab === 'fixtures' && <Fixtures rows={fixtures.data ?? []} loading={fixtures.isLoading} />}
           {tab === 'table' && <Table m={m} />}
         </>
@@ -94,8 +101,8 @@ export default function MatchdayPage() {
   );
 }
 
-function LineupEditor({ m }: { m: Matchday }) {
-  const { t } = usePrefs();
+function LineupEditor({ m, pickFor = false }: { m: Matchday; pickFor?: boolean }) {
+  const { t, lang } = usePrefs();
   const { user } = useSession();
   const squad = useQuery({ queryKey: ['fantasySquad', m.id, user?.id], queryFn: () => db.loadSquadClubs(m.id), enabled: !!user, staleTime: 15_000, retry: false });
   const sq = (m.squad as SquadState | null) ?? null;
@@ -116,7 +123,18 @@ function LineupEditor({ m }: { m: Matchday }) {
     );
   if (!squad.data) return <Skeleton height={300} radius={24} style={{ marginTop: 18 }} />;
   // The form starts from the line-up as the server has it (set, carried or picked by the game).
-  return <LineupForm key={squad.data.map((c) => c.club_id + (c.starter ? '*' : '') + (c.captain ? 'C' : '')).join(',')} m={m} clubs={squad.data} />;
+  return (
+    <>
+      {pickFor && (
+        <Notice style={{ marginTop: 14 }}>
+          {t('fantasy.md.pickFor', { n: m.number, date: new Date(m.deadline).toLocaleString(lang, { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', timeZone: FANTASY.timeZone }) })}
+          {' · '}
+          {t('fantasy.sq.free', { n: sq.free_transfers })}
+        </Notice>
+      )}
+      <LineupForm key={squad.data.map((c) => c.club_id + (c.starter ? '*' : '') + (c.captain ? 'C' : '')).join(',')} m={m} clubs={squad.data} />
+    </>
+  );
 }
 
 function LineupForm({ m, clubs }: { m: Matchday; clubs: SquadClub[] }) {
@@ -277,6 +295,7 @@ function LineupView({ m }: { m: Matchday }) {
   const { user, profile } = useSession();
   const toast = useToast();
   const [params] = useSearchParams();
+  const standing = useQuery({ queryKey: ['fantasyStanding', user?.id], queryFn: db.loadMyStanding, enabled: !!user, staleTime: 30_000, retry: false });
   // Someone else's locked line-up (from a league's pairings).
   const other = params.get('user');
   const otherHandle = params.get('handle');
@@ -317,6 +336,10 @@ function LineupView({ m }: { m: Matchday }) {
           </h2>
           {m.rank && <span className="mono" style={{ fontSize: 12.5, color: 'var(--muted)' }}>{t('fantasy.md.rank', { rank: m.rank, n: m.players })}</span>}
         </div>
+        <p style={{ margin: '6px 0 0', fontSize: 13, color: 'var(--text-2)' }}>
+          {m.status === 'scored' ? t('fantasy.md.scored') : m.status === 'live' ? '● ' + t('fantasy.md.live') : t('fantasy.md.locked')}
+          {standing.data && <> · {t('fantasy.md.seasonPoints', { n: standing.data.season_points + (m.status === 'scored' ? 0 : l.points) })}</>}
+        </p>
         {l.carried && <p style={{ margin: '6px 0 0', fontSize: 13, color: 'var(--muted)' }}>{t('fantasy.md.carried')}</p>}
         {l.chip && <p style={{ margin: '6px 0 0', fontSize: 13 }}>{t('fantasy.md.chip')}: <b>{t('fantasy.md.chip.' + l.chip)}</b></p>}
         {l.hits > 0 && <p style={{ margin: '6px 0 0', fontSize: 13, color: 'var(--neg)' }}>{t('fantasy.sq.hits', { n: l.hits })}</p>}

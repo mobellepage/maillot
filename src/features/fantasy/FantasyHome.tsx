@@ -72,10 +72,10 @@ export function FantasyHome({ matchday: m, squad, moves, leagues, standing, now 
             ) : (
               <>
                 <Link to="/fantasy/matchday" className="btn btn--primary">
-                  {open ? (l && !l.carried ? t('fantasy.home.lineupSet') : t('fantasy.home.setLineup')) : t('fantasy.home.matchday')}
+                  {open ? (l && !l.carried ? t('fantasy.home.lineupSet') : t('fantasy.home.setLineup')) : t('fantasy.md.tab.points')}
                 </Link>
-                <Link to="/fantasy/squad" className="btn btn--secondary">
-                  {t('fantasy.sq.transfers')}
+                <Link to={open ? '/fantasy/squad' : '/fantasy/matchday?tab=pick'} className="btn btn--secondary">
+                  {open ? t('fantasy.sq.transfers') : t('fantasy.md.tab.pick')}
                   {sq && sq.first_locked && <small style={{ marginLeft: 6, opacity: 0.8 }}>{t('fantasy.sq.freeShort', { n: sq.free_transfers })}</small>}
                 </Link>
               </>
