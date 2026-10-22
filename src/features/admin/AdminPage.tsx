@@ -10,6 +10,7 @@ import { ReviewQueue } from './ReviewQueue.tsx';
 import { AuditPanel } from './AuditPanel.tsx';
 import { DealersPanel } from './DealersPanel.tsx';
 import { LibraryPanel } from './LibraryPanel.tsx';
+import { FantasyPanel } from './FantasyPanel.tsx';
 import { MfaGate } from './MfaGate.tsx';
 import { useSession } from '../../lib/session.tsx';
 
@@ -41,6 +42,7 @@ export default function AdminPage() {
       <DisputesPanel />
       <DealersPanel />
       <LibraryPanel />
+      <FantasyPanel />
       <ApiKeysPanel />
       <AuditPanel />
     </Page>

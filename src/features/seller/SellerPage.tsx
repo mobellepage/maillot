@@ -13,6 +13,7 @@ import { Card, EmptyState, ErrorState, Page, Skeleton, StatTile } from '../../ui
 import { Stars } from '../../ui/Stars.tsx';
 import { PublicCollection } from '../collectors/PublicCollection.tsx';
 import { PublicWishlist } from '../collectors/PublicWishlist.tsx';
+import { FantasyProfile } from '../fantasy/FantasyProfile.tsx';
 import { LevelBadge } from '../levels/LevelBadge.tsx';
 import { FollowButton } from '../collectors/FollowButton.tsx';
 import { DealerBadge } from '../collectors/DealerBadge.tsx';
@@ -36,7 +37,7 @@ export default function SellerPage() {
   const wishlist = useQuery({ queryKey: ['publicWishlist', handle.toLowerCase()], queryFn: () => db.loadPublicWishlist(handle), enabled: !!profile.data });
   // Collection or wishlist, kept in the address so Back and shared links keep it.
   const [params, setParams] = useSearchParams();
-  const tab = params.get('tab') === 'wishlist' ? 'wishlist' : 'collection';
+  const tab = params.get('tab') === 'wishlist' ? 'wishlist' : params.get('tab') === 'fantasy' ? 'fantasy' : 'collection';
   const value = stats.data?.show_value && collection.data ? publicCollectionValue(collection.data) : null;
   usePageMeta(t('seller.meta', { handle }), t('seller.metaDesc', { handle }));
   // The highlights as circles: the owner's photo, else the library picture.
@@ -110,7 +111,8 @@ export default function SellerPage() {
         {(
           [
             ['collection', t('coll.title'), collection.data?.length],
-            ['wishlist', t('vault.title.watchlist'), wishlist.data?.length]
+            ['wishlist', t('vault.title.watchlist'), wishlist.data?.length],
+            ['fantasy', t('fantasy.profile.title'), undefined]
           ] as const
         ).map(([k, label, n]) => (
           <button key={k} type="button" aria-current={tab === k ? 'page' : undefined} onClick={() => setParams(k === 'collection' ? {} : { tab: k }, { replace: true })} style={{ background: 'none', border: 0, cursor: 'pointer', padding: '0 0 12px', fontSize: 16, fontWeight: 700, color: tab === k ? 'var(--text)' : 'var(--muted)', borderBottom: `2px solid ${tab === k ? 'var(--accent)' : 'transparent'}`, marginBottom: -1, display: 'flex', gap: 8, alignItems: 'center' }}>
@@ -127,6 +129,10 @@ export default function SellerPage() {
           {collection.isError && <ErrorState compact what={t('coll.title')} onRetry={() => collection.refetch()} />}
           {collection.data && !collection.data.length && <p style={{ color: 'var(--muted)', fontSize: 14 }}>{stats.data?.collection_private ? (stats.data.is_me ? t('coll.privateMine') : t('coll.privateOther')) : t('coll.empty')}</p>}
           {!!collection.data?.length && <PublicCollection shirts={collection.data} owner={p.handle} />}
+        </section>
+      ) : tab === 'fantasy' ? (
+        <section aria-label={t('fantasy.profile.title')}>
+          <FantasyProfile handle={p.handle} />
         </section>
       ) : (
         <section aria-label={t('vault.title.watchlist')}>

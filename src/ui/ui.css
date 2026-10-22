@@ -3644,6 +3644,40 @@ html .logo-word {
   background: var(--neg);
 }
 
+/* Prizes, badges */
+.fantasy-prizes {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 8px;
+}
+.fantasy-prize {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  border-radius: 18px;
+  font-size: 14px;
+}
+.fantasy-prize.is-won {
+  border-color: var(--accent);
+}
+.fantasy-badge {
+  display: inline-block;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  font-size: 12.5px;
+  font-weight: 650;
+}
+.fantasy-badge.is-gold {
+  background: linear-gradient(135deg, rgba(243, 197, 61, 0.28), rgba(243, 197, 61, 0.08));
+  border-color: rgba(243, 197, 61, 0.5);
+}
+
 /* The pack opening, over everything. */
 .pack-reveal {
   position: fixed;

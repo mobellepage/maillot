@@ -51,3 +51,5 @@ export const FantasyMatchdayPage = lazy(() => import('../features/fantasy/Matchd
 export const FantasyLeaguesPage = lazy(() => import('../features/fantasy/LeaguesPage.tsx'));
 export const FantasyLeaguePage = lazy(() => import('../features/fantasy/LeaguePage.tsx'));
 export const FantasyStandingsPage = lazy(() => import('../features/fantasy/StandingsPage.tsx'));
+export const FantasyPrizesPage = lazy(() => import('../features/fantasy/PrizesPage.tsx'));
+export const FantasyRulesPage = lazy(() => import('../features/fantasy/RulesPage.tsx'));

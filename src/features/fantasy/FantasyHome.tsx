@@ -130,6 +130,11 @@ export function FantasyHome({ s, missions, cardsByRarity, goldCards, todo, album
           <b>{t('fantasy.home.shop')}</b>
           <small>{t('fantasy.home.shopBody')}</small>
         </Link>
+        <Link to="/fantasy/prizes" className="fantasy-link">
+          <span aria-hidden="true">🎁</span>
+          <b>{t('fantasy.home.prizes')}</b>
+          <small>{t('fantasy.home.prizesBody')}</small>
+        </Link>
         <Link to="/fantasy/cards" className="fantasy-link">
           <span aria-hidden="true">🃏</span>
           <b>{t('fantasy.cards.title')}</b>

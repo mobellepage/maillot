@@ -15,6 +15,8 @@ import { Button, ErrorState, Notice, Page, Segmented, Skeleton } from '../../ui/
 import { Avatar } from '../avatars/Avatar.tsx';
 import { GameCard } from './GameCard.tsx';
 import { untilText } from './model.ts';
+import { shareFantasy } from './fantasyShare.ts';
+import { SITE_URL } from '../../config/site.ts';
 
 type Tab = 'lineup' | 'fixtures' | 'table';
 
@@ -265,7 +267,8 @@ function LineupEditor({ m, fixtures }: { m: Matchday; fixtures: Fixture[] }) {
 
 function LineupView({ m }: { m: Matchday }) {
   const { t } = usePrefs();
-  const { user } = useSession();
+  const { user, profile } = useSession();
+  const toast = useToast();
   const cards = useQuery({ queryKey: ['fantasyLineupCards', m.id, user?.id], queryFn: () => db.loadLineupCards(m.id), enabled: !!user, staleTime: 30_000, retry: false });
   const l = (m.lineup as MatchdayLineup | null) ?? null;
   if (!user)
@@ -287,6 +290,21 @@ function LineupView({ m }: { m: Matchday }) {
           {m.rank && <span className="mono" style={{ fontSize: 12.5, color: 'var(--muted)' }}>{t('fantasy.md.rank', { rank: m.rank, n: m.players })}</span>}
         </div>
         {l.carried && <p style={{ margin: '6px 0 0', fontSize: 13, color: 'var(--muted)' }}>{t('fantasy.md.carried')}</p>}
+        {m.status === 'scored' && cards.data && (
+          <div style={{ marginTop: 10 }}>
+            <Button
+              size="sm"
+              variant="secondary"
+              onClick={() =>
+                shareFantasy({ kicker: t('fantasy.md.number', { n: m.number }), title: t('fantasy.share.matchday', { n: m.number, points: l.points }), subtitle: m.rank ? t('fantasy.share.rank', { rank: m.rank, n: m.players }) : undefined, stat: String(l.points), cards: cards.data.map((c) => ({ src: c.image_path ?? undefined, tone: c.gold ? 'gold' : c.rarity, label: `${c.club_name} ${c.season} · ${c.total}` })), handle: profile?.handle ?? null, link: SITE_URL + '/fantasy/matchday/' + m.id }, t('fantasy.share.matchday', { n: m.number, points: l.points }))
+                  .then((how) => how === 'downloaded' && toast(t('fantasy.share.saved')))
+                  .catch(() => {})
+              }
+            >
+              {t('fantasy.share.card')}
+            </Button>
+          </div>
+        )}
         {l.chip && <p style={{ margin: '6px 0 0', fontSize: 13 }}>{t('fantasy.md.chip')}: <b>{t(CHIP_LABEL[l.chip as Chip])}</b></p>}
         {cards.isLoading && <Skeleton height={200} radius={16} style={{ marginTop: 12 }} />}
         <ul className="fantasy-md__scores">

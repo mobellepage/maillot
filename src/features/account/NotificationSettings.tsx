@@ -9,7 +9,7 @@ import { useToast } from '../../lib/toast.tsx';
 import * as db from '../../utils/db.ts';
 import { Card } from '../../ui/index.ts';
 
-const GROUPS = ['value', 'wanted', 'social'] as const;
+const GROUPS = ['value', 'wanted', 'social', 'fantasy'] as const;
 type Group = (typeof GROUPS)[number];
 
 export function NotificationSettings() {

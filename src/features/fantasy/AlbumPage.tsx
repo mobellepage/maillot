@@ -14,11 +14,16 @@ import { variantLabel } from '../library/model.ts';
 import { WishButton } from '../collectors/WishButton.tsx';
 import { GameCard } from './GameCard.tsx';
 import { albumText } from './model.ts';
+import { shareFantasy } from './fantasyShare.ts';
+import { SITE_URL } from '../../config/site.ts';
+import { useToast } from '../../lib/toast.tsx';
+import { Button } from '../../ui/index.ts';
 
 export default function AlbumPage() {
   const { slug = '' } = useParams();
   const { t, lang, money } = usePrefs();
-  const { user } = useSession();
+  const { user, profile } = useSession();
+  const toast = useToast();
   const albums = useQuery({ queryKey: ['fantasyAlbums', user?.id], queryFn: db.loadFantasyAlbums, staleTime: 60_000, retry: false });
   const slots = useQuery({ queryKey: ['fantasyAlbum', slug, user?.id], queryFn: () => db.loadFantasyAlbum(slug), staleTime: 30_000, retry: false });
   const album = albums.data?.find((a) => a.slug === slug);
@@ -45,6 +50,21 @@ export default function AlbumPage() {
             {t('fantasy.albums.progress', { have, total: rows.length, gold })}
             {album && (album.done_gold ? ' · ' + t('fantasy.albums.goldDone') : album.done ? ' · ' + t('fantasy.albums.done') : ' · ' + t('fantasy.albums.reward', { n: album.reward_points }))}
           </span>
+          {album?.done && (
+            <div>
+              <Button
+                size="sm"
+                variant="secondary"
+                onClick={() =>
+                  shareFantasy({ kicker: t('fantasy.albums.title'), title: t('fantasy.share.album', { album: title }), subtitle: t('fantasy.albums.progress', { have, total: rows.length, gold }), cards: rows.slice(0, 5).map((s) => ({ src: s.image_path ?? undefined, tone: s.state === 'gold' ? 'gold' : s.rarity, label: `${s.club_name} ${s.season}` })), handle: profile?.handle ?? null, link: SITE_URL + '/fantasy/album/' + slug }, t('fantasy.share.album', { album: title }))
+                    .then((how) => how === 'downloaded' && toast(t('fantasy.share.saved')))
+                    .catch(() => {})
+                }
+              >
+                {t('fantasy.share.card')}
+              </Button>
+            </div>
+          )}
         </div>
       )}
       {slots.isLoading && <Skeleton height={320} radius={20} style={{ marginTop: 20 }} />}

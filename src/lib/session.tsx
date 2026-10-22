@@ -48,7 +48,7 @@ export interface Profile {
   /** Asked to hear when Premium starts (payments not on yet). */
   premiumWaitlist: boolean;
   /** Notification groups switched off ({ value: false, … }); offers and orders always arrive. */
-  notificationPrefs: Partial<Record<'value' | 'wanted' | 'social', boolean>>;
+  notificationPrefs: Partial<Record<'value' | 'wanted' | 'social' | 'fantasy', boolean>>;
 }
 
 interface Session {

@@ -9,12 +9,22 @@ import type { PackCard } from '../../utils/db.ts';
 import { Button } from '../../ui/index.ts';
 import { GameCard } from './GameCard.tsx';
 import { RARITY_COLOR, bestRarity, duplicateValue, isRarity } from './model.ts';
+import { shareFantasy } from './fantasyShare.ts';
+import { SITE_URL } from '../../config/site.ts';
+import { useSession } from '../../lib/session.tsx';
+import { useToast } from '../../lib/toast.tsx';
 
 const HOT = new Set(['epic', 'legendary']);
 
 export function PackReveal({ cards, onConvert, onClose }: { cards: PackCard[]; onConvert: () => void; onClose: () => void }) {
   const { t } = usePrefs();
+  const { profile } = useSession();
+  const toast = useToast();
   const [shown, setShown] = useState(0);
+  const share = () =>
+    shareFantasy({ kicker: t('fantasy.share.pack'), title: t('fantasy.reveal.summary', { new: cards.length - cards.filter((c) => c.duplicate).length, dup: cards.filter((c) => c.duplicate).length }), cards: cards.map((c) => ({ src: c.image_path ?? undefined, tone: c.rarity, label: `${c.club_name} ${c.season}` })), handle: profile?.handle ?? null, link: SITE_URL + '/fantasy' }, t('fantasy.share.pack'))
+      .then((how) => how === 'downloaded' && toast(t('fantasy.share.saved')))
+      .catch(() => {});
   const all = shown >= cards.length;
   const dup = cards.filter((c) => c.duplicate).length;
   const worth = duplicateValue(cards);
@@ -80,6 +90,9 @@ export function PackReveal({ cards, onConvert, onClose }: { cards: PackCard[]; o
                   {t('fantasy.reveal.convert', { points: worth })}
                 </Button>
               )}
+              <Button variant="secondary" style={{ color: '#f2f4f1', borderColor: 'rgba(255,255,255,0.4)', background: 'rgba(255,255,255,0.08)' }} onClick={share}>
+                {t('fantasy.share.card')}
+              </Button>
               <Button onClick={onClose}>{t('fantasy.reveal.done')}</Button>
             </div>
           </>

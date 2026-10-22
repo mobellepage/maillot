@@ -56,7 +56,7 @@ export default function NotificationBell() {
                     else if (data.inquiry_id) navigate('/messages');
                     else if (data.offer_id) navigate('/vault');
                     else if (data.shirt_id) navigate('/shirt/' + data.shirt_id);
-                    else if (data.link?.startsWith('/u/')) navigate(data.link);
+                    else if (data.link?.startsWith('/u/') || data.link?.startsWith('/fantasy')) navigate(data.link);
                     else if (data.handle) navigate('/u/' + data.handle);
                   }}
                   style={{ display: 'block', background: n.read ? 'none' : 'rgba(75,255,139,0.07)', marginBottom: 2 }}

@@ -199,3 +199,86 @@ export async function reportLeaguePost(postId: number): Promise<void> {
   const { error } = await (await sb()).rpc('fantasy_report_post', { p_post: postId });
   if (error) throw error;
 }
+
+// ---- Phases 6–8: profile, prizes, admin -------------------------------------
+export type FantasyProfile = RpcReturns<'fantasy_public_profile'>[number];
+export type Prize = RpcReturns<'fantasy_my_prizes'>[number];
+export type AdminPrize = RpcReturns<'fantasy_admin_prizes'>[number];
+export type AdminMatchday = RpcReturns<'fantasy_admin_matchdays'>[number];
+export type PrizePool = { id: number; cup_id: number | null; scope: string; rank: number; type: string; title: string; description: string | null; value: number | null; sponsor_name: string | null; sponsor_logo: string | null; active: boolean };
+
+export async function loadFantasyProfile(handle: string): Promise<FantasyProfile | null> {
+  const { data, error } = await (await sb()).rpc('fantasy_public_profile', { p_handle: handle });
+  if (error) throw error;
+  return data?.[0] ?? null;
+}
+export async function loadMyPrizes(): Promise<Prize[]> {
+  const { data, error } = await (await sb()).rpc('fantasy_my_prizes');
+  if (error) throw error;
+  return data ?? [];
+}
+export async function loadPrizePool(): Promise<PrizePool[]> {
+  const { data, error } = await (await sb()).from('fantasy_prize_pool').select('*').order('scope').order('rank');
+  if (error) throw error;
+  return (data ?? []) as PrizePool[];
+}
+export async function claimPrize(id: string, claim: { name: string; street: string; zip: string; city: string; country: string }): Promise<void> {
+  const { error } = await (await sb()).rpc('fantasy_claim_prize', { p_id: id, p_claim: claim });
+  if (error) throw error;
+}
+export async function prizeReceived(id: string): Promise<string | null> {
+  const { data, error } = await (await sb()).rpc('fantasy_prize_received', { p_id: id });
+  if (error) throw error;
+  return data ?? null;
+}
+// Admin
+export async function adminFantasyPrizes(): Promise<AdminPrize[]> {
+  const { data, error } = await (await sb()).rpc('fantasy_admin_prizes', { p_limit: 200 });
+  if (error) throw error;
+  return data ?? [];
+}
+export async function adminPrizeUpdate(id: string, status: string, kitId?: string): Promise<void> {
+  const { error } = await (await sb()).rpc('fantasy_admin_prize_update', { p_id: id, p_status: status, p_kit: kitId ?? null });
+  if (error) throw error;
+}
+export async function adminAddPrize(p: Omit<PrizePool, 'id' | 'active'>): Promise<void> {
+  const { error } = await (await sb()).from('fantasy_prize_pool').insert(p);
+  if (error) throw error;
+}
+export async function adminRemovePrize(id: number): Promise<void> {
+  const { error } = await (await sb()).from('fantasy_prize_pool').update({ active: false }).eq('id', id);
+  if (error) throw error;
+}
+export async function adminMatchdays(): Promise<AdminMatchday[]> {
+  const { data, error } = await (await sb()).rpc('fantasy_admin_matchdays');
+  if (error) throw error;
+  return data ?? [];
+}
+export async function adminSetFixture(id: number, home: number, away: number, status = 'finished'): Promise<void> {
+  const { error } = await (await sb()).rpc('fantasy_admin_fixture', { p_id: id, p_home: home, p_away: away, p_status: status });
+  if (error) throw error;
+}
+export async function adminRescore(md: number): Promise<void> {
+  const { error } = await (await sb()).rpc('fantasy_rescore', { p_md: md });
+  if (error) throw error;
+}
+export async function adminSetRarity(kitId: string, rarity: string): Promise<void> {
+  const { error } = await (await sb()).rpc('fantasy_admin_set_rarity', { p_kit: kitId, p_rarity: rarity });
+  if (error) throw error;
+}
+export async function adminMissions(): Promise<{ key: string; points: number; how: string; always: boolean; active: boolean; sort: number }[]> {
+  const { data, error } = await (await sb()).from('fantasy_missions').select('*').order('sort');
+  if (error) throw error;
+  return data ?? [];
+}
+export async function adminSetMission(key: string, patch: { points?: number; active?: boolean }): Promise<void> {
+  const { error } = await (await sb()).from('fantasy_missions').update(patch).eq('key', key);
+  if (error) throw error;
+}
+export async function adminCreateAlbum(slug: string, title: { en: string; de: string; fr: string }, description: { en: string; de: string; fr: string }, reward: number, kitIds: string[]): Promise<void> {
+  const client = await sb();
+  const { data, error } = await client.from('fantasy_albums').insert({ slug, title, description, reward_points: reward }).select('id').single();
+  if (error) throw error;
+  const { error: e2 } = await client.from('fantasy_album_slots').insert(kitIds.map((kit_id, i) => ({ album_id: data.id, kit_id, sort: i + 1 })));
+  if (e2) throw e2;
+}
