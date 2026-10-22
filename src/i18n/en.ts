@@ -2445,6 +2445,9 @@ export const en = {
   'fantasy.sq.sort.priceDesc': 'Value ↓',
   'fantasy.sq.sort.priceAsc': 'Value ↑',
   'fantasy.sq.sort.name': 'A–Z',
+  'fantasy.sq.maxValue': 'up to {n}',
+  'fantasy.sq.maxValueLabel': 'Maximum value',
+  'fantasy.sq.inBudget': 'In budget ({n})',
   // @@end
 };
 

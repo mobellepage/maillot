@@ -2446,5 +2446,8 @@ export const fr: Messages = {
   'fantasy.sq.sort.priceDesc': 'Valeur ↓',
   'fantasy.sq.sort.priceAsc': 'Valeur ↑',
   'fantasy.sq.sort.name': 'A–Z',
+  'fantasy.sq.maxValue': 'jusqu’à {n}',
+  'fantasy.sq.maxValueLabel': 'Valeur maximale',
+  'fantasy.sq.inBudget': 'Dans le budget ({n})',
   // @@end
 };

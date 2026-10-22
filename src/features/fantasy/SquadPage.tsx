@@ -79,6 +79,9 @@ function SquadEditor({ m }: { m: NonNullable<Awaited<ReturnType<typeof db.loadMa
   const [pq, setPq] = useState('');
   const [pLeague, setPLeague] = useState<string>('all');
   const [pSort, setPSort] = useState<Sort>('priceDesc');
+  // "Within my budget": the most a jersey may cost (the picker starts at what the place can afford).
+  const [pMax, setPMax] = useState<number>(30);
+  const [maxPrice, setMaxPrice] = useState<number>(30);
   const [league, setLeague] = useState<string>('all');
   const [sort, setSort] = useState<Sort>('priceDesc');
   const [q, setQ] = useState('');
@@ -98,6 +101,12 @@ function SquadEditor({ m }: { m: NonNullable<Awaited<ReturnType<typeof db.loadMa
   const leagueCount = (lg: string) => chosen.filter((j) => j.league === lg && !j.is_national).length;
 
   const setSlot = (i: number, id: string | null) => setSlots(slots.map((c, k) => (k === i ? id : c)));
+  const openPicker = (i: number) => {
+    setPq('');
+    setPLeague('all');
+    setPMax(Math.max(3, Math.min(30, Math.floor((bank + (slots[i] ? price(slots[i]!) : 0)) * 2) / 2)));
+    setPickFor(i);
+  };
   // From the market: into the first free place, or out again.
   const toggle = (j: Jersey) => {
     if (!open) return;
@@ -132,9 +141,10 @@ function SquadEditor({ m }: { m: NonNullable<Awaited<ReturnType<typeof db.loadMa
     onSuccess: () => void qc.invalidateQueries({ queryKey: ['fantasyMatchday'] }),
     onError: (e) => toast(errorText(t, (e as { code?: string }).code))
   });
-  const list = (jerseys.data ?? []).filter((j) => (league === 'all' || j.league === league) && (only === 'all' || (only === 'plays' ? j.plays : j.owned)) && (!q || j.name.toLowerCase().includes(q.toLowerCase()))).sort(bySort(sort));
+  const list = (jerseys.data ?? []).filter((j) => (league === 'all' || j.league === league) && (only === 'all' || (only === 'plays' ? j.plays : j.owned)) && Number(j.price) <= maxPrice && (!q || j.name.toLowerCase().includes(q.toLowerCase()))).sort(bySort(sort));
+  const affordable = pickFor !== null ? bank + (slots[pickFor] ? price(slots[pickFor]!) : 0) : bank;
   const pickList = (jerseys.data ?? [])
-    .filter((j) => !picks.includes(j.club_id) && (pLeague === 'all' || j.league === pLeague) && (!pq || j.name.toLowerCase().includes(pq.toLowerCase()) || j.league.toLowerCase().includes(pq.toLowerCase())))
+    .filter((j) => !picks.includes(j.club_id) && (pLeague === 'all' || j.league === pLeague) && Number(j.price) <= pMax && (!pq || j.name.toLowerCase().includes(pq.toLowerCase()) || j.league.toLowerCase().includes(pq.toLowerCase())))
     .sort(bySort(pSort))
     .slice(0, 60);
   const detailJersey = detail !== null && slots[detail] ? byId.get(slots[detail]!) : undefined;
@@ -176,7 +186,7 @@ function SquadEditor({ m }: { m: NonNullable<Awaited<ReturnType<typeof db.loadMa
         </span>
         <Pitch
           slots={slots.map((id) => (id ? (byId.get(id) ?? null) : null))}
-          onTap={(i) => (slots[i] ? setDetail(i) : (setPq(''), setPLeague('all'), setPickFor(i)))}
+          onTap={(i) => (slots[i] ? setDetail(i) : openPicker(i))}
           captainId={l?.captain ?? null}
           benchDim={false}
           disabled={!open}
@@ -256,6 +266,13 @@ function SquadEditor({ m }: { m: NonNullable<Awaited<ReturnType<typeof db.loadMa
             </button>
           ))}
         </div>
+        <label className="fantasy-range" style={{ marginTop: 10 }}>
+          <span style={{ flex: 'none' }}>{t('fantasy.sq.maxValue', { n: priceText(maxPrice) })}</span>
+          <input type="range" min={3} max={30} step={0.5} value={maxPrice} onChange={(e) => setMaxPrice(Number(e.target.value))} aria-label={t('fantasy.sq.maxValueLabel')} />
+          <button type="button" className="option-btn" aria-pressed={maxPrice <= bank + 1e-9} onClick={() => setMaxPrice(Math.max(3, Math.min(30, Math.floor(bank * 2) / 2)))} style={{ padding: '4px 9px', fontSize: 12, flex: 'none' }}>
+            {t('fantasy.sq.inBudget', { n: priceText(Math.max(0, bank)) })}
+          </button>
+        </label>
         {jerseys.isLoading && <Skeleton height={240} radius={20} style={{ marginTop: 14 }} />}
         <ul className="fantasy-squadgrid fantasy-squadgrid--market">
           {list.map((j) => {
@@ -274,7 +291,8 @@ function SquadEditor({ m }: { m: NonNullable<Awaited<ReturnType<typeof db.loadMa
         {jerseys.data && !list.length && <Notice style={{ marginTop: 14 }}>{t('fantasy.sq.none')}</Notice>}
       </section>
       {pickFor !== null && (
-        <Dialog open onClose={() => setPickFor(null)} title={t('fantasy.sq.pick')} width={460}>
+        <Dialog open onClose={() => setPickFor(null)} title={t('fantasy.sq.pick')} width={460} layout="column">
+          <div className="fantasy-picker__head">
           <input type="search" autoFocus value={pq} onChange={(e) => setPq(e.target.value)} placeholder={t('fantasy.sq.search')} aria-label={t('fantasy.sq.search')} style={{ width: '100%' }} />
           <div role="group" aria-label={t('fantasy.sq.league')} className="no-scrollbar" style={{ display: 'flex', gap: 6, overflowX: 'auto', paddingBottom: 2, marginTop: 8 }}>
             {['all', ...leagues].map((lg) => (
@@ -290,6 +308,14 @@ function SquadEditor({ m }: { m: NonNullable<Awaited<ReturnType<typeof db.loadMa
                 {t('fantasy.sq.sort.' + o)}
               </button>
             ))}
+          </div>
+          <label className="fantasy-range" style={{ marginTop: 8 }}>
+            <span style={{ flex: 'none' }}>{t('fantasy.sq.maxValue', { n: priceText(pMax) })}</span>
+            <input type="range" min={3} max={30} step={0.5} value={pMax} onChange={(e) => setPMax(Number(e.target.value))} aria-label={t('fantasy.sq.maxValueLabel')} />
+            <button type="button" className="option-btn" aria-pressed={pMax <= affordable + 1e-9} onClick={() => setPMax(Math.max(3, Math.min(30, Math.floor(affordable * 2) / 2)))} style={{ padding: '4px 9px', fontSize: 12, flex: 'none' }}>
+              {t('fantasy.sq.inBudget', { n: priceText(affordable) })}
+            </button>
+          </label>
           </div>
           <ul className="fantasy-picklist">
             {pickList.map((j) => {
@@ -344,8 +370,7 @@ function SquadEditor({ m }: { m: NonNullable<Awaited<ReturnType<typeof db.loadMa
                 size="sm"
                 disabled={!open}
                 onClick={() => {
-                  setPq('');
-                  setPickFor(detail);
+                  openPicker(detail);
                   setDetail(null);
                 }}
               >

@@ -9,7 +9,7 @@ import { usePrefs } from '../lib/prefs.tsx';
 
 const FOCUSABLE = 'a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])';
 
-export function Dialog({ open, onClose, title, children, width = 480 }: { open: boolean; onClose: () => void; title: ReactNode; children: ReactNode; width?: number }) {
+export function Dialog({ open, onClose, title, children, width = 480, layout = 'scroll' }: { open: boolean; onClose: () => void; title: ReactNode; children: ReactNode; width?: number; /** 'column': the panel never scrolls itself — the children decide (one list inside scrolls). */ layout?: 'scroll' | 'column' }) {
   const titleId = useId();
   const { t } = usePrefs();
   const panel = useRef<HTMLDivElement>(null);
@@ -78,12 +78,14 @@ export function Dialog({ open, onClose, title, children, width = 480 }: { open: 
         aria-modal="true"
         aria-labelledby={titleId}
         tabIndex={-1}
-        className="dialog-panel"
+        className={'dialog-panel' + (layout === 'column' ? ' dialog-panel--column' : '')}
         style={{
           width: '100%',
           maxWidth: width,
           maxHeight: '92vh',
-          overflow: 'auto',
+          overflow: layout === 'column' ? 'hidden' : 'auto',
+          display: layout === 'column' ? 'flex' : undefined,
+          flexDirection: layout === 'column' ? 'column' : undefined,
           background: 'var(--surface-2)',
           border: '1px solid rgba(255,255,255,0.09)',
           borderRadius: 24,
@@ -92,7 +94,7 @@ export function Dialog({ open, onClose, title, children, width = 480 }: { open: 
           outline: 'none'
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, marginBottom: 20 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, marginBottom: 20, flex: 'none' }}>
           <h2 id={titleId} className="display" style={{ fontSize: 22, fontStretch: '82%' }}>
             {title}
           </h2>
@@ -100,7 +102,7 @@ export function Dialog({ open, onClose, title, children, width = 480 }: { open: 
             <CloseIcon />
           </button>
         </div>
-        {children}
+        <div className="dialog-body">{children}</div>
       </div>
     </div>,
     document.body
