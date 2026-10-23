@@ -17,6 +17,10 @@ export interface JerseyModel {
   starter?: boolean;
   captain?: boolean;
   is_national?: boolean;
+  /** In a scored line-up: the points, shown instead of the price. */
+  points?: number | null;
+  /** A short line under the name (the opponent, the score). */
+  sub?: string | null;
 }
 
 export function JerseyCard({ j, small = false, dim = false }: { j: JerseyModel; small?: boolean; dim?: boolean }) {
@@ -30,10 +34,15 @@ export function JerseyCard({ j, small = false, dim = false }: { j: JerseyModel; 
         {j.owned && <span className="fantasy-jersey__own" title={t('fantasy.sq.owned')}>👕</span>}
       </span>
       <span className="fantasy-jersey__name">{j.name}</span>
-      <span className="fantasy-jersey__meta">
-        <b className="mono">{priceText(j.price)}</b>
-        {delta && <span className={'mono ' + (Number(j.delta) > 0 ? 'is-up' : 'is-down')}>{delta}</span>}
-      </span>
+      {j.points !== undefined && j.points !== null ? (
+        <span className="fantasy-jersey__pts mono">{t('fantasy.md.pts', { n: j.points })}</span>
+      ) : (
+        <span className="fantasy-jersey__meta">
+          <b className="mono">{priceText(j.price)}</b>
+          {delta && <span className={'mono ' + (Number(j.delta) > 0 ? 'is-up' : 'is-down')}>{delta}</span>}
+        </span>
+      )}
+      {j.sub && <span className="fantasy-jersey__sub">{j.sub}</span>}
       {!small && <span className={'fantasy-jersey__plays' + (j.plays ? ' is-on' : '')}>{j.plays ? (j.fixture ?? t('fantasy.md.plays')) : t('fantasy.md.noMatch')}</span>}
     </span>
   );

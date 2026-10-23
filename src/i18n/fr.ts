@@ -2463,5 +2463,15 @@ export const fr: Messages = {
   'feedAll.title': 'Tous les collectionneurs',
   'feedAll.meta': 'Feed – les maillots de tous les collectionneurs sur Maillot',
   'feedAll.emptyBody': 'Aucun collectionneur n’a encore montré de maillot.',
+  'fantasy.md.pts': '{n} pts',
+  'fantasy.md.avgPoints': 'Moyenne',
+  'fantasy.md.topPoints': 'Meilleur',
+  'fantasy.md.livePoints': 'Points actuels',
+  'fantasy.md.finalPoints': 'Points finaux',
+  'fantasy.md.gwRank': 'Rang Gameweek',
+  'fantasy.md.transfersMade': 'Transferts',
+  'fantasy.md.transfersN': '{n} transferts',
+  'fantasy.md.view.pitch': 'Terrain',
+  'fantasy.md.view.list': 'Liste',
   // @@end
 };

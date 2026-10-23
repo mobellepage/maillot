@@ -94,7 +94,7 @@ export default function MatchdayPage() {
           <Notice style={{ marginTop: 14 }}>{h!.international ? t('fantasy.md.international') : t('fantasy.md.clubsOnly')}</Notice>
 
           {tab === 'lineup' && <LineupEditor m={m} />}
-          {tab === 'points' && <LineupView m={m} />}
+          {tab === 'points' && <LineupView m={m} fixtures={fixtures.data ?? []} />}
           {tab === 'pick' && nextId && (next.data ? <LineupEditor m={next.data} pickFor /> : <Skeleton height={300} radius={24} style={{ marginTop: 18 }} />)}
           {tab === 'fixtures' && <Fixtures rows={fixtures.data ?? []} loading={fixtures.isLoading} />}
           {tab === 'table' && <Table m={m} />}
@@ -297,18 +297,60 @@ function LineupForm({ m, clubs }: { m: Matchday; clubs: SquadClub[] }) {
   );
 }
 
-function LineupView({ m }: { m: Matchday }) {
+// What a club did (or will do) this Gameweek, in a few words: the score, or the kick-off.
+function clubLine(c: LineupClub, fixtures: Fixture[], lang: string, t: (k: string) => string): string {
+  const matches = (c.detail as { matches?: { home: string; away: string; score: string; status: string }[] })?.matches ?? [];
+  if (matches.length) return matches.map((x) => `${x.home} ${x.score} ${x.away}${x.status === 'live' ? ' · live' : ''}`).join(' · ');
+  const f = fixtures.find((x) => x.home_club_id === c.club_id || x.away_club_id === c.club_id);
+  if (!f) return t('fantasy.md.noMatch');
+  const when = new Date(f.kickoff).toLocaleString(lang, { weekday: 'short', hour: '2-digit', minute: '2-digit', timeZone: FANTASY.timeZone });
+  return `${when} · ${f.home_name} – ${f.away_name}`;
+}
+
+// The opponent alone, for the label under a jersey on the pitch.
+function opponent(c: LineupClub, fixtures: Fixture[]): string | null {
+  const f = fixtures.find((x) => x.home_club_id === c.club_id || x.away_club_id === c.club_id);
+  if (!f) return null;
+  const home = f.home_club_id === c.club_id;
+  return `${home ? f.away_name : f.home_name} (${home ? 'H' : 'A'})`;
+}
+
+function PointsPitch({ rows, fixtures }: { rows: LineupClub[]; fixtures: Fixture[] }) {
+  const starters = rows.filter((c) => c.starter);
+  const bench = rows.filter((c) => !c.starter);
+  const model = (c: LineupClub) => ({ club_id: c.club_id, name: c.name, league: c.league, price: c.price, image_path: c.image_path, points: c.total, sub: opponent(c, fixtures) });
+  return (
+    <Pitch
+      slots={[...Array.from({ length: FANTASY.starters }, (_, i) => (starters[i] ? model(starters[i]!) : null)), ...bench.map(model)]}
+      captainId={rows.find((c) => c.captain)?.club_id ?? null}
+      benchDim={!rows.some((c) => !c.starter && c.multiplier > 0)}
+    />
+  );
+}
+
+function LineupView({ m, fixtures }: { m: Matchday; fixtures: Fixture[] }) {
   const { t } = usePrefs();
   const { user, profile } = useSession();
   const toast = useToast();
   const [params] = useSearchParams();
+  const [view, setView] = useState<'pitch' | 'list'>('pitch');
   const standing = useQuery({ queryKey: ['fantasyStanding', user?.id], queryFn: db.loadMyStanding, enabled: !!user, staleTime: 30_000, retry: false });
-  // Someone else's locked line-up (from a league's pairings).
+  const stats = useQuery({ queryKey: ['fantasyMdStats', m.id], queryFn: () => db.loadMatchdayStats(m.id), staleTime: 30_000, retry: false });
+  // Someone else's locked line-up (from a league's pairings or the table).
   const other = params.get('user');
   const otherHandle = params.get('handle');
   const clubs = useQuery({ queryKey: ['fantasyLineupClubs', m.id, other ?? user?.id], queryFn: () => db.loadLineupClubs(m.id, other ?? undefined), enabled: !!user || !!other, staleTime: 30_000, retry: false });
   const l = (m.lineup as MatchdayLineup | null) ?? null;
   const rows = clubs.data ?? [];
+  const toggle = (
+    <Segmented label={t('fantasy.md.tab.points')} value={view} onChange={(v) => setView(v as 'pitch' | 'list')} options={[{ value: 'pitch', label: t('fantasy.md.view.pitch') }, { value: 'list', label: t('fantasy.md.view.list') }]} />
+  );
+  const body = (
+    <>
+      {clubs.isLoading && <Skeleton height={300} radius={16} style={{ marginTop: 12 }} />}
+      {rows.length > 0 && (view === 'pitch' ? <PointsPitch rows={rows} fixtures={fixtures} /> : <ScoreRows rows={rows} fixtures={fixtures} />)}
+    </>
+  );
   if (other) {
     const total = rows.reduce((a, c) => a + c.total, 0);
     return (
@@ -318,9 +360,9 @@ function LineupView({ m }: { m: Matchday }) {
             <h2 className="title" style={{ margin: 0 }}>
               {t('fantasy.md.lineupOf', { handle: otherHandle ?? '?' })}: <span className="mono">{total}</span>
             </h2>
+            {toggle}
           </div>
-          {clubs.isLoading && <Skeleton height={200} radius={16} style={{ marginTop: 12 }} />}
-          <ScoreRows rows={rows} />
+          {body}
         </section>
       </div>
     );
@@ -334,24 +376,48 @@ function LineupView({ m }: { m: Matchday }) {
       </div>
     );
   if (!l) return <Notice style={{ marginTop: 18 }}>{t('fantasy.md.noLineup')}</Notice>;
+  const s = stats.data;
   return (
     <div className="fantasy-md">
-      <section className="card fantasy-md__squad">
-        <div className="fantasy-panel__head">
-          <h2 className="title" style={{ margin: 0 }}>
-            {t('fantasy.md.myPoints')}: <span className="mono">{l.points}</span>
-          </h2>
-          {m.rank && <span className="mono" style={{ fontSize: 12.5, color: 'var(--muted)' }}>{t('fantasy.md.rank', { rank: m.rank, n: m.players })}</span>}
+      {/* The board, as in Fantasy Premier League: average and highest, mine in the middle, rank and transfers. */}
+      <section className="fantasy-board" aria-label={t('fantasy.md.myPoints')}>
+        <div className="fantasy-board__stat">
+          <b className="mono">{s && s.managers ? s.avg_points : '–'}</b>
+          <small>{t('fantasy.md.avgPoints')}</small>
         </div>
-        <p style={{ margin: '6px 0 0', fontSize: 13, color: 'var(--text-2)' }}>
-          {m.status === 'scored' ? t('fantasy.md.scored') : m.status === 'live' ? '● ' + t('fantasy.md.live') : t('fantasy.md.locked')}
-          {standing.data && <> · {t('fantasy.md.seasonPoints', { n: standing.data.season_points + (m.status === 'scored' ? 0 : l.points) })}</>}
-        </p>
+        <div className="fantasy-board__stat">
+          <b className="mono">{s && s.managers ? s.top_points : '–'}</b>
+          <small>{t('fantasy.md.topPoints')}</small>
+        </div>
+        <div className="fantasy-board__main">
+          <b className="mono">{l.points}</b>
+          <small>{m.status === 'scored' ? t('fantasy.md.finalPoints') : t('fantasy.md.livePoints')}</small>
+        </div>
+        <div className="fantasy-board__stat">
+          <b className="mono">{m.rank ? `${m.rank}/${m.players}` : '–'}</b>
+          <small>{t('fantasy.md.gwRank')}</small>
+        </div>
+        <div className="fantasy-board__stat">
+          <b className="mono">
+            {l.transfers}
+            {l.hits > 0 && <span className="fantasy-board__hit">−{l.hits}</span>}
+          </b>
+          <small>{t('fantasy.md.transfersMade')}</small>
+        </div>
+      </section>
+      <section className="card fantasy-md__squad" style={{ marginTop: 14 }}>
+        <div className="fantasy-panel__head">
+          <p style={{ margin: 0, fontSize: 13, color: 'var(--text-2)' }}>
+            {m.status === 'scored' ? t('fantasy.md.scored') : m.status === 'live' ? '● ' + t('fantasy.md.live') : t('fantasy.md.locked')}
+            {standing.data && <> · {t('fantasy.md.seasonPoints', { n: standing.data.season_points + (m.status === 'scored' ? 0 : l.points) })}</>}
+            {l.chip && <> · {t('fantasy.md.chip.' + l.chip)}</>}
+          </p>
+          {toggle}
+        </div>
         {l.carried && <p style={{ margin: '6px 0 0', fontSize: 13, color: 'var(--muted)' }}>{t('fantasy.md.carried')}</p>}
-        {l.chip && <p style={{ margin: '6px 0 0', fontSize: 13 }}>{t('fantasy.md.chip')}: <b>{t('fantasy.md.chip.' + l.chip)}</b></p>}
-        {l.hits > 0 && <p style={{ margin: '6px 0 0', fontSize: 13, color: 'var(--neg)' }}>{t('fantasy.sq.hits', { n: l.hits })}</p>}
+        {body}
         {m.status === 'scored' && rows.length > 0 && (
-          <div style={{ marginTop: 10 }}>
+          <div style={{ marginTop: 12 }}>
             <Button
               size="sm"
               variant="secondary"
@@ -365,14 +431,12 @@ function LineupView({ m }: { m: Matchday }) {
             </Button>
           </div>
         )}
-        {clubs.isLoading && <Skeleton height={200} radius={16} style={{ marginTop: 12 }} />}
-        <ScoreRows rows={rows} />
       </section>
     </div>
   );
 }
 
-function ScoreRows({ rows }: { rows: LineupClub[] }) {
+function ScoreRows({ rows, fixtures }: { rows: LineupClub[]; fixtures: Fixture[] }) {
   const { t } = usePrefs();
   const starters = rows.filter((c) => c.starter);
   const bench = rows.filter((c) => !c.starter);
@@ -380,7 +444,7 @@ function ScoreRows({ rows }: { rows: LineupClub[] }) {
     <>
       <ul className="fantasy-md__scores">
         {starters.map((c) => (
-          <ScoreRow key={c.club_id} c={c} />
+          <ScoreRow key={c.club_id} c={c} fixtures={fixtures} />
         ))}
       </ul>
       {bench.length > 0 && (
@@ -390,7 +454,7 @@ function ScoreRows({ rows }: { rows: LineupClub[] }) {
           </p>
           <ul className="fantasy-md__scores">
             {bench.map((c) => (
-              <ScoreRow key={c.club_id} c={c} />
+              <ScoreRow key={c.club_id} c={c} fixtures={fixtures} />
             ))}
           </ul>
         </>
@@ -399,9 +463,8 @@ function ScoreRows({ rows }: { rows: LineupClub[] }) {
   );
 }
 
-function ScoreRow({ c }: { c: LineupClub }) {
-  const { t } = usePrefs();
-  const matches = (c.detail as { matches?: { home: string; away: string; score: string; status: string }[] })?.matches ?? [];
+function ScoreRow({ c, fixtures }: { c: LineupClub; fixtures: Fixture[] }) {
+  const { t, lang } = usePrefs();
   return (
     <li className={'fantasy-md__scorerow' + (c.captain ? ' is-captain' : '') + (!c.starter && c.multiplier === 0 ? ' is-bench' : '')}>
       <span className="fantasy-md__thumb">{c.image_path ? <img src={c.image_path} alt="" loading="lazy" /> : null}</span>
@@ -410,7 +473,7 @@ function ScoreRow({ c }: { c: LineupClub }) {
           {c.name} {c.captain && <span className="fantasy-md__captag">C</span>}
         </b>
         <span style={{ fontSize: 12, color: 'var(--muted)' }}>
-          {matches.length ? matches.map((x) => `${x.home} ${x.score} ${x.away}${x.status === 'live' ? ' · live' : ''}`).join(' · ') : t('fantasy.md.noMatch')}
+          {clubLine(c, fixtures, lang, t)}
         </span>
         <span style={{ fontSize: 11.5, color: 'var(--muted)' }}>
           {t('fantasy.md.base', { n: c.base })} · {t('fantasy.md.multiplier', { m: c.multiplier })} · {priceText(c.price)}
@@ -480,7 +543,8 @@ function Table({ m }: { m: Matchday }) {
             <span style={{ display: 'block', fontSize: 12, color: 'var(--muted)' }}>
               {r.captain_name && 'C: ' + r.captain_name}
               {r.chip && ' · ' + t('fantasy.md.chip.' + r.chip)}
-              {r.hits > 0 && ' · −' + r.hits}
+              {' · ' + t('fantasy.md.transfersN', { n: r.transfers })}
+              {r.hits > 0 && ' (−' + r.hits + ')'}
             </span>
           </span>
           <b className="mono" style={{ fontSize: 16 }}>

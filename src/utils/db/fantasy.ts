@@ -47,6 +47,13 @@ export async function loadMatchdayTable(md: number, limit = 50): Promise<Matchda
   if (error) throw error;
   return data ?? [];
 }
+export type MatchdayStats = RpcReturns<'fantasy_matchday_stats'>[number];
+/** The Gameweek's average and highest score (locked line-ups). */
+export async function loadMatchdayStats(md: number): Promise<MatchdayStats | null> {
+  const { data, error } = await (await sb()).rpc('fantasy_matchday_stats', { p_md: md });
+  if (error) throw error;
+  return data?.[0] ?? null;
+}
 export async function loadPriceMoves(limit = 10): Promise<PriceMove[]> {
   const { data, error } = await (await sb()).rpc('fantasy_price_moves', { p_limit: limit });
   if (error) throw error;

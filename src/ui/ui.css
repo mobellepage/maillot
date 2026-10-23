@@ -3341,6 +3341,84 @@ html .logo-word {
   background: rgba(255, 255, 255, 0.2);
 }
 
+
+/* The points board, as in Fantasy Premier League. */
+.fantasy-board {
+  margin-top: 14px;
+  display: grid;
+  grid-template-columns: 1fr 1fr auto 1fr 1fr;
+  align-items: center;
+  gap: 10px;
+  padding: 14px;
+  border-radius: 22px;
+  background: linear-gradient(155deg, #2a1f6b, #14113a 72%);
+  color: #f2f4f1;
+}
+.fantasy-board__stat,
+.fantasy-board__main {
+  display: grid;
+  justify-items: center;
+  text-align: center;
+  gap: 2px;
+}
+.fantasy-board__stat b {
+  font-size: clamp(18px, 3vw, 26px);
+}
+.fantasy-board__stat small,
+.fantasy-board__main small {
+  font-size: 11.5px;
+  color: #cfcbea;
+}
+.fantasy-board__main {
+  min-width: 108px;
+  padding: 12px 16px;
+  border-radius: 16px;
+  background: linear-gradient(160deg, #19e3b1, #3b82f6);
+  color: #0b0b1d;
+}
+.fantasy-board__main b {
+  font-size: 44px;
+  line-height: 1;
+}
+.fantasy-board__main small {
+  color: #0b0b1d;
+  font-weight: 600;
+}
+.fantasy-board__hit {
+  margin-left: 6px;
+  padding: 1px 6px;
+  border-radius: 6px;
+  background: #e5484d;
+  color: #fff;
+  font-size: 12px;
+  vertical-align: middle;
+}
+@media (max-width: 560px) {
+  .fantasy-board {
+    grid-template-columns: 1fr 1fr;
+  }
+  .fantasy-board__main {
+    grid-column: 1 / -1;
+    grid-row: 1;
+  }
+}
+.fantasy-jersey__pts {
+  justify-self: center;
+  padding: 1px 8px;
+  border-radius: 6px;
+  background: #14113a;
+  color: #f2f4f1;
+  font-size: 12px;
+  font-weight: 700;
+}
+.fantasy-jersey__sub {
+  font-size: 11px;
+  opacity: 0.85;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 /* Matchday */
 .fantasy-link--md {
   background: linear-gradient(135deg, rgba(75, 255, 139, 0.18), var(--surface) 70%);

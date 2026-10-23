@@ -2463,5 +2463,15 @@ export const de: Messages = {
   'feedAll.title': 'Alle Sammler',
   'feedAll.meta': 'Feed – Trikots aller Sammler auf Maillot',
   'feedAll.emptyBody': 'Noch hat kein Sammler ein Trikot gezeigt.',
+  'fantasy.md.pts': '{n} Pkt.',
+  'fantasy.md.avgPoints': 'Durchschnitt',
+  'fantasy.md.topPoints': 'Höchste',
+  'fantasy.md.livePoints': 'Punkte bisher',
+  'fantasy.md.finalPoints': 'Endstand',
+  'fantasy.md.gwRank': 'Rang Gameweek',
+  'fantasy.md.transfersMade': 'Transfers',
+  'fantasy.md.transfersN': '{n} Transfers',
+  'fantasy.md.view.pitch': 'Feld',
+  'fantasy.md.view.list': 'Liste',
   // @@end
 };

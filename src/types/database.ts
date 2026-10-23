@@ -981,8 +981,9 @@ export type Database = {
       };
       fantasy_matchday_table: {
         Args: { p_md: number; p_limit?: number };
-        Returns: { user_id: string; handle: string; avatar: string | null; points: number; hits: number; captain_name: string | null; chip: string | null; is_me: boolean }[];
+        Returns: { user_id: string; handle: string; avatar: string | null; points: number; hits: number; transfers: number; captain_name: string | null; chip: string | null; is_me: boolean }[];
       };
+      fantasy_matchday_stats: { Args: { p_md: number }; Returns: { avg_points: number; top_points: number; managers: number }[] };
       fantasy_price_moves: {
         Args: { p_limit?: number };
         Returns: { club_id: string; name: string; league: string; image_path: string | null; delta: number; price: number; matchday: number }[];

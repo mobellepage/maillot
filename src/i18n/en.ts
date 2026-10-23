@@ -2462,6 +2462,16 @@ export const en = {
   'feedAll.title': 'All collectors',
   'feedAll.meta': 'Feed – shirts from every collector on Maillot',
   'feedAll.emptyBody': 'No collector has shown a shirt yet.',
+  'fantasy.md.pts': '{n} pts',
+  'fantasy.md.avgPoints': 'Average',
+  'fantasy.md.topPoints': 'Highest',
+  'fantasy.md.livePoints': 'Points so far',
+  'fantasy.md.finalPoints': 'Final points',
+  'fantasy.md.gwRank': 'Gameweek rank',
+  'fantasy.md.transfersMade': 'Transfers',
+  'fantasy.md.transfersN': '{n} transfers',
+  'fantasy.md.view.pitch': 'Pitch',
+  'fantasy.md.view.list': 'List',
   // @@end
 };
 
