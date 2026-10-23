@@ -30,8 +30,9 @@ jobs:
         with:
           path: ~/.cache/ms-playwright
           key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
-      - run: npx playwright install --with-deps chromium
-        timeout-minutes: 6
+      # The apt mirrors sometimes hang: two tries of 5 minutes each.
+      - run: for i in 1 2; do timeout 300 npx playwright install --with-deps chromium && exit 0; echo "retry $i"; done; exit 1
+        timeout-minutes: 11
       - run: npx playwright test --project=smoke --project=smoke-mobile
       - uses: actions/upload-artifact@v4
         if: failure()
