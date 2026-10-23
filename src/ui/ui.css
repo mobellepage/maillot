@@ -3216,6 +3216,118 @@ html .logo-word {
   white-space: nowrap;
 }
 
+
+/* Home: the Fantasy tile shows what the game is — jerseys on a little pitch. */
+.play-fantasy {
+  display: grid;
+  gap: 18px;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 220px);
+  align-items: center;
+}
+@media (max-width: 560px) {
+  .play-fantasy {
+    grid-template-columns: 1fr;
+  }
+}
+.play-pitch {
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+}
+.play-pitch__grass {
+  position: relative;
+  overflow: hidden;
+  padding: 12px 8px 10px;
+  display: grid;
+  gap: 6px;
+  background: repeating-linear-gradient(180deg, #2f9a4f 0 26px, #2b8f49 26px 52px);
+}
+.play-pitch__grass::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 30%;
+  width: 40%;
+  height: 26px;
+  border: 2px solid rgba(255, 255, 255, 0.55);
+  border-top: 0;
+  border-radius: 0 0 4px 4px;
+}
+.play-pitch__grass::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: -22px;
+  width: 44px;
+  height: 44px;
+  margin-left: -22px;
+  border: 2px solid rgba(255, 255, 255, 0.55);
+  border-radius: 50%;
+}
+.play-pitch__row {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+}
+.play-pitch__row img,
+.play-pitch__row span {
+  width: 31%;
+  max-width: 72px;
+}
+.play-pitch__row img,
+.play-pitch__bench img {
+  aspect-ratio: 1;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.35));
+}
+.play-pitch__row span {
+  position: relative;
+}
+.play-pitch__row span img {
+  width: 100%;
+}
+.play-pitch__cap b {
+  position: absolute;
+  top: 0;
+  right: 4px;
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  background: #f3c53d;
+  color: #1a1400;
+  font-size: 10px;
+  font-weight: 800;
+}
+.play-pitch__bench {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  padding: 6px 8px;
+  background: rgba(255, 255, 255, 0.08);
+}
+.play-pitch__bench img {
+  width: 24%;
+  max-width: 52px;
+  opacity: 0.75;
+}
+.play-card--fantasy {
+  display: grid;
+}
+
+/* Secondary buttons on the dark Gameweek hero: light on dark. */
+.fantasy-gw .btn--secondary {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.35);
+  color: #f2f4f1;
+}
+.fantasy-gw .btn--secondary:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
 /* Matchday */
 .fantasy-link--md {
   background: linear-gradient(135deg, rgba(75, 255, 139, 0.18), var(--surface) 70%);

@@ -2196,7 +2196,7 @@ export const fr: Messages = {
   'fantasy.meta': 'Fantasy — le jeu d’effectif Maillot',
   'fantasy.metaDesc': 'Huit maillots pour 100 M, cinq jouent chaque Gameweek. Vrais résultats, vrais maillots : seul un club dont tu possèdes le maillot peut être ton capitaine.',
   'fantasy.tagline': 'Compose un effectif de huit maillots pour 100 M. Cinq jouent chaque week-end — victoire 3, nul 1. Ton capitaine compte double, et seul un club dont tu possèdes le maillot peut porter le brassard.',
-  'fantasy.pointsLabel': 'Kit Points',
+  'fantasy.pointsLabel': 'Points de la saison',
   'fantasy.noMoney': 'Gratuit. Rien dans Fantasy n’est à vendre — jamais.',
   'fantasy.signin': 'Se connecter et jouer',
   'fantasy.how.1': 'Choisis {n} maillots de cette saison pour {budget} M — au plus deux d’une même ligue.',

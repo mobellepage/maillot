@@ -2195,7 +2195,7 @@ export const en = {
   'fantasy.meta': 'Fantasy — the Maillot squad game',
   'fantasy.metaDesc': 'Eight jerseys for 100 M, five play every Gameweek. Real results, real shirts: only a club whose shirt you own can be your captain.',
   'fantasy.tagline': 'Build a squad of eight jerseys for 100 M. Five play every weekend — win 3, draw 1. Your captain counts double, and only a club whose shirt you own can wear the armband.',
-  'fantasy.pointsLabel': 'Kit Points',
+  'fantasy.pointsLabel': 'Season points',
   'fantasy.noMoney': 'Free to play. Nothing in Fantasy is for sale — ever.',
   'fantasy.signin': 'Sign in and play',
   'fantasy.how.1': 'Pick {n} jerseys of this season for {budget} M — at most two from one league.',

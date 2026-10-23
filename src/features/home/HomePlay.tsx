@@ -106,6 +106,18 @@ function LibraryTile() {
   );
 }
 
+/** This season's jerseys for the little pitch on the Fantasy tile: five starting, three on the bench. */
+const PITCH = [
+  '/library/pl/arsenal/2026-27-home-kit.webp',
+  '/library/ll/real-madrid/2026-27-home-kit.webp',
+  '/library/bl/bayern/2026-27-home-kit.webp',
+  '/library/ll/barcelona/2026-27-home-kit.webp',
+  '/library/sa/milan/2026-27-home-kit.webp',
+  '/library/pl/liverpool/2026-27-home-kit.webp',
+  '/library/l1/psg/2026-27-home-kit.webp',
+  '/library/yb/2026-27-home-kit.webp'
+];
+
 /** Fantasy: the game — for members, with the next deadline. */
 function FantasyTile() {
   const { t } = usePrefs();
@@ -115,12 +127,37 @@ function FantasyTile() {
   const [now] = useState(() => Date.now());
   const open = !!m && m.status === 'upcoming' && new Date(m.deadline).getTime() > now;
   return (
-    <Link to="/fantasy" className="play-card" style={{ ...tile, background: 'linear-gradient(160deg,#0f2a1b,#0A0C0B 70%)', color: '#F2F4F1' }}>
-      <div style={{ display: 'grid', gap: 10, minWidth: 0 }}>
-        <span style={{ ...kicker, color: '#4BFF8B' }}>⚽ {t('home.play.fantasy.kicker')}</span>
-        <p style={{ ...big, color: '#F2F4F1' }}>{t('home.play.fantasy.title')}</p>
-        <p style={{ margin: 0, fontSize: 15, lineHeight: 1.45, color: '#C9D0CB' }}>{t('home.play.fantasy.body')}</p>
-        {user && m && open && <span style={{ fontSize: 13.5, color: '#4BFF8B', fontWeight: 700 }}>{t('home.play.fantasy.ready', { n: m.number, t: untilText(m.deadline, now) ?? '' })}</span>}
+    <Link to="/fantasy" className="play-card play-card--fantasy" style={{ ...tile, background: 'linear-gradient(155deg,#2a1f6b,#14113a 72%)', color: '#F2F4F1' }}>
+      <div className="play-fantasy">
+        <div style={{ display: 'grid', gap: 10, minWidth: 0 }}>
+          <span style={{ ...kicker, color: '#8FFFC1' }}>⚽ {t('home.play.fantasy.kicker')}</span>
+          <p style={{ ...big, color: '#F2F4F1' }}>{t('home.play.fantasy.title')}</p>
+          <p style={{ margin: 0, fontSize: 15, lineHeight: 1.45, color: '#CFCBEA' }}>{t('home.play.fantasy.body')}</p>
+          {user && m && open && <span style={{ fontSize: 13.5, color: '#8FFFC1', fontWeight: 700 }}>{t('home.play.fantasy.ready', { n: m.number, t: untilText(m.deadline, now) ?? '' })}</span>}
+        </div>
+        {/* What it is, at a glance: five jerseys on the grass, three on the bench. */}
+        <div className="play-pitch" aria-hidden="true">
+          <div className="play-pitch__grass">
+            <div className="play-pitch__row">
+              {PITCH.slice(0, 3).map((src) => (
+                <img key={src} src={src} alt="" loading="lazy" />
+              ))}
+            </div>
+            <div className="play-pitch__row">
+              {PITCH.slice(3, 5).map((src, i) => (
+                <span key={src} className={i === 0 ? 'play-pitch__cap' : undefined}>
+                  <img src={src} alt="" loading="lazy" />
+                  {i === 0 && <b>C</b>}
+                </span>
+              ))}
+            </div>
+          </div>
+          <div className="play-pitch__bench">
+            {PITCH.slice(5).map((src) => (
+              <img key={src} src={src} alt="" loading="lazy" />
+            ))}
+          </div>
+        </div>
       </div>
       <span style={{ ...cta, background: '#4BFF8B', color: '#06110A' }}>{t('home.play.fantasy.cta')} →</span>
     </Link>

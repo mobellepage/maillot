@@ -2196,7 +2196,7 @@ export const de: Messages = {
   'fantasy.meta': 'Fantasy — das Maillot-Kaderspiel',
   'fantasy.metaDesc': 'Acht Trikots für 100 M, fünf spielen jede Gameweek. Echte Resultate, echte Trikots: Nur ein Club, dessen Trikot du besitzt, kann dein Captain sein.',
   'fantasy.tagline': 'Stell einen Kader aus acht Trikots für 100 M zusammen. Fünf spielen jedes Wochenende — Sieg 3, Remis 1. Dein Captain zählt doppelt, und nur ein Club, dessen Trikot du besitzt, darf die Binde tragen.',
-  'fantasy.pointsLabel': 'Kit Points',
+  'fantasy.pointsLabel': 'Saisonpunkte',
   'fantasy.noMoney': 'Kostenlos. Nichts in Fantasy ist käuflich — nie.',
   'fantasy.signin': 'Anmelden und spielen',
   'fantasy.how.1': 'Wähle {n} Trikots dieser Saison für {budget} M — höchstens zwei aus einer Liga.',
