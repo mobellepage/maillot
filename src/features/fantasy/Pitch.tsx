@@ -8,7 +8,8 @@ import { JerseyCard, type JerseyModel } from './JerseyCard.tsx';
 export interface PitchProps {
   /** Eight places: the first five on the pitch, the last three on the bench. */
   slots: (JerseyModel | null)[];
-  onTap: (i: number) => void;
+  /** Without it the pitch is only shown (another manager's line-up). */
+  onTap?: (i: number) => void;
   /** When given, pitch jerseys get a captain button (disabled unless the shirt is owned). */
   onCaptain?: (i: number) => void;
   captainId?: string | null;
@@ -27,18 +28,26 @@ export function Pitch({ slots, onTap, onCaptain, captainId, benchDim = true, dis
     if (!j)
       return (
         <li key={i} className="fantasy-pitch__slot">
-          <button type="button" className="fantasy-pitch__add" onClick={() => onTap(i)} disabled={disabled} aria-label={t('fantasy.sq.addSlot')}>
-            +
-          </button>
+          {onTap ? (
+            <button type="button" className="fantasy-pitch__add" onClick={() => onTap(i)} disabled={disabled} aria-label={t('fantasy.sq.addSlot')}>
+              +
+            </button>
+          ) : (
+            <span className="fantasy-pitch__add" aria-hidden="true" />
+          )}
         </li>
       );
     const isCap = !!captainId && captainId === j.club_id;
     const subbing = !!outId;
     return (
       <li key={j.club_id} className={'fantasy-pitch__slot' + (isCap ? ' is-captain' : '') + (subbing && bench ? ' is-pick' : '') + (outId === j.club_id ? ' is-out' : '')}>
-        <button type="button" className="fantasy-md__cardbtn" onClick={() => onTap(i)} disabled={disabled} aria-label={j.name}>
-          <JerseyCard j={{ ...j, captain: isCap }} small dim={bench && benchDim && !subbing} />
-        </button>
+        {onTap ? (
+          <button type="button" className="fantasy-md__cardbtn" onClick={() => onTap(i)} disabled={disabled} aria-label={j.name}>
+            <JerseyCard j={{ ...j, captain: isCap }} small dim={bench && benchDim && !subbing} />
+          </button>
+        ) : (
+          <JerseyCard j={{ ...j, captain: isCap }} small dim={bench && benchDim} />
+        )}
         {onCaptain && !bench && (
           <button type="button" className={'fantasy-md__cap' + (isCap ? ' is-on' : '')} aria-pressed={isCap} disabled={disabled || !j.owned} onClick={() => onCaptain(i)} title={j.owned ? t('fantasy.md.makeCaptain') : t('fantasy.md.captainOwnedOnly')}>
             C
@@ -58,7 +67,7 @@ export function Pitch({ slots, onTap, onCaptain, captainId, benchDim = true, dis
       </div>
       <div className={'fantasy-bench' + (outId ? ' is-pick' : '')}>
         <span className="fantasy-bench__label">{t('fantasy.md.bench')}</span>
-        <ul className="fantasy-pitch__row">{Array.from({ length: FANTASY.squadSize - FANTASY.starters }, (_, k) => place(FANTASY.starters + k, true))}</ul>
+        <ul className="fantasy-pitch__row fantasy-pitch__row--bench">{Array.from({ length: Math.max(FANTASY.squadSize - FANTASY.starters, slots.length - FANTASY.starters) }, (_, k) => place(FANTASY.starters + k, true))}</ul>
       </div>
     </div>
   );

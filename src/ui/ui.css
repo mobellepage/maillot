@@ -3092,6 +3092,9 @@ html .logo-word {
   padding: 10px 10px 12px;
   border-top: 1px solid var(--border);
 }
+.fantasy-pitch__row--bench {
+  flex-wrap: wrap;
+}
 .fantasy-bench__label {
   display: block;
   font-size: 11px;

@@ -2339,8 +2339,8 @@ export const en = {
   'fantasy.profile.none': '@{handle} hasn’t played Fantasy yet.',
   'fantasy.profile.division': 'Division {n}',
   'fantasy.profile.season': 'Season: {points} pts · rank {rank}',
-  'fantasy.profile.best': 'Best Matchday: {points} pts (MD {n})',
-  'fantasy.profile.played': '{n} Matchdays',
+  'fantasy.profile.best': 'Best Gameweek: {points} pts (GW {n})',
+  'fantasy.profile.played': '{n} Gameweeks',
   'fantasy.profile.badges': 'Badges',
   'fantasy.badge.motm': 'Manager of Matchday {n}',
   'fantasy.badge.promoted': 'Promoted to Division {n}',
@@ -2456,6 +2456,8 @@ export const en = {
   'fantasy.md.tab.pick': 'Pick team',
   'fantasy.md.pickFor': 'Your five for Gameweek {n} — deadline {date}.',
   'fantasy.md.seasonPoints': 'Season: {n} points',
+  'fantasy.profile.lineup': 'Line-up · Gameweek {n}',
+  'fantasy.profile.captainIs': 'Captain: {club}',
   // @@end
 };
 

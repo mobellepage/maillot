@@ -2340,8 +2340,8 @@ export const fr: Messages = {
   'fantasy.profile.none': '@{handle} n’a pas encore joué à Fantasy.',
   'fantasy.profile.division': 'Division {n}',
   'fantasy.profile.season': 'Saison : {points} pts · rang {rank}',
-  'fantasy.profile.best': 'Meilleur Matchday : {points} pts (MD {n})',
-  'fantasy.profile.played': '{n} Matchdays',
+  'fantasy.profile.best': 'Meilleure Gameweek : {points} pts (GW {n})',
+  'fantasy.profile.played': '{n} Gameweeks',
   'fantasy.profile.badges': 'Badges',
   'fantasy.badge.motm': 'Manager du Matchday {n}',
   'fantasy.badge.promoted': 'Promu en Division {n}',
@@ -2457,5 +2457,7 @@ export const fr: Messages = {
   'fantasy.md.tab.pick': 'Choisir l’équipe',
   'fantasy.md.pickFor': 'Tes cinq pour la Gameweek {n} — deadline {date}.',
   'fantasy.md.seasonPoints': 'Saison : {n} points',
+  'fantasy.profile.lineup': 'Composition · Gameweek {n}',
+  'fantasy.profile.captainIs': 'Capitaine : {club}',
   // @@end
 };

@@ -51,6 +51,9 @@ export default function MatchdayPage() {
   const wanted = params.get('tab') as Tab | null;
   const tab: Tab = wanted && tabs.some((x) => x.value === wanted) ? wanted : tabs[0]!.value;
   const dateFmt = (iso: string) => new Date(iso).toLocaleString(lang, { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', timeZone: FANTASY.timeZone });
+  // The header shows the Gameweek being worked on: on "Pick team" that's the next one.
+  const h = tab === 'pick' && next.data ? next.data : m;
+  const hOpen = !!h && h.status === 'upcoming' && new Date(h.deadline).getTime() > now;
 
   return (
     <Page>
@@ -65,18 +68,18 @@ export default function MatchdayPage() {
           <header className="fantasy-head">
             <div>
               <p className="eyebrow" style={{ margin: 0 }}>
-                {m.cup_name} · {m.season_name}
+                {h!.cup_name} · {h!.season_name}
               </p>
               <h1 className="display" style={{ margin: '4px 0 0', fontSize: 'clamp(28px,4vw,40px)' }}>
-                {t('fantasy.md.number', { n: m.number })}
+                {t('fantasy.md.number', { n: h!.number })}
               </h1>
               <p style={{ margin: '6px 0 0', color: 'var(--text-2)', fontSize: 14.5 }}>
-                {dateFmt(m.window_start)} – {dateFmt(m.window_end)}
+                {dateFmt(h!.window_start)} – {dateFmt(h!.window_end)}
               </p>
             </div>
-            <div className="fantasy-md__status" data-status={open ? 'open' : m.status}>
-              {open ? t('fantasy.md.deadlineIn', { t: untilText(m.deadline, now) ?? '' }) : m.status === 'scored' ? t('fantasy.md.scored') : m.status === 'live' ? '● ' + t('fantasy.md.live') : t('fantasy.md.locked')}
-              <small>{open ? t('fantasy.md.deadlineAt', { date: dateFmt(m.deadline) }) : t('fantasy.md.players', { n: m.players })}</small>
+            <div className="fantasy-md__status" data-status={hOpen ? 'open' : h!.status}>
+              {hOpen ? t('fantasy.md.deadlineIn', { t: untilText(h!.deadline, now) ?? '' }) : h!.status === 'scored' ? t('fantasy.md.scored') : h!.status === 'live' ? '● ' + t('fantasy.md.live') : t('fantasy.md.locked')}
+              <small>{hOpen ? t('fantasy.md.deadlineAt', { date: dateFmt(h!.deadline) }) : t('fantasy.md.players', { n: h!.players })}</small>
             </div>
           </header>
           <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap', marginTop: 14 }}>
@@ -88,7 +91,7 @@ export default function MatchdayPage() {
             <span style={{ flex: 1 }} />
             <Segmented label={t('fantasy.md.title')} value={tab} onChange={(v) => setParams({ tab: v }, { replace: true })} options={tabs} />
           </div>
-          <Notice style={{ marginTop: 14 }}>{m.international ? t('fantasy.md.international') : t('fantasy.md.clubsOnly')}</Notice>
+          <Notice style={{ marginTop: 14 }}>{h!.international ? t('fantasy.md.international') : t('fantasy.md.clubsOnly')}</Notice>
 
           {tab === 'lineup' && <LineupEditor m={m} />}
           {tab === 'points' && <LineupView m={m} />}
@@ -142,7 +145,11 @@ function LineupForm({ m, clubs }: { m: Matchday; clubs: SquadClub[] }) {
   const toast = useToast();
   const qc = useQueryClient();
   const l = (m.lineup as MatchdayLineup | null) ?? null;
-  const [starters, setStarters] = useState<string[]>(() => clubs.filter((c) => c.starter).map((c) => c.club_id));
+  const [starters, setStarters] = useState<string[]>(() => {
+    const five = clubs.filter((c) => c.starter).map((c) => c.club_id);
+    const rest = [...clubs].filter((c) => !five.includes(c.club_id)).sort((a, b) => Number(b.plays) - Number(a.plays) || Number(b.price) - Number(a.price));
+    return [...five, ...rest.map((c) => c.club_id)].slice(0, FANTASY.starters);
+  });
   const [captain, setCaptain] = useState<string | null>(() => clubs.find((c) => c.captain)?.club_id ?? null);
   // Substituting: first the question, then the bench lights up to choose from.
   const [ask, setAsk] = useState<SquadClub | null>(null);

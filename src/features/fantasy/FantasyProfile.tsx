@@ -1,14 +1,16 @@
 // The game on a collector's public profile: division, season points, best
-// Gameweek, badges and the squad as it stood at the last deadline.
+// Gameweek, badges and the line-up as it last locked — five on the pitch
+// (the captain marked), three on the bench.
 import { useQuery } from '@tanstack/react-query';
 import { usePrefs } from '../../lib/prefs.tsx';
 import * as db from '../../utils/db.ts';
 import { Skeleton } from '../../ui/index.ts';
-import { JerseyCard } from './JerseyCard.tsx';
+import { FANTASY } from '../../config/fantasy.ts';
+import { Pitch } from './Pitch.tsx';
 import { priceText } from './model.ts';
 
 type Badge = { key: string; data: Record<string, unknown>; at: string };
-type SquadEntry = { club_id: string; name: string; league: string; price: number; image_path: string | null };
+type SquadEntry = { club_id: string; name: string; league: string; price: number; image_path: string | null; starter: boolean; captain: boolean; gameweek: number };
 
 export function FantasyProfile({ handle }: { handle: string }) {
   const { t } = usePrefs();
@@ -46,17 +48,18 @@ export function FantasyProfile({ handle }: { handle: string }) {
         )}
       </div>
       {squad.length > 0 && (
-        <section aria-label={t('fantasy.profile.squad')}>
-          <h3 className="title" style={{ margin: '0 0 8px', fontSize: 15 }}>
-            👕 {t('fantasy.profile.squad')} <span className="mono" style={{ fontWeight: 500, color: 'var(--muted)', fontSize: 12.5 }}>{priceText(p.squad_value)}</span>
+        <section aria-label={t('fantasy.profile.squad')} style={{ maxWidth: 560 }}>
+          <h3 className="title" style={{ margin: '0 0 2px', fontSize: 15 }}>
+            👕 {t('fantasy.profile.lineup', { n: squad[0]!.gameweek })} <span className="mono" style={{ fontWeight: 500, color: 'var(--muted)', fontSize: 12.5 }}>{priceText(p.squad_value)}</span>
           </h3>
-          <ul className="fantasy-squadgrid fantasy-squadgrid--slots" style={{ margin: 0 }}>
-            {squad.map((c) => (
-              <li key={c.club_id}>
-                <JerseyCard j={c} small />
-              </li>
-            ))}
-          </ul>
+          <Pitch
+            slots={[
+              ...Array.from({ length: FANTASY.starters }, (_, i) => squad.filter((c) => c.starter)[i] ?? null),
+              ...Array.from({ length: FANTASY.squadSize - FANTASY.starters }, (_, i) => squad.filter((c) => !c.starter)[i] ?? null)
+            ]}
+            captainId={squad.find((c) => c.captain)?.club_id ?? null}
+          />
+          <p style={{ margin: '6px 0 0', fontSize: 12.5, color: 'var(--muted)' }}>{squad.some((c) => c.captain) ? t('fantasy.profile.captainIs', { club: squad.find((c) => c.captain)!.name }) : t('fantasy.md.noCaptainYet')}</p>
         </section>
       )}
       {badges.length > 0 && (
