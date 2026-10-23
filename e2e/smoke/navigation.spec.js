@@ -20,14 +20,15 @@ test('search leads to a shareable product URL and Back works', async ({ page }) 
   await page.getByRole('combobox', { name: 'Search any shirt' }).fill('zidane');
   // Suggestions from the marketplace show while typing (the library needs the backend).
   await expect(page.getByRole('option', { name: /France 1998 Home/ })).toBeVisible();
-  await page.getByRole('button', { name: 'Search', exact: true }).click();
-  // The search lives in the URL, so results are shareable.
-  // The market lists shirts in collections (here a demo one) — every one, from the home search.
-  await expect(page).toHaveURL(/\/market\?q=zidane&status=all$/);
-  await page.getByRole('link', { name: 'France 1998 Home' }).first().click();
+  // A suggestion leads to the shirt's own, shareable page, and Back returns.
+  await page.getByRole('option', { name: /France 1998 Home/ }).click();
   await expect(page).toHaveURL(/\/shirt\/fra-98$/);
   await expect(page).toHaveTitle(/^France 1998 Home/);
   await page.goBack();
+  await expect(page).toHaveURL(/\/$/);
+  // The search itself lives in the URL, so results are shareable.
+  await page.getByRole('combobox', { name: 'Search any shirt' }).fill('zidane');
+  await page.getByRole('button', { name: 'Search', exact: true }).click();
   await expect(page).toHaveURL(/\/market\?q=zidane&status=all$/);
 });
 
@@ -210,17 +211,16 @@ test('the kit library says so when it can’t load', async ({ page }) => {
   await expect(page.getByRole('button', { name: /try again/i }).first()).toBeVisible({ timeout: 15000 });
 });
 
-test('the side rail leads to the puzzle and the library', async ({ page }) => {
+test('the side rail leads to Fantasy, the library and the kit designer', async ({ page }) => {
   await page.goto('/market');
   const rail = page.getByRole('navigation', { name: 'Daily features' });
-  // The kit designer stepped back: in the footer, not on the rail.
-  await expect(rail.getByRole('link', { name: 'Kit designer' })).toHaveCount(0);
-  await expect(page.locator('footer').getByRole('link', { name: 'Kit designer' })).toHaveAttribute('href', '/designer');
   await rail.getByRole('link', { name: 'Kit library' }).click();
   await expect(page).toHaveURL(/\/library$/);
-  await rail.getByRole('link', { name: 'Daily shirt puzzle' }).click();
-  await expect(page).toHaveURL(/\/daily$/);
-  // Not while adding a shirt.
+  await rail.getByRole('link', { name: 'Kit designer' }).click();
+  await expect(page).toHaveURL(/\/designer$/);
+  await rail.getByRole('link', { name: 'Fantasy' }).click();
+  await expect(page).toHaveURL(/\/fantasy$/);
+  // Not while signing in.
   await page.goto('/signin');
   await expect(rail).toHaveCount(0);
 });
@@ -250,31 +250,26 @@ test('anyone can play with the kit designer', async ({ page }) => {
 test('the market lists shirts in collections: buyable first, every one on request', async ({ page }) => {
   await page.goto('/market');
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Shirts from collections');
-  const cards = page.getByRole('list', { name: 'Results' }).getByRole('listitem');
-  await expect(cards.first()).toContainText(/For sale|Open to offers/);
-  await expect(cards.first()).toContainText('DEMO');
-  const buyable = await cards.count();
+  // Only collectors' real shirts (no demo pieces since 23 Oct 2026); the smoke run has none.
+  await expect(page.getByText('DEMO', { exact: true })).toHaveCount(0);
   await page.getByRole('button', { name: 'All in collections' }).click();
   await expect(page).toHaveURL(/status=all/);
-  await expect.poll(() => cards.count()).toBeGreaterThan(buyable);
-  // Catalogue models are not listed here: no "market value = …" grid, but the demo match-worn piece is.
-  await expect(page.getByText('Kaká 22')).toBeVisible();
-  await expect(cards.filter({ hasText: 'Kaká 22' })).toContainText('Value after verification');
 });
 
 test('a model page counts its shirts in collections and leads to them', async ({ page }) => {
   await page.goto('/shirt/acm-0607');
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('AC Milan 2006/07 Home');
-  await page.getByRole('link', { name: /in collections, \d+ to buy/ }).click();
-  await expect(page).toHaveURL(/\/market\?shirt=acm-0607&status=all$/);
-  await expect(page.getByText('Kaká 22')).toBeVisible();
+  // Without shirts in collections (the smoke run has none) it says so and still leads to the market.
+  await expect(page.getByText('Not in any collection yet')).toBeVisible();
+  await page.getByRole('link', { name: 'Shirts in collections' }).click();
+  await expect(page).toHaveURL(/\/market\?shirt=acm-0607/);
 });
 
-test('the feed starts with news from collections, marked demo until launch', async ({ page }) => {
+test('Scout deals shirt cards, none of them demo', async ({ page }) => {
   await page.goto('/feed');
   const card = page.locator('[aria-roledescription="shirt card"]');
-  await expect(card).toContainText(/added a shirt|put it up for sale|open to offers|lowered the price/, { timeout: 10000 });
-  await expect(card).toContainText('DEMO');
+  await expect(card.first()).toBeVisible({ timeout: 10000 });
+  await expect(card.first()).not.toContainText('DEMO');
 });
 
 test('a shirt page is ready for search engines without JavaScript', async () => {

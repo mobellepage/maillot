@@ -19,9 +19,10 @@ export const VERSIONS = [
 
 /**
  * Demo exemplars fill the marketplace and the feed (marked DEMO, not
- * buyable) until there are enough real ones. Switch off at launch.
+ * buyable) until there are enough real ones. Off since 23 Oct 2026: the
+ * market shows only the collectors' own shirts until the first retailer.
  */
-export const SHOW_DEMO_EXEMPLARS = true;
+export const SHOW_DEMO_EXEMPLARS = false;
 
 /**
  * Fees and where Maillot trades. Seller commission (dealers on pilot terms
