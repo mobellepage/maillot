@@ -34,7 +34,7 @@ jobs:
       - run: for i in 1 2; do timeout 300 npx playwright install --with-deps chromium && exit 0; echo "retry $i"; done; exit 1
         timeout-minutes: 11
       - run: npx playwright test --project=smoke --project=smoke-mobile
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: failure()
         with:
           name: playwright-report-smoke
@@ -87,7 +87,7 @@ jobs:
               | while IFS= read -r l; do echo "::error title=e2e::${l:0:4000}"; done
             exit 1
           }
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: failure()
         with:
           name: playwright-report-backend
