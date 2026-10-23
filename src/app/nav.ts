@@ -19,7 +19,7 @@ export function useNavItems() {
     { to: '/', icon: 'discover', label: t('nav.discover'), short: t('nav.discover'), match: (p) => p === '/' },
     // Feed: what the collectors you follow add, and the outfits (Fits); visitors start with the Fits.
     { to: user ? '/feed/following' : '/fits', icon: 'feed', label: t('nav.feed'), short: t('nav.feed'), match: (p) => p.startsWith('/feed/') || p === '/fits' },
-    // Swipe: the shirt cards (right = wishlist).
+    // Scout: the shirt cards to swipe (right = wishlist).
     { to: '/feed', icon: 'swipe', label: t('nav.swipe'), short: t('nav.swipe'), match: (p) => p === '/feed' },
     // Fantasy: the squad game (eight jerseys, five play each Gameweek).
     { to: '/fantasy', icon: 'fantasy', label: 'Fantasy', short: 'Fantasy', match: (p) => p.startsWith('/fantasy') },
