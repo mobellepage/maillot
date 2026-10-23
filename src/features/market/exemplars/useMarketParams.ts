@@ -1,5 +1,5 @@
 // The marketplace's filters live in the URL, so results are shareable:
-// status=all, q, shirt, version, size, cond, league, club, verify, min, max.
+// status=buyable (default: everything in collections), q, shirt, version, size, cond, league, club, verify, min, max.
 import { useSearchParams } from 'react-router';
 import { NO_FILTERS, type MarketFilters } from './model.ts';
 
@@ -15,7 +15,7 @@ export function useMarketParams() {
   const list = (k: ListKey) => (params.get(PARAM[k]) ?? '').split(',').filter(Boolean);
   const f: MarketFilters = {
     ...NO_FILTERS,
-    status: params.get('status') === 'all' ? 'all' : 'buyable',
+    status: params.get('status') === 'buyable' ? 'buyable' : 'all',
     q: params.get('q') ?? '',
     shirt: params.get('shirt'),
     versions: list('versions') as MarketFilters['versions'],
@@ -37,7 +37,7 @@ export function useMarketParams() {
     );
   return {
     f,
-    setStatus: (s: MarketFilters['status']) => update((p) => (s === 'all' ? p.set('status', 'all') : p.delete('status'))),
+    setStatus: (s: MarketFilters['status']) => update((p) => (s === 'buyable' ? p.set('status', 'buyable') : p.delete('status'))),
     setQ: (q: string) => update((p) => (q ? p.set('q', q) : p.delete('q'))),
     toggle: (k: ListKey, v: string) =>
       update((p) => {

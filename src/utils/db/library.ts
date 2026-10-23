@@ -128,6 +128,20 @@ export async function loadPopularKits(limit = 3): Promise<KitTile[]> {
   return data || [];
 }
 
+/** Library kits liked most on Scout, the last two weeks first. */
+export async function loadTrendingKits(limit = 12): Promise<(KitTile & { likes: number })[]> {
+  const { data, error } = await (await sb()).rpc('trending_kits', { p_limit: limit });
+  if (error) throw error;
+  return data || [];
+}
+
+/** Library kits that fit the member's own collection (same clubs, leagues, decades). */
+export async function loadRecommendedKits(limit = 12): Promise<KitTile[]> {
+  const { data, error } = await (await sb()).rpc('recommended_kits', { p_limit: limit });
+  if (error) throw error;
+  return data || [];
+}
+
 export async function loadEraKits(decade: number, league: string | null, offset = 0, limit = 48): Promise<KitTile[]> {
   const { data, error } = await (await sb()).rpc('era_kits', { p_decade: decade, p_league: league, p_offset: offset, p_limit: limit });
   if (error) throw error;

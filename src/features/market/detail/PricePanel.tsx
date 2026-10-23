@@ -44,7 +44,7 @@ export function PricePanel({ s, size, setSize, stats, watched, toggleWatch, inCo
         <span aria-hidden="true" style={{ color: 'var(--faint-2)' }}>
           •
         </span>
-        <span>{total ? <Link to={`/market?shirt=${s.id}&status=all`}>{t('pp.inCollections', { n: total, b: buyable })}</Link> : t('pp.noneInCollections')}</span>
+        <span>{total ? <Link to={`/market?shirt=${s.id}`}>{t('pp.inCollections', { n: total, b: buyable })}</Link> : t('pp.noneInCollections')}</span>
       </div>
 
       <fieldset style={{ border: 0, padding: 0, margin: '30px 0 0' }}>
@@ -71,7 +71,7 @@ export function PricePanel({ s, size, setSize, stats, watched, toggleWatch, inCo
       </div>
 
       <div style={{ display: 'flex', gap: 10, marginTop: 16 }}>
-        <ButtonLink size="lg" to={buyable ? `/market?shirt=${s.id}` : `/market?shirt=${s.id}&status=all`} style={{ flex: 1.3 }}>
+        <ButtonLink size="lg" to={buyable ? `/market?shirt=${s.id}&status=buyable` : `/market?shirt=${s.id}`} style={{ flex: 1.3 }}>
           {buyable ? tp('pp.seeBuyable', buyable) : t('pp.seeInCollections')}
         </ButtonLink>
         <ButtonLink size="lg" variant="secondary" to={`/sell?shirt=${s.id}&size=${size}`} style={{ flex: 1 }}>

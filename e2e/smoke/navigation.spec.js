@@ -1,17 +1,17 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { expect, test } from '@playwright/test';
 
-test('home page starts with the search, then trending shirts @mobile', async ({ page }) => {
+test('home page starts with the search @mobile', async ({ page }) => {
   await page.goto('/');
   await expect(page).toHaveTitle(/Maillot/);
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Which shirt do you have – or want?');
   await expect(page.getByRole('combobox', { name: 'Search any shirt' })).toBeVisible();
   // The pitch is still there, at the end.
   await expect(page.getByRole('heading', { level: 2, name: /Your collection/ })).toBeAttached();
-  await expect(page.getByText('Trending shirts', { exact: false })).toBeVisible();
+  // Market movers and new arrivals are gone until there's real data for them.
+  await expect(page.getByRole('heading', { name: 'New to the catalogue' })).toHaveCount(0);
   // Nothing may stick out sideways: on a phone the browser would zoom out
   // and taps would land on the wrong element.
-  await expect(page.getByRole('heading', { name: 'New to the catalogue' })).toBeAttached();
   expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBeLessThanOrEqual(0);
 });
 
@@ -29,7 +29,7 @@ test('search leads to a shareable product URL and Back works', async ({ page }) 
   // The search itself lives in the URL, so results are shareable.
   await page.getByRole('combobox', { name: 'Search any shirt' }).fill('zidane');
   await page.getByRole('button', { name: 'Search', exact: true }).click();
-  await expect(page).toHaveURL(/\/market\?q=zidane&status=all$/);
+  await expect(page).toHaveURL(/\/market\?q=zidane$/);
 });
 
 test('deep link to a product shows its market value and the way to the shirts in collections', async ({ page }) => {
@@ -99,9 +99,10 @@ test('footer reaches every legal page and no fonts are fetched from Google @mobi
   const thirdParty = [];
   page.on('request', (r) => /googleapis|gstatic/.test(r.url()) && thirdParty.push(r.url()));
   await page.goto('/');
-  // The home page grows once the catalogue sections render; scroll to the
-  // footer only after that (slow CI machines click mid-growth otherwise).
-  await expect(page.getByRole('heading', { name: 'New to the catalogue' })).toBeAttached();
+  // The home page grows once its sections render; scroll to the footer only
+  // after that (slow CI machines click mid-growth otherwise).
+  await expect(page.getByRole('heading', { level: 2, name: /Your collection/ })).toBeAttached();
+  await page.waitForLoadState('networkidle');
   for (const [link, heading, path] of [
     ['Terms of use', /Terms of use/i, /\/legal\/terms$/],
     ['Privacy policy', /Privacy policy/i, /\/legal\/privacy$/],
@@ -247,13 +248,14 @@ test('anyone can play with the kit designer', async ({ page }) => {
   await expect(page.getByRole('link', { name: 'Save design' })).toHaveAttribute('href', '/signin');
 });
 
-test('the market lists shirts in collections: buyable first, every one on request', async ({ page }) => {
+test('the market lists every shirt in collections, buyable ones on request', async ({ page }) => {
   await page.goto('/market');
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Shirts from collections');
   // Only collectors' real shirts (no demo pieces since 23 Oct 2026); the smoke run has none.
   await expect(page.getByText('DEMO', { exact: true })).toHaveCount(0);
-  await page.getByRole('button', { name: 'All in collections' }).click();
-  await expect(page).toHaveURL(/status=all/);
+  await expect(page.getByRole('button', { name: 'All in collections' })).toHaveAttribute('aria-pressed', 'true');
+  await page.getByRole('button', { name: 'To buy' }).click();
+  await expect(page).toHaveURL(/status=buyable/);
 });
 
 test('a model page counts its shirts in collections and leads to them', async ({ page }) => {

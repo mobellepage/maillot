@@ -1,7 +1,7 @@
 // /market: the shirts in members' collections — for sale, open to offers,
 // or collector's pieces — never catalogue models (those are the library,
-// /library/catalog). Buyable ones by default; "all in collections" shows
-// the rest too, buyable first. Demo shirts fill it until launch, marked.
+// /library/catalog). Every collector's shirt by default, buyable first;
+// "to buy" narrows it to what's for sale or open to offers.
 import { useState } from 'react';
 import { Link } from 'react-router';
 import { MARKET_FEW_OFFERS } from '../../../config/rules.ts';
@@ -50,7 +50,7 @@ export default function MarketPage() {
         </div>
         <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', flex: '1 1 360px', justifyContent: 'flex-end', alignItems: 'center' }}>
           <SearchField key={f.q === '' ? 'empty' : 'q'} srLabel={t('browse.searchLabel')} placeholder={t('browse.searchPlaceholder')} defaultValue={f.q} onChange={(e) => setQ(e.target.value)} style={{ flex: '1 1 220px', maxWidth: 360 }} />
-          <Segmented label={t('mx.f.status')} value={f.status} onChange={setStatus} options={[{ value: 'buyable', label: t('mx.buyable') }, { value: 'all', label: t('mx.allInCollections') }]} />
+          <Segmented label={t('mx.f.status')} value={f.status} onChange={setStatus} options={[{ value: 'all', label: t('mx.allInCollections') }, { value: 'buyable', label: t('mx.buyable') }]} />
           <Button variant="secondary" size="sm" className="show-mobile" style={{ height: 46 }} aria-haspopup="dialog" onClick={() => setShowFilters(true)}>
             {t('filter.show') + (active ? ` (${active})` : '')}
           </Button>

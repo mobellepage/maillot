@@ -149,7 +149,7 @@ async function preload(path: string, qc: QueryClient): Promise<Seo> {
       description: `${s.name} (${s.season}, ${s.brand}) — market value of a very good replica and the shirts in collections on Maillot.`,
       image: ['{OG}'],
       ...(prices.length
-        ? { offers: { '@type': 'AggregateOffer', priceCurrency: 'CHF', lowPrice: Math.min(...prices), highPrice: Math.max(...prices), offerCount: prices.length, availability: 'https://schema.org/InStock', url: '{SITE}/market?shirt=' + s.id } }
+        ? { offers: { '@type': 'AggregateOffer', priceCurrency: 'CHF', lowPrice: Math.min(...prices), highPrice: Math.max(...prices), offerCount: prices.length, availability: 'https://schema.org/InStock', url: '{SITE}/market?status=buyable&shirt=' + s.id } }
         : {})
     };
     return { jsonLd: [product, crumbs([['Maillot', '/'], ['Catalogue', '/library/catalog'], [s.league, '/library/catalog?league=' + encodeURIComponent(s.league)], [s.name, path]])] };

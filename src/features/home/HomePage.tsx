@@ -3,7 +3,7 @@
 // the market. Visitors get the pitch at the very end; members get their
 // wishlist and recommendations instead (their own collection lives on My
 // collection).
-import { useEffect, useRef, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router';
 import { useCatalog } from '../catalog/useCatalog.ts';
 import { BY, type Shirt } from '../../data.ts';
@@ -11,9 +11,11 @@ import { usePageMeta } from '../../lib/meta.ts';
 import { usePrefs } from '../../lib/prefs.tsx';
 import { useSession } from '../../lib/session.tsx';
 import { SectionHeader, Skeleton } from '../../ui/index.ts';
-import { ShirtGrid, ShirtRow } from '../catalog/ShirtGrid.tsx';
-import { useCollection } from '../vault/useCollection.ts';
+import { ShirtRow } from '../catalog/ShirtGrid.tsx';
 import { useWatchlist } from '../watchlist/useWatchlist.ts';
+import { useKitLikes } from '../watchlist/useKitLikes.ts';
+import { KitDisc } from '../discover/KitDisc.tsx';
+import * as db from '../../utils/db.ts';
 import { Hero } from './Hero.tsx';
 import { Categories } from './Categories.tsx';
 import { Eras } from '../discover/Eras.tsx';
@@ -28,9 +30,6 @@ import { Outro } from './Outro.tsx';
 import { SecondLife } from './SecondLife.tsx';
 import { TopCollectors } from './TopCollectors.tsx';
 import { IndexTicker } from './IndexTicker.tsx';
-import { Movers } from './Movers.tsx';
-import { NewArrivals } from './NewArrivals.tsx';
-import { useHomeLists } from './useHomeLists.ts';
 
 const section = { maxWidth: 1360, margin: '0 auto', padding: 'clamp(48px,6vw,88px) var(--gutter) 0' } as const;
 
@@ -57,7 +56,6 @@ export default function HomePage() {
 }
 
 function VisitorPage() {
-  const { trending } = useHomeLists();
   return (
     <main id="main" style={{ animation: 'kvIn .45s ease both' }}>
       <Hero />
@@ -67,17 +65,14 @@ function VisitorPage() {
       <PopularToday />
       <Eras />
       <Legends />
-      <Trending shirts={trending} grid />
+      <Trending first />
       <DiscoverCollectors />
       <HomeBento />
       <SecondLife />
       <TopCollectors />
-      {/* The market in numbers: index, biggest moves, new in the catalogue. */}
       <div style={{ marginTop: 'clamp(48px,6vw,88px)' }}>
         <IndexTicker />
       </div>
-      <Movers />
-      <NewArrivals />
       <Outro />
     </main>
   );
@@ -85,10 +80,13 @@ function VisitorPage() {
 
 function MemberPage() {
   const { t } = usePrefs();
-  const { items } = useCollection();
   const watch = useWatchlist();
-  const { trending, recommended } = useHomeLists(items.map((c) => c.catalogId).filter((x): x is string => !!x));
+  const likes = useKitLikes();
+  const rec = useQuery({ queryKey: ['recommendedKits'], queryFn: () => db.loadRecommendedKits(12), staleTime: 10 * 60_000 });
+  // The real wishlist: library kits liked on Scout or the kit page, plus watched catalogue shirts.
   const wanted = watch.ids.map((id) => BY[id]).filter((s): s is Shirt => !!s);
+  const kits = likes.kits.slice(0, 12);
+  const recommended = rec.data ?? [];
   return (
     <main id="main" style={{ animation: 'kvIn .45s ease both' }}>
       <MemberHome />
@@ -99,7 +97,7 @@ function MemberPage() {
       <DiscoverCollectors />
       <Eras />
       <Legends />
-      {wanted.length > 0 && (
+      {(kits.length > 0 || wanted.length > 0) && (
         <section aria-labelledby="wish-title" style={section}>
           <SectionHeader
             id="wish-title"
@@ -111,62 +109,63 @@ function MemberPage() {
               </Link>
             }
           />
-          <ShirtRow shirts={wanted} />
+          {kits.length > 0 && (
+            <ul className="kit-disc-grid" style={{ marginBottom: wanted.length ? 24 : 0 }}>
+              {kits.map((k) => (
+                <li key={k.id}>
+                  <KitDisc kit={k} />
+                </li>
+              ))}
+            </ul>
+          )}
+          {wanted.length > 0 && <ShirtRow shirts={wanted} />}
         </section>
       )}
       {recommended.length > 0 && (
         <section aria-labelledby="rec-title" style={section}>
           <SectionHeader id="rec-title" eyebrow={t('home.rec.eyebrow')} title={t('home.rec.title')} />
-          <ShirtRow shirts={recommended} />
+          <ul className="kit-disc-grid">
+            {recommended.map((k) => (
+              <li key={k.id}>
+                <KitDisc kit={k} />
+              </li>
+            ))}
+          </ul>
         </section>
       )}
-      <Trending shirts={trending} />
+      <Trending />
       <div style={{ marginTop: 'clamp(48px,6vw,88px)' }}>
         <IndexTicker />
       </div>
-      <Movers />
-      <NewArrivals />
     </main>
   );
 }
 
-/** At most this many shirts in the grid, cut to whole rows (7 columns on a desktop → 7, 2 on a phone → 6). */
-const GRID_MAX = 7;
-
-/** How many columns the grid inside `ref` lays out right now. */
-function useGridColumns(ref: React.RefObject<HTMLElement | null>) {
-  const [cols, setCols] = useState(GRID_MAX);
-  useEffect(() => {
-    const el = ref.current;
-    if (!el || typeof ResizeObserver === 'undefined') return;
-    const ro = new ResizeObserver(() => {
-      const grid = el.querySelector('ul');
-      if (grid) setCols(Math.max(1, getComputedStyle(grid).gridTemplateColumns.split(' ').filter(Boolean).length));
-    });
-    ro.observe(el);
-    return () => ro.disconnect();
-  }, [ref]);
-  return cols;
-}
-
-function Trending({ shirts, grid = false }: { shirts: Shirt[]; grid?: boolean }) {
+/** The library kits liked most on Scout lately, with their like count. */
+function Trending({ first = false }: { first?: boolean }) {
   const { t } = usePrefs();
-  const wrap = useRef<HTMLDivElement>(null);
-  const cols = useGridColumns(wrap);
-  const shown = grid ? shirts.slice(0, Math.max(cols, Math.floor(GRID_MAX / cols) * cols)) : shirts;
+  const q = useQuery({ queryKey: ['trendingKits'], queryFn: () => db.loadTrendingKits(12), staleTime: 5 * 60_000 });
+  const kits = q.data ?? [];
+  if (!kits.length) return null;
   return (
-    <section aria-labelledby="trending-title" style={{ ...section, padding: grid ? 'clamp(24px,3vw,40px) var(--gutter) 0' : section.padding }}>
+    <section aria-labelledby="trending-title" style={{ ...section, padding: first ? 'clamp(24px,3vw,40px) var(--gutter) 0' : section.padding }}>
       <SectionHeader
         id="trending-title"
         eyebrow={t('home.trending.eyebrow')}
         title={t('home.trending.title')}
         action={
-          <Link to="/market" className="nav-link" style={{ padding: '8px 0' }}>
-            {t('home.viewMarket')}
+          <Link to="/feed" className="nav-link" style={{ padding: '8px 0' }}>
+            {t('home.trending.scout')}
           </Link>
         }
       />
-      <div ref={wrap}>{grid ? <ShirtGrid shirts={shown} /> : <ShirtRow shirts={shown} />}</div>
+      <ul className="kit-disc-grid">
+        {kits.map((k) => (
+          <li key={k.id}>
+            <KitDisc kit={k} sub={`♥ ${k.likes} · ${k.season}`} />
+          </li>
+        ))}
+      </ul>
     </section>
   );
 }

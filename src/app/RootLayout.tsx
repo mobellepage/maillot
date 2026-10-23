@@ -15,6 +15,7 @@ import { PrototypeBar } from './PrototypeBar.tsx';
 import { AppUpdates } from './AppUpdates.tsx';
 import { EdgeBack } from './EdgeBack.tsx';
 import { FeatureRail } from './FeatureRail.tsx';
+import { InstallHint } from './InstallHint.tsx';
 
 export default function RootLayout() {
   useCatalogSync();
@@ -46,6 +47,7 @@ export default function RootLayout() {
       <FeatureRail />
       <MobileNav />
       <EdgeBack />
+      <InstallHint />
       {/* Every full page load has location.key "default", so keying on it
           would restore one page's scroll position on another. Key initial
           loads by path; in-app navigations by entry (back restores, new
