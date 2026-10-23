@@ -34,7 +34,7 @@ export function HomePlay() {
       <h2 id="play-title" className="title" style={{ margin: '0 0 14px' }}>
         {t('home.play.title')}
       </h2>
-      <div style={{ display: 'grid', gap: 14, gridTemplateColumns: 'repeat(auto-fit,minmax(min(100%,420px),1fr))' }}>
+      <div className="play-grid">
         <FantasyTile />
         <PuzzleTile />
         <LibraryTile />

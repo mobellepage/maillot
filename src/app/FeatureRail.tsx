@@ -1,14 +1,14 @@
-// A small tab on the right edge of every page with the "come back every
-// day" features — the daily puzzle, the kit library and the Fits — so people find
-// them from anywhere. (The kit designer lives in the footer now.) Hidden in focused flows
-// (adding a shirt, signing in, onboarding).
+// A small tab on the right edge of every page, on phones too, with the
+// "come back often" features — Fantasy, the kit library and the kit designer —
+// so people find them from anywhere. Hidden in focused flows (adding a shirt,
+// signing in, onboarding).
 import { NavLink, useLocation } from 'react-router';
 import { usePrefs } from '../lib/prefs.tsx';
 
 const ITEMS = [
-  { to: '/daily', emoji: '🧩', label: 'rail.daily' },
+  { to: '/fantasy', emoji: '⚽', label: 'rail.fantasy' },
   { to: '/library', emoji: '📚', label: 'rail.library' },
-  { to: '/fits', emoji: '👕', label: 'rail.fits' }
+  { to: '/designer', emoji: '🎨', label: 'rail.designer' }
 ] as const;
 
 const HIDDEN = ['/vault/add', '/signin', '/welcome', '/reset-password', '/return', '/admin'];

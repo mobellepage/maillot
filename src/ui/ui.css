@@ -2710,10 +2710,20 @@ html .logo-word {
   background: var(--accent-fill, var(--accent));
   transition: width 0.4s ease;
 }
-/* On phones the rail would cover inputs and prices; its three places live in the menu (Feed → Fits), on the home page (puzzle) and in Discover (library). */
-@media (max-width: 767px) {
-  .feature-rail {
-    display: none;
+/* Home: "Every day something new" — tiles side by side, a lone last one centred. */
+.play-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 14px;
+}
+.play-grid > * {
+  flex: 1 1 420px;
+  max-width: calc(50% - 7px);
+}
+@media (max-width: 900px) {
+  .play-grid > * {
+    max-width: 100%;
   }
 }
 .fantasy-links {
