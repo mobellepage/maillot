@@ -3,8 +3,11 @@
 // otherwise), into fantasy_fixtures. Called by the game's
 // clock (public.fantasy_tick → private.fantasy_request_fixtures, every ten
 // minutes) and by admins to resync. Results an admin overrode are left alone.
+// POST {"standings": true} instead refreshes the season so far, club by club
+// (fantasy_club_season), for the statistics page.
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import { providerFor, type Team, type Window } from "./provider.ts";
+import { espnTables, swissTable } from "./standings.ts";
 
 const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json" } });
 const PROVIDER = Deno.env.get("FANTASY_FOOTBALL_PROVIDER") ?? "espn";
@@ -12,15 +15,46 @@ const PROVIDER = Deno.env.get("FANTASY_FOOTBALL_PROVIDER") ?? "espn";
 Deno.serve(async (req: Request) => {
   if (req.method !== "POST") return json({ error: "POST only" }, 405);
   let ids: number[] = [];
+  let standings = false;
   try {
     const body = await req.json();
+    standings = body?.standings === true;
     ids = (Array.isArray(body?.matchdays) ? body.matchdays : []).map(Number).filter((n: number) => Number.isInteger(n) && n > 0).slice(0, 6);
   } catch {
     return json({ error: "invalid JSON" }, 400);
   }
+  const db = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
+
+  if (standings) {
+    const { data: m, error: e } = await db.from("fantasy_team_mappings").select("club_id, provider, provider_team_id").in("provider", ["espn", "tsdb"]);
+    if (e) return json({ error: e.message }, 500);
+    const espn = new Map((m ?? []).filter((x) => x.provider === "espn").map((x) => [x.provider_team_id, x.club_id]));
+    const tsdb = new Map((m ?? []).filter((x) => x.provider === "tsdb").map((x) => [x.provider_team_id, x.club_id]));
+    const now = new Date();
+    const y = now.getUTCMonth() >= 6 ? now.getUTCFullYear() : now.getUTCFullYear() - 1;
+    let rows;
+    let swissError: string | null = null;
+    try {
+      rows = await espnTables(espn);
+    } catch (err) {
+      return json({ error: (err as Error).message }, 502);
+    }
+    // The Swiss rounds come from a rate-limited feed: when it says no, the other leagues still update.
+    try {
+      rows.push(...(await swissTable(tsdb, `${y}-${y + 1}`)));
+    } catch (err) {
+      swissError = (err as Error).message;
+    }
+    const season = `${y}/${String(y + 1).slice(2)}`;
+    const { error } = await db.from("fantasy_club_season").upsert(
+      rows.map((r) => ({ club_id: r.clubId, season, played: r.played, won: r.won, drawn: r.drawn, lost: r.lost, goals_for: r.goalsFor, goals_against: r.goalsAgainst, points: r.points, updated_at: now.toISOString() })),
+      { onConflict: "club_id,season" }
+    );
+    if (error) return json({ error: error.message }, 500);
+    return json({ standings: rows.length, season, swissError });
+  }
   if (!ids.length) return json({ error: "matchdays required" }, 400);
 
-  const db = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
   const { data: mds, error: mdErr } = await db.from("fantasy_matchdays").select("id, number, window_start, window_end, international").in("id", ids);
   if (mdErr) return json({ error: mdErr.message }, 500);
   // The Swiss league rides along with ESPN from TheSportsDB (provider "tsdb", ids prefixed).

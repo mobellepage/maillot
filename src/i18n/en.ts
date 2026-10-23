@@ -2472,6 +2472,23 @@ export const en = {
   'fantasy.md.transfersN': '{n} transfers',
   'fantasy.md.view.pitch': 'Pitch',
   'fantasy.md.view.list': 'List',
+  'fantasy.stats.title': 'Statistics',
+  'fantasy.stats.banner': 'Points collected this season, as Fantasy counts them: win 3, draw 1 — league matches.',
+  'fantasy.stats.linkBody': 'Which clubs have the most points',
+  'fantasy.stats.sort.points': 'Total points',
+  'fantasy.stats.sort.ppg': 'Points per game',
+  'fantasy.stats.sort.price': 'Price',
+  'fantasy.stats.sort.picked': 'Most picked',
+  'fantasy.stats.reset': 'Reset',
+  'fantasy.stats.club': 'Club',
+  'fantasy.stats.priceLong': 'Price in millions',
+  'fantasy.stats.pickedLong': 'Share of squads that hold it',
+  'fantasy.stats.record': 'W-D-L',
+  'fantasy.stats.recordLong': 'Won, drawn, lost',
+  'fantasy.stats.ppgLong': 'Points per game',
+  'fantasy.stats.tp': 'Pts',
+  'fantasy.stats.pointsLong': 'Total points this season',
+  'fantasy.stats.updated': 'Updated {date}',
   // @@end
 };
 

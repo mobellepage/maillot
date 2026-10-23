@@ -984,6 +984,10 @@ export type Database = {
         Returns: { user_id: string; handle: string; avatar: string | null; points: number; hits: number; transfers: number; captain_name: string | null; chip: string | null; is_me: boolean }[];
       };
       fantasy_matchday_stats: { Args: { p_md: number }; Returns: { avg_points: number; top_points: number; managers: number }[] };
+      fantasy_club_stats: {
+        Args: never;
+        Returns: { club_id: string; name: string; league: string; image_path: string | null; price: number; delta: number | null; picked_pct: number; played: number; won: number; drawn: number; lost: number; goals_for: number; goals_against: number; points: number; ppg: number; updated_at: string | null }[];
+      };
       fantasy_price_moves: {
         Args: { p_limit?: number };
         Returns: { club_id: string; name: string; league: string; image_path: string | null; delta: number; price: number; matchday: number }[];

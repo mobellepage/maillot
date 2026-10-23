@@ -44,6 +44,7 @@ export const NewsPage = lazy(() => import('../features/discover/NewsPage.tsx'));
 export const ClubLibraryPage = lazy(() => import('../features/library/ClubLibraryPage.tsx'));
 export const FantasyPage = lazy(() => import('../features/fantasy/FantasyPage.tsx'));
 export const FantasySquadPage = lazy(() => import('../features/fantasy/SquadPage.tsx'));
+export const FantasyStatsPage = lazy(() => import('../features/fantasy/StatsPage.tsx'));
 export const FantasyMatchdayPage = lazy(() => import('../features/fantasy/MatchdayPage.tsx'));
 export const FantasyLeaguesPage = lazy(() => import('../features/fantasy/LeaguesPage.tsx'));
 export const FantasyLeaguePage = lazy(() => import('../features/fantasy/LeaguePage.tsx'));

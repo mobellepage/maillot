@@ -129,6 +129,11 @@ export function FantasyHome({ matchday: m, squad, moves, leagues, standing, now 
           <b>{t('fantasy.home.standings')}</b>
           <small>{standing?.division_number && standing.division_rank ? t('fantasy.home.standingsBody', { n: standing.division_number, rank: standing.division_rank }) : t('fantasy.home.standingsNone')}</small>
         </Link>
+        <Link to="/fantasy/stats" className="fantasy-link">
+          <span aria-hidden="true">📊</span>
+          <b>{t('fantasy.stats.title')}</b>
+          <small>{t('fantasy.stats.linkBody')}</small>
+        </Link>
         <Link to="/fantasy/rules" className="fantasy-link">
           <span aria-hidden="true">📜</span>
           <b>{t('fantasy.rules.title')}</b>

@@ -54,6 +54,13 @@ export async function loadMatchdayStats(md: number): Promise<MatchdayStats | nul
   if (error) throw error;
   return data?.[0] ?? null;
 }
+export type ClubStat = RpcReturns<'fantasy_club_stats'>[number];
+/** Every jersey with its club's season so far (points as Fantasy counts them). */
+export async function loadClubStats(): Promise<ClubStat[]> {
+  const { data, error } = await (await sb()).rpc('fantasy_club_stats');
+  if (error) throw error;
+  return data ?? [];
+}
 export async function loadPriceMoves(limit = 10): Promise<PriceMove[]> {
   const { data, error } = await (await sb()).rpc('fantasy_price_moves', { p_limit: limit });
   if (error) throw error;

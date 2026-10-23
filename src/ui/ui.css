@@ -3419,6 +3419,93 @@ html .logo-word {
   white-space: nowrap;
 }
 
+
+/* Statistics: every jersey with its season so far. */
+.fantasy-stats-banner {
+  margin-top: 14px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: #2a1f6b;
+  color: #f2f4f1;
+  text-align: center;
+  font-size: 14px;
+}
+.fantasy-statstable {
+  margin-top: 14px;
+  padding: 6px 0;
+  border-radius: 20px;
+}
+.fantasy-statstable__row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 64px 48px 74px 44px 48px;
+  gap: 8px;
+  align-items: center;
+  padding: 8px 14px;
+  border-bottom: 1px solid var(--line);
+  font-size: 14px;
+  text-align: right;
+}
+.fantasy-statstable__row:last-child {
+  border-bottom: 0;
+}
+.fantasy-statstable__row.is-head {
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 700;
+}
+.fantasy-statstable__row > :first-child {
+  text-align: left;
+}
+.fantasy-statstable__club {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+.fantasy-statstable__club img {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+  flex: none;
+}
+.fantasy-statstable__club b {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.fantasy-statstable__club small {
+  display: block;
+  color: var(--muted);
+  font-size: 12px;
+}
+.fantasy-statstable__rank {
+  width: 22px;
+  flex: none;
+  color: var(--muted);
+  font-size: 12px;
+}
+.fantasy-statstable__tp {
+  font-weight: 800;
+  font-size: 16px;
+}
+.fantasy-statstable .is-up {
+  color: var(--pos);
+}
+.fantasy-statstable .is-down {
+  color: var(--neg);
+}
+@media (max-width: 560px) {
+  .fantasy-statstable__row {
+    grid-template-columns: minmax(0, 1fr) 46px 38px 36px 40px;
+    padding: 8px 10px;
+    font-size: 13px;
+  }
+  .fantasy-statstable__row .is-wide {
+    display: none;
+  }
+}
+
 /* Matchday */
 .fantasy-link--md {
   background: linear-gradient(135deg, rgba(75, 255, 139, 0.18), var(--surface) 70%);
