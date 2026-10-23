@@ -10,12 +10,13 @@ import { BY, type Shirt } from '../../data.ts';
 import { usePageMeta } from '../../lib/meta.ts';
 import { usePrefs } from '../../lib/prefs.tsx';
 import { useSession } from '../../lib/session.tsx';
-import { SectionHeader, Skeleton } from '../../ui/index.ts';
+import { ScrollRow, SectionHeader, Skeleton } from '../../ui/index.ts';
 import { ShirtRow } from '../catalog/ShirtGrid.tsx';
 import { useWatchlist } from '../watchlist/useWatchlist.ts';
 import { useKitLikes } from '../watchlist/useKitLikes.ts';
 import { KitDisc } from '../discover/KitDisc.tsx';
 import * as db from '../../utils/db.ts';
+import type { KitTile } from '../../utils/db.ts';
 import { Hero } from './Hero.tsx';
 import { Categories } from './Categories.tsx';
 import { Eras } from '../discover/Eras.tsx';
@@ -110,13 +111,9 @@ function MemberPage() {
             }
           />
           {kits.length > 0 && (
-            <ul className="kit-disc-grid" style={{ marginBottom: wanted.length ? 24 : 0 }}>
-              {kits.map((k) => (
-                <li key={k.id}>
-                  <KitDisc kit={k} />
-                </li>
-              ))}
-            </ul>
+            <div style={{ marginBottom: wanted.length ? 8 : 0 }}>
+              <KitRow kits={kits} />
+            </div>
           )}
           {wanted.length > 0 && <ShirtRow shirts={wanted} />}
         </section>
@@ -124,13 +121,7 @@ function MemberPage() {
       {recommended.length > 0 && (
         <section aria-labelledby="rec-title" style={section}>
           <SectionHeader id="rec-title" eyebrow={t('home.rec.eyebrow')} title={t('home.rec.title')} />
-          <ul className="kit-disc-grid">
-            {recommended.map((k) => (
-              <li key={k.id}>
-                <KitDisc kit={k} />
-              </li>
-            ))}
-          </ul>
+          <KitRow kits={recommended} />
         </section>
       )}
       <Trending />
@@ -138,6 +129,20 @@ function MemberPage() {
         <IndexTicker />
       </div>
     </main>
+  );
+}
+
+/** Kit pictures in a single row that scrolls sideways (arrows with a pointer). */
+function KitRow<K extends KitTile>({ kits, sub }: { kits: K[]; sub?: (k: K) => string }) {
+  const { t } = usePrefs();
+  return (
+    <ScrollRow className="scroll-row--discs" prevLabel={t('common.scrollPrev')} nextLabel={t('common.scrollNext')}>
+      {kits.map((k) => (
+        <li key={k.id}>
+          <KitDisc kit={k} {...(sub ? { sub: sub(k) } : {})} />
+        </li>
+      ))}
+    </ScrollRow>
   );
 }
 
@@ -159,13 +164,7 @@ function Trending({ first = false }: { first?: boolean }) {
           </Link>
         }
       />
-      <ul className="kit-disc-grid">
-        {kits.map((k) => (
-          <li key={k.id}>
-            <KitDisc kit={k} sub={`♥ ${k.likes} · ${k.season}`} />
-          </li>
-        ))}
-      </ul>
+      <KitRow kits={kits} sub={(k) => `♥ ${k.likes} · ${k.season}`} />
     </section>
   );
 }

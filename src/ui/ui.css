@@ -1091,6 +1091,10 @@ main:focus {
   flex: 0 0 clamp(190px, 19vw, 250px);
   scroll-snap-align: start;
 }
+/* Round kit pictures in one row (Discover's wishlist, picks, trending). */
+.scroll-row--discs .scroll-row__list > li {
+  flex: 0 0 clamp(104px, 12vw, 150px);
+}
 .scroll-row__arrow {
   position: absolute;
   top: calc(50% - 30px);
