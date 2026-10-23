@@ -1,6 +1,7 @@
-// The Feed's tabs: Following (members) and Fits (outfits from the Pinterest
-// board, when one is set — config PINTEREST_BOARD). Swiping through shirts
-// is a menu entry of its own (Swipe, /feed).
+// The Feed's tabs: All (every collector's shirts, shuffled), Following
+// (members) and Fits (outfits from the Pinterest board, when one is set —
+// config PINTEREST_BOARD). Swiping through shirts is a menu entry of its own
+// (Scout, /feed).
 import type { ReactNode } from 'react';
 import { NavLink } from 'react-router';
 import { PINTEREST_BOARD } from '../../config/site.ts';
@@ -15,6 +16,9 @@ export function FeedTabs({ children }: { children?: ReactNode }) {
   return (
     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, padding: '10px 20px', borderBottom: '1px solid var(--line)', maxWidth: 1360, margin: '0 auto' }}>
       <nav aria-label={t('feed.title')} style={{ display: 'flex', gap: 16 }}>
+        <NavLink to="/feed/all" style={tab}>
+          {t('feedAll.tab')}
+        </NavLink>
         {/* Members: the shirts of the collectors they follow, like Instagram's home. */}
         {user && (
           <NavLink to="/feed/following" style={tab}>

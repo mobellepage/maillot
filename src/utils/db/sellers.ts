@@ -103,6 +103,13 @@ export async function loadFollowingFeed(before: string | null, limit = 20): Prom
   return data ?? [];
 }
 
+/** Every collector's public shirts, shuffled and dealt round by round (seed: one visit's order; offset: paging). */
+export async function loadCommunityFeed(seed: string, offset: number, limit = 20): Promise<FollowingPost[]> {
+  const { data, error } = await (await sb()).rpc('community_feed', { p_seed: seed, p_offset: offset, p_limit: limit });
+  if (error) throw error;
+  return data ?? [];
+}
+
 /** Collectors I follow who added shirts in the last 24 hours, with those shirts. */
 export async function loadFollowingStories(): Promise<FollowingStory[]> {
   const { data, error } = await (await sb()).rpc('following_stories');

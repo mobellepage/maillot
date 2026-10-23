@@ -1,8 +1,9 @@
-// Feed → Following, like Instagram's home: the stories on top, then the
-// shirts the collectors I follow added, newest first — big photo, double tap
-// (or the heart) to like, the latest comment and a way to all of them.
+// Feed, like Instagram's home: big photo, double tap (or the heart) to like,
+// the latest comment and a way to all of them. Two lists: All — every
+// collector's shirts, shuffled so nobody fills it — and Following — the
+// stories on top, then what the collectors I follow added, newest first.
 import { useRef, useState } from 'react';
-import { Link, Navigate } from 'react-router';
+import { Link, Navigate, useNavigate } from 'react-router';
 import { useInfiniteQuery, useQueryClient, type InfiniteData } from '@tanstack/react-query';
 import { BY } from '../../data.ts';
 import { timeAgo } from '../../lib/format.ts';
@@ -21,7 +22,7 @@ import { FeedTabs } from './FeedTabs.tsx';
 import { StoriesRow } from './StoriesRow.tsx';
 
 const PAGE = 20;
-type Pages = InfiniteData<FollowingPost[], string | null>;
+type Pages = InfiniteData<FollowingPost[], string | number | null>;
 
 const postName = (p: FollowingPost, untitled: string) => (p.catalog_id ? BY[p.catalog_id]?.name : undefined) ?? ([p.club, p.season, p.variant].filter(Boolean).join(' ') || untitled);
 
@@ -90,24 +91,39 @@ function Post({ p, src, onLike }: { p: FollowingPost; src: string | undefined; o
 }
 
 export default function FollowingPage() {
+  return <FeedList mode="following" />;
+}
+
+export function AllFeedPage() {
+  return <FeedList mode="all" />;
+}
+
+function FeedList({ mode }: { mode: 'following' | 'all' }) {
   const { t } = usePrefs();
   const { user } = useSession();
   const toast = useToast();
   const qc = useQueryClient();
-  usePageMeta(t('following.meta'));
-  const key = ['followingFeed', user?.id];
+  const navigate = useNavigate();
+  usePageMeta(mode === 'all' ? t('feedAll.meta') : t('following.meta'));
+  // A new shuffle every visit; the same order while paging through it.
+  const [seed] = useState(() => Math.random().toString(36).slice(2));
+  const key = mode === 'all' ? ['communityFeed', user?.id, seed] : ['followingFeed', user?.id];
   const feed = useInfiniteQuery({
     queryKey: key,
-    queryFn: ({ pageParam }) => db.loadFollowingFeed(pageParam, PAGE),
-    initialPageParam: null as string | null,
-    getNextPageParam: (last) => (last.length === PAGE ? last[last.length - 1]!.added_at : undefined),
-    enabled: !!user
+    queryFn: ({ pageParam }) => (mode === 'all' ? db.loadCommunityFeed(seed, Number(pageParam ?? 0), PAGE) : db.loadFollowingFeed(pageParam as string | null, PAGE)),
+    initialPageParam: (mode === 'all' ? 0 : null) as string | number | null,
+    getNextPageParam: (last, all) => (last.length === PAGE ? (mode === 'all' ? all.length * PAGE : last[last.length - 1]!.added_at) : undefined),
+    enabled: mode === 'all' || !!user
   });
   const posts = feed.data?.pages.flat() ?? [];
   const url = usePhotoUrls(posts.map((p) => (p.photo_path ? { path: p.photo_path, thumbPath: p.thumb_path ?? undefined } : undefined)));
-  if (!user) return <Navigate to="/signin" replace state={{ from: '/feed/following', notice: 'following.signIn' }} />;
+  if (mode === 'following' && !user) return <Navigate to="/signin" replace state={{ from: '/feed/following', notice: 'following.signIn' }} />;
 
   const like = (p: FollowingPost, on: boolean) => {
+    if (!user) {
+      navigate('/signin', { state: { from: '/feed/all' } });
+      return;
+    }
     const flip = (v: boolean) =>
       qc.setQueryData<Pages>(key, (d) => d && { ...d, pages: d.pages.map((pg) => pg.map((x) => (x.id === p.id ? { ...x, liked: v, likes: Math.max(0, x.likes + (v ? 1 : -1)) } : x))) });
     flip(on);
@@ -124,14 +140,14 @@ export default function FollowingPage() {
     <>
       <FeedTabs />
       <Page narrow style={{ maxWidth: 560 }}>
-        <h1 className="sr-only">{t('following.title')}</h1>
-        <StoriesRow />
+        <h1 className="sr-only">{mode === 'all' ? t('feedAll.title') : t('following.title')}</h1>
+        {mode === 'following' && <StoriesRow />}
         {feed.isLoading && <Skeleton height={520} radius={22} style={{ marginTop: 16 }} />}
         {feed.isError && <ErrorState what={t('following.title')} onRetry={() => feed.refetch()} />}
         {feed.data && !posts.length && (
           <div className="card" style={{ padding: 24, borderRadius: 22, textAlign: 'center', marginTop: 16 }}>
             <h2 style={{ fontSize: 18, margin: '0 0 6px' }}>{t('following.emptyTitle')}</h2>
-            <p style={{ margin: '0 0 14px', color: 'var(--text-2)', lineHeight: 1.5 }}>{t('following.emptyBody')}</p>
+            <p style={{ margin: '0 0 14px', color: 'var(--text-2)', lineHeight: 1.5 }}>{mode === 'all' ? t('feedAll.emptyBody') : t('following.emptyBody')}</p>
             <ButtonLink to="/">{t('following.findCollectors')}</ButtonLink>
           </div>
         )}

@@ -2458,6 +2458,10 @@ export const en = {
   'fantasy.md.seasonPoints': 'Season: {n} points',
   'fantasy.profile.lineup': 'Line-up · Gameweek {n}',
   'fantasy.profile.captainIs': 'Captain: {club}',
+  'feedAll.tab': 'All',
+  'feedAll.title': 'All collectors',
+  'feedAll.meta': 'Feed – shirts from every collector on Maillot',
+  'feedAll.emptyBody': 'No collector has shown a shirt yet.',
   // @@end
 };
 

@@ -33,6 +33,7 @@ export const FeedPage = lazy(() => import('../features/feed/FeedPage.tsx'));
 export const DailyPage = lazy(() => import('../features/daily/DailyPage.tsx'));
 export const LibraryPage = lazy(() => import('../features/library/LibraryPage.tsx'));
 export const FollowingPage = lazy(() => import('../features/feed/FollowingPage.tsx'));
+export const AllFeedPage = lazy(() => import('../features/feed/FollowingPage.tsx').then((m) => ({ default: m.AllFeedPage })));
 export const FitsPage = lazy(() => import('../features/feed/FitsPage.tsx'));
 export const KitFinderPage = lazy(() => import('../features/library/KitFinderPage.tsx'));
 export const EraPage = lazy(() => import('../features/discover/EraPage.tsx'));

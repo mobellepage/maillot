@@ -2459,5 +2459,9 @@ export const fr: Messages = {
   'fantasy.md.seasonPoints': 'Saison : {n} points',
   'fantasy.profile.lineup': 'Composition · Gameweek {n}',
   'fantasy.profile.captainIs': 'Capitaine : {club}',
+  'feedAll.tab': 'Tous',
+  'feedAll.title': 'Tous les collectionneurs',
+  'feedAll.meta': 'Feed – les maillots de tous les collectionneurs sur Maillot',
+  'feedAll.emptyBody': 'Aucun collectionneur n’a encore montré de maillot.',
   // @@end
 };

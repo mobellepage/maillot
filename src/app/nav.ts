@@ -13,12 +13,12 @@ export interface NavItem {
 
 export function useNavItems() {
   const { t } = usePrefs();
-  const { adminFlag, user } = useSession();
+  const { adminFlag } = useSession();
   // Collection sits far right, under the thumb, where the profile usually is.
   const items: NavItem[] = [
     { to: '/', icon: 'discover', label: t('nav.discover'), short: t('nav.discover'), match: (p) => p === '/' },
-    // Feed: what the collectors you follow add, and the outfits (Fits); visitors start with the Fits.
-    { to: user ? '/feed/following' : '/fits', icon: 'feed', label: t('nav.feed'), short: t('nav.feed'), match: (p) => p.startsWith('/feed/') || p === '/fits' },
+    // Feed: every collector's shirts, shuffled (All); what the ones you follow add; the outfits (Fits).
+    { to: '/feed/all', icon: 'feed', label: t('nav.feed'), short: t('nav.feed'), match: (p) => p.startsWith('/feed/') || p === '/fits' },
     // Scout: the shirt cards to swipe (right = wishlist).
     { to: '/feed', icon: 'swipe', label: t('nav.swipe'), short: t('nav.swipe'), match: (p) => p === '/feed' },
     // Fantasy: the squad game (eight jerseys, five play each Gameweek).

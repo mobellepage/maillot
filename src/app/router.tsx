@@ -30,7 +30,7 @@ import {
   PremiumPage,
   KitFinderPage,
   FitsPage,
-  FollowingPage,
+  FollowingPage, AllFeedPage,
   InsurancePage,
   PublicShirtPage,
   FeedPage,
@@ -60,6 +60,7 @@ export const routes: RouteObject[] = [
         children: [
           { index: true, element: <HomePage /> },
           { path: 'feed', element: <FeedPage /> },
+          { path: 'feed/all', element: <AllFeedPage /> },
           { path: 'feed/following', element: <FollowingPage /> },
           { path: 'daily', element: <DailyPage /> },
           { path: 'fantasy', element: <FantasyPage /> },
