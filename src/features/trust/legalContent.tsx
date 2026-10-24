@@ -142,7 +142,25 @@ export const DOCS: Record<LegalDoc, { title: string; intro?: string; sections: S
         body: <UL items={['Counterfeits, replicas sold as originals and items with altered labels.', 'Stolen goods.', 'Items you don’t own or can’t ship.']} />
       },
       {
-        h: '8. Liability',
+        h: '8. What you post',
+        body: (
+          <>
+            <P>
+              Photos, profiles, comments and messages must be your own and must not be offensive, hateful, sexual, threatening, misleading or advertising. There is no
+              tolerance for objectionable content or abusive users.
+            </P>
+            <UL
+              items={[
+                'Every profile, shirt, comment and message has “•••” → Report. We look at every report within 24 hours and remove content that breaks these terms.',
+                'You can block any member: you no longer see their content, and they can no longer comment on your shirts, message you or follow you.',
+                'We remove content and suspend or close accounts that break these rules, without notice where needed.'
+              ]}
+            />
+          </>
+        )
+      },
+      {
+        h: '9. Liability',
         body: (
           <P>
             We are liable for intent and gross negligence. Market values, price charts and automatic pre-checks are estimates, not financial advice or a guarantee of
@@ -151,7 +169,7 @@ export const DOCS: Record<LegalDoc, { title: string; intro?: string; sections: S
         )
       },
       {
-        h: '9. Maillot’s content and data',
+        h: '10. Maillot’s content and data',
         body: (
           <>
             <P>
@@ -171,7 +189,7 @@ export const DOCS: Record<LegalDoc, { title: string; intro?: string; sections: S
         )
       },
       {
-        h: '10. Changes and governing law',
+        h: '11. Changes and governing law',
         body: (
           <P>
             We may update these terms and will tell you about material changes before they apply. Swiss law applies; the place of jurisdiction is Zürich, subject to mandatory
@@ -304,6 +322,15 @@ export const DOCS: Record<LegalDoc, { title: string; intro?: string; sections: S
         body: (
           <P>
             Buyers: CHF {BUYER_SHIPPING_CHF} shipping per order (paid out to the seller for postage). Sellers: {sellerPct} commission, plus CHF {SELLER_AUTH_FEE_CHF} where expert authentication is required. No listing fees. Switzerland and Liechtenstein only for now.
+          </P>
+        )
+      },
+      {
+        h: 'Report and block',
+        body: (
+          <P>
+            Tap “•••” on a profile, a shirt or a message (or “Report” under a comment) to report it to us – we look at every report within 24 hours. From the same menu
+            you can block a member; Account → Blocked members lifts a block.
           </P>
         )
       },

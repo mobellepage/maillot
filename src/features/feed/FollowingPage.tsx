@@ -20,6 +20,7 @@ import { isCutoutPath } from '../vault/addshirt/studio.ts';
 import { WishButton } from '../collectors/WishButton.tsx';
 import { FeedTabs } from './FeedTabs.tsx';
 import { StoriesRow } from './StoriesRow.tsx';
+import { useBlocks } from '../moderation/useBlocks.ts';
 
 const PAGE = 20;
 type Pages = InfiniteData<FollowingPost[], string | number | null>;
@@ -115,7 +116,8 @@ function FeedList({ mode }: { mode: 'following' | 'all' }) {
     getNextPageParam: (last, all) => (last.length === PAGE ? (mode === 'all' ? all.length * PAGE : last[last.length - 1]!.added_at) : undefined),
     enabled: mode === 'all' || !!user
   });
-  const posts = feed.data?.pages.flat() ?? [];
+  const blocks = useBlocks();
+  const posts = blocks.visible(feed.data?.pages.flat() ?? [], (p) => p.handle);
   const url = usePhotoUrls(posts.map((p) => (p.photo_path ? { path: p.photo_path, thumbPath: p.thumb_path ?? undefined } : undefined)));
   if (mode === 'following' && !user) return <Navigate to="/signin" replace state={{ from: '/feed/following', notice: 'following.signIn' }} />;
 

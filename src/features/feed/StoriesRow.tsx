@@ -16,6 +16,7 @@ import * as db from '../../utils/db.ts';
 import type { FollowingStory } from '../../utils/db.ts';
 import { CloseIcon } from '../../ui/index.ts';
 import { Avatar } from '../avatars/Avatar.tsx';
+import { useBlocks } from '../moderation/useBlocks.ts';
 
 const SEEN_KEY = 'kv_stories_seen';
 const SLIDE_MS = 5000;
@@ -109,7 +110,8 @@ export function StoriesRow() {
   const stories = useQuery({ queryKey: ['followingStories', user?.id], queryFn: db.loadFollowingStories, enabled: !!user, staleTime: 60_000 });
   const [seen, setSeen] = useState<Record<string, string>>(() => loadJSON(SEEN_KEY, {}));
   const [open, setOpen] = useState<number | null>(null);
-  const list = stories.data ?? [];
+  const blocks = useBlocks();
+  const list = blocks.visible(stories.data ?? [], (s) => s.handle);
   // Unwatched first, like Instagram.
   const sorted = [...list].sort((a, b) => Number(!!seen[a.handle] && seen[a.handle]! >= a.latest) - Number(!!seen[b.handle] && seen[b.handle]! >= b.latest));
   const firstPic = usePhotoUrls(sorted.map((s) => (s.items.at(-1)?.photo_path ? { path: s.items.at(-1)!.photo_path! } : undefined)), true);

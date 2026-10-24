@@ -11,6 +11,8 @@ import * as db from '../../utils/db.ts';
 import type { Inquiry } from '../../utils/db.ts';
 import { Badge, Button, Card, EmptyState } from '../../ui/index.ts';
 import { Avatar } from '../avatars/Avatar.tsx';
+import { ModerationMenu } from '../moderation/ModerationMenu.tsx';
+import { useBlocks } from '../moderation/useBlocks.ts';
 
 function InquiryRow({ q }: { q: Inquiry }) {
   const { t, money } = usePrefs();
@@ -53,7 +55,10 @@ function InquiryRow({ q }: { q: Inquiry }) {
             </p>
           )}
         </div>
-        <Badge tone={q.status === 'open' ? 'accent' : 'neutral'}>{t('inq.status.' + q.status)}</Badge>
+        <div style={{ display: 'grid', gap: 8, justifyItems: 'end' }}>
+          <Badge tone={q.status === 'open' ? 'accent' : 'neutral'}>{t('inq.status.' + q.status)}</Badge>
+          {(q.message || q.reply) && <ModerationMenu compact handle={q.other_handle} report={{ kind: 'inquiry', target: q.id }} />}
+        </div>
       </div>
       {received && q.status === 'open' && (
         <div style={{ marginTop: 12 }}>
@@ -86,7 +91,8 @@ export function InquiriesPanel({ page = false }: { page?: boolean }) {
   const { t } = usePrefs();
   const { user } = useSession();
   const query = useQuery({ queryKey: ['myInquiries', user?.id], queryFn: db.loadMyInquiries, enabled: !!user });
-  const list = query.data ?? [];
+  const blocks = useBlocks();
+  const list = blocks.visible(query.data ?? [], (q) => q.other_handle);
   if (!list.length) return page && !query.isLoading ? <EmptyState title={t('msg.empty')}>{t('msg.emptyBody')}</EmptyState> : null;
   const received = list.filter((q) => q.direction === 'received');
   const sent = list.filter((q) => q.direction === 'sent');

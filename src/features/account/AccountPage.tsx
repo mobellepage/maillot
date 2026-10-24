@@ -21,6 +21,7 @@ import { NotificationSettings } from './NotificationSettings.tsx';
 import { Avatar } from '../avatars/Avatar.tsx';
 import { AvatarPicker } from '../avatars/AvatarPicker.tsx';
 import { PREMIUM_ENABLED } from '../../config/plans.ts';
+import { BlockedMembers } from '../moderation/BlockedMembers.tsx';
 
 declare const __RELEASE__: string;
 const RELEASE = typeof __RELEASE__ === 'string' ? __RELEASE__ : 'dev';
@@ -208,6 +209,7 @@ export default function AccountPage() {
         <ProfileCard />
         <NotificationSettings />
         <Settings />
+        {user && <BlockedMembers />}
         {user && <PayoutsCard />}
         <Links />
         {user && (

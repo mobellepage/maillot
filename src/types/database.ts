@@ -1024,6 +1024,15 @@ export type Database = {
       fantasy_leave_league: { Args: { p_league: string }; Returns: undefined };
       fantasy_league_post: { Args: { p_league: string; p_body: string }; Returns: number };
       fantasy_report_post: { Args: { p_post: number }; Returns: undefined };
+      report_content: { Args: { p_kind: string; p_target: string; p_reason: string; p_note?: string | null }; Returns: undefined };
+      block_user: { Args: { p_handle: string }; Returns: undefined };
+      unblock_user: { Args: { p_handle: string }; Returns: undefined };
+      my_blocks: { Args: never; Returns: { handle: string; avatar: string | null; blocked_at: string }[] };
+      admin_reports: {
+        Args: { p_status?: string };
+        Returns: { id: number; kind: string; target_id: string; reason: string; note: string | null; snapshot: string | null; status: string; created_at: string; reporter: string | null; target_handle: string | null; item_id: string | null; reports_on_user: number }[];
+      };
+      admin_resolve_report: { Args: { p_id: number; p_action: string }; Returns: undefined };
       fantasy_public_profile: {
         Args: { p_handle: string };
         Returns: { plays: boolean; division_number: number | null; season_points: number; season_rank: number | null; best_points: number | null; best_matchday: number | null; played: number; leagues: number; badges: Json; squad: Json; squad_value: number }[];

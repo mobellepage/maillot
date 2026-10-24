@@ -28,6 +28,7 @@ import { InquiryButton } from '../collectors/InquiryButton.tsx';
 import { isCutoutPath } from '../vault/addshirt/studio.ts';
 import { variantLabel } from '../library/model.ts';
 import { composeFeed, type FeedItem } from './compose.ts';
+import { useBlocks } from '../moderation/useBlocks.ts';
 
 const SEEN_KEY = 'kv_feed_seen';
 /** How far (px) a card must travel to count as a decision. */
@@ -187,6 +188,7 @@ export default function FeedPage() {
   const height = useFeedHeight(stage);
 
   // Composed once per visit, from the likes known at that moment.
+  const blocks = useBlocks();
   const feed = useQuery({
     queryKey: ['feed', user?.id],
     // Wait for the member's profile so their interests shape the first cards.
@@ -211,7 +213,7 @@ export default function FeedPage() {
     staleTime: Infinity,
     gcTime: 60 * 1000
   });
-  const items = (feed.data ?? []).filter((i) => i.kind === 'kit' || i.kind === 'exemplar' || BY[i.shirtId]);
+  const items = (feed.data ?? []).filter((i) => i.kind === 'kit' || (i.kind === 'exemplar' && !blocks.isBlocked(i.event.exemplar.owner)) || (i.kind !== 'exemplar' && BY[i.shirtId]));
   const titleOf = (i: FeedItem) => (i.kind === 'kit' ? `${i.kit.club_name} ${i.kit.season} · ${t('lib.kind.' + i.kit.kind)}` : i.kind === 'exemplar' ? i.event.exemplar.name : BY[i.shirtId]!.name);
   const [index, setIndex] = useState(0);
   const [history, setHistory] = useState<{ item: FeedItem; liked: boolean }[]>([]);

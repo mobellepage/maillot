@@ -11,6 +11,7 @@ import { AuditPanel } from './AuditPanel.tsx';
 import { DealersPanel } from './DealersPanel.tsx';
 import { LibraryPanel } from './LibraryPanel.tsx';
 import { FantasyPanel } from './FantasyPanel.tsx';
+import { ReportsPanel } from './ReportsPanel.tsx';
 import { MfaGate } from './MfaGate.tsx';
 import { useSession } from '../../lib/session.tsx';
 
@@ -35,6 +36,7 @@ export default function AdminPage() {
         Verification queue
       </h1>
       <p style={{ fontSize: 13.5, color: 'var(--muted)', margin: '10px 0 0', lineHeight: 1.5, maxWidth: 560 }}>Shirts land here when an owner requests expert verification. Nothing resolves by itself — a person has to verify or reject each one.</p>
+      <ReportsPanel />
       <HealthPanel />
       <ReviewQueue />
       <InspectionPanel />

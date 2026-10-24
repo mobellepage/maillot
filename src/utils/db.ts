@@ -23,3 +23,4 @@ export * from './db/kitLikes.ts';
 export * from './db/itemSocial.ts';
 export * from './db/designs.ts';
 export * from './db/fantasy.ts';
+export * from './db/moderation.ts';

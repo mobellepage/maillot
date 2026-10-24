@@ -14,6 +14,7 @@ import { Avatar } from '../avatars/Avatar.tsx';
 import { search } from '../catalog/model.ts';
 import { variantLabel } from '../library/model.ts';
 import { parseKitQuery } from './kitQuery.ts';
+import { useBlocks } from '../moderation/useBlocks.ts';
 
 /** Tapping one fills the field: shows at once what the search can do. */
 const EXAMPLES = ['Milan 2006/07', 'YB 2018/19', 'Brazil 1970', 'Liverpool 2005', 'Napoli 1987/88'];
@@ -36,6 +37,7 @@ export function HomeSearch() {
   // "@name" looks for collectors instead of shirts.
   const person = settled.trim().startsWith('@') ? settled.trim().slice(1) : null;
   const kq = parseKitQuery(person === null ? settled : '');
+  const blocks = useBlocks();
   const people = useQuery({
     queryKey: ['collectorSearch', person],
     queryFn: () => db.searchCollectors(person ?? ''),
@@ -56,7 +58,7 @@ export function HomeSearch() {
   const typingPerson = q.trim().startsWith('@');
   const shirts = q.trim() && !typingPerson ? search(q).slice(0, 4) : [];
   const kitHits = q.trim() && !typingPerson && kq.club.length >= 2 ? (kits.data ?? []).slice(0, 6) : [];
-  const collectors = typingPerson && person !== null ? (people.data ?? []).slice(0, 6) : [];
+  const collectors = typingPerson && person !== null ? blocks.visible(people.data ?? [], (c) => c.handle).slice(0, 6) : [];
   const options: Option[] = [
     ...collectors.map((c): Option => ({ kind: 'collector', to: '/u/' + c.handle, who: c })),
     ...shirts.map((s): Option => ({ kind: 'shirt', to: '/shirt/' + s.id, shirt: s })),

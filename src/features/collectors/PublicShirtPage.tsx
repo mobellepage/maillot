@@ -12,7 +12,7 @@ import { usePrefs } from '../../lib/prefs.tsx';
 import { usePhotoUrls } from '../../lib/usePhotoUrls.ts';
 import { useSession } from '../../lib/session.tsx';
 import * as db from '../../utils/db.ts';
-import { Badge, ChevronIcon, EmptyState, ErrorState, HEX, Page, ShirtGraphic, Skeleton, alpha } from '../../ui/index.ts';
+import { Badge, Button, ChevronIcon, EmptyState, ErrorState, HEX, Page, ShirtGraphic, Skeleton, alpha } from '../../ui/index.ts';
 import { useCatalog } from '../catalog/useCatalog.ts';
 import { marketValue } from '../catalog/model.ts';
 import { OfferButton } from './OfferButton.tsx';
@@ -21,6 +21,8 @@ import { InquiryButton } from './InquiryButton.tsx';
 import { ShirtSocial } from './ShirtSocial.tsx';
 import { WishButton } from './WishButton.tsx';
 import { isCutoutPath } from '../vault/addshirt/studio.ts';
+import { ModerationMenu } from '../moderation/ModerationMenu.tsx';
+import { useBlocks } from '../moderation/useBlocks.ts';
 
 export default function PublicShirtPage() {
   useCatalog();
@@ -62,6 +64,21 @@ export default function PublicShirtPage() {
   const cat = s?.catalog_id ? BY[s.catalog_id] : undefined;
   const name = s ? (cat?.name ?? ([s.club, s.season, s.variant].filter(Boolean).join(' ') || t('coll.untitled'))) : '';
   usePageMeta(s ? t('pshirt.meta', { name, handle }) : null);
+  const blocks = useBlocks();
+
+  if (blocks.isBlocked(handle))
+    return (
+      <Page narrow>
+        <EmptyState
+          title={t('mod.blockedProfile', { handle })}
+          action={
+            <Button variant="secondary" size="sm" onClick={() => blocks.unblock.mutate(handle)} disabled={blocks.unblock.isPending}>
+              {t('mod.unblockShort')}
+            </Button>
+          }
+        />
+      </Page>
+    );
 
   if (collection.isLoading)
     return (
@@ -180,7 +197,10 @@ export default function PublicShirtPage() {
         </div>
 
         <div style={{ flex: '1 1 340px', minWidth: 0 }}>
-          <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--accent)' }}>{t('pshirt.from', { handle })}</div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
+            <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--accent)' }}>{t('pshirt.from', { handle })}</div>
+            <ModerationMenu handle={handle} report={{ kind: 'shirt', target: s.id }} />
+          </div>
           <h1 className="display display--lg" style={{ margin: '8px 0 0', fontSize: 'clamp(30px,4vw,46px)' }}>
             {name}
           </h1>

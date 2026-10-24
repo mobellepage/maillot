@@ -14,12 +14,14 @@ import type { DiscoverCollector } from '../../utils/db.ts';
 import { Button, ButtonLink, ScrollRow, SectionHeader } from '../../ui/index.ts';
 import { Avatar } from '../avatars/Avatar.tsx';
 import { DealerBadge } from '../collectors/DealerBadge.tsx';
+import { useBlocks } from '../moderation/useBlocks.ts';
 
 export function DiscoverCollectors() {
   const { t } = usePrefs();
   const { user } = useSession();
   const list = useQuery({ queryKey: ['discoverCollectors', user?.id], queryFn: () => db.loadDiscoverCollectors(8), staleTime: 5 * 60_000, retry: false });
-  const all = list.data ?? [];
+  const blocks = useBlocks();
+  const all = blocks.visible(list.data ?? [], (c) => c.handle);
   const url = usePhotoUrls(all.flatMap((c) => c.preview.map((p) => (p.thumb_path ? { path: p.thumb_path } : undefined))), true);
   if (!all.length) return null;
   return (

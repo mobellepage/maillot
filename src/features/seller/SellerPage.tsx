@@ -9,7 +9,7 @@ import { usePageMeta } from '../../lib/meta.ts';
 import { usePrefs } from '../../lib/prefs.tsx';
 import * as db from '../../utils/db.ts';
 import { useCatalog } from '../catalog/useCatalog.ts';
-import { Card, EmptyState, ErrorState, Page, Skeleton, StatTile } from '../../ui/index.ts';
+import { Card, EmptyState, ErrorState, Page, Skeleton, StatTile, Notice } from '../../ui/index.ts';
 import { Stars } from '../../ui/Stars.tsx';
 import { PublicCollection } from '../collectors/PublicCollection.tsx';
 import { PublicWishlist } from '../collectors/PublicWishlist.tsx';
@@ -24,6 +24,8 @@ import { FollowCounts } from '../collectors/FollowCounts.tsx';
 import { HighlightsRow } from '../collectors/HighlightsRow.tsx';
 import { usePhotoUrls } from '../../lib/usePhotoUrls.ts';
 import { isCutoutPath } from '../vault/addshirt/studio.ts';
+import { ModerationMenu } from '../moderation/ModerationMenu.tsx';
+import { useBlocks } from '../moderation/useBlocks.ts';
 
 export default function SellerPage() {
   useCatalog();
@@ -32,6 +34,7 @@ export default function SellerPage() {
   const profile = useQuery({ queryKey: ['seller', handle], queryFn: () => db.loadSellerProfile(handle) });
   const reviews = useQuery({ queryKey: ['sellerReviews', handle], queryFn: () => db.loadSellerReviews(handle), enabled: !!profile.data });
   const { user } = useSession();
+  const blocks = useBlocks();
   const collection = useQuery({ queryKey: ['publicCollection', handle, user?.id], queryFn: () => db.loadPublicCollection(handle), enabled: !!profile.data });
   const stats = useQuery({ queryKey: ['collectorStats', handle.toLowerCase(), user?.id], queryFn: () => db.loadCollectorStats(handle), enabled: !!profile.data });
   const wishlist = useQuery({ queryKey: ['publicWishlist', handle.toLowerCase()], queryFn: () => db.loadPublicWishlist(handle), enabled: !!profile.data });
@@ -64,6 +67,7 @@ export default function SellerPage() {
       </Page>
     );
   const p = profile.data;
+  const blocked = !!p && blocks.isBlocked(p.handle);
   if (!p)
     return (
       <Page narrow>
@@ -99,9 +103,19 @@ export default function SellerPage() {
         {stats.data?.bio && <p style={{ margin: '8px 0 0', fontSize: 15, lineHeight: 1.5, whiteSpace: 'pre-line' }}>{stats.data.bio}</p>}
         <div style={{ fontSize: 12.5, color: 'var(--muted)', marginTop: 6 }}>{t('seller.since', { date: formatDate(p.member_since, lang) })}</div>
       </div>
-      <div style={{ marginTop: 14 }}>
-        <FollowButton handle={p.handle} stats={stats.data ?? undefined} />
+      <div style={{ marginTop: 14, display: 'flex', gap: 10, alignItems: 'center' }}>
+        {!blocked && <FollowButton handle={p.handle} stats={stats.data ?? undefined} />}
+        <ModerationMenu handle={p.handle} report={{ kind: 'profile', target: p.handle }} />
       </div>
+      {blocked ? (
+        <Notice tone="info" style={{ marginTop: 18 }}>
+          {t('mod.blockedProfile', { handle: p.handle })}{' '}
+          <button type="button" className="link-btn" onClick={() => blocks.unblock.mutate(p.handle)} disabled={blocks.unblock.isPending}>
+            {t('mod.unblockShort')}
+          </button>
+        </Notice>
+      ) : (
+      <>
       <div style={{ marginTop: 18 }}>
         <HighlightsRow items={highlights} />
       </div>
@@ -141,6 +155,8 @@ export default function SellerPage() {
           {wishlist.data && !wishlist.data.length && <p style={{ color: 'var(--muted)', fontSize: 14, marginTop: 14 }}>{stats.data?.collection_private ? t('coll.wishPrivate') : t('coll.wishEmpty', { handle: p.handle })}</p>}
           {!!wishlist.data?.length && <PublicWishlist wishes={wishlist.data} />}
         </section>
+      )}
+      </>
       )}
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(170px,1fr))', gap: 12, marginTop: 40 }}>

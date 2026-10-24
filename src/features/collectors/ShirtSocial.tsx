@@ -12,12 +12,15 @@ import * as db from '../../utils/db.ts';
 import type { ItemSocial } from '../../utils/db.ts';
 import { Button, ButtonLink } from '../../ui/index.ts';
 import { Avatar } from '../avatars/Avatar.tsx';
+import { ModerationMenu } from '../moderation/ModerationMenu.tsx';
+import { useBlocks } from '../moderation/useBlocks.ts';
 
 const MAX = 500;
 
 export function ShirtSocial({ itemId }: { itemId: string }) {
   const { t, tp, lang } = usePrefs();
-  const { user } = useSession();
+  const { user, profile } = useSession();
+  const blocks = useBlocks();
   const { pathname } = useLocation();
   const toast = useToast();
   const qc = useQueryClient();
@@ -85,7 +88,7 @@ export function ShirtSocial({ itemId }: { itemId: string }) {
       </h2>
       {s.comments.length === 0 && <p style={{ margin: '0 0 12px', fontSize: 14, color: 'var(--muted)' }}>{t('social.none')}</p>}
       <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'grid', gap: 12 }}>
-        {s.comments.map((c) => (
+        {blocks.visible(s.comments, (c) => c.handle).map((c) => (
           <li key={c.id} style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
             <Avatar avatar={c.avatar} name={c.handle ?? '?'} size={34} ring={false} />
             <div style={{ minWidth: 0, flex: 1 }}>
@@ -98,6 +101,7 @@ export function ShirtSocial({ itemId }: { itemId: string }) {
                   <strong>{t('social.collector')}</strong>
                 )}
                 <span style={{ color: 'var(--faint)', fontSize: 12 }}>{timeAgo(c.created_at, lang)}</span>
+                {user && c.handle && c.handle.toLowerCase() !== profile?.handle?.toLowerCase() && <ModerationMenu compact handle={c.handle} report={{ kind: 'comment', target: c.id }} />}
                 {c.can_delete && (
                   <button type="button" className="nav-link" onClick={() => remove.mutate(c.id)} disabled={remove.isPending} style={{ fontSize: 12, padding: 0, background: 'none', border: 0, cursor: 'pointer', color: 'var(--muted)' }}>
                     {t('social.delete')}

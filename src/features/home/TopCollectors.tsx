@@ -7,12 +7,14 @@ import * as db from '../../utils/db.ts';
 import { ScrollRow, SectionHeader } from '../../ui/index.ts';
 import { Avatar } from '../avatars/Avatar.tsx';
 import { DealerBadge } from '../collectors/DealerBadge.tsx';
+import { useBlocks } from '../moderation/useBlocks.ts';
 
 const MIN_TO_SHOW = 3;
 
 export function TopCollectors() {
   const { t, tp } = usePrefs();
-  const top = useQuery({ queryKey: ['topCollectors'], queryFn: () => db.loadTopCollectors(10), staleTime: 5 * 60 * 1000 }).data ?? [];
+  const blocks = useBlocks();
+  const top = blocks.visible(useQuery({ queryKey: ['topCollectors'], queryFn: () => db.loadTopCollectors(10), staleTime: 5 * 60 * 1000 }).data ?? [], (c) => c.handle);
   if (top.length < MIN_TO_SHOW) return null;
   return (
     <section aria-labelledby="top-collectors-title" style={{ maxWidth: 1360, margin: '0 auto', padding: 'clamp(48px,6vw,88px) var(--gutter) 0' }}>
