@@ -233,6 +233,7 @@ function LineupForm({ m, clubs }: { m: Matchday; clubs: SquadClub[] }) {
         )}
         {idle > 0 && <p style={{ margin: '8px 0 0', fontSize: 13, color: 'var(--neg)' }}>{t('fantasy.md.idleWarn', { n: idle })}</p>}
         <p className="fantasy-panel__fine">{t('fantasy.md.pitchHint')}</p>
+        <MyFixtures m={m} clubs={clubs} />
         <div className="fantasy-md__opts">
           <div>
             <p className="fantasy-md__label">{t('fantasy.md.captain')}</p>
@@ -349,6 +350,7 @@ function LineupView({ m, fixtures }: { m: Matchday; fixtures: Fixture[] }) {
     <>
       {clubs.isLoading && <Skeleton height={300} radius={16} style={{ marginTop: 12 }} />}
       {rows.length > 0 && (view === 'pitch' ? <PointsPitch rows={rows} fixtures={fixtures} /> : <ScoreRows rows={rows} fixtures={fixtures} />)}
+      <MyFixtures m={m} clubs={rows} theirs={!!other} />
     </>
   );
   if (other) {
@@ -486,31 +488,52 @@ function ScoreRow({ c, fixtures }: { c: LineupClub; fixtures: Fixture[] }) {
   );
 }
 
-function Fixtures({ rows, loading }: { rows: Fixture[]; loading: boolean }) {
+/** Your clubs' matches of this Gameweek under the pitch: when they play, the score so far or at full time. */
+function MyFixtures({ m, clubs, theirs = false }: { m: Matchday; clubs: { club_id: string; name: string }[]; theirs?: boolean }) {
+  const { t } = usePrefs();
+  const fixtures = useQuery({ queryKey: ['fantasyFixtures', m.id], queryFn: () => db.loadFixtures(m.id), staleTime: 60_000, retry: false });
+  const mine = new Set(clubs.map((c) => c.club_id));
+  const rows = (fixtures.data ?? []).filter((f) => mine.has(f.home_club_id ?? '') || mine.has(f.away_club_id ?? ''));
+  const playing = new Set(rows.flatMap((f) => [f.home_club_id, f.away_club_id]));
+  const idle = clubs.filter((c) => !playing.has(c.club_id));
+  if (!clubs.length) return null;
+  return (
+    <section className="fantasy-myfix" aria-labelledby="myfix-title">
+      <h3 id="myfix-title" className="fantasy-md__label" style={{ margin: 0 }}>
+        {t(theirs ? 'fantasy.md.theirFixtures' : 'fantasy.md.myFixtures')}
+      </h3>
+      {fixtures.isLoading ? <Skeleton height={120} radius={16} style={{ marginTop: 10 }} /> : <Fixtures rows={rows} loading={false} mine={mine} compact />}
+      {!fixtures.isLoading && idle.length > 0 && <p style={{ margin: '10px 0 0', fontSize: 13, color: 'var(--muted)' }}>{t('fantasy.md.noMatchFor', { clubs: idle.map((c) => c.name).join(', ') })}</p>}
+    </section>
+  );
+}
+
+function Fixtures({ rows, loading, mine, compact = false }: { rows: Fixture[]; loading: boolean; mine?: Set<string>; compact?: boolean }) {
   const { t, lang } = usePrefs();
   if (loading) return <Skeleton height={240} radius={20} style={{ marginTop: 18 }} />;
-  if (!rows.length) return <Notice style={{ marginTop: 18 }}>{t('fantasy.md.fixturesNone')}</Notice>;
+  if (!rows.length) return mine ? null : <Notice style={{ marginTop: 18 }}>{t('fantasy.md.fixturesNone')}</Notice>;
+  const team = (id: string | null) => 'fantasy-fixture__team' + (mine?.has(id ?? '') ? ' is-mine' : '');
   const groups = new Map<string, Fixture[]>();
   for (const f of rows) {
     const k = new Date(f.kickoff).toLocaleString(lang, { weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit', timeZone: FANTASY.timeZone });
     groups.set(k, [...(groups.get(k) ?? []), f]);
   }
   return (
-    <div style={{ marginTop: 18, display: 'grid', gap: 18 }}>
+    <div style={{ marginTop: compact ? 10 : 18, display: 'grid', gap: compact ? 12 : 18 }}>
       {[...groups].map(([k, list]) => (
         <section key={k}>
-          <h2 className="title" style={{ margin: '0 0 8px', fontSize: 15 }}>
+          <h2 className="title" style={{ margin: '0 0 8px', fontSize: compact ? 13.5 : 15, color: compact ? 'var(--text-2)' : undefined }}>
             {k}
           </h2>
           <ul className="fantasy-fixtures">
             {list.map((f) => (
               <li key={f.id} className={'fantasy-fixture is-' + f.status}>
-                <span className="fantasy-fixture__team">
+                <span className={team(f.home_club_id)}>
                   {f.home_image ? <img src={f.home_image} alt="" loading="lazy" /> : <span className="fantasy-fixture__noimg" aria-hidden="true">👕</span>}
                   {f.home_name}
                 </span>
                 <span className="fantasy-fixture__score mono">{f.status === 'scheduled' ? '–' : `${f.home_goals ?? 0}:${f.away_goals ?? 0}`}</span>
-                <span className="fantasy-fixture__team is-away">
+                <span className={team(f.away_club_id) + ' is-away'}>
                   {f.away_name}
                   {f.away_image ? <img src={f.away_image} alt="" loading="lazy" /> : <span className="fantasy-fixture__noimg" aria-hidden="true">👕</span>}
                 </span>

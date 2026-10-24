@@ -2542,5 +2542,8 @@ export const fr: Messages = {
   'mod.admin.showAll': 'Afficher aussi les traités',
   'mod.admin.status.removed': 'retiré',
   'mod.admin.status.dismissed': 'gardé',
+  'fantasy.md.myFixtures': 'Matchs de tes équipes',
+  'fantasy.md.noMatchFor': 'Pas de match cette Gameweek : {clubs}',
+  'fantasy.md.theirFixtures': 'Matchs de ces équipes',
   // @@end
 };

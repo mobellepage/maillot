@@ -2541,6 +2541,9 @@ export const en = {
   'mod.admin.showAll': 'Show handled ones too',
   'mod.admin.status.removed': 'removed',
   'mod.admin.status.dismissed': 'kept',
+  'fantasy.md.myFixtures': 'Your teams’ matches',
+  'fantasy.md.noMatchFor': 'No match this Gameweek: {clubs}',
+  'fantasy.md.theirFixtures': 'Their teams’ matches',
   // @@end
 };
 

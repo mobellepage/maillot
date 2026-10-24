@@ -4136,3 +4136,14 @@ html .logo-word {
 .mod-reason:has(input:checked) {
   border-color: var(--accent);
 }
+
+/* Fantasy: your clubs' matches under the bench */
+.fantasy-myfix {
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+}
+.fantasy-fixture__team.is-mine {
+  font-weight: 750;
+  color: var(--text);
+}
