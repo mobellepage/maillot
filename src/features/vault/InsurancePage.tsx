@@ -11,6 +11,7 @@ import { useSession } from '../../lib/session.tsx';
 import { Button, ButtonLink, EmptyState, Page } from '../../ui/index.ts';
 import { badgeFor, itemName, mainPhoto, valueOf } from './model.ts';
 import { useCollection } from './useCollection.ts';
+import { hasFullPlan } from '../../config/plans.ts';
 
 export default function InsurancePage() {
   const { t, money, lang } = usePrefs();
@@ -20,7 +21,7 @@ export default function InsurancePage() {
   const photoUrl = usePhotoUrls(items.map(mainPhoto), true);
   const [today] = useState(() => formatDate(new Date().toISOString(), lang));
 
-  if (profile && !profile.premium && !profile.trial)
+  if (profile && !hasFullPlan(profile))
     return (
       <Page narrow>
         <EmptyState accent title={t('ins.lockedTitle')} action={<ButtonLink to="/premium">{t('plan.unlock')}</ButtonLink>}>

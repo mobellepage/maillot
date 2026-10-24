@@ -4,11 +4,12 @@ import type { CSSProperties } from 'react';
 import { Link } from 'react-router';
 import { usePrefs } from '../../lib/prefs.tsx';
 import { daysLeft, usePlan } from './usePlan.ts';
+import { PREMIUM_ENABLED } from '../../config/plans.ts';
 
 export function PlanChip({ style }: { style?: CSSProperties }) {
   const { t } = usePrefs();
   const plan = usePlan();
-  if (!plan) return null;
+  if (!plan || !PREMIUM_ENABLED) return null;
   const base: CSSProperties = { fontFamily: 'var(--font-sans)', fontSize: 12, display: 'inline-flex', ...style };
   if (plan.plan === 'premium')
     return (

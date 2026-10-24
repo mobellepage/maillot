@@ -8,6 +8,7 @@ import { useToast } from '../../lib/toast.tsx';
 import { Button, CheckIcon, Notice, TextField } from '../../ui/index.ts';
 import { PLAN } from '../../config/plans.ts';
 import { SocialSignIn } from './SocialSignIn.tsx';
+import { PREMIUM_ENABLED } from '../../config/plans.ts';
 
 export default function SignInPage() {
   const { t, lang } = usePrefs();
@@ -102,7 +103,7 @@ export default function SignInPage() {
       {mode === 'signup' && (
         // What a new account gets: worth saying before the form.
         <ul style={{ listStyle: 'none', padding: 0, margin: '16px 0 0', display: 'grid', gap: 6, fontSize: 14.5 }}>
-          {[t('auth.perk.collection'), t('auth.perk.trial', { days: PLAN.trialDays }), t('auth.perk.free', { n: PLAN.freeScans })].map((x) => (
+          {(PREMIUM_ENABLED ? [t('auth.perk.collection'), t('auth.perk.trial', { days: PLAN.trialDays }), t('auth.perk.free', { n: PLAN.freeScans })] : [t('auth.perk.collection'), t('auth.perk.scan'), t('auth.perk.fantasy')]).map((x) => (
             <li key={x} style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
               <span style={{ color: 'var(--accent)', marginTop: 2, flex: 'none' }}>
                 <CheckIcon size={15} />

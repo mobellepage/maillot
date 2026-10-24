@@ -7,6 +7,7 @@ import { Card, KeyValueList, TextField } from '../../ui/index.ts';
 import { marketValue } from '../catalog/model.ts';
 import { SelectedShirt } from './ShirtPickRow.tsx';
 import type { SellFlow } from './useSellFlow.ts';
+import { PREMIUM_ENABLED } from '../../config/plans.ts';
 
 export function PriceStep({ f }: { f: SellFlow }) {
   const s = f.shirt!;
@@ -88,7 +89,7 @@ export function PriceStep({ f }: { f: SellFlow }) {
             {money(payout.payout + BUYER_SHIPPING_CHF - (f.needsFullPath ? authFee : 0))}
           </span>
         </div>
-        {rate > PLAN.premiumRate && !profile?.premium && sa > 0 && (
+        {PREMIUM_ENABLED && rate > PLAN.premiumRate && !profile?.premium && sa > 0 && (
           <p style={{ fontSize: 13, margin: '10px 0 0', lineHeight: 1.5 }}>
             {t('plan.sellHint', { amount: money(Math.round(sa * rate) - Math.round(sa * PLAN.premiumRate)) })} <Link to="/premium">{t('plan.more')}</Link>
           </p>

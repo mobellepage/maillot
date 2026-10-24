@@ -63,7 +63,7 @@ export const HIGHLIGHTS = 5;
 /** Offers on collection shirts — public.offer_policy(). */
 export const OFFER_POLICY = { validHours: 48, maxRounds: 3 } as const;
 
-export { PLAN, PREMIUM_PRICE } from './plans.ts';
+export { PLAN, PREMIUM_ENABLED, PREMIUM_PRICE, hasFullPlan } from './plans.ts';
 
 /**
  * Order deadlines — public.order_policy(), enforced by the run_order_lifecycle()

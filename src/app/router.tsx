@@ -3,6 +3,7 @@
 // main.tsx; scripts/prerender.mjs renders the same routes to static HTML.
 import { lazy } from 'react';
 import { Navigate, type RouteObject } from 'react-router';
+import { PREMIUM_ENABLED } from '../config/plans.ts';
 import RootLayout from './RootLayout.tsx';
 import RouteError from './RouteError.tsx';
 import { RequireAuth } from './RequireAuth.tsx';
@@ -172,7 +173,7 @@ export const routes: RouteObject[] = [
           { path: 'price-index', element: <IndexReportPage /> },
           { path: 'developers', element: <DevelopersPage /> },
           // Premium is paused (config/plans.ts): the plan page leads to the collection.
-          { path: 'premium', element: <PremiumPage /> },
+          { path: 'premium', element: PREMIUM_ENABLED ? <PremiumPage /> : <Navigate to="/" replace /> },
           { path: 'u/:handle', element: <SellerPage /> },
           { path: 'u/:handle/:itemId', element: <PublicShirtPage /> },
           { path: 'verify', element: <VerifyPage /> },

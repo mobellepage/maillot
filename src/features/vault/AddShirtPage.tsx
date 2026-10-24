@@ -22,6 +22,7 @@ import { chosenVisibility, flowFor, useAddShirtForm } from './addshirt/useAddShi
 import { GoalStep } from './addshirt/GoalStep.tsx';
 import { buildPhotoSpecs } from '../../addShirtData.js';
 import { useCollectionActions } from './useCollection.ts';
+import { hasFullPlan } from '../../config/plans.ts';
 
 const STEPS = ['as.step.scan', 'as.step.shirt', 'as.step.details', 'as.step.photos', 'as.step.precheck', 'as.step.verify', 'as.step.finish'] as const;
 
@@ -57,7 +58,7 @@ export default function AddShirtPage() {
     }
     if (off || !front.dataUrl || !user) return setStudio('idle');
     // A Premium feature (the trial included): the free plan keeps the photo as taken.
-    if (profile && !profile.premium && !profile.trial) return setStudio('premium');
+    if (profile && !hasFullPlan(profile)) return setStudio('premium');
     setStudio('working');
     try {
       const r = await cutoutShirt(front.dataUrl);

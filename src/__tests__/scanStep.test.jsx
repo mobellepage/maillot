@@ -94,10 +94,10 @@ describe('ScanStep (photo recognition)', () => {
     expect(screen.getByText(/doesn’t look like a football shirt/)).toBeTruthy();
   });
 
-  it('when this month’s free scans are used, offers Premium and the library', () => {
+  it('when this month’s scans are used, offers the library (no Premium while it is switched off)', () => {
     setup({ status: 'quota', confidence: 0, matchId: null, result: null });
-    expect(screen.getByText('This month’s free scans are used')).toBeTruthy();
-    expect(screen.getByRole('link', { name: 'Scan without limit' }).getAttribute('href')).toBe('/premium');
+    expect(screen.getByText('This month’s scans are used up')).toBeTruthy();
+    expect(screen.queryByRole('link', { name: 'Scan without limit' })).toBeNull();
     expect(screen.getAllByRole('link', { name: /library/i }).some((a) => a.getAttribute('href') === '/vault/add/library')).toBe(true);
   });
 

@@ -15,6 +15,7 @@ import { variantLabel } from '../../library/model.ts';
 import { usePhotoUrls } from '../../../lib/usePhotoUrls.ts';
 import type { StudioState } from './studio.ts';
 import { daysLeft, usePlan } from '../../premium/usePlan.ts';
+import { PREMIUM_ENABLED } from '../../../config/plans.ts';
 
 type Key = 'front' | 'back';
 
@@ -22,7 +23,7 @@ type Key = 'front' | 'back';
 function ScanAllowance() {
   const { t } = usePrefs();
   const plan = usePlan();
-  if (!plan || plan.plan === 'premium') return null;
+  if (!plan || plan.plan === 'premium' || !PREMIUM_ENABLED) return null;
   const left = Math.max(0, plan.scansLimit - plan.scansUsed);
   return (
     <p style={{ margin: '6px 0 0', fontSize: 13, color: 'var(--text-2)' }}>
@@ -59,7 +60,7 @@ function StudioPreview({ w, studio, onStudioOff }: { w: Wizard; studio: StudioSt
           {note && !f.studioOff && (
             <p style={{ fontSize: 13, color: 'var(--muted)', marginTop: 8, lineHeight: 1.45 }}>
               {t(note)}{' '}
-              {studio === 'premium' && <Link to="/premium">{t('plan.more')}</Link>}
+              {studio === 'premium' && PREMIUM_ENABLED && <Link to="/premium">{t('plan.more')}</Link>}
               {studio === 'failed' && (
                 <button type="button" className="link-btn" onClick={() => onStudioOff(false)}>
                   {t('as.studio.retry')}
@@ -135,11 +136,13 @@ export function ScanStep({ w, busyKey, onScanFile, valuation, studio, onStudioOf
           {f.scan.status === 'quota' && (
             <Notice tone="info">
               <strong>{t('plan.quotaTitle')}</strong>
-              <p style={{ margin: '4px 0 12px', lineHeight: 1.5 }}>{t('plan.quotaBody')}</p>
+              <p style={{ margin: '4px 0 12px', lineHeight: 1.5 }}>{t(PREMIUM_ENABLED ? 'plan.quotaBody' : 'plan.quotaBodyFree')}</p>
               <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                <ButtonLink to="/premium" size="sm">
-                  {t('plan.unlock')}
-                </ButtonLink>
+                {PREMIUM_ENABLED && (
+                  <ButtonLink to="/premium" size="sm">
+                    {t('plan.unlock')}
+                  </ButtonLink>
+                )}
                 <ButtonLink to="/vault/add/library" size="sm" variant="secondary">
                   {t('qa.entry')}
                 </ButtonLink>

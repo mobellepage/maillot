@@ -2023,13 +2023,13 @@ export const en = {
   'plan.scanFree': '{n} of {max} free scans left this month.',
   'plan.more': 'Premium ›',
   'plan.unlock': 'Scan without limit',
-  'plan.quotaTitle': 'This month’s free scans are used',
+  'plan.quotaTitle': 'This month’s scans are used up',
   'plan.quotaBody': 'With Premium you scan your whole collection, without limit. Or pick the shirt from the library – that stays free.',
   'plan.quotaSell': 'This month’s free scans are used – pick your shirt below, or scan without limit with Premium.',
   'plan.quotaCheck': 'This month’s free scans are used – the AI pre-check runs again with Premium or next month.',
   'plan.studioPremium': 'The studio look is part of Premium – your photo is shown as taken.',
   'plan.sellHint': 'With Premium you’d keep {amount} more of this sale.',
-  'as.pc.ai.quota': 'This month’s free scans are used – this result comes from the basic checks only. Premium scans without limit.',
+  'as.pc.ai.quota': 'This month’s scans are used up – this result comes from the basic checks only.',
   'ins.meta': 'Insurance list',
   'ins.title': 'Insurance list',
   'ins.owner': 'Collection of {owner} · as of {date}',
@@ -2499,6 +2499,9 @@ export const en = {
   'install.android.menu': 'Tap the menu (⋮) in your browser',
   'install.android.add': 'Tap “Add to Home screen” or “Install app”',
   'install.ok': 'Got it',
+  'plan.quotaBodyFree': 'You have scanned a lot this month. Pick the shirt from the library instead – that always works.',
+  'auth.perk.scan': 'Photograph a shirt – Maillot recognises it',
+  'auth.perk.fantasy': 'Fantasy, wishlist and market included, free',
   // @@end
 };
 

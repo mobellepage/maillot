@@ -20,6 +20,7 @@ import { ProfileCard } from '../collectors/ProfileCard.tsx';
 import { NotificationSettings } from './NotificationSettings.tsx';
 import { Avatar } from '../avatars/Avatar.tsx';
 import { AvatarPicker } from '../avatars/AvatarPicker.tsx';
+import { PREMIUM_ENABLED } from '../../config/plans.ts';
 
 declare const __RELEASE__: string;
 const RELEASE = typeof __RELEASE__ === 'string' ? __RELEASE__ : 'dev';
@@ -189,9 +190,11 @@ export default function AccountPage() {
               <ButtonLink to="/orders" variant="ghost" size="sm">
                 {t('vault.title.orders')}
               </ButtonLink>
-              <ButtonLink to="/premium" variant="ghost" size="sm">
-                {profile?.premium ? 'Premium ✓' : profile?.trial ? t('plan.chipTrial', { n: daysLeft(profile.trialUntil) }) : t('premium.cta')}
-              </ButtonLink>
+              {PREMIUM_ENABLED && (
+                <ButtonLink to="/premium" variant="ghost" size="sm">
+                  {profile?.premium ? 'Premium ✓' : profile?.trial ? t('plan.chipTrial', { n: daysLeft(profile.trialUntil) }) : t('premium.cta')}
+                </ButtonLink>
+              )}
             </div>
           </Card>
         ) : (

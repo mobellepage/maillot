@@ -26,8 +26,9 @@ end $$;
 grant usage on schema tests to authenticated, anon;
 grant execute on all functions in schema tests to authenticated, anon;
 
--- Premium, second version: every account starts with a 7-day trial, then
--- 20 AI scans a month; paid premium scans on (fair use) at 6 % commission.
+-- Premium, second version: every account starts with a 7-day trial; paid
+-- premium has 6 % commission. Since 2026-10-24 Premium is switched off:
+-- every account scans on (fair use) and gets the studio look.
 select plan(14);
 
 select tests.create_user('00000000-0000-4000-a000-0000000bb001', 'trial@plan.test');
@@ -49,10 +50,10 @@ select throws_ok($$update profiles set trial_until = now() + interval '1 year' w
 select tests.logout();
 
 select tests.login('00000000-0000-4000-a000-0000000bb002');
-select lives_ok($$select consume_identify_quota() from generate_series(1, 20)$$, 'after the trial: 20 free scans');
-select throws_ok($$select consume_identify_quota()$$, 'P0402', 'scan_quota', 'the 21st scan of the month asks for premium');
-select is((select plan || ' ' || scans_used || '/' || scans_limit from my_plan()), 'free 20/20', 'the app sees the used allowance');
-select throws_ok($$select consume_studio_quota()$$, 'P0402', 'premium_only', 'the studio look is premium');
+select lives_ok($$select consume_identify_quota() from generate_series(1, 20)$$, 'after the trial: 20 scans');
+select lives_ok($$select consume_identify_quota()$$, 'Premium is off: the 21st scan works too');
+select is((select plan || ' ' || scans_used || '/' || scans_limit from my_plan()), 'free 21/500', 'everyone has the fair-use allowance');
+select lives_ok($$select consume_studio_quota()$$, 'Premium is off: the studio look for everyone');
 select tests.logout();
 
 select tests.login('00000000-0000-4000-a000-0000000bb003');
