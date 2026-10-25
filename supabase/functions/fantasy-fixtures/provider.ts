@@ -216,6 +216,8 @@ export class EspnProvider implements FootballDataProvider {
   constructor(private fetchImpl: typeof fetch = fetch) {}
   /** The last request that failed (for the sync's answer). */
   lastError: string | null = null;
+  /** The Swiss rounds, fetched once per sync for all its Gameweeks (TheSportsDB's free key allows few requests). */
+  private swiss: Promise<TsdbEvent[]> | null = null;
 
   private async scoreboard(code: string, day: string): Promise<EspnEvent[]> {
     const res = await this.fetchImpl(`https://site.api.espn.com/apis/site/v2/sports/soccer/${code}/scoreboard?dates=${day}&limit=100`, { headers: { "User-Agent": "Mozilla/5.0 (Maillot Fantasy)", Accept: "application/json" } });
@@ -227,10 +229,18 @@ export class EspnProvider implements FootballDataProvider {
 
   async getLiveScores(w: Window, teams: Team[]): Promise<Fixture[]> {
     const byId = new Map(teams.map((t) => [t.providerTeamId, t]));
-    const out: Fixture[] = w.international ? [] : await swissFixtures(w, teams, this.fetchImpl).catch((e: Error) => {
-      this.lastError = `tsdb: ${e.message}`;
-      return [] as Fixture[];
-    });
+    if (!w.international && !this.swiss) {
+      this.swiss = swissEvents(this.fetchImpl);
+      // A failed attempt is retried by the next sync, not by the next Gameweek of this one.
+      this.swiss.catch(() => {});
+    }
+    const out: Fixture[] = w.international
+      ? []
+      : await this.swiss!.then((events) => swissFixtures(w, teams, events)).catch((e: Error) => {
+          this.lastError = `tsdb: ${e.message}`;
+          console.error(`[fantasy-fixtures] Swiss league: ${e.message}`);
+          return [] as Fixture[];
+        });
     const codes = w.international ? ESPN_INTERNATIONAL : ESPN_LEAGUES;
     const days: string[] = [];
     for (let d = new Date(w.start.getTime() - 12 * 3_600_000); d <= w.end; d = new Date(d.getTime() + 24 * 3_600_000)) days.push(d.toISOString().slice(0, 10).replace(/-/g, ""));
@@ -308,18 +318,27 @@ interface TsdbEvent {
 
 const pause = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
+/** One request; on "too many requests" it waits and tries twice more. */
 async function tsdb(path: string, fetchImpl: typeof fetch): Promise<TsdbEvent[]> {
-  const res = await fetchImpl(`${TSDB}/${path}`, { headers: { "User-Agent": "Mozilla/5.0 (Maillot Fantasy)", Accept: "application/json" } });
-  if (res.status === 429) throw new Error("rate limited");
-  if (!res.ok) throw new Error(`${res.status}`);
-  const body = (await res.json()) as { events?: TsdbEvent[] | null };
-  return body.events ?? [];
+  for (let attempt = 0; ; attempt++) {
+    const res = await fetchImpl(`${TSDB}/${path}`, { headers: { "User-Agent": "Mozilla/5.0 (Maillot Fantasy)", Accept: "application/json" } });
+    if (res.status === 429 && attempt < 2) {
+      await res.body?.cancel();
+      await pause(4000 * (attempt + 1));
+      continue;
+    }
+    if (res.status === 429) throw new Error("rate limited");
+    if (!res.ok) throw new Error(`${res.status}`);
+    const body = (await res.json()) as { events?: TsdbEvent[] | null };
+    return body.events ?? [];
+  }
 }
 
-async function swissFixtures(w: Window, teams: Team[], fetchImpl: typeof fetch): Promise<Fixture[]> {
-  const byId = new Map(teams.filter((t) => t.providerTeamId.startsWith("tsdb:")).map((t) => [t.providerTeamId.slice(5), t]));
-  if (!byId.size) return [];
-  const season = `${w.start.getUTCMonth() >= 6 ? w.start.getUTCFullYear() : w.start.getUTCFullYear() - 1}-${(w.start.getUTCMonth() >= 6 ? w.start.getUTCFullYear() : w.start.getUTCFullYear() - 1) + 1}`;
+/** The rounds around the next one (last, next and the two after): about four weeks of Swiss matches. */
+async function swissEvents(fetchImpl: typeof fetch): Promise<TsdbEvent[]> {
+  const now = new Date();
+  const y = now.getUTCMonth() >= 6 ? now.getUTCFullYear() : now.getUTCFullYear() - 1;
+  const season = `${y}-${y + 1}`;
   const next = await tsdb(`eventsnextleague.php?id=${TSDB_SWISS}`, fetchImpl);
   const r = Number(next[0]?.intRound ?? 0);
   if (!r) return [];
@@ -328,6 +347,12 @@ async function swissFixtures(w: Window, teams: Team[], fetchImpl: typeof fetch):
     await pause(1200);
     events.push(...(await tsdb(`eventsround.php?id=${TSDB_SWISS}&r=${round}&s=${season}`, fetchImpl)));
   }
+  return events;
+}
+
+function swissFixtures(w: Window, teams: Team[], events: TsdbEvent[]): Fixture[] {
+  const byId = new Map(teams.filter((t) => t.providerTeamId.startsWith("tsdb:")).map((t) => [t.providerTeamId.slice(5), t]));
+  if (!byId.size) return [];
   const out: Fixture[] = [];
   for (const e of events) {
     // Times are UTC on TheSportsDB.
