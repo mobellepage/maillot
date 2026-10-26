@@ -183,7 +183,8 @@ function LineupForm({ m, clubs }: { m: Matchday; clubs: SquadClub[] }) {
     setCaptain(captain === c.club_id ? null : c.club_id);
   };
   const save = useMutation({
-    mutationFn: () => db.saveLineup(m.id, starters, captain),
+    // The bench in the order shown: the leftmost comes on first if a starter has no match.
+    mutationFn: () => db.saveLineup(m.id, starters, captain, bench.map((c) => c.club_id)),
     onSuccess: () => {
       toast(t('fantasy.md.saved'));
       void qc.invalidateQueries({ queryKey: ['fantasyMatchday'] });

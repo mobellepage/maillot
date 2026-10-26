@@ -1,16 +1,15 @@
 // The game on a collector's public profile: division, season points, best
 // Gameweek, badges and the line-up as it last locked — five on the pitch
-// (the captain marked), three on the bench.
+// (the captain marked), three on the bench — with each club's points.
 import { useQuery } from '@tanstack/react-query';
 import { usePrefs } from '../../lib/prefs.tsx';
 import * as db from '../../utils/db.ts';
 import { Skeleton } from '../../ui/index.ts';
 import { FANTASY } from '../../config/fantasy.ts';
 import { Pitch } from './Pitch.tsx';
-import { priceText } from './model.ts';
 
 type Badge = { key: string; data: Record<string, unknown>; at: string };
-type SquadEntry = { club_id: string; name: string; league: string; price: number; image_path: string | null; starter: boolean; captain: boolean; gameweek: number };
+type SquadEntry = { club_id: string; name: string; league: string; price: number; image_path: string | null; starter: boolean; captain: boolean; gameweek: number; gw_points?: number; live?: boolean; points?: number; sub_in_for?: string | null; sub_out?: boolean | null };
 
 export function FantasyProfile({ handle }: { handle: string }) {
   const { t } = usePrefs();
@@ -20,6 +19,15 @@ export function FantasyProfile({ handle }: { handle: string }) {
   if (!p || !p.plays) return <p style={{ color: 'var(--muted)', fontSize: 14, marginTop: 14 }}>{t('fantasy.profile.none', { handle })}</p>;
   const badges = (p.badges as unknown as Badge[]) ?? [];
   const squad = (p.squad as unknown as SquadEntry[]) ?? [];
+  // The Gameweek's points on each jersey (not its price), and an automatic substitution if there was one.
+  const withPoints = (c: SquadEntry | undefined) =>
+    c
+      ? {
+          ...c,
+          points: c.points ?? 0,
+          sub: c.sub_in_for ? t('fantasy.md.subIn', { club: squad.find((x) => x.club_id === c.sub_in_for)?.name ?? c.sub_in_for }) : c.sub_out ? t('fantasy.md.subOut') : null
+        }
+      : null;
   const badgeText = (b: Badge) => {
     const d = b.data as { matchday?: number; to?: number; division?: number; cup?: string; league?: string; season?: string };
     if (b.key.startsWith('motm:')) return t('fantasy.badge.motm', { n: d.matchday ?? '' });
@@ -50,12 +58,16 @@ export function FantasyProfile({ handle }: { handle: string }) {
       {squad.length > 0 && (
         <section aria-label={t('fantasy.profile.squad')} style={{ maxWidth: 560 }}>
           <h3 className="title" style={{ margin: '0 0 2px', fontSize: 15 }}>
-            👕 {t('fantasy.profile.lineup', { n: squad[0]!.gameweek })} <span className="mono" style={{ fontWeight: 500, color: 'var(--muted)', fontSize: 12.5 }}>{priceText(p.squad_value)}</span>
+            👕 {t('fantasy.profile.lineup', { n: squad[0]!.gameweek })}{' '}
+            <span className="mono" style={{ fontWeight: 700, fontSize: 13.5 }}>
+              {t('fantasy.profile.gwPoints', { n: squad[0]!.gw_points ?? 0 })}
+            </span>
+            {squad[0]!.live && <span style={{ fontWeight: 500, color: 'var(--muted)', fontSize: 12.5 }}> · {t('fantasy.profile.live')}</span>}
           </h3>
           <Pitch
             slots={[
-              ...Array.from({ length: FANTASY.starters }, (_, i) => squad.filter((c) => c.starter)[i] ?? null),
-              ...Array.from({ length: FANTASY.squadSize - FANTASY.starters }, (_, i) => squad.filter((c) => !c.starter)[i] ?? null)
+              ...Array.from({ length: FANTASY.starters }, (_, i) => withPoints(squad.filter((c) => c.starter)[i])),
+              ...Array.from({ length: FANTASY.squadSize - FANTASY.starters }, (_, i) => withPoints(squad.filter((c) => !c.starter)[i]))
             ]}
             captainId={squad.find((c) => c.captain)?.club_id ?? null}
           />

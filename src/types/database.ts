@@ -993,7 +993,7 @@ export type Database = {
         Returns: { club_id: string; name: string; league: string; image_path: string | null; delta: number; price: number; matchday: number }[];
       };
       fantasy_save_squad: { Args: { p_clubs: string[]; p_md?: number | null }; Returns: undefined };
-      fantasy_save_lineup: { Args: { p_md: number; p_starters: string[]; p_captain?: string | null }; Returns: undefined };
+      fantasy_save_lineup: { Args: { p_md: number; p_starters: string[]; p_captain?: string | null; p_bench?: string[] }; Returns: undefined };
       fantasy_play_chip: { Args: { p_md: number; p_chip?: string | null }; Returns: undefined };
       fantasy_rescore: { Args: { p_md: number }; Returns: undefined };
       fantasy_my_leagues: {

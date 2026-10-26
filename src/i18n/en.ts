@@ -2558,6 +2558,8 @@ export const en = {
   'fantasy.md.subIn': '↑ on for {club}',
   'fantasy.md.subOut': '↓ no match – subbed off',
   'fantasy.md.profileOf': 'Profile of @{handle}',
+  'fantasy.profile.gwPoints': '{n} pts',
+  'fantasy.profile.live': 'live',
   // @@end
 };
 

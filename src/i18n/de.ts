@@ -2559,5 +2559,7 @@ export const de: Messages = {
   'fantasy.md.subIn': '↑ für {club}',
   'fantasy.md.subOut': '↓ kein Spiel – ausgewechselt',
   'fantasy.md.profileOf': 'Profil von @{handle}',
+  'fantasy.profile.gwPoints': '{n} Pkt.',
+  'fantasy.profile.live': 'läuft noch',
   // @@end
 };

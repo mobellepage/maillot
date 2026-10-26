@@ -72,8 +72,8 @@ export async function saveSquad(clubs: string[], md: number): Promise<void> {
   if (error) throw error;
 }
 /** Five starters and the captain. Errors: P0470 deadline, P0471 size, P0472 captain not owned, P0478 nation not playing, P0479 no squad. */
-export async function saveLineup(md: number, starters: string[], captain: string | null): Promise<void> {
-  const { error } = await (await sb()).rpc('fantasy_save_lineup', { p_md: md, p_starters: starters, p_captain: captain });
+export async function saveLineup(md: number, starters: string[], captain: string | null, bench?: string[]): Promise<void> {
+  const { error } = await (await sb()).rpc('fantasy_save_lineup', { p_md: md, p_starters: starters, p_captain: captain, ...(bench ? { p_bench: bench } : {}) });
   if (error) throw error;
 }
 /** A chip for the Gameweek, or none. Errors: P0475 used, P0476 locked by transfers, P0479 no squad. */
