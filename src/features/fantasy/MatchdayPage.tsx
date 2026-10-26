@@ -374,6 +374,10 @@ function LineupView({ m, fixtures }: { m: Matchday; fixtures: Fixture[] }) {
             {toggle}
           </div>
           {body}
+          <p style={{ margin: '14px 0 0', display: 'flex', gap: 14, flexWrap: 'wrap', fontSize: 13.5 }}>
+            <Link to="?tab=table">← {t('fantasy.md.tab.table')}</Link>
+            {otherHandle && <Link to={'/u/' + otherHandle}>{t('fantasy.md.profileOf', { handle: otherHandle })}</Link>}
+          </p>
         </section>
       </div>
     );
@@ -568,7 +572,8 @@ function Table({ m }: { m: Matchday }) {
           <span className="mono fantasy-table__rank">{i + 1}</span>
           <Avatar avatar={r.avatar} name={r.handle} size={28} ring={false} />
           <span style={{ flex: 1, minWidth: 0 }}>
-            <Link to={'/u/' + r.handle} style={{ fontWeight: 650 }}>
+            {/* Straight to their line-up and points this Gameweek (their profile is one tap further). */}
+            <Link to={r.is_me ? '?tab=points' : `?tab=points&user=${r.user_id}&handle=${encodeURIComponent(r.handle)}`} className="fantasy-table__link" style={{ fontWeight: 650 }}>
               @{r.handle}
             </Link>
             {i === 0 && m.status === 'scored' && <span className="fantasy-table__crown"> 👑 {t('fantasy.md.manager')}</span>}

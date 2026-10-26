@@ -4195,3 +4195,17 @@ html .logo-word {
   padding-top: 12px;
   border-top: 1px solid var(--line);
 }
+
+/* The whole table row opens that manager's line-up. */
+.fantasy-table__row {
+  position: relative;
+}
+.fantasy-table__link::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+}
+.fantasy-table__row:hover {
+  filter: brightness(0.97);
+}

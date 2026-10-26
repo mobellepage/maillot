@@ -2558,5 +2558,6 @@ export const de: Messages = {
   'edit.saved': 'Änderungen gespeichert.',
   'fantasy.md.subIn': '↑ für {club}',
   'fantasy.md.subOut': '↓ kein Spiel – ausgewechselt',
+  'fantasy.md.profileOf': 'Profil von @{handle}',
   // @@end
 };

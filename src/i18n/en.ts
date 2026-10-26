@@ -2557,6 +2557,7 @@ export const en = {
   'edit.saved': 'Changes saved.',
   'fantasy.md.subIn': '↑ on for {club}',
   'fantasy.md.subOut': '↓ no match – subbed off',
+  'fantasy.md.profileOf': 'Profile of @{handle}',
   // @@end
 };
 
