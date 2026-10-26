@@ -9,7 +9,7 @@ import { FANTASY } from '../../config/fantasy.ts';
 import { Pitch } from './Pitch.tsx';
 
 type Badge = { key: string; data: Record<string, unknown>; at: string };
-type SquadEntry = { club_id: string; name: string; league: string; price: number; image_path: string | null; starter: boolean; captain: boolean; gameweek: number; gw_points?: number; live?: boolean; points?: number; base?: number; multiplier?: number; sub_in_for?: string | null; sub_out?: boolean | null };
+type SquadEntry = { club_id: string; name: string; league: string; price: number; image_path: string | null; starter: boolean; captain: boolean; gameweek: number; gw_points?: number; live?: boolean; points?: number; played?: boolean; base?: number; multiplier?: number; sub_in_for?: string | null; sub_out?: boolean | null };
 
 export function FantasyProfile({ handle }: { handle: string }) {
   const { t } = usePrefs();
@@ -25,7 +25,8 @@ export function FantasyProfile({ handle }: { handle: string }) {
       ? {
           ...c,
           // A bench club shows what it would have scored; it doesn't count.
-          points: c.multiplier === 0 ? (c.base ?? 0) : (c.points ?? 0),
+          // "–" while its match hasn't been played (a 0 would read like a defeat).
+          points: c.played === false ? ('–' as const) : c.multiplier === 0 ? (c.base ?? 0) : (c.points ?? 0),
           ...(c.multiplier === undefined ? {} : { counts: c.multiplier > 0 }),
           sub: c.sub_in_for ? t('fantasy.md.subIn', { club: squad.find((x) => x.club_id === c.sub_in_for)?.name ?? c.sub_in_for }) : c.sub_out ? t('fantasy.md.subOut') : null
         }

@@ -330,7 +330,7 @@ function PointsPitch({ rows, fixtures }: { rows: LineupClub[]; fixtures: Fixture
   const { t } = usePrefs();
   const starters = rows.filter((c) => c.starter);
   const bench = rows.filter((c) => !c.starter);
-  const model = (c: LineupClub) => ({ club_id: c.club_id, name: c.name, league: c.league, price: c.price, image_path: c.image_path, points: c.multiplier > 0 ? c.total : c.base, counts: c.multiplier > 0, sub: subNote(c, rows, t) ?? opponent(c, fixtures) });
+  const model = (c: LineupClub) => ({ club_id: c.club_id, name: c.name, league: c.league, price: c.price, image_path: c.image_path, points: !c.played ? ('–' as const) : c.multiplier > 0 ? c.total : c.base, counts: c.multiplier > 0, sub: subNote(c, rows, t) ?? opponent(c, fixtures) });
   return (
     <Pitch
       slots={[...Array.from({ length: FANTASY.starters }, (_, i) => (starters[i] ? model(starters[i]!) : null)), ...bench.map(model)]}
@@ -497,7 +497,7 @@ function ScoreRow({ c, fixtures }: { c: LineupClub; fixtures: Fixture[] }) {
         </span>
       </span>
       <b className="mono" style={{ fontSize: 18 }}>
-        {c.total}
+        {c.played ? c.total : '–'}
       </b>
     </li>
   );

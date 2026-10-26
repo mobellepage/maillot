@@ -17,8 +17,8 @@ export interface JerseyModel {
   starter?: boolean;
   captain?: boolean;
   is_national?: boolean;
-  /** In a scored line-up: the points, shown instead of the price. */
-  points?: number | null;
+  /** In a scored line-up: the points, shown instead of the price ("–" while its match hasn't been played). */
+  points?: number | '–' | null;
   /** A short line under the name (the opponent, the score). */
   sub?: string | null;
   /** In a scored line-up: whether its points go into the total (a bench club's don't — it's greyed). */
@@ -37,7 +37,7 @@ export function JerseyCard({ j, small = false, dim = false }: { j: JerseyModel; 
       </span>
       <span className="fantasy-jersey__name">{j.name}</span>
       {j.points !== undefined && j.points !== null ? (
-        <span className="fantasy-jersey__pts mono">{t('fantasy.md.pts', { n: j.points })}</span>
+        <span className="fantasy-jersey__pts mono">{j.points === '–' ? '–' : t('fantasy.md.pts', { n: j.points })}</span>
       ) : (
         <span className="fantasy-jersey__meta">
           <b className="mono">{priceText(j.price)}</b>
