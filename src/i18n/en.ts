@@ -2244,7 +2244,7 @@ export const en = {
   'fantasy.md.multiplier': '×{m}',
   'fantasy.md.base': '{n} base',
   'fantasy.md.scoringTitle': 'How a card scores',
-  'fantasy.md.scoring': 'Win {win}, draw {draw}, defeat 0 per match. Captain ×{cap}. Bench Boost: the bench scores too. Extra transfers cost points.',
+  'fantasy.md.scoring': 'Win {win}, draw {draw}, defeat 0 per match – only the five on the pitch count. Captain ×{cap}. A starter without a match by Monday 23:30 is replaced by the leftmost bench club. Bench Boost: the bench scores too. Extra transfers cost points.',
   'fantasy.md.fixturesNone': 'Fixtures appear a few days before the weekend.',
   'fantasy.md.manager': 'Manager of the Matchday',
   'fantasy.md.tableNone': 'Nobody has played this Matchday yet.',
@@ -2329,7 +2329,7 @@ export const en = {
   'fantasy.rules.title': 'Fantasy rules',
   'fantasy.rules.intro': 'Fantasy is a free game of skill on Maillot: no stakes, no purchases, nothing to win but bragging rights.',
   'fantasy.rules.1': 'Squad: eight jerseys of the current season for 100 M, at most two from one league. Nations only during international breaks, and only when they play.',
-  'fantasy.rules.2': 'Gameweek: five of the eight play, three sit on the bench. Deadline Friday 18:00 Swiss time; every league in Maillot counts until Monday night.',
+  'fantasy.rules.2': 'Gameweek: five of the eight play, three sit on the bench. Only the five on the pitch score. If one of them has no match by Monday 23:30, the leftmost bench club that played comes on. Deadline Friday 18:00 Swiss time.',
   'fantasy.rules.3': 'Points: win 3, draw 1, defeat 0 per match. The captain counts double — and only a club whose shirt is in your Maillot collection can be captain.',
   'fantasy.rules.4': 'Transfers: one free a Gameweek; unused ones roll over (five at most). Every further transfer costs 4 points. Prices rise and fall with form.',
   'fantasy.rules.5': 'Chips, once a season each: Bench Boost (the bench scores too), Wildcard (unlimited free transfers), Free Hit (free transfers for one Gameweek, then the squad comes back).',
@@ -2555,6 +2555,8 @@ export const en = {
   'edit.cancel': 'Cancel',
   'edit.save': 'Save changes',
   'edit.saved': 'Changes saved.',
+  'fantasy.md.subIn': '↑ on for {club}',
+  'fantasy.md.subOut': '↓ no match – subbed off',
   // @@end
 };
 

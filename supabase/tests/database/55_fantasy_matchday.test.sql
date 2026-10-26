@@ -28,7 +28,7 @@ grant execute on all functions in schema tests to authenticated, anon;
 
 -- The squad game: eight jerseys for 100 M (two per league), five play, the captain (an owned
 -- club) counts double, win 3 / draw 1, transfers beyond the free one cost 4, prices move.
-select plan(17);
+select plan(20);
 
 select tests.create_user('00000000-0000-4000-a000-0000000c0001', 'manager@fantasy.test');
 -- A Gameweek two days out, the only open one.
@@ -78,6 +78,16 @@ select private.fantasy_score((select id from t_md), true);
 select is((select total from fantasy_club_scores where matchday_id = (select id from t_md) and club_id = (select club_id from t_sq where n = 1)), 6, 'the captain: a win is 3, doubled');
 select is((select total from fantasy_club_scores where matchday_id = (select id from t_md) and club_id = (select club_id from t_sq where n = 2)), 1, 'a draw is 1');
 select is((select points from fantasy_lineups where matchday_id = (select id from t_md)), 7, '6 + 1 + 0 and nothing from the bench');
+-- Without the chip: club 6 (leftmost on the bench) wins; starters 4 and 5 have no match, so club 6 comes on for one of them.
+insert into fantasy_fixtures (matchday_id, provider_fixture_id, home_club_id, away_club_id, home_name, away_name, kickoff, status, home_goals, away_goals)
+select id, 'test:f', (select club_id from t_sq where n = 6), null, 'Club F', 'Someone', now() + interval '2 days', 'finished', 3, 0 from t_md;
+insert into fantasy_fixtures (matchday_id, provider_fixture_id, home_club_id, away_club_id, home_name, away_name, kickoff, status, home_goals, away_goals)
+select id, 'test:g', (select club_id from t_sq where n = 7), null, 'Club G', 'Someone', now() + interval '2 days', 'finished', 1, 0 from t_md;
+update fantasy_lineups set chip = null where matchday_id = (select id from t_md);
+select private.fantasy_score((select id from t_md), false);
+select is((select multiplier from fantasy_club_scores where matchday_id = (select id from t_md) and club_id = (select club_id from t_sq where n = 6)), 1, 'the leftmost bench club comes on for a starter without a match');
+select is((select points from fantasy_lineups where matchday_id = (select id from t_md)), 13, '6 + 1 + 0 + 3 (club 6) + 3 (club 7 for the second starter without a match)');
+select is((select count(*)::int from fantasy_club_scores where matchday_id = (select id from t_md) and not starter and multiplier = 0), 1, 'the bench club left over does not score');
 select ok((select price > (select price from t_sq where n = 1) from fantasy_club_prices where club_id = (select club_id from t_sq where n = 1)), 'a cheap winner rises in price');
 
 -- Next week: two transfers with one free one cost four points.

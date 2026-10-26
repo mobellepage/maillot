@@ -2245,7 +2245,7 @@ export const fr: Messages = {
   'fantasy.md.multiplier': '×{m}',
   'fantasy.md.base': '{n} base',
   'fantasy.md.scoringTitle': 'Comment une carte marque',
-  'fantasy.md.scoring': 'Victoire {win}, nul {draw}, défaite 0 par match. Capitaine ×{cap}. Bench Boost : le banc marque aussi. Les transferts supplémentaires coûtent des points.',
+  'fantasy.md.scoring': 'Victoire {win}, nul {draw}, défaite 0 par match – seuls les cinq sur le terrain comptent. Capitaine ×{cap}. Un titulaire sans match lundi à 23h30 est remplacé par le club le plus à gauche du banc. Bench Boost : le banc marque aussi. Les transferts supplémentaires coûtent des points.',
   'fantasy.md.fixturesNone': 'Les matchs apparaissent quelques jours avant le week-end.',
   'fantasy.md.manager': 'Manager du Matchday',
   'fantasy.md.tableNone': 'Personne n’a encore joué ce Matchday.',
@@ -2330,7 +2330,7 @@ export const fr: Messages = {
   'fantasy.rules.title': 'Règlement Fantasy',
   'fantasy.rules.intro': 'Fantasy est un jeu d’adresse gratuit sur Maillot : pas de mise, pas d’achat, rien à gagner sinon la gloire.',
   'fantasy.rules.1': 'Effectif : huit maillots de la saison en cours pour 100 M, au plus deux d’une même ligue. Sélections uniquement pendant les trêves internationales, et seulement si elles jouent.',
-  'fantasy.rules.2': 'Gameweek : cinq des huit jouent, trois sont sur le banc. Deadline vendredi 18h00 heure suisse ; chaque ligue de Maillot compte jusqu’au lundi soir.',
+  'fantasy.rules.2': 'Gameweek : cinq des huit jouent, trois sont sur le banc. Seuls les cinq sur le terrain marquent. Si l’un d’eux n’a pas joué lundi à 23h30, le club le plus à gauche du banc qui a joué entre. Deadline vendredi 18h00 heure suisse.',
   'fantasy.rules.3': 'Points : victoire 3, nul 1, défaite 0 par match. Le capitaine compte double — et seul un club dont le maillot est dans ta collection Maillot peut être capitaine.',
   'fantasy.rules.4': 'Transferts : un gratuit par Gameweek ; les non utilisés sont reportés (cinq au maximum). Chaque transfert supplémentaire coûte 4 points. Les prix montent et baissent avec la forme.',
   'fantasy.rules.5': 'Chips, une fois par saison chacun : Bench Boost (le banc marque aussi), Wildcard (transferts gratuits illimités), Free Hit (transferts gratuits pour une Gameweek, puis l’effectif revient).',
@@ -2556,5 +2556,7 @@ export const fr: Messages = {
   'edit.cancel': 'Annuler',
   'edit.save': 'Enregistrer',
   'edit.saved': 'Modifications enregistrées.',
+  'fantasy.md.subIn': '↑ pour {club}',
+  'fantasy.md.subOut': '↓ pas de match – remplacé',
   // @@end
 };

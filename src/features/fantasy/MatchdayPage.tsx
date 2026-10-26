@@ -316,10 +316,19 @@ function opponent(c: LineupClub, fixtures: Fixture[]): string | null {
   return `${home ? f.away_name : f.home_name} (${home ? 'H' : 'A'})`;
 }
 
+// An automatic substitution (a starter without a match by Monday 23:30 → the leftmost bench club that played).
+function subNote(c: LineupClub, rows: LineupClub[], t: (k: string, v?: Record<string, string | number>) => string): string | null {
+  const d = (c.detail ?? {}) as { sub_in_for?: string | null; sub_out?: boolean | null };
+  if (d.sub_in_for) return t('fantasy.md.subIn', { club: rows.find((x) => x.club_id === d.sub_in_for)?.name ?? d.sub_in_for });
+  if (d.sub_out) return t('fantasy.md.subOut');
+  return null;
+}
+
 function PointsPitch({ rows, fixtures }: { rows: LineupClub[]; fixtures: Fixture[] }) {
+  const { t } = usePrefs();
   const starters = rows.filter((c) => c.starter);
   const bench = rows.filter((c) => !c.starter);
-  const model = (c: LineupClub) => ({ club_id: c.club_id, name: c.name, league: c.league, price: c.price, image_path: c.image_path, points: c.total, sub: opponent(c, fixtures) });
+  const model = (c: LineupClub) => ({ club_id: c.club_id, name: c.name, league: c.league, price: c.price, image_path: c.image_path, points: c.total, sub: subNote(c, rows, t) ?? opponent(c, fixtures) });
   return (
     <Pitch
       slots={[...Array.from({ length: FANTASY.starters }, (_, i) => (starters[i] ? model(starters[i]!) : null)), ...bench.map(model)]}

@@ -2245,7 +2245,7 @@ export const de: Messages = {
   'fantasy.md.multiplier': '×{m}',
   'fantasy.md.base': '{n} Basis',
   'fantasy.md.scoringTitle': 'So punktet eine Karte',
-  'fantasy.md.scoring': 'Sieg {win}, Remis {draw}, Niederlage 0 pro Spiel. Captain ×{cap}. Bench Boost: Auch die Bank punktet. Zusätzliche Transfers kosten Punkte.',
+  'fantasy.md.scoring': 'Sieg {win}, Remis {draw}, Niederlage 0 pro Spiel – nur die fünf auf dem Feld zählen. Captain ×{cap}. Hat ein Team auf dem Feld bis Montag 23:30 nicht gespielt, kommt das Team ganz links auf der Bank rein. Bench Boost: Auch die Bank punktet. Zusätzliche Transfers kosten Punkte.',
   'fantasy.md.fixturesNone': 'Die Spiele erscheinen ein paar Tage vor dem Wochenende.',
   'fantasy.md.manager': 'Manager des Matchdays',
   'fantasy.md.tableNone': 'Noch niemand hat diesen Matchday gespielt.',
@@ -2330,7 +2330,7 @@ export const de: Messages = {
   'fantasy.rules.title': 'Fantasy-Regeln',
   'fantasy.rules.intro': 'Fantasy ist ein kostenloses Geschicklichkeitsspiel auf Maillot: kein Einsatz, keine Käufe, nichts zu gewinnen ausser Ruhm.',
   'fantasy.rules.1': 'Kader: acht Trikots der laufenden Saison für 100 M, höchstens zwei aus einer Liga. Nationalteams nur in Länderspielpausen, und nur wenn sie spielen.',
-  'fantasy.rules.2': 'Gameweek: Fünf der acht spielen, drei sitzen auf der Bank. Deadline Freitag 18:00 Schweizer Zeit; jede Liga in Maillot zählt bis Montagabend.',
+  'fantasy.rules.2': 'Gameweek: Fünf der acht spielen, drei sitzen auf der Bank. Nur die fünf auf dem Feld punkten. Hat eines davon bis Montag 23:30 kein Spiel bestritten, kommt das Team ganz links auf der Bank rein (sofern es gespielt hat). Deadline Freitag 18:00 Schweizer Zeit.',
   'fantasy.rules.3': 'Punkte: Sieg 3, Remis 1, Niederlage 0 pro Spiel. Der Captain zählt doppelt — und nur ein Club, dessen Trikot in deiner Maillot-Sammlung ist, kann Captain sein.',
   'fantasy.rules.4': 'Transfers: einer gratis pro Gameweek; ungenutzte werden übertragen (höchstens fünf). Jeder weitere Transfer kostet 4 Punkte. Die Preise steigen und fallen mit der Form.',
   'fantasy.rules.5': 'Chips, je einmal pro Saison: Bench Boost (auch die Bank punktet), Wildcard (unbegrenzt Gratis-Transfers), Free Hit (Gratis-Transfers für eine Gameweek, danach kommt der Kader zurück).',
@@ -2556,5 +2556,7 @@ export const de: Messages = {
   'edit.cancel': 'Abbrechen',
   'edit.save': 'Änderungen speichern',
   'edit.saved': 'Änderungen gespeichert.',
+  'fantasy.md.subIn': '↑ für {club}',
+  'fantasy.md.subOut': '↓ kein Spiel – ausgewechselt',
   // @@end
 };
