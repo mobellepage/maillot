@@ -46,7 +46,7 @@ export function Pitch({ slots, onTap, onCaptain, captainId, benchDim = true, dis
             <JerseyCard j={{ ...j, captain: isCap }} small dim={bench && benchDim && !subbing} />
           </button>
         ) : (
-          <JerseyCard j={{ ...j, captain: isCap }} small dim={bench && benchDim} />
+          <JerseyCard j={{ ...j, captain: isCap }} small dim={j.counts === undefined ? bench && benchDim : !j.counts} />
         )}
         {onCaptain && !bench && (
           <button type="button" className={'fantasy-md__cap' + (isCap ? ' is-on' : '')} aria-pressed={isCap} disabled={disabled || !j.owned} onClick={() => onCaptain(i)} title={j.owned ? t('fantasy.md.makeCaptain') : t('fantasy.md.captainOwnedOnly')}>

@@ -21,6 +21,8 @@ export interface JerseyModel {
   points?: number | null;
   /** A short line under the name (the opponent, the score). */
   sub?: string | null;
+  /** In a scored line-up: whether its points go into the total (a bench club's don't — it's greyed). */
+  counts?: boolean;
 }
 
 export function JerseyCard({ j, small = false, dim = false }: { j: JerseyModel; small?: boolean; dim?: boolean }) {
