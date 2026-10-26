@@ -8,6 +8,7 @@ import { usePrefs } from '../../lib/prefs.tsx';
 import { downloadVaultCard } from '../../utils/cardExport.js';
 import { PendingPhotos } from './PendingPhotos.tsx';
 import { AddOwnPhotos } from './AddOwnPhotos.tsx';
+import { EditItemButton } from './EditItemDialog.tsx';
 import { Badge, Button, Card, ErrorState, KeyValueList, Notice, Page, ShirtGraphic, Skeleton, HEX, useConfirm } from '../../ui/index.ts';
 import { badgeFor, itemLook, itemName, libraryPicture, photoRank, valueOf } from './model.ts';
 import { VisibilityEditor } from './VisibilityEditor.tsx';
@@ -116,6 +117,7 @@ export default function VaultItemPage() {
             {name}
           </h1>
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center', marginTop: 12 }}>
+            <EditItemButton item={c} />
             <HighlightButton item={c} items={items} labelled />
             <CollectorCardButton item={c} card={collectorCard} print={print} />
           </div>

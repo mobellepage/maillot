@@ -3,11 +3,19 @@ import { BY } from '../../../data.ts';
 import { Pill, Pills, Section } from './parts.tsx';
 import { inputStyle } from './styles.ts';
 import { usePrefs } from '../../../lib/prefs.tsx';
-import type { Wizard } from './useAddShirtForm.ts';
+import type { AddShirtForm } from './useAddShirtForm.ts';
 
 const GROUPS = SIZE_GROUPS as Record<string, string[]>;
 
-export function DetailsStep({ w }: { w: Wizard }) {
+/** The fields this step edits: the add-shirt wizard's, and the edit dialog's for a shirt already in the collection. */
+export type DetailsFields = Pick<AddShirtForm, 'catalogId' | 'version' | 'sizeGroup' | 'size' | 'sleeve' | 'flock' | 'patches' | 'signature' | 'tagsAttached' | 'condition' | 'provenance'>;
+export interface DetailsForm {
+  f: DetailsFields;
+  set: (patch: Partial<DetailsFields> | ((s: DetailsFields) => Partial<DetailsFields>)) => void;
+  togglePatch: (p: string) => void;
+}
+
+export function DetailsStep({ w }: { w: DetailsForm }) {
   const { f, set, togglePatch } = w;
   const { t, label } = usePrefs();
   const league = f.catalogId && BY[f.catalogId] ? BY[f.catalogId]!.league : 'National Teams';

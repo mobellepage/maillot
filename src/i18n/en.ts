@@ -2544,6 +2544,17 @@ export const en = {
   'fantasy.md.myFixtures': 'Your teams’ matches',
   'fantasy.md.noMatchFor': 'No match this Gameweek: {clubs}',
   'fantasy.md.theirFixtures': 'Their teams’ matches',
+  'edit.button': 'Edit',
+  'edit.title': 'Edit shirt',
+  'edit.tab.photos': 'Photos',
+  'edit.tab.details': 'Details',
+  'edit.photosHint': 'Tap a box to add or replace a photo – it’s saved straight away.',
+  'edit.removePhoto': 'Remove',
+  'edit.saleNeedsPhotos': 'A shirt for sale needs its front and back photo.',
+  'edit.verifiedLocked': 'This shirt was verified by an expert, so its details stay as verified. You can still add and replace photos.',
+  'edit.cancel': 'Cancel',
+  'edit.save': 'Save changes',
+  'edit.saved': 'Changes saved.',
   // @@end
 };
 

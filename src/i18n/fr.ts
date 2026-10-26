@@ -2545,5 +2545,16 @@ export const fr: Messages = {
   'fantasy.md.myFixtures': 'Matchs de tes équipes',
   'fantasy.md.noMatchFor': 'Pas de match cette Gameweek : {clubs}',
   'fantasy.md.theirFixtures': 'Matchs de ces équipes',
+  'edit.button': 'Modifier',
+  'edit.title': 'Modifier le maillot',
+  'edit.tab.photos': 'Photos',
+  'edit.tab.details': 'Détails',
+  'edit.photosHint': 'Touche une case pour ajouter ou remplacer une photo – elle est enregistrée tout de suite.',
+  'edit.removePhoto': 'Retirer',
+  'edit.saleNeedsPhotos': 'Un maillot en vente a besoin d’une photo de face et de dos.',
+  'edit.verifiedLocked': 'Ce maillot a été vérifié par un expert : ses détails restent tels quels. Tu peux toujours ajouter et remplacer des photos.',
+  'edit.cancel': 'Annuler',
+  'edit.save': 'Enregistrer',
+  'edit.saved': 'Modifications enregistrées.',
   // @@end
 };

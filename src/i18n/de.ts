@@ -2545,5 +2545,16 @@ export const de: Messages = {
   'fantasy.md.myFixtures': 'Spiele deiner Teams',
   'fantasy.md.noMatchFor': 'Kein Spiel in dieser Gameweek: {clubs}',
   'fantasy.md.theirFixtures': 'Spiele dieser Teams',
+  'edit.button': 'Bearbeiten',
+  'edit.title': 'Trikot bearbeiten',
+  'edit.tab.photos': 'Fotos',
+  'edit.tab.details': 'Angaben',
+  'edit.photosHint': 'Tippe auf ein Feld, um ein Foto hinzuzufügen oder zu ersetzen – es wird sofort gespeichert.',
+  'edit.removePhoto': 'Entfernen',
+  'edit.saleNeedsPhotos': 'Ein Trikot im Verkauf braucht ein Foto von vorne und hinten.',
+  'edit.verifiedLocked': 'Dieses Trikot wurde von einer Expertin oder einem Experten geprüft – die geprüften Angaben bleiben deshalb, wie sie sind. Fotos kannst du weiterhin hinzufügen und ersetzen.',
+  'edit.cancel': 'Abbrechen',
+  'edit.save': 'Änderungen speichern',
+  'edit.saved': 'Änderungen gespeichert.',
   // @@end
 };
