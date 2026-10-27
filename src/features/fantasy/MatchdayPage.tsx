@@ -198,6 +198,8 @@ function LineupForm({ m, clubs }: { m: Matchday; clubs: SquadClub[] }) {
     onError: (e) => toast(errorText(t, (e as { code?: string }).code))
   });
   const bench = clubs.filter((c) => !starters.includes(c.club_id));
+  // Under the price: the Gameweek's match, opponent and home (H) or away (A).
+  const withMatch = (c: SquadClub | undefined) => (c ? { ...c, sub: c.opponent ? `${c.opponent} (${c.home ? 'H' : 'A'})` : t('fantasy.md.noMatch') } : null);
   const idle = starters.filter((id) => byId.get(id) && !byId.get(id)!.plays).length;
   return (
     <div className="fantasy-md">
@@ -211,7 +213,7 @@ function LineupForm({ m, clubs }: { m: Matchday; clubs: SquadClub[] }) {
           </span>
         </div>
         <Pitch
-          slots={[...Array.from({ length: FANTASY.starters }, (_, i) => (starters[i] ? (byId.get(starters[i]!) ?? null) : null)), ...bench]}
+          slots={[...Array.from({ length: FANTASY.starters }, (_, i) => (starters[i] ? withMatch(byId.get(starters[i]!)) : null)), ...bench.map(withMatch)]}
           onTap={(i) => {
             const c = i < FANTASY.starters ? (starters[i] ? byId.get(starters[i]!) : undefined) : bench[i - FANTASY.starters];
             if (c) tap(c);

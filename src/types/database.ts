@@ -973,7 +973,7 @@ export type Database = {
       };
       fantasy_squad_clubs: {
         Args: { p_md?: number | null };
-        Returns: { club_id: string; name: string; league: string; price: number; delta: number | null; kit_id: string | null; season: string | null; image_path: string | null; plays: boolean; fixture: string | null; kickoff: string | null; is_national: boolean; owned: boolean; starter: boolean; captain: boolean; in_locked: boolean }[];
+        Returns: { club_id: string; name: string; league: string; price: number; delta: number | null; kit_id: string | null; season: string | null; image_path: string | null; plays: boolean; fixture: string | null; kickoff: string | null; is_national: boolean; owned: boolean; starter: boolean; captain: boolean; in_locked: boolean; opponent: string | null; home: boolean | null }[];
       };
       fantasy_lineup_clubs: {
         Args: { p_md: number; p_user?: string | null };
