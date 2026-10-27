@@ -2560,6 +2560,9 @@ export const en = {
   'fantasy.md.profileOf': 'Profile of @{handle}',
   'fantasy.profile.gwPoints': '{n} pts',
   'fantasy.profile.live': 'live',
+  'fantasy.sq.sort.points': 'Points ↓',
+  'fantasy.sq.seasonPts': '{n} pts',
+  'fantasy.sq.seasonPtsLong': '{n} pts this season',
   // @@end
 };
 

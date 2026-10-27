@@ -2561,5 +2561,8 @@ export const fr: Messages = {
   'fantasy.md.profileOf': 'Profil de @{handle}',
   'fantasy.profile.gwPoints': '{n} pts',
   'fantasy.profile.live': 'en cours',
+  'fantasy.sq.sort.points': 'Points ↓',
+  'fantasy.sq.seasonPts': '{n} pts',
+  'fantasy.sq.seasonPtsLong': '{n} pts cette saison',
   // @@end
 };

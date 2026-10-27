@@ -18,9 +18,17 @@ import { Pitch } from './Pitch.tsx';
 import { priceText, squadProblems, transferHits, transfersMade, untilText } from './model.ts';
 import { errorText } from './errors.ts';
 
-type Sort = 'priceDesc' | 'priceAsc' | 'name';
-const SORTS: Sort[] = ['priceDesc', 'priceAsc', 'name'];
-const bySort = (sort: Sort) => (a: Jersey, b: Jersey) => (sort === 'name' ? a.name.localeCompare(b.name) : sort === 'priceAsc' ? Number(a.price) - Number(b.price) || a.name.localeCompare(b.name) : Number(b.price) - Number(a.price) || a.name.localeCompare(b.name));
+type Sort = 'points' | 'priceDesc' | 'priceAsc' | 'name';
+const SORTS: Sort[] = ['points', 'priceDesc', 'priceAsc', 'name'];
+/** Season points first by default: the clubs collecting the most on top. */
+const bySort = (sort: Sort, pts: Map<string, number>) => (a: Jersey, b: Jersey) =>
+  sort === 'name'
+    ? a.name.localeCompare(b.name)
+    : sort === 'points'
+      ? (pts.get(b.club_id) ?? 0) - (pts.get(a.club_id) ?? 0) || Number(b.price) - Number(a.price) || a.name.localeCompare(b.name)
+      : sort === 'priceAsc'
+        ? Number(a.price) - Number(b.price) || a.name.localeCompare(b.name)
+        : Number(b.price) - Number(a.price) || a.name.localeCompare(b.name);
 
 export default function SquadPage() {
   const { t } = usePrefs();
@@ -61,6 +69,9 @@ function SquadEditor({ m }: { m: NonNullable<Awaited<ReturnType<typeof db.loadMa
   const qc = useQueryClient();
   const navigate = useNavigate();
   const jerseys = useQuery({ queryKey: ['fantasyJerseys', m.id, user?.id], queryFn: () => db.loadJerseys(m.id), staleTime: 60_000, retry: false });
+  // Each club's points this season (the statistics page's numbers).
+  const stats = useQuery({ queryKey: ['fantasyClubStats'], queryFn: db.loadClubStats, staleTime: 300_000, retry: false });
+  const seasonPts = useMemo(() => new Map((stats.data ?? []).map((x) => [x.club_id, x.points])), [stats.data]);
   const sq = (m.squad as SquadState | null) ?? null;
   const l = (m.lineup as MatchdayLineup | null) ?? null;
   const [now] = useState(() => Date.now());
@@ -78,12 +89,12 @@ function SquadEditor({ m }: { m: NonNullable<Awaited<ReturnType<typeof db.loadMa
   const [detail, setDetail] = useState<number | null>(null);
   const [pq, setPq] = useState('');
   const [pLeague, setPLeague] = useState<string>('all');
-  const [pSort, setPSort] = useState<Sort>('priceDesc');
+  const [pSort, setPSort] = useState<Sort>('points');
   // "Within my budget": the most a jersey may cost (the picker starts at what the place can afford).
   const [pMax, setPMax] = useState<number>(30);
   const [maxPrice, setMaxPrice] = useState<number>(30);
   const [league, setLeague] = useState<string>('all');
-  const [sort, setSort] = useState<Sort>('priceDesc');
+  const [sort, setSort] = useState<Sort>('points');
   const [q, setQ] = useState('');
   const [only, setOnly] = useState<'all' | 'plays' | 'owned'>('all');
   const byId = useMemo(() => new Map((jerseys.data ?? []).map((j) => [j.club_id, j])), [jerseys.data]);
@@ -141,11 +152,11 @@ function SquadEditor({ m }: { m: NonNullable<Awaited<ReturnType<typeof db.loadMa
     onSuccess: () => void qc.invalidateQueries({ queryKey: ['fantasyMatchday'] }),
     onError: (e) => toast(errorText(t, (e as { code?: string }).code))
   });
-  const list = (jerseys.data ?? []).filter((j) => (league === 'all' || j.league === league) && (only === 'all' || (only === 'plays' ? j.plays : j.owned)) && Number(j.price) <= maxPrice && (!q || j.name.toLowerCase().includes(q.toLowerCase()))).sort(bySort(sort));
+  const list = (jerseys.data ?? []).filter((j) => (league === 'all' || j.league === league) && (only === 'all' || (only === 'plays' ? j.plays : j.owned)) && Number(j.price) <= maxPrice && (!q || j.name.toLowerCase().includes(q.toLowerCase()))).sort(bySort(sort, seasonPts));
   const affordable = pickFor !== null ? bank + (slots[pickFor] ? price(slots[pickFor]!) : 0) : bank;
   const pickList = (jerseys.data ?? [])
     .filter((j) => !picks.includes(j.club_id) && (pLeague === 'all' || j.league === pLeague) && Number(j.price) <= pMax && (!pq || j.name.toLowerCase().includes(pq.toLowerCase()) || j.league.toLowerCase().includes(pq.toLowerCase())))
-    .sort(bySort(pSort))
+    .sort(bySort(pSort, seasonPts))
     .slice(0, 60);
   const detailJersey = detail !== null && slots[detail] ? byId.get(slots[detail]!) : undefined;
   const usedChips = new Set(m.chips_used ?? []);
@@ -281,7 +292,7 @@ function SquadEditor({ m }: { m: NonNullable<Awaited<ReturnType<typeof db.loadMa
             return (
               <li key={j.club_id} className={'fantasy-md__pick' + (on ? ' is-on' : '') + (full ? ' is-idle' : '')}>
                 <button type="button" className="fantasy-md__cardbtn" onClick={() => toggle(j)} aria-pressed={on} disabled={!open || full} aria-label={`${j.name} · ${priceText(j.price)}`}>
-                  <JerseyCard j={{ ...j, captain: false }} />
+                  <JerseyCard j={{ ...j, captain: false, sub: t('fantasy.sq.seasonPtsLong', { n: seasonPts.get(j.club_id) ?? 0 }) }} />
                 </button>
                 {j.picked_pct > 0 && <span className="fantasy-jersey__pct mono">{t('fantasy.sq.picked', { n: j.picked_pct })}</span>}
               </li>
@@ -339,7 +350,10 @@ function SquadEditor({ m }: { m: NonNullable<Awaited<ReturnType<typeof db.loadMa
                         {no ? ' · ' + no : j.fixture ? ' · ' + j.fixture : ''}
                       </small>
                     </span>
-                    <b className="mono">{priceText(j.price)}</b>
+                    <span className="fantasy-picklist__nums">
+                      <b className="mono">{priceText(j.price)}</b>
+                      <small className="mono">{t('fantasy.sq.seasonPts', { n: seasonPts.get(j.club_id) ?? 0 })}</small>
+                    </span>
                   </button>
                 </li>
               );

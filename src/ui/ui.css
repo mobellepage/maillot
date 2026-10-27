@@ -4209,3 +4209,23 @@ html .logo-word {
 .fantasy-table__row:hover {
   filter: brightness(0.97);
 }
+
+/* Jersey picker: rows never wider than the sheet; value and season points on the right. */
+.fantasy-picklist {
+  grid-template-columns: minmax(0, 1fr);
+  overflow-x: hidden;
+}
+.fantasy-picklist > li,
+.fantasy-picklist button > span {
+  min-width: 0;
+}
+.fantasy-picklist__nums {
+  flex: none;
+  text-align: right;
+  display: grid;
+  gap: 1px;
+}
+.fantasy-picklist__nums small {
+  color: var(--accent);
+  font-weight: 650;
+}
