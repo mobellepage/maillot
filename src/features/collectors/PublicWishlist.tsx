@@ -18,7 +18,7 @@ export function PublicWishlist({ wishes }: { wishes: PublicWish[] }) {
           const variant = variantLabel(w.variant ?? '', t);
           const print = printLabel(w);
           return (
-            <li key={'k' + w.kit_id} className="card" style={{ position: 'relative', padding: 12, borderRadius: 18 }}>
+            <li key={'k' + w.kit_id + (w.print_name ?? '') + (w.print_number ?? '')} className="card" style={{ position: 'relative', padding: 12, borderRadius: 18 }}>
               <div className="kit-thumb" style={{ aspectRatio: '1/1', borderRadius: 14, display: 'grid', placeItems: 'center', overflow: 'hidden' }}>
                 {w.image_path && <img src={w.image_path} alt="" loading="lazy" decoding="async" style={{ width: '86%', height: '86%', objectFit: 'contain' }} />}
               </div>

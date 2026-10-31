@@ -15,6 +15,8 @@ export interface FeedKit {
   /** On the wishlist: the print wanted on it (player and number), if any. */
   print_name?: string | null;
   print_number?: string | null;
+  /** On the wishlist: this entry (a kit can be there more than once, with different prints). */
+  entry_id?: string | null;
 }
 
 /** A random mix of library kits, leaning towards these clubs and leagues. */
@@ -35,15 +37,30 @@ export interface WishPrint {
   number: string | null;
 }
 
-/** Puts a kit on the wishlist; with a print, it says which (and updates one already there). */
-export async function likeKit(kitId: string, print?: WishPrint): Promise<void> {
-  const kit_likes = (await sb()).from('kit_likes');
-  const { error } = print
-    ? await kit_likes.upsert({ kit_id: kitId, print_name: print.name || null, print_number: print.number || null }, { onConflict: 'user_id,kit_id' })
-    : await kit_likes.upsert({ kit_id: kitId }, { onConflict: 'user_id,kit_id', ignoreDuplicates: true });
+/** Puts a kit on the wishlist (heart, right swipe) unless it's there already. */
+export async function likeKit(kitId: string): Promise<void> {
+  const { error } = await (await sb()).rpc('wish_kit_like', { p_kit: kitId });
   if (error) throw error;
 }
 
+/**
+ * Saves the print wanted: on one entry, or (without an entry) as a new entry
+ * of the kit — the same kit can be on the wishlist with several prints.
+ * Returns the entry, or null when that exact print is there already.
+ */
+export async function saveKitWish(kitId: string, entryId: string | null, print: WishPrint): Promise<string | null> {
+  const { data, error } = await (await sb()).rpc('wish_kit_save', { p_kit: kitId, p_entry: entryId, p_name: print.name ?? '', p_number: print.number ?? '' });
+  if (error) throw error;
+  return data ?? null;
+}
+
+/** Takes one entry off the wishlist. */
+export async function removeKitWish(entryId: string): Promise<void> {
+  const { error } = await (await sb()).from('kit_likes').delete().eq('id', entryId);
+  if (error) throw error;
+}
+
+/** Takes the kit off the wishlist, every print of it. */
 export async function unlikeKit(kitId: string): Promise<void> {
   const { error } = await (await sb()).from('kit_likes').delete().eq('kit_id', kitId);
   if (error) throw error;

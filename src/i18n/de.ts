@@ -2564,5 +2564,9 @@ export const de: Messages = {
   'fantasy.sq.sort.points': 'Punkte ↓',
   'fantasy.sq.seasonPts': '{n} Pkt.',
   'fantasy.sq.seasonPtsLong': '{n} Pkt. diese Saison',
+  'wishkit.another': 'Dieses Trikot mit anderer Bedruckung hinzufügen',
+  'wishkit.anotherShort': 'weitere Bedruckung',
+  'wishkit.anotherTitle': 'Gleiches Trikot, andere Bedruckung',
+  'wishkit.duplicate': 'Diese Bedruckung ist schon auf deiner Wunschliste.',
   // @@end
 };

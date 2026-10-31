@@ -1,6 +1,7 @@
 // "On my wishlist": a library kit, and which print the member wants on it
 // (player and number, both optional) — so the wish says exactly what they're
-// looking for, e.g. "AC Milan 2006/07 Home · KAKÁ 22".
+// looking for, e.g. "AC Milan 2006/07 Home · KAKÁ 22". The same kit can be on
+// the wishlist several times, once per print ("add another print").
 import { useState } from 'react';
 import { usePrefs } from '../../lib/prefs.tsx';
 import { useToast } from '../../lib/toast.tsx';
@@ -10,23 +11,30 @@ import { variantLabel } from '../library/model.ts';
 import { useKitLikes } from './useKitLikes.ts';
 
 
-export function WishKitDialog({ kit, onClose }: { kit: FeedKit; onClose: () => void }) {
+export function WishKitDialog({ kit, onClose, adding = false }: { kit: FeedKit; onClose: () => void; /** Start with an empty print for another entry of this kit. */ adding?: boolean }) {
   const { t } = usePrefs();
   const toast = useToast();
   const likes = useKitLikes();
-  const current = likes.get(kit.id);
-  const [name, setName] = useState(current?.print_name ?? '');
-  const [number, setNumber] = useState(current?.print_number ?? '');
+  const [add, setAdd] = useState(adding);
+  // The entry being edited: the one passed in (wishlist card), else the kit's first.
+  const current = add ? undefined : kit.entry_id ? kit : likes.get(kit.id);
+  const [name, setName] = useState(adding ? '' : (current?.print_name ?? ''));
+  const [number, setNumber] = useState(adding ? '' : (current?.print_number ?? ''));
   const variant = variantLabel(kit.variant, t);
   const title = `${kit.club_name} ${kit.season} · ${t('lib.kind.' + kit.kind)}${variant ? ' · ' + variant : ''}`;
-  const save = (withPrint: boolean) => {
+  const save = async (withPrint: boolean) => {
     const print = withPrint ? { name: name.trim() || null, number: number || null } : { name: null, number: null };
-    likes.save(kit, print);
-    toast(current ? t('wishkit.updated') : t('wishkit.added'));
+    const entry = await likes.save(kit, print, current?.entry_id ?? null).catch(() => undefined);
+    toast(entry === undefined ? t('vault.saveFailed') : entry === null ? t('wishkit.duplicate') : current ? t('wishkit.updated') : t('wishkit.added'));
     onClose();
   };
+  const another = () => {
+    setAdd(true);
+    setName('');
+    setNumber('');
+  };
   return (
-    <Dialog open onClose={onClose} title={current ? t('wishkit.editTitle') : t('wishkit.title')} width={480}>
+    <Dialog open onClose={onClose} title={add ? t('wishkit.anotherTitle') : current ? t('wishkit.editTitle') : t('wishkit.title')} width={480}>
       <div style={{ display: 'flex', gap: 14, alignItems: 'center', marginBottom: 18 }}>
         <span className="kit-thumb" style={{ width: 84, height: 84, borderRadius: 16, display: 'grid', placeItems: 'center', flex: 'none', overflow: 'hidden' }}>
           {kit.image_path && <img src={kit.image_path} alt="" style={{ width: '86%', height: '86%', objectFit: 'contain' }} />}
@@ -36,7 +44,7 @@ export function WishKitDialog({ kit, onClose }: { kit: FeedKit; onClose: () => v
       <form
         onSubmit={(e) => {
           e.preventDefault();
-          save(true);
+          void save(true);
         }}
       >
         <p style={{ margin: '0 0 10px', fontWeight: 650 }}>{t('wishkit.question')}</p>
@@ -49,9 +57,14 @@ export function WishKitDialog({ kit, onClose }: { kit: FeedKit; onClose: () => v
           <Button type="submit" block>
             {current ? t('wishkit.save') : t('wishkit.add')}
           </Button>
-          {!current && (
-            <Button type="button" variant="secondary" block onClick={() => save(false)}>
+          {!current && !add && (
+            <Button type="button" variant="secondary" block onClick={() => void save(false)}>
               {t('wishkit.noPrint')}
+            </Button>
+          )}
+          {current && (
+            <Button type="button" variant="secondary" block onClick={another}>
+              + {t('wishkit.another')}
             </Button>
           )}
           {current && (
@@ -60,7 +73,7 @@ export function WishKitDialog({ kit, onClose }: { kit: FeedKit; onClose: () => v
               variant="ghost"
               block
               onClick={() => {
-                likes.toggle(kit);
+                likes.remove(current);
                 toast(t('watch.removed'));
                 onClose();
               }}

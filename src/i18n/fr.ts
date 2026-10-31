@@ -2564,5 +2564,9 @@ export const fr: Messages = {
   'fantasy.sq.sort.points': 'Points ↓',
   'fantasy.sq.seasonPts': '{n} pts',
   'fantasy.sq.seasonPtsLong': '{n} pts cette saison',
+  'wishkit.another': 'Ajouter ce maillot avec un autre flocage',
+  'wishkit.anotherShort': 'autre flocage',
+  'wishkit.anotherTitle': 'Même maillot, autre flocage',
+  'wishkit.duplicate': 'Ce flocage est déjà sur ta liste d’envies.',
   // @@end
 };

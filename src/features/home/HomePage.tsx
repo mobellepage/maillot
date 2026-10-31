@@ -138,7 +138,7 @@ function KitRow<K extends KitTile>({ kits, sub }: { kits: K[]; sub?: (k: K) => s
   return (
     <ScrollRow className="scroll-row--discs" prevLabel={t('common.scrollPrev')} nextLabel={t('common.scrollNext')}>
       {kits.map((k) => (
-        <li key={k.id}>
+        <li key={(k as { entry_id?: string | null }).entry_id ?? k.id}>
           <KitDisc kit={k} {...(sub ? { sub: sub(k) } : {})} />
         </li>
       ))}

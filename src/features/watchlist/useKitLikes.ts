@@ -38,7 +38,7 @@ export function useKitLikes() {
     if (!uid || !guest.length) return;
     const pending = guest;
     setGuest([]);
-    Promise.all(pending.map((k) => db.likeKit(k.id, k.print_name || k.print_number ? { name: k.print_name ?? null, number: k.print_number ?? null } : undefined).catch(() => {}))).then(() => qc.invalidateQueries({ queryKey: ['kitLikes', uid] }));
+    Promise.all(pending.map((k) => (k.print_name || k.print_number ? db.saveKitWish(k.id, null, { name: k.print_name ?? null, number: k.print_number ?? null }) : db.likeKit(k.id)).catch(() => {}))).then(() => qc.invalidateQueries({ queryKey: ['kitLikes', uid] }));
   }, [uid, guest, qc]);
 
   const toggle = useMutation({
@@ -53,14 +53,17 @@ export function useKitLikes() {
     onSettled: () => qc.invalidateQueries({ queryKey: ['kitLikes', uid] })
   });
 
-  // On the wishlist with the print wanted (player and number) — or update that print.
+  // The print wanted: on one entry (entry_id), or as another entry of the kit (the same kit with several prints).
   const save = useMutation({
-    mutationFn: ({ kit, print }: { kit: FeedKit; print: db.WishPrint }) => db.likeKit(kit.id, print),
-    onMutate: async ({ kit, print }) => {
+    mutationFn: ({ kit, print, entry }: { kit: FeedKit; print: db.WishPrint; entry: string | null }) => db.saveKitWish(kit.id, entry, print),
+    onSettled: () => qc.invalidateQueries({ queryKey: ['kitLikes', uid] })
+  });
+  const remove = useMutation({
+    mutationFn: (entry: string) => db.removeKitWish(entry),
+    onMutate: async (entry) => {
       await qc.cancelQueries({ queryKey: ['kitLikes', uid] });
       const prev = qc.getQueryData<FeedKit[]>(['kitLikes', uid]);
-      const entry = { ...kit, print_name: print.name, print_number: print.number };
-      qc.setQueryData<FeedKit[]>(['kitLikes', uid], (xs = []) => (xs.some((x) => x.id === kit.id) ? xs.map((x) => (x.id === kit.id ? entry : x)) : [entry, ...xs]));
+      qc.setQueryData<FeedKit[]>(['kitLikes', uid], (xs = []) => xs.filter((x) => x.entry_id !== entry));
       return { prev };
     },
     onError: (_e, _v, ctx) => qc.setQueryData(['kitLikes', uid], ctx?.prev),
@@ -68,16 +71,24 @@ export function useKitLikes() {
   });
 
   const kits: FeedKit[] = uid ? q.data ?? [] : guest;
+  const sameWish = (a: FeedKit, b: FeedKit) => (a.entry_id ?? a.id) === (b.entry_id ?? b.id);
   return {
+    /** Every entry: a kit wanted with two prints is here twice. */
     kits,
     has: (id: string) => kits.some((k) => k.id === id),
     get: (id: string) => kits.find((k) => k.id === id),
-    save: (kit: FeedKit, print: db.WishPrint) => {
-      if (uid) save.mutate({ kit, print });
-      else {
-        const entry = { ...kit, print_name: print.name, print_number: print.number };
-        setGuest(guest.some((k) => k.id === kit.id) ? guest.map((k) => (k.id === kit.id ? entry : k)) : [entry, ...guest]);
-      }
+    /** Saves the print on this entry, or (entry null) adds the kit again with another print. */
+    save: (kit: FeedKit, print: db.WishPrint, entry: string | null = kit.entry_id ?? null) => {
+      if (uid) return save.mutateAsync({ kit, print, entry });
+      const fresh = { ...kit, print_name: print.name, print_number: print.number, entry_id: entry ?? 'g-' + kits.length + '-' + kit.id };
+      setGuest(entry ? guest.map((k) => (k.entry_id === entry || (!k.entry_id && k.id === kit.id) ? fresh : k)) : [fresh, ...guest]);
+      return Promise.resolve(fresh.entry_id);
+    },
+    /** Takes this one entry off (the kit stays if it's there with another print). */
+    remove: (kit: FeedKit) => {
+      if (uid && kit.entry_id) remove.mutate(kit.entry_id);
+      else if (uid) toggle.mutate({ kit, on: false });
+      else setGuest(guest.filter((k) => !sameWish(k, kit)));
     },
     toggle: (kit: FeedKit) => {
       const on = !kits.some((k) => k.id === kit.id);

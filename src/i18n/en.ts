@@ -2563,6 +2563,10 @@ export const en = {
   'fantasy.sq.sort.points': 'Points ↓',
   'fantasy.sq.seasonPts': '{n} pts',
   'fantasy.sq.seasonPtsLong': '{n} pts this season',
+  'wishkit.another': 'Add this shirt with another print',
+  'wishkit.anotherShort': 'another print',
+  'wishkit.anotherTitle': 'Same shirt, another print',
+  'wishkit.duplicate': 'That print is already on your wishlist.',
   // @@end
 };
 
